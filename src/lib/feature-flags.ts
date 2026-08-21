@@ -62,3 +62,48 @@ export function isFeatureEnabled(module: FeatureModule): boolean {
 export function getEnabledFeatures(): Record<FeatureModule, boolean> {
   return { ...BETA_FEATURES };
 }
+
+/**
+ * Path prefix → feature module mapping, used to determine whether a given
+ * API route belongs to a beta-gated module (mirrors middleware.ts DISABLED_API_PREFIXES).
+ */
+const MODULE_PATH_PREFIXES: { prefix: string; module: FeatureModule }[] = [
+  { prefix: '/api/comptabilite', module: 'comptabilite' },
+  { prefix: '/api/exports/fec', module: 'comptabilite' },
+  { prefix: '/api/multichannel', module: 'multichannel' },
+  { prefix: '/api/voice', module: 'voice' },
+  { prefix: '/api/ocr', module: 'ocr' },
+  { prefix: '/api/github', module: 'github' },
+  { prefix: '/api/azure', module: 'azure' },
+  { prefix: '/api/calendar/google-sync', module: 'calendar-sync' },
+  { prefix: '/api/calendar/sync', module: 'calendar-sync' },
+  { prefix: '/api/integrations/sync', module: 'calendar-sync' },
+  { prefix: '/api/ai/copilot', module: 'ai-advanced' },
+  { prefix: '/api/ai/predict-outcome', module: 'ai-advanced' },
+  { prefix: '/api/ai/prepare-ofpra', module: 'ai-advanced' },
+  { prefix: '/api/ai/risk-analysis', module: 'ai-advanced' },
+  { prefix: '/api/ai/strategy', module: 'ai-advanced' },
+  { prefix: '/api/ai/translate', module: 'ai-advanced' },
+  { prefix: '/api/ai/generate-recours', module: 'ai-advanced' },
+  { prefix: '/api/forms/approvals', module: 'forms' },
+  { prefix: '/api/forms/resource-request', module: 'forms' },
+  { prefix: '/api/forms/risk-assessment', module: 'forms' },
+  { prefix: '/api/forms/strategic-decision', module: 'forms' },
+  { prefix: '/api/questionnaire', module: 'questionnaire' },
+  { prefix: '/api/super-admin', module: 'super-admin' },
+  { prefix: '/api/subscriptions', module: 'subscriptions' },
+  { prefix: '/api/workspace-reasoning', module: 'workspace-reasoning' },
+];
+
+/**
+ * Given a request pathname, returns the blocked module name if it maps to a
+ * disabled beta feature, or null if the route is allowed.
+ */
+export function getBlockedFeature(pathname: string): FeatureModule | null {
+  for (const { prefix, module } of MODULE_PATH_PREFIXES) {
+    if (pathname.startsWith(prefix) && !isFeatureEnabled(module)) {
+      return module;
+    }
+  }
+  return null;
+}

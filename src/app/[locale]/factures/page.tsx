@@ -374,7 +374,7 @@ export default function FacturesPage() {
 
   const deleteFacture = async (id: string) => {
     const facture = factures.find(f => f.id === id);
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${facture?.numero} ?`)) {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${facture?.numéro} ?`)) {
       return;
     }
     try {
@@ -383,7 +383,7 @@ export default function FacturesPage() {
       addToast({
         variant: 'info',
         title: 'Facture supprimée',
-        message: `La facture ${facture?.numero} a été supprimée.`,
+        message: `La facture ${facture?.numéro} a été supprimée.`,
       });
       await fetchFactures();
     } catch {
