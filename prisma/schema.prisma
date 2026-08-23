@@ -272,6 +272,7 @@ model Dossier {
   Document           Document[]
   Client             Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
   Tenant             Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ActionProposal     ActionProposal[]
   Draft              Draft[]
   Email              Email[]
   Facture            Facture[]
@@ -367,6 +368,38 @@ model Draft {
   @@index([tenantId, status, createdAt])
 }
 
+model ActionProposal {
+  id             String                 @id @default(uuid())
+  tenantId       String
+  emailId        String?
+  dossierId      String?
+  type           ActionProposalType
+  status         ActionProposalStatus   @default(PENDING)
+  priority       ActionProposalPriority @default(MEDIUM)
+  riskLevel      ActionProposalRiskLevel @default(LOW)
+  rationale      String
+  payloadJson    String
+  proposedAt     DateTime               @default(now())
+  proposedBy     String
+  decidedAt      DateTime?
+  decidedBy      String?
+  decisionReason String?
+  executedAt     DateTime?
+  executedBy     String?
+  executionResult String?
+  idempotencyKey String
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  Dossier        Dossier?               @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  Email          Email?                 @relation(fields: [emailId], references: [id], onDelete: SetNull)
+  Tenant         Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, status, priority])
+  @@index([dossierId, status])
+  @@index([emailId])
+}
+
 model EmailAccount {
   id           String    @id @default(uuid())
   tenantId     String
@@ -447,6 +480,7 @@ model Email {
   Client            Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
   Dossier           Dossier?            @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   Tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ActionProposal    ActionProposal[]
   EmailAttachment   EmailAttachment[]
   WorkflowExecution WorkflowExecution[]
 
@@ -894,6 +928,7 @@ model Tenant {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime
   AIUsageLog        AIUsageLog[]
+  ActionProposal    ActionProposal[]
   ArchivePolicy     ArchivePolicy[]
   AuditLog          AuditLog[]
   CalendarEvent     CalendarEvent[]
@@ -1226,6 +1261,33 @@ enum AuditAction {
   REJECT
   ESCALATE
   ARCHIVE
+}
+
+enum ActionProposalType {
+  REVIEW_EMAIL
+  CREATE_DOSSIER
+  CREATE_LEGAL_DEADLINE
+  REQUEST_DOCUMENTS
+  SCHEDULE_APPOINTMENT
+}
+
+enum ActionProposalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ActionProposalPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActionProposalRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 enum DeadlineStatus {
