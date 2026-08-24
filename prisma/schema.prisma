@@ -67,8 +67,8 @@ model AuditLog {
   timestamp     DateTime    @default(now())
   timestampHash String?
   previousLogId String?
-  hash          String?     // SHA-256 hash chain (intégrité RGPD)
-  previousHash  String?     // Hash de l'entrée précédente
+  hash          String? // SHA-256 hash chain (intégrité RGPD)
+  previousHash  String? // Hash de l'entrée précédente
   createdAt     DateTime    @default(now())
   Tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -114,7 +114,7 @@ model CalendarEvent {
 }
 
 model Client {
-  id                 String          @id
+  id                 String           @id
   tenantId           String
   civilite           String?
   firstName          String
@@ -133,15 +133,15 @@ model Client {
   address            String?
   codePostal         String?
   ville              String?
-  pays               String          @default("France")
+  pays               String           @default("France")
   passportNumber     String?
   passportExpiry     DateTime?
   passportCountry    String?
-  status             String          @default("actif")
-  createdAt          DateTime        @default(now())
+  status             String           @default("actif")
+  createdAt          DateTime         @default(now())
   updatedAt          DateTime
   CalendarEvent      CalendarEvent[]
-  Tenant             Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Tenant             Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   Document           Document[]
   Dossier            Dossier[]
   Email              Email[]
@@ -235,18 +235,18 @@ model Document {
 }
 
 model Dossier {
-  id                 String          @id
+  id                 String           @id
   tenantId           String
   numero             String
   clientId           String
   typeDossier        String
   articleCeseda      String?
   categorieJuridique String?
-  statut             String          @default("en_cours")
-  priorite           String          @default("normale")
-  phase              String          @default("instruction")
-  confidentialMode   Boolean         @default(false)
-  dateCreation       DateTime        @default(now())
+  statut             String           @default("en_cours")
+  priorite           String           @default("normale")
+  phase              String           @default("instruction")
+  confidentialMode   Boolean          @default(false)
+  dateCreation       DateTime         @default(now())
   dateOuverture      DateTime?
   dateEcheance       DateTime?
   dateProchaineEtape DateTime?
@@ -259,19 +259,19 @@ model Dossier {
   objet              String?
   description        String?
   notes              String?
-  createdAt          DateTime        @default(now())
+  createdAt          DateTime         @default(now())
   updatedAt          DateTime
   inboxEmail         String?
-  checklistComplete  Boolean?        @default(false)
-  checklistTotal     Int?            @default(0)
-  checklistReceived  Int?            @default(0)
+  checklistComplete  Boolean?         @default(false)
+  checklistTotal     Int?             @default(0)
+  checklistReceived  Int?             @default(0)
   outcome            String?
   outcomeDate        DateTime?
   outcomeNotes       String?
   CalendarEvent      CalendarEvent[]
   Document           Document[]
-  Client             Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  Tenant             Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Client             Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Tenant             Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   ActionProposal     ActionProposal[]
   Draft              Draft[]
   Email              Email[]
@@ -295,24 +295,24 @@ model Dossier {
 }
 
 model TimeEntry {
-  id          String    @id @default(uuid())
-  tenantId    String
-  userId      String
-  dossierId   String?
-  clientId    String?
-  description String
-  date        DateTime  @default(now())
-  startTime   DateTime?
-  endTime     DateTime?
-  duration    Int       // Durée en minutes
-  tarifHoraire Float?  // €/h applicable
-  montant     Float?   // duration/60 * tarifHoraire
-  isBillable  Boolean  @default(true)
-  isBilled    Boolean  @default(false)
-  factureId   String?
-  category    String   @default("travail") // travail, audience, rdv, deplacement, recherche, admin
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String    @id @default(uuid())
+  tenantId     String
+  userId       String
+  dossierId    String?
+  clientId     String?
+  description  String
+  date         DateTime  @default(now())
+  startTime    DateTime?
+  endTime      DateTime?
+  duration     Int // Durée en minutes
+  tarifHoraire Float? // €/h applicable
+  montant      Float? // duration/60 * tarifHoraire
+  isBillable   Boolean   @default(true)
+  isBilled     Boolean   @default(false)
+  factureId    String?
+  category     String    @default("travail") // travail, audience, rdv, deplacement, recherche, admin
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   Tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   User    User     @relation(fields: [userId], references: [id])
@@ -357,7 +357,7 @@ model Draft {
   validatedAt      DateTime?
   rejectionReason  String?
   createdAt        DateTime  @default(now())
-  updatedAt        DateTime        @updatedAt
+  updatedAt        DateTime  @updatedAt
   Dossier          Dossier?  @relation(fields: [createdDossierId], references: [id], onDelete: SetNull)
   Email            Email?    @relation(fields: [sourceEmailId], references: [id], onDelete: SetNull)
   Tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -369,30 +369,30 @@ model Draft {
 }
 
 model ActionProposal {
-  id             String                 @id @default(uuid())
-  tenantId       String
-  emailId        String?
-  dossierId      String?
-  type           ActionProposalType
-  status         ActionProposalStatus   @default(PENDING)
-  priority       ActionProposalPriority @default(MEDIUM)
-  riskLevel      ActionProposalRiskLevel @default(LOW)
-  rationale      String
-  payloadJson    String
-  proposedAt     DateTime               @default(now())
-  proposedBy     String
-  decidedAt      DateTime?
-  decidedBy      String?
-  decisionReason String?
-  executedAt     DateTime?
-  executedBy     String?
+  id              String                  @id @default(uuid())
+  tenantId        String
+  emailId         String?
+  dossierId       String?
+  type            ActionProposalType
+  status          ActionProposalStatus    @default(PENDING)
+  priority        ActionProposalPriority  @default(MEDIUM)
+  riskLevel       ActionProposalRiskLevel @default(LOW)
+  rationale       String
+  payloadJson     String
+  proposedAt      DateTime                @default(now())
+  proposedBy      String
+  decidedAt       DateTime?
+  decidedBy       String?
+  decisionReason  String?
+  executedAt      DateTime?
+  executedBy      String?
   executionResult String?
-  idempotencyKey String
-  createdAt      DateTime               @default(now())
-  updatedAt      DateTime               @updatedAt
-  Dossier        Dossier?               @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  Email          Email?                 @relation(fields: [emailId], references: [id], onDelete: SetNull)
-  Tenant         Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  idempotencyKey  String
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  Dossier         Dossier?                @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  Email           Email?                  @relation(fields: [emailId], references: [id], onDelete: SetNull)
+  Tenant          Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, idempotencyKey])
   @@index([tenantId, status, priority])
@@ -405,14 +405,14 @@ model EmailAccount {
   tenantId     String
   userId       String
   email        String
-  provider     String    // gmail, outlook, imap
+  provider     String // gmail, outlook, imap
   accessToken  String?
   refreshToken String?
   tokenExpiry  DateTime?
   imapHost     String?
   imapPort     Int?
   imapUser     String?
-  imapPassword String?   // Chiffré AES-256
+  imapPassword String? // Chiffré AES-256
   isActive     Boolean   @default(true)
   lastSync     DateTime?
   createdAt    DateTime  @default(now())
@@ -434,9 +434,9 @@ model Email {
   to                String
   subject           String
   body              String
-  bodyEncrypted     String?             // AES-256-GCM encrypted body (migration progressive)
+  bodyEncrypted     String? // AES-256-GCM encrypted body (migration progressive)
   htmlBody          String?
-  htmlBodyEncrypted String?             // AES-256-GCM encrypted HTML body
+  htmlBodyEncrypted String? // AES-256-GCM encrypted HTML body
   preview           String?
   category          String              @default("general-inquiry")
   urgency           String              @default("medium")
@@ -620,40 +620,40 @@ model Jurisprudence {
 }
 
 model LegalDeadline {
-  id               String          @id
-  tenantId         String
-  dossierId        String
-  clientId         String
-  type             DeadlineType
-  label            String
-  description      String?
-  referenceDate    DateTime
-  dueDate          DateTime
-  status           DeadlineStatus  @default(PENDING)
-  legalBasis       String?
-  legalDays        Int?
-  alertJ7Sent      Boolean         @default(false)
-  alertJ3Sent      Boolean         @default(false)
-  alertJ1Sent      Boolean         @default(false)
-  alertSmsSent     Boolean         @default(false)
-  acknowledgedBy   String?
-  acknowledgedAt   DateTime?
-  suspendedReason  String?
-  suspendedAt      DateTime?
-  suspendedBy      String?
-  escalatedAt      DateTime?
-  escalatedTo      String?
-  completedAt      DateTime?
-  completedBy      String?
-  completionNote   String?
-  proofId          String?
-  createdBy        String
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime
-  DeadlineAlert    DeadlineAlert[]
-  Client           Client          @relation(fields: [clientId], references: [id])
-  Dossier          Dossier         @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  Tenant           Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id              String          @id
+  tenantId        String
+  dossierId       String
+  clientId        String
+  type            DeadlineType
+  label           String
+  description     String?
+  referenceDate   DateTime
+  dueDate         DateTime
+  status          DeadlineStatus  @default(PENDING)
+  legalBasis      String?
+  legalDays       Int?
+  alertJ7Sent     Boolean         @default(false)
+  alertJ3Sent     Boolean         @default(false)
+  alertJ1Sent     Boolean         @default(false)
+  alertSmsSent    Boolean         @default(false)
+  acknowledgedBy  String?
+  acknowledgedAt  DateTime?
+  suspendedReason String?
+  suspendedAt     DateTime?
+  suspendedBy     String?
+  escalatedAt     DateTime?
+  escalatedTo     String?
+  completedAt     DateTime?
+  completedBy     String?
+  completionNote  String?
+  proofId         String?
+  createdBy       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  DeadlineAlert   DeadlineAlert[]
+  Client          Client          @relation(fields: [clientId], references: [id])
+  Dossier         Dossier         @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  Tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([dossierId])
   @@index([dueDate])
@@ -738,7 +738,7 @@ model Paiement {
 }
 
 model Plan {
-  id                String         @id
+  id                String         @id @default(cuid())
   name              String         @unique
   displayName       String
   description       String?
@@ -759,7 +759,7 @@ model Plan {
   apiAccess         Boolean        @default(false)
   isActive          Boolean        @default(true)
   createdAt         DateTime       @default(now())
-  updatedAt         DateTime
+  updatedAt         DateTime       @updatedAt
   Subscription      Subscription[]
   Tenant            Tenant[]
 
@@ -874,25 +874,25 @@ model StripeWebhookEvent {
 }
 
 model Subscription {
-  id                     String    @id
-  tenantId               String    @unique
-  planId                 String
-  status                 String    @default("active")
-  stripeSubscriptionId   String?   @unique
-  billingCycle           String    @default("monthly")
-  currentPeriodStart     DateTime
-  currentPeriodEnd       DateTime
-  trialEnd               DateTime?
-  canceledAt             DateTime?
-  endedAt                DateTime?
-  pricePerMonth          Float
-  currency               String    @default("EUR")
-  autoRenew              Boolean   @default(true)
-  metadata               String?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime
-  Plan                   Plan      @relation(fields: [planId], references: [id])
-  Tenant                 Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                   String    @id
+  tenantId             String    @unique
+  planId               String
+  status               String    @default("active")
+  stripeSubscriptionId String?   @unique
+  billingCycle         String    @default("monthly")
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  trialEnd             DateTime?
+  canceledAt           DateTime?
+  endedAt              DateTime?
+  pricePerMonth        Float
+  currency             String    @default("EUR")
+  autoRenew            Boolean   @default(true)
+  metadata             String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime
+  Plan                 Plan      @relation(fields: [planId], references: [id])
+  Tenant               Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([tenantId])
@@ -1060,21 +1060,21 @@ model WorkflowExecution {
 // ========== MODULE COMPTABILITÉ ==========
 
 model CompteComptable {
-  id          String          @id @default(cuid())
-  tenantId    String
-  numero      String
-  libelle     String
-  classe      Int
-  type        TypeCompte
-  parentId    String?
-  solde       Float           @default(0)
-  isActive    Boolean         @default(true)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  Tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  Parent      CompteComptable?  @relation("CompteHierarchie", fields: [parentId], references: [id])
-  Enfants     CompteComptable[] @relation("CompteHierarchie")
-  Lignes      LigneEcriture[]
+  id        String            @id @default(cuid())
+  tenantId  String
+  numero    String
+  libelle   String
+  classe    Int
+  type      TypeCompte
+  parentId  String?
+  solde     Float             @default(0)
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  Tenant    Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Parent    CompteComptable?  @relation("CompteHierarchie", fields: [parentId], references: [id])
+  Enfants   CompteComptable[] @relation("CompteHierarchie")
+  Lignes    LigneEcriture[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, classe])
@@ -1089,16 +1089,16 @@ enum TypeCompte {
 }
 
 model Journal {
-  id          String        @id @default(cuid())
-  tenantId    String
-  code        String
-  libelle     String
-  type        TypeJournal
-  isActive    Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  Tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  Ecritures   Ecriture[]
+  id        String      @id @default(cuid())
+  tenantId  String
+  code      String
+  libelle   String
+  type      TypeJournal
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Ecritures Ecriture[]
 
   @@unique([tenantId, code])
 }
@@ -1113,24 +1113,24 @@ enum TypeJournal {
 }
 
 model Ecriture {
-  id            String          @id @default(cuid())
-  tenantId      String
-  journalId     String
-  numero        String
-  date          DateTime
-  libelle       String
-  reference     String?
-  factureId     String?
-  dossierId     String?
-  statut        StatutEcriture  @default(BROUILLON)
-  source        SourceEcriture  @default(MANUELLE)
-  validatedBy   String?
-  validatedAt   DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  Journal       Journal         @relation(fields: [journalId], references: [id])
-  Tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  Lignes        LigneEcriture[]
+  id          String          @id @default(cuid())
+  tenantId    String
+  journalId   String
+  numero      String
+  date        DateTime
+  libelle     String
+  reference   String?
+  factureId   String?
+  dossierId   String?
+  statut      StatutEcriture  @default(BROUILLON)
+  source      SourceEcriture  @default(MANUELLE)
+  validatedBy String?
+  validatedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  Journal     Journal         @relation(fields: [journalId], references: [id])
+  Tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Lignes      LigneEcriture[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, date])
@@ -1154,15 +1154,15 @@ enum SourceEcriture {
 }
 
 model LigneEcriture {
-  id          String          @id @default(cuid())
-  ecritureId  String
-  compteId    String
-  libelle     String?
-  debit       Float           @default(0)
-  credit      Float           @default(0)
-  lettrage    String?
-  Ecriture    Ecriture        @relation(fields: [ecritureId], references: [id], onDelete: Cascade)
-  Compte      CompteComptable @relation(fields: [compteId], references: [id])
+  id         String          @id @default(cuid())
+  ecritureId String
+  compteId   String
+  libelle    String?
+  debit      Float           @default(0)
+  credit     Float           @default(0)
+  lettrage   String?
+  Ecriture   Ecriture        @relation(fields: [ecritureId], references: [id], onDelete: Cascade)
+  Compte     CompteComptable @relation(fields: [compteId], references: [id])
 
   @@index([ecritureId])
   @@index([compteId])
@@ -1170,36 +1170,36 @@ model LigneEcriture {
 }
 
 model MouvementBancaire {
-  id              String    @id @default(cuid())
-  tenantId        String
-  compteBancaire  String
-  date            DateTime
-  libelle         String
-  montant         Float
-  reference       String?
-  isRapproche     Boolean   @default(false)
-  ecritureId      String?
-  importedAt      DateTime  @default(now())
-  Tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id             String   @id @default(cuid())
+  tenantId       String
+  compteBancaire String
+  date           DateTime
+  libelle        String
+  montant        Float
+  reference      String?
+  isRapproche    Boolean  @default(false)
+  ecritureId     String?
+  importedAt     DateTime @default(now())
+  Tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, date])
   @@index([tenantId, isRapproche])
 }
 
 model DeclarationTVA {
-  id              String      @id @default(cuid())
-  tenantId        String
-  periode         String
-  regime          RegimeTVA
-  tvaCollectee    Float       @default(0)
-  tvaDeductible   Float       @default(0)
-  tvaNette        Float       @default(0)
-  statut          String      @default("brouillon")
-  dateLimite      DateTime
-  declaredAt      DateTime?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  Tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  tenantId      String
+  periode       String
+  regime        RegimeTVA
+  tvaCollectee  Float     @default(0)
+  tvaDeductible Float     @default(0)
+  tvaNette      Float     @default(0)
+  statut        String    @default("brouillon")
+  dateLimite    DateTime
+  declaredAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  Tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, periode])
 }
@@ -1211,20 +1211,20 @@ enum RegimeTVA {
 }
 
 model MouvementCARPA {
-  id          String   @id @default(cuid())
-  tenantId    String
-  dossierId   String
-  clientId    String
-  type        TypeMouvementCARPA
-  montant     Float
-  libelle     String
-  date        DateTime @default(now())
-  reference   String?
-  soldeApres  Float    @default(0)
-  createdAt   DateTime @default(now())
-  Tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  Dossier     Dossier  @relation(fields: [dossierId], references: [id])
-  Client      Client   @relation(fields: [clientId], references: [id])
+  id         String             @id @default(cuid())
+  tenantId   String
+  dossierId  String
+  clientId   String
+  type       TypeMouvementCARPA
+  montant    Float
+  libelle    String
+  date       DateTime           @default(now())
+  reference  String?
+  soldeApres Float              @default(0)
+  createdAt  DateTime           @default(now())
+  Tenant     Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Dossier    Dossier            @relation(fields: [dossierId], references: [id])
+  Client     Client             @relation(fields: [clientId], references: [id])
 
   @@index([tenantId, dossierId])
   @@index([clientId])
