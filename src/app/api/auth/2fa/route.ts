@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import crypto from 'crypto';
+import { withLoginRateLimit } from '@/lib/middleware/rate-limit';
 
 /**
  * POST /api/auth/2fa/setup
@@ -9,8 +10,9 @@ import crypto from 'crypto';
  * 
  * POST /api/auth/2fa/verify
  * Verifie un code TOTP.
+ * Rate-limited pour eviter le brute-force du code a 6 chiffres.
  */
-export async function POST(req: NextRequest) {
+export const POST = withLoginRateLimit(async function twoFactorHandler(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
@@ -46,4 +48,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ error: 'action requis (setup ou verify)' }, { status: 400 });
-}
+});
