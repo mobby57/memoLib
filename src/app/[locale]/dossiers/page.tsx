@@ -26,6 +26,7 @@ import {
   Pencil,
   Trash2,
   Eye,
+  Users,
   Filter,
   RefreshCw,
   Clock,
@@ -463,6 +464,14 @@ export default function DossiersPage() {
               aria-label={`Consulter le dossier ${row.numéro}`}
             >
               <Eye className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => router.push(`/dossiers/${row.id}/membres`)}
+              className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-50 dark:text-purple-400 dark:hover:text-purple-300 dark:hover:bg-purple-900/30 rounded transition-colors"
+              title="Qui a accès à ce dossier ?"
+              aria-label={`Gérer les accès du dossier ${row.numéro}`}
+            >
+              <Users className="w-4 h-4" />
             </button>
             <button
               onClick={() => openEditModal(row)}
