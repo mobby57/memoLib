@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * Two-Factor Authentication (2FA) System
  * - TOTP (Time-based One-Time Password)
@@ -132,7 +132,7 @@ export async function validate2FALogin(
     // Update user's backup codes in database
     try {
       const { PrismaClient } = await import('@prisma/client');
-      const prisma = new PrismaClient();
+      import prisma from '@/lib/prisma';
       await prisma.user.update({
         where: { id: userId },
         data: { backupCodes: updatedCodes },
@@ -168,5 +168,3 @@ export function require2FA(userRole: string) {
     return descriptor;
   };
 }
-
-
