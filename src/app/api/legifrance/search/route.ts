@@ -10,12 +10,31 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { legifranceApi } from '@/lib/legifrance/api-client';
 import { logger } from '@/lib/logger';
+import { searchCache } from '@/lib/cache/cache-service';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
+import crypto from 'crypto';
+
+// Actions en lecture seule (résultats stables à court terme) éligibles au cache.
+// 'ping' est volontairement exclu : il vérifie l'état live de l'API.
+const CACHEABLE_ACTIONS = new Set([
+  'search-ceseda',
+  'get-ceseda-article',
+  'search-ceseda-keywords',
+  'search-jurisprudence-admin',
+  'search-jurisprudence-judiciaire',
+  'get-ceseda-recent-caselaw',
+  'get-article',
+  'get-texte',
+  'get-last-jo',
+  'get-jorf-content',
+]);
 
 /**
  * POST /api/legifrance/search
  * Recherche generique dans Legifrance
  */
-export async function POST(req: NextRequest) {
+export const POST = withRateLimit(
+  async (req: NextRequest) => {
   try {
     // Authentification
     const session: any = await getServerSession(authOptions as any);
@@ -34,6 +53,20 @@ export async function POST(req: NextRequest) {
     const { action, params } = body;
 
     logger.info(`Requete Legifrance: ${action}`, { userId, tenantId, action });
+
+    // Cache des recherches en lecture seule : évite de resolliciter PISTE
+    // pour des requêtes identiques répétées par plusieurs avocats.
+    const cacheable = CACHEABLE_ACTIONS.has(action);
+    const cacheKey = cacheable
+      ? `legifrance:${action}:${crypto.createHash('sha1').update(JSON.stringify(params || {})).digest('hex')}`
+      : null;
+
+    if (cacheKey) {
+      const cached = await searchCache.get<Record<string, unknown>>(cacheKey);
+      if (cached) {
+        return NextResponse.json({ ...cached, cached: true });
+      }
+    }
 
     let result;
 
@@ -120,12 +153,18 @@ export async function POST(req: NextRequest) {
       resultCount: (result as any)?.totalResultNumber || (result as any)?.results?.length || 1,
     });
 
-    return NextResponse.json({
+    const responsePayload = {
       success: true,
       action,
       data: result,
       environment: legifranceApi.getEnvironment(),
-    });
+    };
+
+    if (cacheKey) {
+      await searchCache.set(cacheKey, responsePayload);
+    }
+
+    return NextResponse.json(responsePayload);
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
@@ -141,7 +180,9 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+  },
+  { type: 'api' }
+);
 
 /**
  * GET /api/legifrance/search
