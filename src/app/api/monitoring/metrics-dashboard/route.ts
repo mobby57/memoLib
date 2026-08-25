@@ -1,3 +1,5 @@
+﻿export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 /**
  * Sentry Metrics Dashboard Endpoint
  * Phase 5: Optimisations
@@ -14,7 +16,11 @@
 
 import { withCompression } from '@/lib/compression';
 import { getCacheStats, getOrCompute } from '@/lib/response-cache';
-import { getAlertsStatus, getMetricsComparison, getMetricsSnapshot } from '@/lib/sentry-metrics-dashboard';
+import {
+  getAlertsStatus,
+  getMetricsComparison,
+  getMetricsSnapshot,
+} from '@/lib/sentry-metrics-dashboard';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
@@ -107,7 +113,7 @@ export async function GET() {
           recommendations: generateRecommendations(currentMetrics, alerts),
         };
       },
-      60000, // Cache for 60 seconds
+      60000 // Cache for 60 seconds
     );
 
     return await withCompression(dashboardData);
@@ -118,7 +124,7 @@ export async function GET() {
         error: 'Failed to generate metrics dashboard',
         timestamp: new Date().toISOString(),
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -128,7 +134,7 @@ export async function GET() {
  */
 function generateRecommendations(
   metrics: any,
-  alerts: any,
+  alerts: any
 ): Array<{
   category: string;
   priority: 'high' | 'medium' | 'low';
