@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { setConfidentialMode, checkConfidentialMode } from '@/lib/security/confidential-mode';
 import { prisma } from '@/lib/prisma';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
 
 export async function PATCH(
   req: NextRequest,
@@ -23,6 +24,16 @@ export async function PATCH(
   const { id: dossierId } = await params;
   const user = session.user as any;
   const tenantId = user.tenantId;
+
+  if (!tenantId) {
+    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+  }
+
+  // Activer/désactiver le mode confidentiel est une action sensible : reservee au manage
+  const access = await canAccessDossier({ userId: user.id, tenantId, role: user.role, groups: user.groups, dossierId, action: 'manage' });
+  if (!access.allowed) {
+    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+  }
 
   // Vérifier que le dossier appartient au tenant
   const dossier = await prisma.dossier.findFirst({
@@ -68,6 +79,12 @@ export async function GET(
   }
 
   const { id: dossierId } = await params;
+  const user = session.user as any;
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+
+  const access = await canAccessDossier({ userId: user.id, tenantId: user.tenantId, role: user.role, groups: user.groups, dossierId, action: 'read' });
+  if (!access.allowed) return NextResponse.json({ error: 'Dossier introuvable' }, { status: 404 });
+
   const result = await checkConfidentialMode(dossierId);
 
   return NextResponse.json(result);

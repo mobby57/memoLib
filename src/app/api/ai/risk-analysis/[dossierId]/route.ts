@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
 
 /**
  * GET /api/ai/risk-analysis/[dossierId]
@@ -13,6 +14,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ doss
 
   const { dossierId } = await params;
   const user = session.user as any;
+
+  if (!user.tenantId) return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+
+  const access = await canAccessDossier({
+    userId: user.id,
+    tenantId: user.tenantId,
+    role: user.role,
+    groups: user.groups,
+    dossierId,
+    action: 'read',
+  });
+  if (!access.allowed) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
 
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId: user.tenantId },
