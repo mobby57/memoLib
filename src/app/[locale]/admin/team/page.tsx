@@ -140,6 +140,14 @@ export default function TeamPage() {
               {showInvite ? '✕ Fermer' : '+ Inviter un membre'}
             </button>
           </div>
+          <div className="mt-4">
+            <Link
+              href="/admin/equipes"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1"
+            >
+              🧑‍🤝‍🧑 Gérer les équipes (groupes de collaborateurs)
+            </Link>
+          </div>
         </div>
       </header>
 
