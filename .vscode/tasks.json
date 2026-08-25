@@ -1,7 +1,6 @@
 {
   "version": "2.0.0",
   "tasks": [
-    // ===== NEXT.JS / FRONTEND =====
     {
       "label": "Frontend: Dev",
       "type": "shell",
@@ -66,8 +65,6 @@
       },
       "group": "test"
     },
-
-    // ===== PYTHON / BACKEND =====
     {
       "label": "Backend: Flask Dev",
       "type": "shell",
@@ -102,11 +99,12 @@
       },
       "problemMatcher": []
     },
-
-    // ===== FULL STACK =====
     {
       "label": "Full Stack: Start All",
-      "dependsOn": ["Frontend: Dev", "Backend: Flask Dev"],
+      "dependsOn": [
+        "Frontend: Dev",
+        "Backend: Flask Dev"
+      ],
       "dependsOrder": "parallel",
       "problemMatcher": [],
       "group": {
@@ -116,13 +114,19 @@
     },
     {
       "label": "Full Stack: Lint All",
-      "dependsOn": ["Frontend: Lint", "Backend: Lint (flake8)"],
+      "dependsOn": [
+        "Frontend: Lint",
+        "Backend: Lint (flake8)"
+      ],
       "dependsOrder": "parallel",
       "problemMatcher": []
     },
     {
       "label": "Full Stack: Test All",
-      "dependsOn": ["Frontend: Test", "Backend: Pytest"],
+      "dependsOn": [
+        "Frontend: Test",
+        "Backend: Pytest"
+      ],
       "dependsOrder": "parallel",
       "problemMatcher": [],
       "group": {
@@ -130,8 +134,6 @@
         "isDefault": true
       }
     },
-
-    // ===== PRE-COMMIT / CI CHECK =====
     {
       "label": "Pre-Commit: Full Check",
       "type": "shell",
@@ -142,49 +144,11 @@
           "NODE_OPTIONS": "--max-old-space-size=16384"
         }
       },
-      "problemMatcher": ["$tsc", "$eslint-stylish"]
+      "problemMatcher": [
+        "$tsc",
+        "$eslint-stylish"
+      ]
     },
-
-    // ===== DOCKER =====
-    {
-      "type": "docker-build",
-      "label": "docker-build",
-      "platform": "node",
-      "dockerBuild": {
-        "dockerfile": "${workspaceFolder}/src/backend/Dockerfile",
-        "context": "${workspaceFolder}/src/backend",
-        "pull": true
-      },
-      "node": {
-        "package": "${workspaceFolder}/src/backend/package.json"
-      }
-    },
-    {
-      "type": "docker-run",
-      "label": "docker-run: release",
-      "dependsOn": ["docker-build"],
-      "platform": "node",
-      "node": {
-        "package": "${workspaceFolder}/src/backend/package.json"
-      }
-    },
-    {
-      "type": "docker-run",
-      "label": "docker-run: debug",
-      "dependsOn": ["docker-build"],
-      "dockerRun": {
-        "env": {
-          "DEBUG": "*",
-          "NODE_ENV": "development"
-        }
-      },
-      "node": {
-        "package": "${workspaceFolder}/src/backend/package.json",
-        "enableDebugging": true
-      }
-    },
-
-    // ===== UTILITAIRES =====
     {
       "label": "Install: All Dependencies",
       "type": "shell",

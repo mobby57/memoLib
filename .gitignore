@@ -16,7 +16,6 @@ dist/
 build/
 coverage/
 .tsbuildinfo
-tsconfig.tsbuildinfo
 
 ## === Residual / generated ===
 cookies.txt
@@ -120,3 +119,8 @@ sftp_host_key.pub
 .env.development
 .env.test
 *.tsbuildinfo
+.vault/
+
+
+# Sentry Config File
+.env.sentry-build-plugin
