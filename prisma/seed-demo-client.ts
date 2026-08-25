@@ -127,6 +127,95 @@ async function main() {
   console.log(`   ✅ Avocat : demo@memolib.fr / Demo2026!`);
 
   // ============================================================
+  // 3bis. COLLABORATEURS — pour démontrer Team + DossierMember
+  // ============================================================
+  console.log('👥 Création des collaborateurs...');
+
+  const collaborateur = await prisma.user.upsert({
+    where: { email: 'collaborateur@memolib.fr' },
+    update: {
+      password: await bcrypt.hash('Demo2026!', 10),
+      role: 'COLLABORATOR',
+      tenantId: tenant.id,
+    },
+    create: {
+      id: uuid(),
+      email: 'collaborateur@memolib.fr',
+      name: 'Marc Lefebvre',
+      password: await bcrypt.hash('Demo2026!', 10),
+      role: 'COLLABORATOR',
+      tenantId: tenant.id,
+      status: 'active',
+      language: 'fr',
+      timezone: 'Europe/Paris',
+      updatedAt: new Date(),
+    },
+  });
+
+  const assistante = await prisma.user.upsert({
+    where: { email: 'assistante@memolib.fr' },
+    update: {
+      password: await bcrypt.hash('Demo2026!', 10),
+      role: 'ASSISTANT',
+      tenantId: tenant.id,
+    },
+    create: {
+      id: uuid(),
+      email: 'assistante@memolib.fr',
+      name: 'Julie Bernard',
+      password: await bcrypt.hash('Demo2026!', 10),
+      role: 'ASSISTANT',
+      tenantId: tenant.id,
+      status: 'active',
+      language: 'fr',
+      timezone: 'Europe/Paris',
+      updatedAt: new Date(),
+    },
+  });
+
+  console.log(`   ✅ Collaborateurs : ${collaborateur.email}, ${assistante.email} / Demo2026!`);
+
+  // ============================================================
+  // 3ter. ÉQUIPE — démonstration Team + TeamMember
+  // ============================================================
+  console.log('🧑‍🤝‍🧑 Création de l\'équipe...');
+
+  const team = await prisma.team.upsert({
+    where: { tenantId_name: { tenantId: tenant.id, name: 'Droit des étrangers' } },
+    update: {},
+    create: {
+      id: uuid(),
+      tenantId: tenant.id,
+      name: 'Droit des étrangers',
+      description: 'Équipe en charge des dossiers titres de séjour, OQTF, naturalisation et asile',
+      updatedAt: new Date(),
+    },
+  });
+
+  const teamMembers = [
+    { userId: avocat.id, role: 'TEAM_LEAD' as const },
+    { userId: collaborateur.id, role: 'MEMBER' as const },
+    { userId: assistante.id, role: 'MEMBER' as const },
+  ];
+
+  for (const tm of teamMembers) {
+    await prisma.teamMember.upsert({
+      where: { teamId_userId: { teamId: team.id, userId: tm.userId } },
+      update: { role: tm.role },
+      create: {
+        id: uuid(),
+        tenantId: tenant.id,
+        teamId: team.id,
+        userId: tm.userId,
+        role: tm.role,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  console.log(`   ✅ Équipe "${team.name}" créée avec ${teamMembers.length} membres`);
+
+  // ============================================================
   // 4. CLIENTS — 3 profils réalistes
   // ============================================================
   console.log('👥 Création des clients...');
@@ -187,12 +276,14 @@ async function main() {
     },
   ];
 
+  const realClientIds: string[] = [];
   for (const client of clients) {
-    await prisma.client.upsert({
+    const saved = await prisma.client.upsert({
       where: { tenantId_email: { tenantId: tenant.id, email: client.email } },
       update: {},
       create: client,
     });
+    realClientIds.push(saved.id);
   }
 
   console.log(`   ✅ ${clients.length} clients créés`);
@@ -209,7 +300,7 @@ async function main() {
       id: dossierIds[0],
       tenantId: tenant.id,
       numero: 'DOS-2026-001',
-      clientId: clientIds[0],
+      clientId: realClientIds[0],
       typeDossier: 'oqtf',
       articleCeseda: 'L511-1',
       statut: 'en_cours',
@@ -229,7 +320,7 @@ async function main() {
       id: dossierIds[1],
       tenantId: tenant.id,
       numero: 'DOS-2026-002',
-      clientId: clientIds[1],
+      clientId: realClientIds[1],
       typeDossier: 'titre_sejour',
       articleCeseda: 'L313-11',
       statut: 'en_cours',
@@ -249,7 +340,7 @@ async function main() {
       id: dossierIds[2],
       tenantId: tenant.id,
       numero: 'DOS-2026-003',
-      clientId: clientIds[2],
+      clientId: realClientIds[2],
       typeDossier: 'naturalisation',
       statut: 'en_cours',
       priorite: 'normale',
@@ -265,15 +356,93 @@ async function main() {
     },
   ];
 
+  const realDossierIds: string[] = [];
   for (const dossier of dossiers) {
-    await prisma.dossier.upsert({
+    const saved = await prisma.dossier.upsert({
       where: { tenantId_numero: { tenantId: tenant.id, numero: dossier.numero } },
       update: {},
       create: dossier,
     });
+    realDossierIds.push(saved.id);
   }
 
   console.log(`   ✅ ${dossiers.length} dossiers créés`);
+
+  // ============================================================
+  // 5bis. DOSSIER MEMBERS + TEAM — rattachement dossier ↔ équipe
+  // ============================================================
+  console.log('🔐 Attribution des accès dossier (DossierMember)...');
+
+  await prisma.dossier.updateMany({
+    where: { id: { in: realDossierIds }, tenantId: tenant.id },
+    data: { teamId: team.id },
+  });
+
+  const dossierMembers = [
+    { dossierId: realDossierIds[0], userId: avocat.id, role: 'RESPONSIBLE' as const },
+    { dossierId: realDossierIds[0], userId: collaborateur.id, role: 'COLLABORATOR' as const },
+    { dossierId: realDossierIds[1], userId: avocat.id, role: 'RESPONSIBLE' as const },
+    { dossierId: realDossierIds[1], userId: assistante.id, role: 'VIEWER' as const },
+    { dossierId: realDossierIds[2], userId: avocat.id, role: 'OWNER' as const },
+  ];
+
+  for (const dm of dossierMembers) {
+    await prisma.dossierMember.upsert({
+      where: { dossierId_userId: { dossierId: dm.dossierId, userId: dm.userId } },
+      update: { role: dm.role },
+      create: {
+        id: uuid(),
+        tenantId: tenant.id,
+        dossierId: dm.dossierId,
+        userId: dm.userId,
+        role: dm.role,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  console.log(`   ✅ ${dossierMembers.length} accès dossier créés (Team + DossierMember)`);
+
+  // ============================================================
+  // 5ter. CHAT — quelques messages internes de démo
+  // ============================================================
+  console.log('💬 Création de messages de chat interne...');
+
+  const chatMessages = [
+    {
+      senderId: avocat.id,
+      senderName: 'Maître Sophie Martin',
+      body: "Marc, peux-tu préparer le mémoire complémentaire pour le dossier BENALI avant le 1er août ?",
+    },
+    {
+      senderId: collaborateur.id,
+      senderName: 'Marc Lefebvre',
+      body: "Oui, je m'en occupe. Je te fais une première version demain matin.",
+    },
+  ];
+
+  for (const [index, msg] of chatMessages.entries()) {
+    const messageId = uuid();
+    await prisma.channelMessage.upsert({
+      where: { checksum: `demo-chat-${realDossierIds[0]}-${index}` },
+      update: {},
+      create: {
+        id: messageId,
+        tenantId: tenant.id,
+        dossierId: realDossierIds[0],
+        checksum: `demo-chat-${realDossierIds[0]}-${index}`,
+        channel: 'INTERNAL',
+        direction: 'OUTBOUND',
+        status: 'PROCESSED',
+        body: msg.body,
+        senderData: { id: msg.senderId, name: msg.senderName },
+        processedAt: new Date(),
+        receivedAt: new Date(Date.now() - (chatMessages.length - index) * 60 * 60 * 1000),
+      },
+    });
+  }
+
+  console.log(`   ✅ ${chatMessages.length} messages de chat créés (dossier BENALI)`);
 
   // ============================================================
   // 6. EMAILS — 5 emails réalistes
@@ -294,8 +463,8 @@ async function main() {
       sentiment: 'anxious',
       isRead: true,
       isProcessed: true,
-      clientId: clientIds[0],
-      dossierId: dossierIds[0],
+      clientId: realClientIds[0],
+      dossierId: realDossierIds[0],
       receivedAt: new Date('2026-06-20T09:15:00'),
       aiAnalysis: JSON.stringify({
         client: 'Ahmed BENALI',
@@ -320,8 +489,8 @@ async function main() {
       sentiment: 'neutral',
       isRead: true,
       isProcessed: true,
-      clientId: clientIds[1],
-      dossierId: dossierIds[1],
+      clientId: realClientIds[1],
+      dossierId: realDossierIds[1],
       receivedAt: new Date('2026-06-28T14:30:00'),
       aiAnalysis: JSON.stringify({
         client: 'Fatima DIALLO',
@@ -345,7 +514,7 @@ async function main() {
       sentiment: 'neutral',
       isRead: false,
       isProcessed: false,
-      clientId: clientIds[2],
+      clientId: realClientIds[2],
       receivedAt: new Date('2026-07-03T11:00:00'),
       updatedAt: new Date(),
     },
@@ -362,8 +531,8 @@ async function main() {
       sentiment: 'neutral',
       isRead: false,
       isProcessed: false,
-      clientId: clientIds[0],
-      dossierId: dossierIds[0],
+      clientId: realClientIds[0],
+      dossierId: realDossierIds[0],
       receivedAt: new Date('2026-07-04T08:45:00'),
       updatedAt: new Date(),
     },
@@ -404,8 +573,8 @@ async function main() {
     {
       id: uuid(),
       tenantId: tenant.id,
-      dossierId: dossierIds[0],
-      clientId: clientIds[0],
+      dossierId: realDossierIds[0],
+      clientId: realClientIds[0],
       type: 'RECOURS_CONTENTIEUX',
       label: 'Délai recours OQTF — M. BENALI',
       description: 'Délai de 30 jours pour recours contentieux contre OQTF',
@@ -421,8 +590,8 @@ async function main() {
     {
       id: uuid(),
       tenantId: tenant.id,
-      dossierId: dossierIds[0],
-      clientId: clientIds[0],
+      dossierId: realDossierIds[0],
+      clientId: realClientIds[0],
       type: 'PRODUCTION_PIECES',
       label: 'Mémoire complémentaire — BENALI',
       description: 'Production du mémoire complémentaire avant audience du 12/08',
@@ -438,7 +607,12 @@ async function main() {
   ];
 
   for (const deadline of deadlines) {
-    await prisma.legalDeadline.create({ data: deadline });
+    const existing = await prisma.legalDeadline.findFirst({
+      where: { tenantId: tenant.id, dossierId: deadline.dossierId, label: deadline.label },
+    });
+    if (!existing) {
+      await prisma.legalDeadline.create({ data: deadline });
+    }
   }
 
   console.log(`   ✅ ${deadlines.length} deadlines créées`);
