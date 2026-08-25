@@ -17,6 +17,18 @@ import type {
   buildJurisprudenceSearch,
 } from '@/types/legifrance';
 
+/**
+ * Configuration du client PISTE/Legifrance.
+ * Reflete la forme de PisteConfig (oauth-client.ts) pour usage externe (tests, diagnostics).
+ */
+export interface LegifranceConfig {
+  clientId: string;
+  clientSecret: string;
+  environment: 'sandbox' | 'production';
+  oauthUrl: string;
+  apiUrl: string;
+}
+
 export class LegifranceApiClient {
   private baseUrl: string;
 
