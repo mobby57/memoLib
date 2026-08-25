@@ -67,9 +67,17 @@ model AuditLog {
   timestamp     DateTime    @default(now())
   timestampHash String?
   previousLogId String?
-  hash          String? // SHA-256 hash chain (intégrité RGPD)
-  previousHash  String? // Hash de l'entrée précédente
   createdAt     DateTime    @default(now())
+  hash          String?
+  previousHash  String?
+  // Champs additifs utilisés par le module multicanal (src/lib/multichannel/audit-service.ts)
+  channel       Channel?
+  actorType     String?
+  actorName     String?
+  resourceType  String?
+  resourceId    String?
+  details       Json?
+  clientId      String?
   Tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([action])
@@ -80,6 +88,7 @@ model AuditLog {
   @@index([tenantId, createdAt])
   @@index([userId])
   @@index([hash])
+  @@index([clientId])
 }
 
 model CalendarEvent {
@@ -103,8 +112,8 @@ model CalendarEvent {
   recurrenceRule String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime
-  Client         Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  Dossier        Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  Client         Client?  @relation(fields: [clientId], references: [id])
+  Dossier        Dossier? @relation(fields: [dossierId], references: [id])
   Tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   User           User     @relation(fields: [userId], references: [id])
 
@@ -150,10 +159,74 @@ model Client {
   MouvementCARPA     MouvementCARPA[]
   TimeEntry          TimeEntry[]
   User               User?
+  ChannelMessage     ChannelMessage[]
+  RGPDConsent        RGPDConsent[]
 
   @@unique([tenantId, email])
   @@index([tenantId, email])
   @@index([tenantId, status])
+}
+
+/// Message normalisé multicanal (Email, WhatsApp, SMS, Voice, Slack, Teams...)
+/// Persistance pour src/lib/multichannel/channel-service.ts et audit-service.ts
+model ChannelMessage {
+  id              String                  @id @default(uuid())
+  tenantId        String
+  externalId      String?
+  checksum        String                  @unique
+  channel         Channel
+  direction       ChannelMessageDirection @default(INBOUND)
+  status          ChannelMessageStatus    @default(RECEIVED)
+  senderData      Json?
+  recipientData   Json?
+  subject         String?
+  body            String
+  bodyHtml        String?
+  attachments     Json?
+  channelMetadata Json?
+  aiSummary       String?
+  aiCategory      String?
+  aiTags          String[]                @default([])
+  aiUrgency       String?
+  consentStatus   String                  @default("PENDING")
+  auditTrail      Json?
+  receivedAt      DateTime                @default(now())
+  processedAt     DateTime?
+  archivedAt      DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  clientId        String?
+  dossierId       String?
+  Tenant          Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Client          Client?                 @relation(fields: [clientId], references: [id])
+  Dossier         Dossier?                @relation(fields: [dossierId], references: [id])
+
+  @@index([tenantId])
+  @@index([channel])
+  @@index([status])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([receivedAt])
+}
+
+/// Consentement RGPD par client/canal (src/lib/multichannel/audit-service.ts)
+model RGPDConsent {
+  id            String    @id @default(uuid())
+  clientId      String
+  channel       Channel
+  purpose       String
+  granted       Boolean   @default(false)
+  grantedAt     DateTime?
+  revokedAt     DateTime?
+  expiresAt     DateTime?
+  proofDocument String?
+  ipAddress     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  Client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([channel])
 }
 
 model CommunityTemplate {
@@ -222,8 +295,8 @@ model Document {
   antivirusDetails   String?
   sha256             String?
   antivirusStatus    String?
-  Client             Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  Dossier            Dossier?  @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  Client             Client?   @relation(fields: [clientId], references: [id])
+  Dossier            Dossier?  @relation(fields: [dossierId], references: [id])
   Tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   User               User      @relation(fields: [uploadedBy], references: [id])
   Proof              Proof[]
@@ -245,7 +318,6 @@ model Dossier {
   statut             String           @default("en_cours")
   priorite           String           @default("normale")
   phase              String           @default("instruction")
-  confidentialMode   Boolean          @default(false)
   dateCreation       DateTime         @default(now())
   dateOuverture      DateTime?
   dateEcheance       DateTime?
@@ -256,6 +328,7 @@ model Dossier {
   typeRecours        String?
   responsableId      String?
   collaborateurs     String?
+  teamId             String?
   objet              String?
   description        String?
   notes              String?
@@ -268,11 +341,12 @@ model Dossier {
   outcome            String?
   outcomeDate        DateTime?
   outcomeNotes       String?
+  confidentialMode   Boolean          @default(false)
+  ActionProposal     ActionProposal[]
   CalendarEvent      CalendarEvent[]
   Document           Document[]
   Client             Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   Tenant             Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  ActionProposal     ActionProposal[]
   Draft              Draft[]
   Email              Email[]
   Facture            Facture[]
@@ -280,6 +354,9 @@ model Dossier {
   MouvementCARPA     MouvementCARPA[]
   Proof              Proof[]
   TimeEntry          TimeEntry[]
+  ChannelMessage     ChannelMessage[]
+  DossierMember      DossierMember[]
+  Team               Team?            @relation(fields: [teamId], references: [id])
 
   @@unique([tenantId, numero])
   @@index([clientId])
@@ -288,6 +365,7 @@ model Dossier {
   @@index([juridiction, outcome])
   @@index([priorite])
   @@index([statut])
+  @@index([teamId])
   @@index([tenantId, createdAt])
   @@index([tenantId, priorite])
   @@index([tenantId, statut])
@@ -304,20 +382,19 @@ model TimeEntry {
   date         DateTime  @default(now())
   startTime    DateTime?
   endTime      DateTime?
-  duration     Int // Durée en minutes
-  tarifHoraire Float? // €/h applicable
-  montant      Float? // duration/60 * tarifHoraire
+  duration     Int
+  tarifHoraire Float?
+  montant      Float?
   isBillable   Boolean   @default(true)
   isBilled     Boolean   @default(false)
   factureId    String?
-  category     String    @default("travail") // travail, audience, rdv, deplacement, recherche, admin
+  category     String    @default("travail")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-
-  Tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  User    User     @relation(fields: [userId], references: [id])
-  Dossier Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  Client  Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  Client       Client?   @relation(fields: [clientId], references: [id])
+  Dossier      Dossier?  @relation(fields: [dossierId], references: [id])
+  Tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  User         User      @relation(fields: [userId], references: [id])
 
   @@index([tenantId, userId])
   @@index([tenantId, dossierId])
@@ -358,8 +435,8 @@ model Draft {
   rejectionReason  String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-  Dossier          Dossier?  @relation(fields: [createdDossierId], references: [id], onDelete: SetNull)
-  Email            Email?    @relation(fields: [sourceEmailId], references: [id], onDelete: SetNull)
+  Dossier          Dossier?  @relation(fields: [createdDossierId], references: [id])
+  Email            Email?    @relation(fields: [sourceEmailId], references: [id])
   Tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([sourceEmailId])
@@ -390,8 +467,8 @@ model ActionProposal {
   idempotencyKey  String
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
-  Dossier         Dossier?                @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  Email           Email?                  @relation(fields: [emailId], references: [id], onDelete: SetNull)
+  Dossier         Dossier?                @relation(fields: [dossierId], references: [id])
+  Email           Email?                  @relation(fields: [emailId], references: [id])
   Tenant          Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, idempotencyKey])
@@ -405,21 +482,20 @@ model EmailAccount {
   tenantId     String
   userId       String
   email        String
-  provider     String // gmail, outlook, imap
+  provider     String
   accessToken  String?
   refreshToken String?
   tokenExpiry  DateTime?
   imapHost     String?
   imapPort     Int?
   imapUser     String?
-  imapPassword String? // Chiffré AES-256
+  imapPassword String?
   isActive     Boolean   @default(true)
   lastSync     DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-
-  Tenant Tenant @relation(fields: [tenantId], references: [id])
-  User   User   @relation(fields: [userId], references: [id])
+  Tenant       Tenant    @relation(fields: [tenantId], references: [id])
+  User         User      @relation(fields: [userId], references: [id])
 
   @@unique([tenantId, email])
   @@index([tenantId])
@@ -434,9 +510,7 @@ model Email {
   to                String
   subject           String
   body              String
-  bodyEncrypted     String? // AES-256-GCM encrypted body (migration progressive)
   htmlBody          String?
-  htmlBodyEncrypted String? // AES-256-GCM encrypted HTML body
   preview           String?
   category          String              @default("general-inquiry")
   urgency           String              @default("medium")
@@ -476,11 +550,13 @@ model Email {
   sourceProvider    String?
   threadId          String?
   toAddresses       String?
-  Draft             Draft[]
-  Client            Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  Dossier           Dossier?            @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  Tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  bodyEncrypted     String?
+  htmlBodyEncrypted String?
   ActionProposal    ActionProposal[]
+  Draft             Draft[]
+  Client            Client?             @relation(fields: [clientId], references: [id])
+  Dossier           Dossier?            @relation(fields: [dossierId], references: [id])
+  Tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   EmailAttachment   EmailAttachment[]
   WorkflowExecution WorkflowExecution[]
 
@@ -635,14 +711,6 @@ model LegalDeadline {
   alertJ7Sent     Boolean         @default(false)
   alertJ3Sent     Boolean         @default(false)
   alertJ1Sent     Boolean         @default(false)
-  alertSmsSent    Boolean         @default(false)
-  acknowledgedBy  String?
-  acknowledgedAt  DateTime?
-  suspendedReason String?
-  suspendedAt     DateTime?
-  suspendedBy     String?
-  escalatedAt     DateTime?
-  escalatedTo     String?
   completedAt     DateTime?
   completedBy     String?
   completionNote  String?
@@ -650,6 +718,14 @@ model LegalDeadline {
   createdBy       String
   createdAt       DateTime        @default(now())
   updatedAt       DateTime
+  acknowledgedBy  String?
+  acknowledgedAt  DateTime?
+  suspendedReason String?
+  suspendedAt     DateTime?
+  suspendedBy     String?
+  escalatedAt     DateTime?
+  escalatedTo     String?
+  alertSmsSent    Boolean         @default(false)
   DeadlineAlert   DeadlineAlert[]
   Client          Client          @relation(fields: [clientId], references: [id])
   Dossier         Dossier         @relation(fields: [dossierId], references: [id], onDelete: Cascade)
@@ -878,7 +954,6 @@ model Subscription {
   tenantId             String    @unique
   planId               String
   status               String    @default("active")
-  stripeSubscriptionId String?   @unique
   billingCycle         String    @default("monthly")
   currentPeriodStart   DateTime
   currentPeriodEnd     DateTime
@@ -891,6 +966,7 @@ model Subscription {
   metadata             String?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime
+  stripeSubscriptionId String?   @unique
   Plan                 Plan      @relation(fields: [planId], references: [id])
   Tenant               Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -915,7 +991,6 @@ model Tenant {
   domain            String?             @unique
   planId            String
   status            String              @default("active")
-  stripeCustomerId  String?             @unique
   trialEndsAt       DateTime?
   billingEmail      String?
   billingAddress    String?
@@ -927,12 +1002,14 @@ model Tenant {
   currentUsers      Int                 @default(0)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime
+  stripeCustomerId  String?             @unique
   AIUsageLog        AIUsageLog[]
   ActionProposal    ActionProposal[]
   ArchivePolicy     ArchivePolicy[]
   AuditLog          AuditLog[]
   CalendarEvent     CalendarEvent[]
   Client            Client[]
+  ChannelMessage    ChannelMessage[]
   CompteComptable   CompteComptable[]
   DeclarationTVA    DeclarationTVA[]
   Document          Document[]
@@ -940,6 +1017,7 @@ model Tenant {
   Draft             Draft[]
   Ecriture          Ecriture[]
   Email             Email[]
+  EmailAccount      EmailAccount[]
   Facture           Facture[]
   InformationUnit   InformationUnit[]
   Journal           Journal[]
@@ -952,11 +1030,11 @@ model Tenant {
   Subscription      Subscription?
   Plan              Plan                @relation(fields: [planId], references: [id])
   TenantSettings    TenantSettings?
+  TimeEntry         TimeEntry[]
   UsageRecord       UsageRecord[]
   User              User[]
   WorkflowExecution WorkflowExecution[]
-  EmailAccount      EmailAccount[]
-  TimeEntry         TimeEntry[]
+  Team              Team[]
 
   @@index([planId])
   @@index([status])
@@ -1000,7 +1078,6 @@ model UsageRecord {
 model User {
   id               String          @id
   email            String          @unique
-  emailVerified    DateTime?
   name             String
   password         String
   role             String
@@ -1016,17 +1093,98 @@ model User {
   updatedAt        DateTime
   resetToken       String?
   resetTokenExpiry DateTime?
+  emailVerified    DateTime?
   CalendarEvent    CalendarEvent[]
   Document         Document[]
-  Notification     Notification[]
   EmailAccount     EmailAccount[]
+  Notification     Notification[]
   TimeEntry        TimeEntry[]
   Client           Client?         @relation(fields: [clientId], references: [id], onDelete: Cascade)
   Tenant           Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  DossierMember    DossierMember[]
+  TeamMember       TeamMember[]
 
   @@index([role])
   @@index([status])
   @@index([tenantId, email])
+}
+
+/// Contrôle d'accès granulaire par dossier ("qui, en plus du RBAC global,
+/// peut agir sur CE dossier précis"). Vient en complément de Dossier.responsableId
+/// (notion métier de responsable) et du RBAC global (src/lib/auth/rbac.ts),
+/// sans les remplacer. Dossier.collaborateurs (champ legacy, non utilisé dans
+/// le code) sera déprécié une fois ce modèle adopté par les routes API.
+model DossierMember {
+  id        String            @id @default(cuid())
+  tenantId  String
+  dossierId String
+  userId    String
+  role      DossierMemberRole @default(COLLABORATOR)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  Dossier   Dossier           @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  User      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([dossierId, userId])
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([userId])
+}
+
+enum DossierMemberRole {
+  OWNER
+  RESPONSIBLE
+  ATTORNEY
+  COLLABORATOR
+  VIEWER
+}
+
+/// Équipe au sein d'un cabinet (Tenant). Regroupe des utilisateurs par
+/// domaine/pratique (ex: "Droit social", "Contentieux"). Complète le RBAC
+/// global : sert de niveau intermédiaire pour l'héritage d'accès aux
+/// dossiers (Dossier.teamId), sans remplacer User.role ni le RBAC existant.
+model Team {
+  id          String       @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  TeamMember  TeamMember[]
+  Dossier     Dossier[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+}
+
+/// Rôle d'un utilisateur au sein d'une équipe (TeamMember.role) — distinct
+/// de User.role (rôle global cabinet). Ex: un ASSOCIE (rôle global) peut être
+/// TEAM_LEAD d'une équipe et simple MEMBER d'une autre.
+enum TeamMemberRole {
+  TEAM_LEAD
+  ATTORNEY
+  COLLABORATOR
+  ASSISTANT
+  PARALEGAL
+  MEMBER
+}
+
+model TeamMember {
+  id        String         @id @default(cuid())
+  tenantId  String
+  teamId    String
+  userId    String
+  role      TeamMemberRole @default(MEMBER)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  Team      Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  User      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([tenantId])
+  @@index([teamId])
+  @@index([userId])
 }
 
 model WorkflowExecution {
@@ -1057,8 +1215,6 @@ model WorkflowExecution {
   @@index([workflowId])
 }
 
-// ========== MODULE COMPTABILITÉ ==========
-
 model CompteComptable {
   id        String            @id @default(cuid())
   tenantId  String
@@ -1071,21 +1227,14 @@ model CompteComptable {
   isActive  Boolean           @default(true)
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
-  Tenant    Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   Parent    CompteComptable?  @relation("CompteHierarchie", fields: [parentId], references: [id])
   Enfants   CompteComptable[] @relation("CompteHierarchie")
+  Tenant    Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   Lignes    LigneEcriture[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, classe])
   @@index([tenantId, type])
-}
-
-enum TypeCompte {
-  ACTIF
-  PASSIF
-  CHARGE
-  PRODUIT
 }
 
 model Journal {
@@ -1097,19 +1246,10 @@ model Journal {
   isActive  Boolean     @default(true)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-  Tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   Ecritures Ecriture[]
+  Tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, code])
-}
-
-enum TypeJournal {
-  VENTES
-  ACHATS
-  BANQUE
-  CAISSE
-  OD
-  CARPA
 }
 
 model Ecriture {
@@ -1139,20 +1279,6 @@ model Ecriture {
   @@index([dossierId])
 }
 
-enum StatutEcriture {
-  BROUILLON
-  VALIDEE
-  LETTREE
-}
-
-enum SourceEcriture {
-  MANUELLE
-  FACTURE
-  PAIEMENT
-  BANQUE
-  IA
-}
-
 model LigneEcriture {
   id         String          @id @default(cuid())
   ecritureId String
@@ -1161,8 +1287,8 @@ model LigneEcriture {
   debit      Float           @default(0)
   credit     Float           @default(0)
   lettrage   String?
-  Ecriture   Ecriture        @relation(fields: [ecritureId], references: [id], onDelete: Cascade)
   Compte     CompteComptable @relation(fields: [compteId], references: [id])
+  Ecriture   Ecriture        @relation(fields: [ecritureId], references: [id], onDelete: Cascade)
 
   @@index([ecritureId])
   @@index([compteId])
@@ -1204,12 +1330,6 @@ model DeclarationTVA {
   @@unique([tenantId, periode])
 }
 
-enum RegimeTVA {
-  MENSUEL
-  TRIMESTRIEL
-  ANNUEL_SIMPLIFIE
-}
-
 model MouvementCARPA {
   id         String             @id @default(cuid())
   tenantId   String
@@ -1222,13 +1342,62 @@ model MouvementCARPA {
   reference  String?
   soldeApres Float              @default(0)
   createdAt  DateTime           @default(now())
-  Tenant     Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  Dossier    Dossier            @relation(fields: [dossierId], references: [id])
   Client     Client             @relation(fields: [clientId], references: [id])
+  Dossier    Dossier            @relation(fields: [dossierId], references: [id])
+  Tenant     Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, dossierId])
   @@index([clientId])
   @@index([date])
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  type      String   @default("email_verification")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+enum TypeCompte {
+  ACTIF
+  PASSIF
+  CHARGE
+  PRODUIT
+}
+
+enum TypeJournal {
+  VENTES
+  ACHATS
+  BANQUE
+  CAISSE
+  OD
+  CARPA
+}
+
+enum StatutEcriture {
+  BROUILLON
+  VALIDEE
+  LETTREE
+}
+
+enum SourceEcriture {
+  MANUELLE
+  FACTURE
+  PAIEMENT
+  BANQUE
+  IA
+}
+
+enum RegimeTVA {
+  MENSUEL
+  TRIMESTRIEL
+  ANNUEL_SIMPLIFIE
 }
 
 enum TypeMouvementCARPA {
@@ -1237,8 +1406,6 @@ enum TypeMouvementCARPA {
   REGLEMENT_TIERS
   HONORAIRES
 }
-
-// ========== FIN MODULE COMPTABILITÉ ==========
 
 enum ArchiveStatus {
   ACTIVE
@@ -1261,6 +1428,41 @@ enum AuditAction {
   REJECT
   ESCALATE
   ARCHIVE
+  RGPD_DATA_EXPORT
+  RGPD_DELETION_REQUESTED
+  RGPD_DELETION_COMPLETED
+  RETENTION_POLICY_APPLIED
+  DUPLICATE_MESSAGE_DETECTED
+  WEBHOOK_SIGNATURE_INVALID
+}
+
+// Canaux de communication normalisés (src/lib/multichannel)
+enum Channel {
+  EMAIL
+  WHATSAPP
+  SMS
+  VOICE
+  SLACK
+  TEAMS
+  LINKEDIN
+  TWITTER
+  FORM
+  DOCUMENT
+  DECLAN
+  INTERNAL
+}
+
+enum ChannelMessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum ChannelMessageStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  FAILED
+  ARCHIVED
 }
 
 enum ActionProposalType {
@@ -1375,17 +1577,4 @@ enum ReportType {
   COMPLIANCE_CHECK
   AI_ANALYSIS
   CUSTOM
-}
-
-model VerificationToken {
-  id        String   @id @default(uuid())
-  email     String
-  token     String   @unique
-  type      String   @default("email_verification") // email_verification, password_reset
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@index([email])
-  @@index([token])
-  @@index([expiresAt])
 }
