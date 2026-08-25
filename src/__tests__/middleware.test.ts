@@ -40,7 +40,7 @@ describe('Middleware Global', () => {
       '/api/billing/plans',
     ];
 
-    publicRoutes.forEach((route) => {
+    publicRoutes.forEach(route => {
       it(`permet l'accès sans auth à ${route}`, () => {
         const isPublic = [
           '/api/health',
@@ -48,7 +48,7 @@ describe('Middleware Global', () => {
           '/api/webhooks/stripe',
           '/api/webhooks/email',
           '/api/billing/plans',
-        ].some((r) => route.startsWith(r));
+        ].some(r => route.startsWith(r));
 
         expect(isPublic).toBe(true);
       });
@@ -91,8 +91,8 @@ describe('Middleware Global', () => {
 
     testCases.forEach(({ route, role, expected }) => {
       it(`${expected ? 'autorise' : 'refuse'} ${role} sur ${route}`, () => {
-        const isAdminRoute = ['/api/admin', '/api/lawyer', '/api/tenant'].some(
-          (r) => route.startsWith(r)
+        const isAdminRoute = ['/api/admin', '/api/lawyer', '/api/tenant'].some(r =>
+          route.startsWith(r)
         );
         const isSuperAdminRoute = route.startsWith('/api/super-admin');
 
@@ -100,10 +100,7 @@ describe('Middleware Global', () => {
 
         if (isSuperAdminRoute && role !== 'SUPER_ADMIN') {
           allowed = false;
-        } else if (
-          isAdminRoute &&
-          !['ADMIN', 'AVOCAT', 'SUPER_ADMIN'].includes(role)
-        ) {
+        } else if (isAdminRoute && !['ADMIN', 'AVOCAT', 'SUPER_ADMIN'].includes(role)) {
           allowed = false;
         }
 
@@ -126,18 +123,14 @@ describe('Middleware Global', () => {
     });
 
     it('identifie correctement les routes IA', () => {
-      const aiRoutes = [
-        '/api/ai/analyze',
-        '/api/reasoning/context',
-        '/api/suggestions/generate',
-      ];
+      const aiRoutes = ['/api/ai/analyze', '/api/reasoning/context', '/api/suggestions/generate'];
 
       const isAIRoute = (pathname: string) =>
         pathname.includes('/ai/') ||
         pathname.includes('/reasoning') ||
         pathname.includes('/suggestions');
 
-      aiRoutes.forEach((route) => {
+      aiRoutes.forEach(route => {
         expect(isAIRoute(route)).toBe(true);
       });
 
@@ -145,10 +138,7 @@ describe('Middleware Global', () => {
     });
 
     it('calcule le rate limit correctement', () => {
-      const rateLimitMap = new Map<
-        string,
-        { count: number; resetTime: number }
-      >();
+      const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
       const WINDOW_MS = 60000;
       const LIMIT = 10;
 
@@ -207,10 +197,11 @@ describe('Middleware Global', () => {
       '/_next/static/chunks/main.js',
       '/static/images/logo.png',
       '/favicon.ico',
-      '/manifest.json',
+      '/manifest.webmanifest',
+      ,
     ];
 
-    staticPaths.forEach((path) => {
+    staticPaths.forEach(path => {
       it(`skip le middleware pour ${path}`, () => {
         const shouldSkip =
           path.startsWith('/_next') ||
@@ -226,18 +217,12 @@ describe('Middleware Global', () => {
 
 describe('Matcher Configuration', () => {
   it('exclut les chemins statiques du matcher', () => {
-    const matcherPattern =
-      '/((?!_next/static|_next/image|favicon.ico|public/).*)';
+    const matcherPattern = '/((?!_next/static|_next/image|favicon.ico|public/).*)';
 
     // Le pattern doit exclure ces chemins
-    const excludedPaths = [
-      '_next/static',
-      '_next/image',
-      'favicon.ico',
-      'public/',
-    ];
+    const excludedPaths = ['_next/static', '_next/image', 'favicon.ico', 'public/'];
 
-    excludedPaths.forEach((path) => {
+    excludedPaths.forEach(path => {
       expect(matcherPattern).toContain(path);
     });
   });

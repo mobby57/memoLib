@@ -10,10 +10,9 @@
  * Production note: Intégrer OpenAI GPT-4, Anthropic Claude, ou Llama local
  */
 
-import { PrismaClient } from '@prisma/client';
 import { EventLogService } from '@/lib/services/event-log.service';
 
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 const eventLogService = new EventLogService();
 
 interface RAGDocument {
