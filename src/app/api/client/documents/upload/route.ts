@@ -54,15 +54,16 @@ function rateLimitHeaders(
 
 function getQuarantineDirectory(tenantId: string): string | null {
   const storageRoot = process.env.VAULT_STORAGE_ROOT;
+
   if (storageRoot) {
-    return join(storageRoot, tenantId);
+    return join(/* turbopackIgnore: true */ storageRoot, tenantId);
   }
 
   if (process.env.NODE_ENV === 'production') {
     return null;
   }
 
-  return join(process.cwd(), 'uploads', 'client-quarantine', tenantId);
+  return join(/* turbopackIgnore: true */ process.cwd(), 'uploads', 'client-quarantine', tenantId);
 }
 
 export const dynamic = 'force-dynamic';
@@ -163,8 +164,12 @@ export async function POST(request: NextRequest) {
     }
 
     const storageKey = `client-quarantine/${tenantId}/${documentId}`;
+
     await mkdir(directory, { recursive: true });
-    await writeFile(join(directory, documentId), buffer, { flag: 'wx' });
+
+    const filePath = join(/* turbopackIgnore: true */ directory, documentId);
+
+    await writeFile(filePath, buffer, { flag: 'wx' });
 
     await prisma.$transaction([
       prisma.document.create({
