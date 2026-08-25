@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import { logger } from '@/lib/logger';
 
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export interface ExtractedDeadline {
   type: 'AUDIENCE' | 'DEPOT' | 'REPONSE' | 'PRESCRIPTION';
@@ -81,10 +80,10 @@ Reponds au format JSON:
 
     return mockAnalysis;
   } catch (error) {
-    logger.error('Erreur lors de l\'analyse automatique du document', error, {
-      documentType
+    logger.error("Erreur lors de l'analyse automatique du document", error, {
+      documentType,
     });
-    throw new Error('Impossible d\'analyser le document');
+    throw new Error("Impossible d'analyser le document");
   }
 }
 
@@ -159,16 +158,28 @@ function extractPartiesFromText(text: string): string[] {
 function detectCaseType(text: string): string {
   const lowerText = text.toLowerCase();
 
-  if (lowerText.includes('divorce') || lowerText.includes('succession') || lowerText.includes('propriete')) {
+  if (
+    lowerText.includes('divorce') ||
+    lowerText.includes('succession') ||
+    lowerText.includes('propriete')
+  ) {
     return 'CIVIL';
   }
   if (lowerText.includes('vol') || lowerText.includes('agression') || lowerText.includes('penal')) {
     return 'PENAL';
   }
-  if (lowerText.includes('commercial') || lowerText.includes('societe') || lowerText.includes('contrat')) {
+  if (
+    lowerText.includes('commercial') ||
+    lowerText.includes('societe') ||
+    lowerText.includes('contrat')
+  ) {
     return 'COMMERCIAL';
   }
-  if (lowerText.includes('administratif') || lowerText.includes('permis') || lowerText.includes('urbanisme')) {
+  if (
+    lowerText.includes('administratif') ||
+    lowerText.includes('permis') ||
+    lowerText.includes('urbanisme')
+  ) {
     return 'ADMINISTRATIF';
   }
 
@@ -192,7 +203,7 @@ function detectMissingDocuments(text: string): string[] {
   const lowerText = text.toLowerCase();
 
   const requiredDocs = [
-    { keyword: 'piece d\'identite', doc: 'Piece d\'identite' },
+    { keyword: "piece d'identite", doc: "Piece d'identite" },
     { keyword: 'justificatif de domicile', doc: 'Justificatif de domicile' },
     { keyword: 'acte de naissance', doc: 'Acte de naissance' },
     { keyword: 'contrat', doc: 'Contrat original' },
@@ -235,11 +246,11 @@ export async function createDeadlinesFromAnalysis(
 ) {
   try {
     const echeances = await Promise.all(
-      deadlines.map(async (deadline) => {
+      deadlines.map(async deadline => {
         // Recuperer le tenant du dossier
         const dossier = await prisma.dossier.findUnique({
           where: { id: dossierId },
-          select: { tenantId: true }
+          select: { tenantId: true },
         });
 
         if (!dossier) throw new Error('Dossier introuvable');
@@ -253,7 +264,12 @@ export async function createDeadlinesFromAnalysis(
             type: deadline.type.toLowerCase(),
             dateEcheance: new Date(deadline.date),
             statut: 'a_venir',
-            priorite: deadline.priority === 'HAUTE' ? 'haute' : deadline.priority === 'MOYENNE' ? 'normale' : 'basse',
+            priorite:
+              deadline.priority === 'HAUTE'
+                ? 'haute'
+                : deadline.priority === 'MOYENNE'
+                  ? 'normale'
+                  : 'basse',
             delaiJours: deadline.priority === 'HAUTE' ? 3 : 7,
           },
         });
@@ -262,7 +278,10 @@ export async function createDeadlinesFromAnalysis(
 
     return echeances;
   } catch (error) {
-    logger.error('Erreur lors de la creation des echeances', error, { dossierId, deadlinesCount: deadlines?.length });
+    logger.error('Erreur lors de la creation des echeances', error, {
+      dossierId,
+      deadlinesCount: deadlines?.length,
+    });
     throw error;
   } finally {
     await prisma.$disconnect();

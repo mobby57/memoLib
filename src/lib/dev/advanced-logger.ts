@@ -1,12 +1,10 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  *  SYSTeME DE LOGGING AVANCe POUR DeVELOPPEMENT
  * Tracabilite complete, metriques temps reel, debugging IA
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export enum LogLevel {
   DEBUG = 'DEBUG',
@@ -129,12 +127,10 @@ class AdvancedLogger {
       return result;
     } catch (error) {
       success = false;
-      this.log(
-        LogLevel.ERROR,
-        category,
-        ` Erreur: ${operation}`,
-        { ...details, error: error instanceof Error ? error.message : String(error) }
-      );
+      this.log(LogLevel.ERROR, category, ` Erreur: ${operation}`, {
+        ...details,
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     } finally {
       const duration = performance.now() - startTime;
@@ -182,21 +178,17 @@ class AdvancedLogger {
 
     // Detection d'anomalies
     if (duration > 10000) {
-      this.log(
-        LogLevel.WARN,
-        LogCategory.PERFORMANCE,
-        'ï¸ Analyse IA lente detectee',
-        { model, duration }
-      );
+      this.log(LogLevel.WARN, LogCategory.PERFORMANCE, 'ï¸ Analyse IA lente detectee', {
+        model,
+        duration,
+      });
     }
 
     if (!response || response.length < 10) {
-      this.log(
-        LogLevel.WARN,
-        LogCategory.AI,
-        'ï¸ Reponse IA suspecte (trop courte)',
-        { model, responseLength: response.length }
-      );
+      this.log(LogLevel.WARN, LogCategory.AI, 'ï¸ Reponse IA suspecte (trop courte)', {
+        model,
+        responseLength: response.length,
+      });
     }
   }
 
@@ -212,22 +204,18 @@ class AdvancedLogger {
     const emoji = status === 'completed' ? '' : status === 'failed' ? '' : '';
     const level = status === 'failed' ? LogLevel.ERROR : LogLevel.INFO;
 
-    this.log(
-      level,
-      LogCategory.WORKFLOW,
-      `${emoji} Workflow ${workflowId} - ${step} (${status})`,
-      { workflowId, step, status, ...data }
-    );
+    this.log(level, LogCategory.WORKFLOW, `${emoji} Workflow ${workflowId} - ${step} (${status})`, {
+      workflowId,
+      step,
+      status,
+      ...data,
+    });
   }
 
   /**
    * Logging email avec PII masking
    */
-  logEmailProcessing(
-    emailId: string,
-    action: string,
-    metadata?: Record<string, any>
-  ): void {
+  logEmailProcessing(emailId: string, action: string, metadata?: Record<string, any>): void {
     this.log(LogLevel.INFO, LogCategory.EMAIL, ` Email ${action}`, {
       emailId,
       action,
@@ -255,10 +243,10 @@ class AdvancedLogger {
    */
   private logToConsole(entry: LogEntry): void {
     const colors = {
-      [LogLevel.DEBUG]: '\x1b[90m',    // Gris
-      [LogLevel.INFO]: '\x1b[36m',     // Cyan
-      [LogLevel.WARN]: '\x1b[33m',     // Jaune
-      [LogLevel.ERROR]: '\x1b[31m',    // Rouge
+      [LogLevel.DEBUG]: '\x1b[90m', // Gris
+      [LogLevel.INFO]: '\x1b[36m', // Cyan
+      [LogLevel.WARN]: '\x1b[33m', // Jaune
+      [LogLevel.ERROR]: '\x1b[31m', // Rouge
       [LogLevel.CRITICAL]: '\x1b[35m', // Magenta
     };
 
@@ -295,16 +283,18 @@ class AdvancedLogger {
     try {
       // En production, envoyer à Sentry comme breadcrumbs
       if (process.env.NODE_ENV === 'production') {
-        import('@sentry/nextjs').then((Sentry) => {
-          this.logs.slice(-50).forEach(log => {
-            Sentry.addBreadcrumb({
-              category: log.category,
-              message: log.message,
-              level: log.level === 'error' ? 'error' : 'info',
-              data: log.context,
+        import('@sentry/nextjs')
+          .then(Sentry => {
+            this.logs.slice(-50).forEach(log => {
+              Sentry.addBreadcrumb({
+                category: log.category,
+                message: log.message,
+                level: log.level === 'error' ? 'error' : 'info',
+                data: log.context,
+              });
             });
-          });
-        }).catch(() => {});
+          })
+          .catch(() => {});
       }
 
       console.log(` Flush de ${this.logs.length} logs`);
@@ -330,15 +320,15 @@ class AdvancedLogger {
     let filtered = [...this.logs];
 
     if (filters?.level) {
-      filtered = filtered.filter((log) => log.level === filters.level);
+      filtered = filtered.filter(log => log.level === filters.level);
     }
 
     if (filters?.category) {
-      filtered = filtered.filter((log) => log.category === filters.category);
+      filtered = filtered.filter(log => log.category === filters.category);
     }
 
     if (filters?.since) {
-      filtered = filtered.filter((log) => log.timestamp >= filters.since!);
+      filtered = filtered.filter(log => log.timestamp >= filters.since!);
     }
 
     if (filters?.limit) {
@@ -360,17 +350,14 @@ class AdvancedLogger {
     let metrics = [...this.metrics];
 
     if (category) {
-      metrics = metrics.filter((m) => m.category === category);
+      metrics = metrics.filter(m => m.category === category);
     }
 
     const totalOperations = metrics.length;
-    const successfulOps = metrics.filter((m) => m.success).length;
-    const averageDuration =
-      metrics.reduce((sum, m) => sum + m.duration, 0) / totalOperations || 0;
+    const successfulOps = metrics.filter(m => m.success).length;
+    const averageDuration = metrics.reduce((sum, m) => sum + m.duration, 0) / totalOperations || 0;
     const successRate = (successfulOps / totalOperations) * 100 || 0;
-    const slowestOperations = metrics
-      .sort((a, b) => b.duration - a.duration)
-      .slice(0, 10);
+    const slowestOperations = metrics.sort((a, b) => b.duration - a.duration).slice(0, 10);
 
     return {
       averageDuration,
@@ -390,10 +377,7 @@ class AdvancedLogger {
       // CSV simple
       const headers = 'Timestamp,Level,Category,Message\n';
       const rows = this.logs
-        .map(
-          (log) =>
-            `${log.timestamp.toISOString()},${log.level},${log.category},"${log.message}"`
-        )
+        .map(log => `${log.timestamp.toISOString()},${log.level},${log.category},"${log.message}"`)
         .join('\n');
       return headers + rows;
     }
@@ -431,10 +415,5 @@ export const logEmail = (message: string, context?: Record<string, any>) =>
 export const logError = (message: string, context?: Record<string, any>) =>
   logger.log(LogLevel.ERROR, LogCategory.API, message, context);
 
-export const measure = <T>(
-  category: LogCategory,
-  operation: string,
-  fn: () => Promise<T>
-) => logger.measurePerformance(category, operation, fn);
-
-
+export const measure = <T>(category: LogCategory, operation: string, fn: () => Promise<T>) =>
+  logger.measurePerformance(category, operation, fn);

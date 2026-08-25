@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WebSocket Server for Real-Time Notifications
  * - Email arrivals
  * - Dossier updates
@@ -6,6 +6,7 @@
  * - System notifications
  */
 
+import prisma from '@/lib/prisma';
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 import { NextApiRequest } from 'next';
@@ -163,8 +164,6 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
     socket.on('mark-notification-read', async (notificationId: string) => {
       try {
         // Update notification in database via Prisma
-        const { PrismaClient } = await import('@prisma/client');
-        const prisma = new PrismaClient();
 
         await prisma.notification.update({
           where: { id: notificationId },

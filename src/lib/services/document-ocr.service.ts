@@ -6,8 +6,8 @@
  * En production: intégrer Tesseract.js, AWS Textract, ou Azure Document Intelligence
  */
 
-import { PrismaClient } from '@prisma/client';
 import { EventLogService } from './event-log.service';
+import { PrismaClient } from '@prisma/client';
 
 interface OCRResult {
   text: string;
