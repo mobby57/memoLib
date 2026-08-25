@@ -66,6 +66,7 @@
     "postinstall": "prisma generate",
     "db:reset": "node scripts/reset-db.js",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:demo": "tsx prisma/seed-demo-client.ts",
     "db:seed:complete": "tsx prisma/seed-complete.ts",
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
