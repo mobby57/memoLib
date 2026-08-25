@@ -2,22 +2,28 @@
 import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { NotificationService } from '@/lib/notifications';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // GET - Recuperer les evenements du calendrier
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
     const userId = searchParams.get('userId');
     const dossierId = searchParams.get('dossierId');
     const clientId = searchParams.get('clientId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const type = searchParams.get('type');
-
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
-    }
 
     const where: Record<string, unknown> = { tenantId };
 
@@ -52,9 +58,17 @@ export async function GET(request: NextRequest) {
 // POST - Creer un evenement
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const body = await request.json();
     const {
-      tenantId,
       userId,
       dossierId,
       clientId,
@@ -71,9 +85,9 @@ export async function POST(request: NextRequest) {
       recurrenceRule,
     } = body;
 
-    if (!tenantId || !userId || !title || !startDate || !endDate) {
+    if (!userId || !title || !startDate || !endDate) {
       return NextResponse.json(
-        { error: 'tenantId, userId, title, startDate et endDate requis' },
+        { error: 'userId, title, startDate et endDate requis' },
         { status: 400 }
       );
     }
@@ -118,11 +132,25 @@ export async function POST(request: NextRequest) {
 // PATCH - Mettre a jour un evenement
 export async function PATCH(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const body = await request.json();
-    const { eventId, ...updateData } = body;
+    const { eventId, tenantId: _ignoredTenantId, ...updateData } = body;
 
     if (!eventId) {
       return NextResponse.json({ error: 'eventId requis' }, { status: 400 });
+    }
+
+    const existing = await prisma.calendarEvent.findFirst({ where: { id: eventId, tenantId } });
+    if (!existing) {
+      return NextResponse.json({ error: 'Evenement non trouve' }, { status: 404 });
     }
 
     // Convertir les dates si presentes
@@ -150,11 +178,25 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Supprimer un evenement
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get('eventId');
 
     if (!eventId) {
       return NextResponse.json({ error: 'eventId requis' }, { status: 400 });
+    }
+
+    const existing = await prisma.calendarEvent.findFirst({ where: { id: eventId, tenantId } });
+    if (!existing) {
+      return NextResponse.json({ error: 'Evenement non trouve' }, { status: 404 });
     }
 
     await prisma.calendarEvent.delete({
