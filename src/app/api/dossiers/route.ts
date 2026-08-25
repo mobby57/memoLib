@@ -8,6 +8,7 @@ import { z } from 'zod';
 import type { PrismaClient } from '@prisma/client';
 import { validateQuery } from '@/lib/validation/request-validator';
 import { logger } from '@/lib/logger';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>;
 
@@ -257,6 +258,18 @@ export async function PATCH(request: NextRequest) {
     const existing = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!existing) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
 
+    const access = await canAccessDossier({
+      userId: (session.user as any).id,
+      tenantId,
+      role: (session.user as any).role,
+      groups: (session.user as any).groups,
+      dossierId,
+      action: 'write',
+    });
+    if (!access.allowed) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const updateData: Record<string, unknown> = {};
     if (titre !== undefined) updateData.titre = titre;
     if (description !== undefined) updateData.description = description;
@@ -321,6 +334,18 @@ export async function DELETE(request: NextRequest) {
 
     const dossier = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
+
+    const access = await canAccessDossier({
+      userId: (session.user as any).id,
+      tenantId,
+      role: (session.user as any).role,
+      groups: (session.user as any).groups,
+      dossierId,
+      action: 'manage',
+    });
+    if (!access.allowed) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
 
     await prisma.dossier.delete({ where: { id: dossierId } });
 
