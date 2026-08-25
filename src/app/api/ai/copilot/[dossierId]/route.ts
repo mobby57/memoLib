@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { analyzeDossier, type DossierInput } from '@/lib/ai/copilot/copilot-ceseda';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
 
 /**
  * GET /api/ai/copilot/[dossierId]
@@ -14,6 +15,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ doss
 
   const { dossierId } = await params;
   const user = session.user as any;
+
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+
+  const access = await canAccessDossier({
+    userId: user.id,
+    tenantId: user.tenantId,
+    role: user.role,
+    groups: user.groups,
+    dossierId,
+    action: 'read',
+  });
+  if (!access.allowed) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
 
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId: user.tenantId },

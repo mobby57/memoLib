@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete } from '@/lib/cache';
 import { logger } from '@/lib/logger';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -24,6 +25,18 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     if (!tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
+
+    const access = await canAccessDossier({
+      userId: (session.user as any).id,
+      tenantId,
+      role: (session.user as any).role,
+      groups: (session.user as any).groups,
+      dossierId,
+      action: 'read',
+    });
+    if (!access.allowed) {
+      return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
     }
 
     const dossier = await cacheThrough(
@@ -107,6 +120,18 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
     }
 
+    const access = await canAccessDossier({
+      userId: (session.user as any).id,
+      tenantId,
+      role: (session.user as any).role,
+      groups: (session.user as any).groups,
+      dossierId,
+      action: 'write',
+    });
+    if (!access.allowed) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
+
     // Mettre à jour le dossier
     const dossier = await prisma.dossier.update({
       where: { id: dossierId },
@@ -182,6 +207,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     if (!existing) {
       return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+    }
+
+    const access = await canAccessDossier({
+      userId: (session.user as any).id,
+      tenantId,
+      role: (session.user as any).role,
+      groups: (session.user as any).groups,
+      dossierId,
+      action: 'manage',
+    });
+    if (!access.allowed) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     if (hardDelete) {

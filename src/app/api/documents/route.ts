@@ -1,20 +1,45 @@
 ﻿import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
 
 // POST - Upload et traitement OCR d'un document
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const tenantId = formData.get('tenantId') as string;
     const dossierId = formData.get('dossierId') as string | null;
     const clientId = formData.get('clientId') as string | null;
     const category = formData.get('category') as string | null;
     const uploadedBy = formData.get('uploadedBy') as string;
 
-    if (!file || !tenantId || !uploadedBy) {
-      return NextResponse.json({ error: 'file, tenantId et uploadedBy requis' }, { status: 400 });
+    if (!file || !uploadedBy) {
+      return NextResponse.json({ error: 'file et uploadedBy requis' }, { status: 400 });
+    }
+
+    if (dossierId) {
+      const access = await canAccessDossier({
+        userId: (session.user as any).id,
+        tenantId,
+        role: (session.user as any).role,
+        groups: (session.user as any).groups,
+        dossierId,
+        action: 'write',
+      });
+      if (!access.allowed) {
+        return NextResponse.json({ error: 'Acces refuse au dossier' }, { status: 403 });
+      }
     }
 
     // Lire le contenu du fichier
@@ -65,15 +90,37 @@ export async function POST(request: NextRequest) {
 // GET - Recuperer les documents
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
     const dossierId = searchParams.get('dossierId');
     const clientId = searchParams.get('clientId');
     const documentId = searchParams.get('id');
 
+    if (dossierId) {
+      const access = await canAccessDossier({
+        userId: (session.user as any).id,
+        tenantId,
+        role: (session.user as any).role,
+        groups: (session.user as any).groups,
+        dossierId,
+        action: 'read',
+      });
+      if (!access.allowed) {
+        return NextResponse.json({ error: 'Acces refuse au dossier' }, { status: 403 });
+      }
+    }
+
     if (documentId) {
-      const document = await prisma.document.findUnique({
-        where: { id: documentId },
+      const document = await prisma.document.findFirst({
+        where: { id: documentId, tenantId },
         include: {
           dossier: { select: { numero: true } },
           client: { select: { firstName: true, lastName: true } },
@@ -81,10 +128,6 @@ export async function GET(request: NextRequest) {
         },
       });
       return NextResponse.json({ document });
-    }
-
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
     }
 
     const documents = await prisma.document.findMany({
