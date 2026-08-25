@@ -102,7 +102,8 @@ async function checkAuthorization(
 /**
  * Routes publiques (pas de verification)
  */
-const PUBLIC_ROUTES = ['/api/auth/', '/_next/', '/favicon.ico', '/manifest.json', '/sw.js'];
+
+const PUBLIC_ROUTES = ['/api/auth/', '/_next/', '/favicon.ico', '/manifest.webmanifest', '/sw.js'];
 
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some(route => pathname.startsWith(route));

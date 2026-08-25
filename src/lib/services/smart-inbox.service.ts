@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * SmartInboxService - Service de scoring intelligent des emails (Phase 4)
  *
@@ -331,5 +331,3 @@ export class SmartInboxService {
 }
 
 export const smartInboxService = new SmartInboxService();
-
-

@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * CollaborationService - Phase 5
  * Gestion commentaires et mentions (@username)
@@ -33,10 +33,7 @@ export class CollaborationService {
    * Détecte les mentions @username dans le contenu
    * Format: @john.doe ou @marie
    */
-  private async parseMentions(
-    content: string,
-    tenantId: string
-  ): Promise<MentionInfo[]> {
+  private async parseMentions(content: string, tenantId: string): Promise<MentionInfo[]> {
     const mentionRegex = /@([\w.]+)/g;
     const matches = [...content.matchAll(mentionRegex)];
 
@@ -44,13 +41,13 @@ export class CollaborationService {
       return [];
     }
 
-    const usernames = [...new Set(matches.map((m) => m[1]))];
+    const usernames = [...new Set(matches.map(m => m[1]))];
 
     // Récupérer les users du tenant par email/username
     const users = await this.prisma.user.findMany({
       where: {
         tenantId,
-        OR: usernames.map((username) => ({
+        OR: usernames.map(username => ({
           email: { contains: username, mode: 'insensitive' as const },
         })),
       },
@@ -61,7 +58,7 @@ export class CollaborationService {
       },
     });
 
-    return users.map((u) => ({
+    return users.map(u => ({
       userId: u.id,
       username: u.email.split('@')[0],
     }));
@@ -81,7 +78,7 @@ export class CollaborationService {
       fn: (tx: Prisma.TransactionClient) => Promise<T>
     ) => Promise<T>;
 
-    const comment = await runTransaction(async (tx) => {
+    const comment = await runTransaction(async tx => {
       // 1. Créer le commentaire
       const newComment = await tx.comment.create({
         data: {
@@ -106,7 +103,7 @@ export class CollaborationService {
       // 2. Créer les mentions
       if (mentions.length > 0) {
         await tx.mention.createMany({
-          data: mentions.map((m) => ({
+          data: mentions.map(m => ({
             commentId: newComment.id,
             userId: m.userId,
           })),
@@ -317,9 +314,7 @@ export class CollaborationService {
    * Stats collaboration pour dashboard
    */
   async getCollaborationStats(tenantId: string, entityId?: string) {
-    const where = entityId
-      ? { tenantId, entityId }
-      : { tenantId };
+    const where = entityId ? { tenantId, entityId } : { tenantId };
 
     const [totalComments, totalMentions, recentComments] = await Promise.all([
       this.prisma.comment.count({ where }),
@@ -347,5 +342,3 @@ export class CollaborationService {
     };
   }
 }
-
-
