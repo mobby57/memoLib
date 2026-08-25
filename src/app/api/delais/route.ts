@@ -1,18 +1,27 @@
 ﻿import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
     const delaiId = searchParams.get('id');
     const dossierId = searchParams.get('dossierId');
     const status = searchParams.get('status');
     const urgent = searchParams.get('urgent') === 'true';
 
     if (delaiId) {
-      if (!tenantId) return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
       const delai = await prisma.delai.findFirst({
         where: { id: delaiId, tenantId },
         include: { dossier: { include: { client: true } } },
@@ -20,8 +29,6 @@ export async function GET(request: NextRequest) {
       if (!delai) return NextResponse.json({ error: 'Delai non trouve' }, { status: 404 });
       return NextResponse.json({ delai });
     }
-
-    if (!tenantId) return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
 
     const where: Record<string, unknown> = { tenantId };
     if (dossierId) where.dossierId = dossierId;
@@ -53,9 +60,17 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const body = await request.json();
     const {
-      tenantId,
       dossierId,
       titre,
       description,
@@ -65,9 +80,9 @@ export async function POST(request: NextRequest) {
       priorite,
     } = body;
 
-    if (!tenantId || !dossierId || !titre || !type || !dateEcheance) {
+    if (!dossierId || !titre || !type || !dateEcheance) {
       return NextResponse.json(
-        { error: 'tenantId, dossierId, titre, type et dateEcheance requis' },
+        { error: 'dossierId, titre, type et dateEcheance requis' },
         { status: 400 }
       );
     }
@@ -125,11 +140,20 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { delaiId, tenantId, status, respecteLe } = body;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
 
-    if (!delaiId || !tenantId)
-      return NextResponse.json({ error: 'delaiId et tenantId requis' }, { status: 400 });
+    const body = await request.json();
+    const { delaiId, status, respecteLe } = body;
+
+    if (!delaiId)
+      return NextResponse.json({ error: 'delaiId requis' }, { status: 400 });
 
     const existing = await prisma.delai.findFirst({ where: { id: delaiId, tenantId } });
     if (!existing) return NextResponse.json({ error: 'Delai non trouve' }, { status: 404 });
