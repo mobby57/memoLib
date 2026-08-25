@@ -2,29 +2,24 @@ const CACHE_NAME = 'memolib-v3';
 const STATIC_CACHE = 'memolib-static-v3';
 const DYNAMIC_CACHE = 'memolib-dynamic-v3';
 
-const STATIC_ASSETS = [
-  '/',
-  '/dashboard',
-  '/auth/login',
-  '/manifest.json'
-];
+const STATIC_ASSETS = ['/', '/dashboard', '/auth/login', '/manifest.webmanifest'];
 
 const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
+    caches.open(STATIC_CACHE).then(cache => {
       return cache.addAll(STATIC_ASSETS);
     })
   );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
+        cacheNames.map(cacheName => {
           if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
             return caches.delete(cacheName);
           }
@@ -35,7 +30,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
@@ -48,7 +43,7 @@ self.addEventListener('fetch', (event) => {
   // Cache des assets statiques
   if (STATIC_ASSETS.includes(url.pathname)) {
     event.respondWith(
-      caches.match(request).then((response) => {
+      caches.match(request).then(response => {
         return response || fetch(request);
       })
     );
@@ -58,7 +53,7 @@ self.addEventListener('fetch', (event) => {
   // Cache des API avec stratégie stale-while-revalidate
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
-      caches.open(DYNAMIC_CACHE).then(async (cache) => {
+      caches.open(DYNAMIC_CACHE).then(async cache => {
         const cachedResponse = await cache.match(request);
 
         if (cachedResponse) {
@@ -67,13 +62,15 @@ self.addEventListener('fetch', (event) => {
 
           if (now.getTime() - cachedTime.getTime() < API_CACHE_DURATION) {
             // Retourner le cache si encore valide
-            fetch(request).then((response) => {
-              if (response.ok) {
-                const responseClone = response.clone();
-                responseClone.headers.set('sw-cache-time', now.toISOString());
-                cache.put(request, responseClone);
-              }
-            }).catch(() => { });
+            fetch(request)
+              .then(response => {
+                if (response.ok) {
+                  const responseClone = response.clone();
+                  responseClone.headers.set('sw-cache-time', now.toISOString());
+                  cache.put(request, responseClone);
+                }
+              })
+              .catch(() => {});
 
             return cachedResponse;
           }
@@ -93,10 +90,13 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          return new Response(JSON.stringify({ error: 'Offline', message: 'Network unavailable' }), {
-            status: 503,
-            headers: { 'Content-Type': 'application/json' }
-          });
+          return new Response(
+            JSON.stringify({ error: 'Offline', message: 'Network unavailable' }),
+            {
+              status: 503,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
         }
       })
     );
