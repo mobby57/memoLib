@@ -1,7 +1,8 @@
-﻿/**
+/**
  * ️ CONFIGURATION AVANCeE DES WORKFLOWS INTELLIGENTS
  * Personnalisation complete du comportement du systeme
  */
+import prisma from '@/lib/prisma';
 
 export interface WorkflowConfig {
   // Activation/Desactivation
@@ -461,15 +462,10 @@ export const PRESET_CONFIGS = {
 export async function loadWorkflowConfig(tenantId?: string): Promise<WorkflowConfig> {
   if (tenantId) {
     try {
-      const { PrismaClient } = await import('@prisma/client');
-      const prisma = new PrismaClient();
-
       const tenant = await prisma.tenant.findUnique({
         where: { id: tenantId },
         select: { settings: true },
       });
-
-      await prisma.$disconnect();
 
       if (tenant?.settings && typeof tenant.settings === 'object') {
         const settings = tenant.settings as Record<string, any>;
@@ -497,9 +493,6 @@ export async function saveWorkflowConfig(
   }
 
   try {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
-
     // Charger les settings existants
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },

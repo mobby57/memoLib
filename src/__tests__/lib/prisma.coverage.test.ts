@@ -8,7 +8,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 // Set test environment
 process.env.NODE_ENV = 'test';
 
-import { prisma, ensureDbOptimized, disconnectPrisma, resetMetrics } from '@/lib/prisma';
+import { prisma, ensureDbOptimized, disconnectPrisma, resetMetrics } from '../../lib/prisma';
 
 describe('prisma.ts — Full Coverage', () => {
   describe('prisma client in test mode', () => {
@@ -96,7 +96,7 @@ describe('prisma.ts — Full Coverage', () => {
 
   describe('default export', () => {
     it('should export prisma as default', async () => {
-      const mod = await import('@/lib/prisma');
+      const mod = await import('../../../lib/prisma');
       expect(mod.default).toBe(prisma);
     });
   });

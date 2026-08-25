@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * FilterRuleService - Service de filtrage email automatique (Phase 3)
  *
@@ -337,5 +337,3 @@ export class FilterRuleService {
 }
 
 export const filterRuleService = new FilterRuleService();
-
-

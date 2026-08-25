@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import { oauthService, type OAuthProvider } from './oauth-service';
 
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export type OAuthTokenData = {
   provider: OAuthProvider;

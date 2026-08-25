@@ -15,10 +15,9 @@
  * - Art. 20: Droit à la portabilité
  */
 
-import { PrismaClient } from '@prisma/client';
 import { EventLogService } from '@/lib/services/event-log.service';
 
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 const eventLogService = new EventLogService();
 
 interface ExportData {
@@ -110,10 +109,7 @@ export class RGPDComplianceService {
       const dossiers = await prisma.dossier.findMany({
         where: {
           tenantId,
-          OR: [
-            { responsableId: userId },
-            { collaborateurs: { contains: userId } },
-          ],
+          OR: [{ responsableId: userId }, { collaborateurs: { contains: userId } }],
         },
         include: {
           client: {
@@ -200,7 +196,7 @@ export class RGPDComplianceService {
           tenant: user.tenant,
           client: user.client,
         },
-        dossiers: dossiers.map((d) => ({
+        dossiers: dossiers.map(d => ({
           id: d.id,
           numero: d.numero,
           typeDossier: d.typeDossier,
@@ -212,26 +208,26 @@ export class RGPDComplianceService {
           createdAt: d.dateCreation,
         })),
         documents: documents,
-        comments: comments.map((c) => ({
+        comments: comments.map(c => ({
           id: c.id,
           content: c.content,
           entityType: c.entityType,
           createdAt: c.createdAt,
         })),
-        chatSessions: chatSessions.map((s) => ({
+        chatSessions: chatSessions.map(s => ({
           id: s.id,
           title: s.title,
           messagesCount: s.messages.length,
           messages: s.messages,
           createdAt: s.createdAt,
         })),
-        consents: consents.map((c) => ({
+        consents: consents.map(c => ({
           purpose: c.purpose,
           granted: c.granted,
           grantedAt: c.grantedAt,
           revokedAt: c.revokedAt,
         })),
-        auditLogs: auditLogs.map((log) => ({
+        auditLogs: auditLogs.map(log => ({
           timestamp: log.timestamp,
           eventType: log.eventType,
           entityType: log.entityType,
@@ -399,7 +395,15 @@ export class RGPDComplianceService {
 
     return {
       userId,
-      anonymizedFields: ['email', 'name', 'phone', 'address', 'passportNumber', 'comments', 'chatSessions'],
+      anonymizedFields: [
+        'email',
+        'name',
+        'phone',
+        'address',
+        'passportNumber',
+        'comments',
+        'chatSessions',
+      ],
       tablesAffected,
       timestamp,
     };
@@ -514,7 +518,11 @@ export class RGPDComplianceService {
   /**
    * Révoque consentement utilisateur (Art. 7 RGPD)
    */
-  async revokeConsent(params: { consentId: string; userId: string; tenantId: string }): Promise<any> {
+  async revokeConsent(params: {
+    consentId: string;
+    userId: string;
+    tenantId: string;
+  }): Promise<any> {
     const { consentId, userId, tenantId } = params;
 
     const consent = await prisma.consentRecord.update({
