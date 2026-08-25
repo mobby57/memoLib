@@ -27,6 +27,7 @@ import {
   Trash2,
   Eye,
   Users,
+  MessageSquare,
   Filter,
   RefreshCw,
   Clock,
@@ -472,6 +473,14 @@ export default function DossiersPage() {
               aria-label={`Gérer les accès du dossier ${row.numéro}`}
             >
               <Users className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => router.push(`/dossiers/${row.id}/chat`)}
+              className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30 rounded transition-colors"
+              title="Chat du dossier"
+              aria-label={`Ouvrir le chat du dossier ${row.numéro}`}
+            >
+              <MessageSquare className="w-4 h-4" />
             </button>
             <button
               onClick={() => openEditModal(row)}
