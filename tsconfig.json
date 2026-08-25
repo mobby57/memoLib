@@ -17,6 +17,7 @@
       "@/*": ["./src/*", "./src/frontend/*"]
     },
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictNullChecks": true,
     "plugins": [{ "name": "next" }]
