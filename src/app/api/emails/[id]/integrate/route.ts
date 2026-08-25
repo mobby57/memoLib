@@ -70,8 +70,20 @@ export async function POST(
     processedAt: new Date(),
   };
 
-  if (body.dossierId) updateData.dossierId = body.dossierId;
-  if (body.clientId) updateData.clientId = body.clientId;
+  if (body.dossierId) {
+    const targetDossier = await prisma.dossier.findFirst({ where: { id: body.dossierId, tenantId } });
+    if (!targetDossier) {
+      return NextResponse.json({ error: 'Dossier non trouve dans ce cabinet' }, { status: 404 });
+    }
+    updateData.dossierId = body.dossierId;
+  }
+  if (body.clientId) {
+    const targetClient = await prisma.client.findFirst({ where: { id: body.clientId, tenantId } });
+    if (!targetClient) {
+      return NextResponse.json({ error: 'Client non trouve dans ce cabinet' }, { status: 404 });
+    }
+    updateData.clientId = body.clientId;
+  }
 
   await prisma.email.update({ where: { id }, data: updateData });
 

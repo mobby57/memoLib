@@ -10,6 +10,7 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { clientShareService } from '@/lib/services/client-share.service';
+import { prisma } from '@/lib/prisma';
 
 // ─── POST : Partager un document ────────────────────────────────────────────────
 
@@ -40,6 +41,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const dossier = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
+    if (!dossier) {
+      return NextResponse.json({ error: 'Dossier non trouve dans ce cabinet' }, { status: 404 });
+    }
+    const targetClient = await prisma.user.findFirst({ where: { id: clientUserId, tenantId } });
+    if (!targetClient) {
+      return NextResponse.json({ error: 'Client non trouve dans ce cabinet' }, { status: 404 });
+    }
+
     const share = await clientShareService.shareDocument({
       tenantId,
       documentId,
