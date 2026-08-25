@@ -1,6 +1,4 @@
-﻿// @ts-nocheck
-/* eslint-disable no-dupe-class-members */
-/**
+﻿/**
  * Client OAuth2.0 pour API Legifrance (PISTE)
  *
  * Gestion des tokens OAuth avec flux Client Credentials
@@ -26,7 +24,7 @@ interface PisteConfig {
 export class LegifranceOAuthClient {
   private config: PisteConfig;
   private token: OAuthToken | null = null;
-  private isConfigured: boolean = false;
+  private configured: boolean = false;
 
   constructor(environment: 'sandbox' | 'production' = 'sandbox') {
     const isSandbox = environment === 'sandbox';
@@ -48,8 +46,8 @@ export class LegifranceOAuthClient {
     };
 
     // Validation configuration - juste un warning, pas d'erreur
-    this.isConfigured = !!(this.config.clientId && this.config.clientSecret);
-    if (!this.isConfigured) {
+    this.configured = !!(this.config.clientId && this.config.clientSecret);
+    if (!this.configured) {
       console.warn(
         `? Configuration PISTE manquante pour l'environnement ${environment}. ` +
         `L'API Legifrance sera desactivee.`
@@ -61,14 +59,14 @@ export class LegifranceOAuthClient {
    * Verifie si le client est configure
    */
   isAvailable(): boolean {
-    return this.isConfigured;
+    return this.configured;
   }
 
   /**
    * Obtenir un token OAuth valide (recupere ou renouvelle)
    */
   async getValidToken(): Promise<string> {
-    if (!this.isConfigured) {
+    if (!this.configured) {
       throw new Error('API Legifrance non configuree');
     }
 

@@ -5,8 +5,11 @@ import { prisma } from '@/lib/prisma';
 import { judilibreClient } from '@/lib/legifrance/judilibre-client';
 import { logger } from '@/lib/logger';
 import { checkFeatureAccess } from '@/lib/billing/features';
+import { searchCache } from '@/lib/cache/cache-service';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
 
-export async function GET(req: NextRequest) {
+export const GET = withRateLimit(
+  async (req: NextRequest) => {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -32,6 +35,32 @@ export async function GET(req: NextRequest) {
 
   if (!query) return NextResponse.json({ error: 'Paramètre q requis' }, { status: 400 });
 
+  // Cache des recherches (données juridiques publiques, non tenant-spécifiques) :
+  // évite de re-solliciter Judilibre/Postgres pour des requêtes identiques répétées
+  // par plusieurs avocats (ex: "OQTF", "titre de séjour") — réponse quasi-instantanée.
+  const cacheKey = `jurisprudence:${source}:${type}:${query.toLowerCase().trim()}:${limit}:${page}`;
+  const cached = await searchCache.get<Record<string, unknown>>(cacheKey);
+  if (cached) {
+    return NextResponse.json({ ...cached, cached: true });
+  }
+
+  const payload = await resolveSearch(query, type, source, limit, page, offset);
+  if (!('error' in payload)) {
+    await searchCache.set(cacheKey, payload);
+  }
+  return NextResponse.json(payload, 'status' in payload ? { status: payload.status as number } : undefined);
+  },
+  { type: 'api' }
+);
+
+async function resolveSearch(
+  query: string,
+  type: string,
+  source: string,
+  limit: number,
+  page: number,
+  offset: number
+): Promise<Record<string, unknown>> {
   // Source priority: postgres → judilibre → fallback
   if (source === 'auto') {
     // 1. Try PostgreSQL (indexed decisions)
@@ -51,7 +80,7 @@ export async function GET(req: NextRequest) {
 
     // 3. Fallback static
     const results = searchFallback(query, type);
-    return NextResponse.json({ results, source: 'fallback', total: results.length, page });
+    return { results, source: 'fallback', total: results.length, page };
   }
 
   // Explicit source selection
@@ -61,17 +90,17 @@ export async function GET(req: NextRequest) {
 
   if (source === 'judilibre') {
     if (!judilibreClient.isAvailable()) {
-      return NextResponse.json(
-        { error: 'Judilibre non configuré (JUDILIBRE_KEY_ID requis)' },
-        { status: 503 }
-      );
+      return {
+        error: 'Judilibre non configuré (JUDILIBRE_KEY_ID requis)',
+        status: 503,
+      };
     }
     return searchJudilibre(query, type, limit, page);
   }
 
   // fallback
   const results = searchFallback(query, type);
-  return NextResponse.json({ results, source: 'fallback', total: results.length, page });
+  return { results, source: 'fallback', total: results.length, page };
 }
 
 // ============================================
@@ -99,7 +128,7 @@ async function searchPostgres(query: string, type: string, limit: number, offset
     ${themeFilter ? `AND $2 = ANY(themes)` : ''}
   `, tsQuery, ...(themeFilter ? [themeFilter[0]] : []));
 
-  return NextResponse.json({
+  return {
     results: results.map(r => ({
       id: r.id,
       titre: r.titre,
@@ -117,7 +146,7 @@ async function searchPostgres(query: string, type: string, limit: number, offset
     total: total[0]?.count || 0,
     page: Math.floor(offset / limit) + 1,
     pages: Math.ceil((total[0]?.count || 0) / limit),
-  });
+  };
 }
 
 // ============================================
@@ -135,7 +164,7 @@ async function searchJudilibre(query: string, type: string, limit: number, page:
     ...(type !== 'all' && { theme: [type] }),
   });
 
-  return NextResponse.json({
+  return {
     results: result.results.map(d => ({
       id: d.id,
       titre: d.summary || `${d.type} - ${d.number}`,
@@ -157,7 +186,7 @@ async function searchJudilibre(query: string, type: string, limit: number, page:
     page,
     pages: Math.ceil(result.total / limit),
     took: result.took,
-  });
+  };
 }
 
 // ============================================
