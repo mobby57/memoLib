@@ -2,13 +2,10 @@
  * Service metier centralise pour la gestion des dossiers
  * Logique reutilisable par toutes les routes API
  */
-
-import { PrismaClient } from '@prisma/client'
-import type { CreateDossierDTO, CreateDemandeClientDTO, DossierDB } from '@/types/dossier.types'
-import { mapStatutToDB, mapPrioriteToDB } from '../constants/dossier.constants'
-import { generateNumeroDossier } from '../mappers/dossier.mapper'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma';
+import type { CreateDossierDTO, CreateDemandeClientDTO, DossierDB } from '@/types/dossier.types';
+import { mapStatutToDB, mapPrioriteToDB } from '../constants/dossier.constants';
+import { generateNumeroDossier } from '../mappers/dossier.mapper';
 
 export class DossierService {
   /**
@@ -17,31 +14,28 @@ export class DossierService {
   static async generateNumeroDossier(tenantId: string): Promise<string> {
     const count = await prisma.dossier.count({
       where: { tenantId },
-    })
-    return generateNumeroDossier(count)
+    });
+    return generateNumeroDossier(count);
   }
 
   /**
    * Cree un nouveau dossier (utilise par l'avocat)
    */
-  static async createDossier(
-    data: CreateDossierDTO,
-    tenantId: string
-  ): Promise<DossierDB> {
+  static async createDossier(data: CreateDossierDTO, tenantId: string): Promise<DossierDB> {
     // Verifier que le client appartient au tenant
     const client = await prisma.client.findFirst({
       where: {
         id: data.clientId,
         tenantId,
       },
-    })
+    });
 
     if (!client) {
-      throw new Error('Client non trouve ou acces refuse')
+      throw new Error('Client non trouve ou acces refuse');
     }
 
     // Generer le numero
-    const numero = await this.generateNumeroDossier(tenantId)
+    const numero = await this.generateNumeroDossier(tenantId);
 
     // Creer le dossier
     const dossier = await prisma.dossier.create({
@@ -73,9 +67,9 @@ export class DossierService {
           },
         },
       },
-    })
+    });
 
-    return dossier as any
+    return dossier as any;
   }
 
   /**
@@ -87,10 +81,10 @@ export class DossierService {
     clientId: string
   ): Promise<DossierDB> {
     // Generer le numero
-    const numero = await this.generateNumeroDossier(tenantId)
+    const numero = await this.generateNumeroDossier(tenantId);
 
     // Determiner la priorite
-    const priorite = data.urgence ? 'haute' : 'normale'
+    const priorite = data.urgence ? 'haute' : 'normale';
 
     // Creer le dossier
     const dossier = await prisma.dossier.create({
@@ -122,9 +116,9 @@ export class DossierService {
           },
         },
       },
-    })
+    });
 
-    return dossier as any
+    return dossier as any;
   }
 
   /**
@@ -154,18 +148,15 @@ export class DossierService {
           },
         },
       },
-    })
+    });
 
-    return dossiers as any
+    return dossiers as any;
   }
 
   /**
    * Recupere un dossier par ID avec verification tenant
    */
-  static async getDossierById(
-    dossierId: string,
-    tenantId: string
-  ): Promise<DossierDB | null> {
+  static async getDossierById(dossierId: string, tenantId: string): Promise<DossierDB | null> {
     const dossier = await prisma.dossier.findFirst({
       where: {
         id: dossierId,
@@ -187,9 +178,9 @@ export class DossierService {
           },
         },
       },
-    })
+    });
 
-    return dossier as any
+    return dossier as any;
   }
 
   /**
@@ -219,9 +210,9 @@ export class DossierService {
           },
         },
       },
-    })
+    });
 
-    return dossiers as any
+    return dossiers as any;
   }
 
   /**
@@ -233,21 +224,21 @@ export class DossierService {
     data: Partial<CreateDossierDTO>
   ): Promise<DossierDB> {
     // Verifier que le dossier appartient au tenant
-    const existing = await this.getDossierById(dossierId, tenantId)
+    const existing = await this.getDossierById(dossierId, tenantId);
     if (!existing) {
-      throw new Error('Dossier non trouve')
+      throw new Error('Dossier non trouve');
     }
 
-    const updateData: any = {}
-    
-    if (data.typeDossier) updateData.typeDossier = data.typeDossier
-    if (data.objetDemande) updateData.objet = data.objetDemande
-    if (data.priorite) updateData.priorite = mapPrioriteToDB(data.priorite)
-    if (data.statut) updateData.statut = mapStatutToDB(data.statut)
+    const updateData: any = {};
+
+    if (data.typeDossier) updateData.typeDossier = data.typeDossier;
+    if (data.objetDemande) updateData.objet = data.objetDemande;
+    if (data.priorite) updateData.priorite = mapPrioriteToDB(data.priorite);
+    if (data.statut) updateData.statut = mapStatutToDB(data.statut);
     if (data.dateEcheance !== undefined) {
-      updateData.dateEcheance = data.dateEcheance ? new Date(data.dateEcheance) : null
+      updateData.dateEcheance = data.dateEcheance ? new Date(data.dateEcheance) : null;
     }
-    if (data.notes !== undefined) updateData.notes = data.notes
+    if (data.notes !== undefined) updateData.notes = data.notes;
 
     const dossier = await prisma.dossier.update({
       where: { id: dossierId },
@@ -268,9 +259,9 @@ export class DossierService {
           },
         },
       },
-    })
+    });
 
-    return dossier as any
+    return dossier as any;
   }
 
   /**
@@ -278,20 +269,17 @@ export class DossierService {
    */
   static async deleteDossier(dossierId: string, tenantId: string): Promise<void> {
     // Verifier que le dossier appartient au tenant
-    const existing = await this.getDossierById(dossierId, tenantId)
+    const existing = await this.getDossierById(dossierId, tenantId);
     if (!existing) {
-      throw new Error('Dossier non trouve')
+      throw new Error('Dossier non trouve');
     }
 
     await prisma.dossier.delete({
       where: { id: dossierId },
-    })
+    });
   }
 
   /**
    * Ferme la connexion Prisma
    */
-  static async disconnect(): Promise<void> {
-    await prisma.$disconnect()
-  }
 }

@@ -12,10 +12,6 @@ import { safeLocalStorage } from '@/lib/localStorage';
 import {
   ReminderConfig,
   DEFAULT_REMINDER_CONFIG,
-  generateEcheanceReminderEmail,
-  generateFactureOverdueEmail,
-  generateWeeklySummaryEmail,
-  sendEmail
 } from '@/lib/services/emailService';
 import { useToast } from '@/hooks';
 
@@ -52,44 +48,26 @@ export default function NotificationsPage() {
   };
 
   const handleTestEmail = async (type: 'échéance' | 'facture' | 'summary') => {
-    let template;
+    const typeMap = { 'échéance': 'echeance', facture: 'facture', summary: 'summary' } as const;
 
-    switch (type) {
-      case 'échéance':
-        template = generateEcheanceReminderEmail({
-          titre: 'Depot des conclusions',
-          date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-          dossier: 'DOS-2026-001',
-          description: 'Depot des conclusions au greffe du tribunal'
-        }, 3);
-        break;
+    try {
+      const response = await fetch('/api/notifications/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: typeMap[type] }),
+      });
 
-      case 'facture':
-        template = generateFactureOverdueEmail({
-          numero: 'FACT-2026-001',
-          client: 'Martin Dupont',
-          montant: 1500,
-          dateEcheance: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        }, 7);
-        break;
+      const data = await response.json();
 
-      case 'summary':
-        template = generateWeeklySummaryEmail({
-          newDossiers: 5,
-          newFactures: 8,
-          totalRevenue: 12500,
-          upcomingEcheances: 3,
-          overdueFactures: 2
-        });
-        break;
+      if (!response.ok) {
+        showToast(data.error || "Échec de l'envoi de l'email de test", 'error');
+        return;
+      }
+
+      showToast('Email de test envoyé (vérifiez votre boîte de réception)', 'success');
+    } catch {
+      showToast("Échec de l'envoi de l'email de test", 'error');
     }
-
-    await sendEmail({
-      to: [{ email: 'user@example.com', name: 'Utilisateur Test' }],
-      template
-    });
-
-    showToast('Email de test envoye (verifiez la console)', 'success');
   };
 
   return (

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Comprehensive Audit Trail System
  * - RGPD/GDPR compliant logging
  * - Track all sensitive data access
@@ -6,9 +6,7 @@
  * - Compliance reporting
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export type AuditAction =
   | 'CREATE'
@@ -48,7 +46,7 @@ interface AuditLogData {
 
 /**
  * Create immutable audit log entry with hash chain (intégrité vérifiable)
- * 
+ *
  * VALEUR PROBANTE:
  * - Chaque entrée inclut le hash SHA-256 de l'entrée précédente (chainage)
  * - Toute modification d'une entrée casse la chaîne (détectable)
@@ -63,7 +61,8 @@ export async function createAuditLog(data: AuditLogData) {
       select: { id: true, hash: true },
     });
 
-    const previousHash = previousEntry?.hash || '0000000000000000000000000000000000000000000000000000000000000000';
+    const previousHash =
+      previousEntry?.hash || '0000000000000000000000000000000000000000000000000000000000000000';
 
     // Construire le payload à hasher (données immuables)
     const timestamp = new Date();
@@ -259,13 +258,21 @@ export async function generateComplianceReport(tenantId: string, startDate: Date
     period: { start: startDate, end: endDate },
     tenantId,
     statistics: stats,
-    logs: logs.map((log: { timestamp: Date; userId: string; action: string; resource: string; success: boolean }) => ({
-      timestamp: log.timestamp,
-      user: log.userId,
-      action: log.action,
-      resource: log.resource,
-      success: log.success,
-    })),
+    logs: logs.map(
+      (log: {
+        timestamp: Date;
+        userId: string;
+        action: string;
+        resource: string;
+        success: boolean;
+      }) => ({
+        timestamp: log.timestamp,
+        user: log.userId,
+        action: log.action,
+        resource: log.resource,
+        success: log.success,
+      })
+    ),
   };
 }
 
@@ -283,7 +290,8 @@ export async function detectSuspiciousActivity(userId: string, hours: number = 2
   });
 
   const suspicious = {
-    multipleFailedLogins: logs.filter((l: { action: string }) => l.action === 'FAILED_LOGIN').length > 5,
+    multipleFailedLogins:
+      logs.filter((l: { action: string }) => l.action === 'FAILED_LOGIN').length > 5,
 
     excessiveExports: logs.filter((l: { action: string }) => l.action === 'EXPORT').length > 20,
 
@@ -293,7 +301,10 @@ export async function detectSuspiciousActivity(userId: string, hours: number = 2
         return hour < 6 || hour > 22;
       }).length > 10,
 
-    massDataAccess: logs.filter((l: { action: string; sensitiveData: boolean }) => l.action === 'READ' && l.sensitiveData).length > 100,
+    massDataAccess:
+      logs.filter(
+        (l: { action: string; sensitiveData: boolean }) => l.action === 'READ' && l.sensitiveData
+      ).length > 100,
   };
 
   const isSuspicious = Object.values(suspicious).some(v => v === true);
@@ -313,11 +324,10 @@ export async function detectSuspiciousActivity(userId: string, hours: number = 2
   return { suspicious: isSuspicious, details: suspicious };
 }
 
-
 /**
  * Vérification de l'intégrité de la chaîne d'audit.
  * Détecte toute modification frauduleuse d'une entrée.
- * 
+ *
  * @returns Liste des entrées dont le hash chain est cassé
  */
 export async function verifyAuditChainIntegrity(tenantId?: string): Promise<{
@@ -348,9 +358,10 @@ export async function verifyAuditChainIntegrity(tenantId?: string): Promise<{
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
-    const expectedPreviousHash = i === 0
-      ? '0000000000000000000000000000000000000000000000000000000000000000'
-      : entries[i - 1].hash;
+    const expectedPreviousHash =
+      i === 0
+        ? '0000000000000000000000000000000000000000000000000000000000000000'
+        : entries[i - 1].hash;
 
     // Vérifier que le previousHash correspond au hash de l'entrée précédente
     if (entry.previousHash && entry.previousHash !== expectedPreviousHash) {

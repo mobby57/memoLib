@@ -1,13 +1,11 @@
-﻿/**
+/**
  * Plan Limits & AI Guards - memoLib
  *
  * Systeme de verification des limites par plan et garde-fous IA
  * Implemente la Charte IA et les niveaux d'autonomie
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // ============================================
 // TYPES
@@ -405,17 +403,12 @@ export async function logAIAction(data: {
     // Utiliser le logger professionnel pour traçabilité IA
     const { logger } = await import('@/lib/logger');
 
-    logger.audit(
-      `AI_${data.action}`,
-      data.userId || 'system',
-      data.tenantId,
-      {
-        module: 'AI',
-        message: `Action IA: ${data.action} - ${data.validated ? 'Validé' : 'Non validé'}`,
-        validated: data.validated,
-        ...data.metadata,
-      }
-    );
+    logger.audit(`AI_${data.action}`, data.userId || 'system', data.tenantId, {
+      module: 'AI',
+      message: `Action IA: ${data.action} - ${data.validated ? 'Validé' : 'Non validé'}`,
+      validated: data.validated,
+      ...data.metadata,
+    });
 
     // En production, envoyer aussi à Sentry pour suivi IA
     if (process.env.NODE_ENV === 'production') {
