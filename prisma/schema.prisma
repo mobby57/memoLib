@@ -1103,10 +1103,32 @@ model User {
   Tenant           Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   DossierMember    DossierMember[]
   TeamMember       TeamMember[]
+  UserConsent      UserConsent[]
 
   @@index([role])
   @@index([status])
   @@index([tenantId, email])
+}
+
+/// Consentement RGPD au niveau utilisateur (cookies, analytics, marketing, etc.),
+/// distinct de RGPDConsent qui est scopé par Client (client final du cabinet)
+/// et par canal de communication (email/sms/whatsapp).
+model UserConsent {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String
+  granted       Boolean  @default(true)
+  ipAddress     String?
+  userAgent     String?
+  policyVersion String?
+  grantedAt     DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  User          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([userId, type])
 }
 
 /// Contrôle d'accès granulaire par dossier ("qui, en plus du RBAC global,
