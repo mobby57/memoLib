@@ -42,10 +42,10 @@ export async function POST(req: NextRequest) {
   if (dossierId && tenantId) {
     const dossier = await prisma.dossier.findFirst({
       where: { id: dossierId, tenantId },
-      include: { client: true },
+      include: { Client: true },
     });
     if (dossier) {
-      context = `\nContexte dossier: ${dossier.numero} — ${dossier.type} — Client: ${(dossier.client as any)?.nom || 'N/A'} — Statut: ${dossier.statut}`;
+      context = `\nContexte dossier: ${dossier.numero} — ${dossier.typeDossier} — Client: ${dossier.Client ? `${dossier.Client.firstName} ${dossier.Client.lastName}` : 'N/A'} — Statut: ${dossier.statut}`;
       if (dossier.description) context += `\nDescription: ${dossier.description}`;
     }
   }

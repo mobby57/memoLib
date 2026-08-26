@@ -9,10 +9,14 @@
 
 export function enforceProductionSecurity(): void {
   const isProduction = process.env.NODE_ENV === 'production';
-  const isDemoMode = process.env.DEMO_MODE === 'true';
+  const isDemoMode = process.env.DEMO_MODE === 'true' || process.env.DEMO_MODE === '1';
 
-  if (!isProduction || isDemoMode) {
-    return; // Skip en dev/demo
+  if (!isProduction) {
+    return;
+  }
+
+  if (isDemoMode) {
+    throw new Error('FATAL: DEMO_MODE cannot be enabled in production.');
   }
 
   const errors: string[] = [];

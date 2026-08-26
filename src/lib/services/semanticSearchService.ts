@@ -172,7 +172,7 @@ export class SemanticSearchService {
   ): Promise<SemanticSearchResult[]> {
     const dossier = await prisma.dossier.findUnique({
       where: { id: dossierId },
-      include: { client: true }
+      include: { Client: true }
     });
 
     if (!dossier) {
