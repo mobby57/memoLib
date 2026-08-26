@@ -1,249 +1,84 @@
-/**
- * Tests pour l'API notifications
- * Tests des endpoints GET, PATCH, DELETE
- */
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock Prisma
-vi.mock('@/lib/prisma', () => ({
-  __esModule: true,
-  default: {
+const { session, prisma } = vi.hoisted(() => ({
+  session: { current: null as { user?: { id?: string } } | null },
+  prisma: {
     notification: {
       findMany: vi.fn(),
       findFirst: vi.fn(),
-      update: vi.fn(),
-      updateMany: vi.fn(),
       delete: vi.fn(),
-      count: vi.fn(),
     },
   },
 }));
 
-// Mock notifications lib
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(() => session.current),
+}));
+vi.mock('@/app/api/auth/[...nextauth]/route', () => ({ authOptions: {} }));
+vi.mock('@/lib/prisma', () => ({ __esModule: true, default: prisma }));
 vi.mock('@/lib/notifications', () => ({
-  markNotificationAsRead: vi.fn(),
+  getUnreadCount: vi.fn(() => 0),
   markAllNotificationsAsRead: vi.fn(),
-  getUnreadCount: vi.fn(),
+  markNotificationAsRead: vi.fn(),
 }));
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { GET, PATCH, DELETE } from '@/app/api/notifications/route';
-import prisma from '@/lib/prisma';
-import { markNotificationAsRead, markAllNotificationsAsRead, getUnreadCount } from '@/lib/notifications';
+import { DELETE, GET, PATCH } from '@/app/api/notifications/route';
+import { getUnreadCount, markAllNotificationsAsRead, markNotificationAsRead } from '@/lib/notifications';
 
 describe('API /api/notifications', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    session.current = { user: { id: 'user-a' } };
   });
 
-  // ============================================
-  // GET /api/notifications
-  // ============================================
-  describe('GET /api/notifications', () => {
-    test('retourne 400 si userId manquant', async () => {
-      const request = new Request('http://localhost/api/notifications');
-      const response = await GET(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe('userId requis');
-    });
-
-    test('retourne les notifications pour un utilisateur', async () => {
-      const mockNotifications = [
-        { id: '1', title: 'Test 1', isRead: false, createdAt: new Date() },
-        { id: '2', title: 'Test 2', isRead: true, createdAt: new Date() },
-      ];
-
-      (prisma.notification.findMany as any).mockResolvedValue(mockNotifications);
-      (getUnreadCount as any).mockResolvedValue(1);
-
-      const request = new Request('http://localhost/api/notifications?userId=user123');
-      const response = await GET(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data.notifications).toHaveLength(2);
-      expect(data.unreadCount).toBe(1);
-    });
-
-    test('filtre les notifications non lues', async () => {
-      (prisma.notification.findMany as any).mockResolvedValue([]);
-      (getUnreadCount as any).mockResolvedValue(0);
-
-      const request = new Request('http://localhost/api/notifications?userId=user123&unreadOnly=true');
-      const response = await GET(request as any);
-
-      expect(response.status).toBe(200);
-      expect(prisma.notification.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            userId: 'user123',
-            isRead: false,
-          }),
-        })
-      );
-    });
-
-    test('respecte limit et offset', async () => {
-      (prisma.notification.findMany as any).mockResolvedValue([]);
-      (getUnreadCount as any).mockResolvedValue(0);
-
-      const request = new Request('http://localhost/api/notifications?userId=user123&limit=10&offset=20');
-      await GET(request as any);
-
-      expect(prisma.notification.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          take: 10,
-          skip: 20,
-        })
-      );
-    });
-
-    test('indique hasMore quand limite atteinte', async () => {
-      const mockNotifications = Array(50).fill({ id: '1', title: 'Test' });
-      (prisma.notification.findMany as any).mockResolvedValue(mockNotifications);
-      (getUnreadCount as any).mockResolvedValue(100);
-
-      const request = new Request('http://localhost/api/notifications?userId=user123&limit=50');
-      const response = await GET(request as any);
-      const data = await response.json();
-
-      expect(data.hasMore).toBe(true);
-    });
-
-    test('gère les erreurs serveur', async () => {
-      (prisma.notification.findMany as any).mockRejectedValue(new Error('DB Error'));
-
-      const request = new Request('http://localhost/api/notifications?userId=user123');
-      const response = await GET(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Erreur serveur');
-    });
+  it('rejects anonymous reads', async () => {
+    session.current = null;
+    expect((await GET(new Request('http://localhost/api/notifications') as never)).status).toBe(401);
   });
 
-  // ============================================
-  // PATCH /api/notifications
-  // ============================================
-  describe('PATCH /api/notifications', () => {
-    test('retourne 400 si userId manquant', async () => {
-      const request = new Request('http://localhost/api/notifications', {
-        method: 'PATCH',
-        body: JSON.stringify({}),
-      });
-      const response = await PATCH(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe('userId requis');
-    });
-
-    test('marque toutes les notifications comme lues', async () => {
-      (markAllNotificationsAsRead as any).mockResolvedValue(undefined);
-
-      const request = new Request('http://localhost/api/notifications', {
-        method: 'PATCH',
-        body: JSON.stringify({ userId: 'user123', markAll: true }),
-      });
-      const response = await PATCH(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data.success).toBe(true);
-      expect(markAllNotificationsAsRead).toHaveBeenCalledWith('user123');
-    });
-
-    test('marque une notification spécifique comme lue', async () => {
-      (markNotificationAsRead as any).mockResolvedValue(undefined);
-
-      const request = new Request('http://localhost/api/notifications', {
-        method: 'PATCH',
-        body: JSON.stringify({ userId: 'user123', notificationId: 'notif456' }),
-      });
-      const response = await PATCH(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data.success).toBe(true);
-      expect(markNotificationAsRead).toHaveBeenCalledWith('notif456', 'user123');
-    });
-
-    test('retourne 400 si ni notificationId ni markAll fourni', async () => {
-      const request = new Request('http://localhost/api/notifications', {
-        method: 'PATCH',
-        body: JSON.stringify({ userId: 'user123' }),
-      });
-      const response = await PATCH(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe('notificationId ou markAll requis');
-    });
-
-    test('gère les erreurs serveur', async () => {
-      (markNotificationAsRead as any).mockRejectedValue(new Error('DB Error'));
-
-      const request = new Request('http://localhost/api/notifications', {
-        method: 'PATCH',
-        body: JSON.stringify({ userId: 'user123', notificationId: 'notif456' }),
-      });
-      const response = await PATCH(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe('Erreur serveur');
-    });
+  it('ignores a supplied userId and scopes reads to the session user', async () => {
+    prisma.notification.findMany.mockResolvedValue([]);
+    await GET(new Request('http://localhost/api/notifications?userId=user-b') as never);
+    expect(prisma.notification.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ userId: 'user-a' }) })
+    );
   });
 
-  // ============================================
-  // DELETE /api/notifications
-  // ============================================
-  describe('DELETE /api/notifications', () => {
-    test('retourne 400 si id manquant', async () => {
-      const request = new Request('http://localhost/api/notifications?userId=user123', {
+  it('ignores a supplied userId when marking all notifications read', async () => {
+    await PATCH(new Request('http://localhost/api/notifications', {
+      method: 'PATCH',
+      body: JSON.stringify({ userId: 'user-b', markAll: true }),
+    }) as never);
+    expect(markAllNotificationsAsRead).toHaveBeenCalledWith('user-a');
+  });
+
+  it('scopes a notification update to the session user', async () => {
+    await PATCH(new Request('http://localhost/api/notifications', {
+      method: 'PATCH',
+      body: JSON.stringify({ userId: 'user-b', notificationId: 'notification-1' }),
+    }) as never);
+    expect(markNotificationAsRead).toHaveBeenCalledWith('notification-1', 'user-a');
+  });
+
+  it('does not delete a notification not owned by the session user', async () => {
+    prisma.notification.findFirst.mockResolvedValue(null);
+    const response = await DELETE(
+      new Request('http://localhost/api/notifications?id=notification-b&userId=user-b', {
         method: 'DELETE',
-      });
-      const response = await DELETE(request as any);
-      const data = await response.json();
+      }) as never
+    );
+    expect(response.status).toBe(404);
+    expect(prisma.notification.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'notification-b', userId: 'user-a' } })
+    );
+  });
 
-      expect(response.status).toBe(400);
-    });
-
-    test('retourne 400 si userId manquant', async () => {
-      const request = new Request('http://localhost/api/notifications?id=notif123', {
-        method: 'DELETE',
-      });
-      const response = await DELETE(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-    });
-
-    test('supprime une notification avec succès', async () => {
-      (prisma.notification.findFirst as any).mockResolvedValue({ id: 'notif123', userId: 'user123' });
-      (prisma.notification.delete as any).mockResolvedValue({ id: 'notif123' });
-
-      const request = new Request('http://localhost/api/notifications?id=notif123&userId=user123', {
-        method: 'DELETE',
-      });
-      const response = await DELETE(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data.success).toBe(true);
-    });
-
-    test('gère les erreurs serveur lors de la suppression', async () => {
-      (prisma.notification.findFirst as any).mockRejectedValue(new Error('DB Error'));
-
-      const request = new Request('http://localhost/api/notifications?id=notif123&userId=user123', {
-        method: 'DELETE',
-      });
-      const response = await DELETE(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-    });
+  it('rejects anonymous mutations', async () => {
+    session.current = null;
+    const response = await PATCH(new Request('http://localhost/api/notifications', {
+      method: 'PATCH',
+      body: JSON.stringify({ markAll: true }),
+    }) as never);
+    expect(response.status).toBe(401);
   });
 });

@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   // Vérifier accès au dossier
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId },
-    include: { client: true },
+    include: { Client: true },
   });
   if (!dossier) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
 
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
     date: (dossier.createdAt as Date).toISOString(),
     type: 'creation',
     title: `Dossier ${dossier.numero} ouvert`,
-    description: `Type: ${dossier.type} — Client: ${(dossier.client as any)?.nom || 'N/A'}`,
+    description: `Type: ${dossier.typeDossier} — Client: ${dossier.Client ? `${dossier.Client.firstName} ${dossier.Client.lastName}` : 'N/A'}`,
     source: 'system',
     importance: 'haute',
   });
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     dossierId,
     numero: dossier.numero,
-    client: (dossier.client as any)?.nom,
+    client: dossier.Client ? `${dossier.Client.firstName} ${dossier.Client.lastName}` : undefined,
     totalEvents: timeline.length,
     timeline,
   });

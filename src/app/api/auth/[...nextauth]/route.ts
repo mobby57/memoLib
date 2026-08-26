@@ -159,45 +159,6 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Service indisponible');
         }
 
-        // Always allow demo@memolib.fr login
-        if (emailNormalized === 'demo@memolib.fr') {
-          try {
-            const demoUser = await prisma.user.findUnique({
-              where: { email: 'demo@memolib.fr' },
-              include: {
-                Tenant: {
-                  select: { id: true, name: true, status: true, Plan: { select: { name: true } } },
-                },
-              },
-            });
-            if (demoUser) {
-              return {
-                id: demoUser.id,
-                email: demoUser.email,
-                name: demoUser.name,
-                role: demoUser.role,
-                tenantId: demoUser.tenantId,
-                tenantName: demoUser.Tenant?.name,
-                tenantPlan: demoUser.Tenant?.Plan?.name,
-                clientId: demoUser.clientId,
-              } as OAuthUser;
-            }
-          } catch {
-            // DB unavailable — continue to fallback
-          }
-          // Fallback: demo user not in DB — return mock session
-          return {
-            id: 'demo-user-fallback',
-            email: 'demo@memolib.fr',
-            name: 'Avocat Démo',
-            role: 'AVOCAT',
-            tenantId: 'demo-tenant-fallback',
-            tenantName: 'Cabinet Démo',
-            tenantPlan: 'CABINET',
-            clientId: null,
-          } as OAuthUser;
-        }
-
         if (isDemoMode) {
           const demoUsers: Record<string, any> = {
             'superadmin@memolib.com': {

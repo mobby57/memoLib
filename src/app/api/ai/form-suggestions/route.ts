@@ -1,5 +1,9 @@
 ﻿import { logger } from '@/lib/logger';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 /**
  *  API: Suggestions IA pour formulaires interactifs
@@ -7,9 +11,26 @@ import { NextRequest, NextResponse } from 'next/server';
  * Analyse le contexte et genere des suggestions intelligentes
  */
 
-export async function POST(request: NextRequest) {
+const suggestionSchema = z.object({
+  formId: z.string().min(1).max(100),
+  fieldId: z.string().min(1).max(100),
+  context: z.record(z.unknown()).default({}),
+});
+
+export const POST = withAIRateLimit(async (request: NextRequest) => {
   try {
-    const { formId, fieldId, context } = await request.json();
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 });
+    }
+    if (!session.user.tenantId) {
+      return NextResponse.json({ success: false, error: 'Accès refusé' }, { status: 403 });
+    }
+    const parsed = suggestionSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json({ success: false, error: 'Requête IA invalide' }, { status: 400 });
+    }
+    const { formId, fieldId, context } = parsed.data;
 
     // Analyser le contexte avec le moteur local (Ollama)
     const suggestion = await generateAISuggestion(formId, fieldId, context);
@@ -27,12 +48,12 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 async function generateAISuggestion(
   formId: string,
   fieldId: string,
-  context: any
+  context: Record<string, unknown>
 ): Promise<string> {
   try {
     // Appeler Ollama local

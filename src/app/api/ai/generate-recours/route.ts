@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId: user.tenantId },
-    include: { client: true },
+    include: { Client: true },
   });
 
   if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   if (ollamaUrl) {
     try {
       const prompt = `Tu es un avocat expert en droit des etrangers. Redige un ${typeRecours} complet pour ce dossier:
-- Client: ${dossier.client?.nom || 'N/A'}
+- Client: ${dossier.Client?.nom || 'N/A'}
 - Type: ${dossier.typeDossier}
 - Juridiction: ${dossier.juridiction || 'Tribunal administratif'}
 - Objet: ${dossier.objet || ''}
