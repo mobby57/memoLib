@@ -1,4 +1,6 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
+import { getBlobServiceClient } from '@/lib/azure/clients';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
@@ -245,12 +247,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier que le dossier appartient au tenant
-    const dossier = await prisma.dossier.findFirst({
-      where: { id: dossierId, tenantId },
+    if (!userId) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Accès interdit' }, { status: 403 }),
+        rateInfo
+      );
+    }
+
+    const access = await canAccessDossier({
+      userId,
+      tenantId,
+      role: (user as { role?: string }).role,
+      groups: (user as { groups?: string[] }).groups,
+      dossierId,
+      action: 'write',
     });
 
-    if (!dossier) {
+    if (!access.allowed) {
       return withRateLimitHeaders(
         NextResponse.json({ error: 'Dossier non trouvé ou accès interdit' }, { status: 404 }),
         rateInfo
@@ -288,25 +301,37 @@ export async function POST(request: NextRequest) {
     // Sauvegarder le fichier localement si pas de Vercel Blob configuré
     let fileUrl: string | null = null;
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      // Vercel Blob configuré - utiliser pour stockage cloud
+    const containerName = process.env.AZURE_STORAGE_CONTAINER;
+    if (containerName) {
       try {
-        const { put } = await import('@vercel/blob');
-        const blob = await put(`documents/${uniqueId}/${safeFileName}`, buffer, {
-          access: 'public',
-          addRandomSuffix: true,
-          cacheControlMaxAge: 0,
+        const blobName = `documents/${tenantId}/${uniqueId}/${safeFileName}`;
+        const container = getBlobServiceClient().getContainerClient(containerName);
+        const blob = container.getBlockBlobClient(blobName);
+        await blob.uploadData(buffer, {
+          blobHTTPHeaders: { blobContentType: file.type },
         });
-        // NOTE: Pour une sécurité optimale en prod, migrer vers un signed URL pattern
-        // avec @vercel/blob getDownloadUrl() au lieu d'un accès public
-        fileUrl = blob.url;
-        logger.info('[UPLOAD] Fichier stocké sur Vercel Blob', { url: fileUrl });
-      } catch (blobError) {
-        logger.warn('[UPLOAD] Erreur Vercel Blob, fallback local', { error: blobError });
+        fileUrl = `azure://${containerName}/${blobName}`;
+        logger.info('[UPLOAD] Fichier stocké sur Azure Blob', {
+          documentId: uniqueId,
+          tenantId,
+        });
+      } catch (error) {
+        logger.error('[UPLOAD] Échec du stockage Azure', { documentId: uniqueId, error });
       }
     }
 
-    // Fallback: stockage local (si pas de Vercel Blob configuré)
+    if (process.env.NODE_ENV === 'production') {
+      return withRateLimitHeaders(
+        NextResponse.json(
+          { error: 'Le stockage privé des documents n’est pas configuré' },
+          { status: 503 }
+        ),
+        rateInfo
+      );
+    }
+
+    // Local storage is development-only and is served exclusively by the
+    // authenticated download endpoint.
     if (!fileUrl) {
       try {
         const fs = await import('fs/promises');
@@ -452,12 +477,23 @@ export async function GET(request: NextRequest) {
 
     const { dossierId, limit } = queryResult.data;
 
-    const dossier = await prisma.dossier.findFirst({
-      where: { id: dossierId, tenantId },
-      select: { id: true },
+    if (!userId) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Accès interdit' }, { status: 403 }),
+        rateInfo
+      );
+    }
+
+    const access = await canAccessDossier({
+      userId,
+      tenantId,
+      role: (user as { role?: string }).role,
+      groups: (user as { groups?: string[] }).groups,
+      dossierId,
+      action: 'read',
     });
 
-    if (!dossier) {
+    if (!access.allowed) {
       return withRateLimitHeaders(
         NextResponse.json({ error: 'Dossier non trouvé ou accès interdit' }, { status: 404 }),
         rateInfo

@@ -124,3 +124,7 @@ sftp_host_key.pub
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# MemoLib local document vault
+.vault/
+.vault-test/

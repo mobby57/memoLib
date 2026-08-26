@@ -96,7 +96,7 @@ describe('prisma.ts — Full Coverage', () => {
 
   describe('default export', () => {
     it('should export prisma as default', async () => {
-      const mod = await import('../../../lib/prisma');
+      const mod = await import('../../lib/prisma');
       expect(mod.default).toBe(prisma);
     });
   });
