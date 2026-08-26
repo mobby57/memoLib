@@ -15,10 +15,10 @@ export async function POST(req: NextRequest) {
 
   const dossier = await prisma.dossier.findUnique({
     where: { id: dossierId },
-    include: { client: true },
+    include: { Client: true },
   });
 
-  if (!dossier || !dossier.client?.email) {
+  if (!dossier || !dossier.Client?.email) {
     return NextResponse.json({ error: 'Dossier ou client non trouve' }, { status: 404 });
   }
 
@@ -49,11 +49,11 @@ export async function POST(req: NextRequest) {
   const { subject, body } = template(dossier);
 
   // Log (email reel quand SMTP configure)
-  console.log(`[NOTIF CLIENT] To: ${dossier.client.email} | Subject: ${subject}`);
+  console.log(`[NOTIF CLIENT] To: ${dossier.Client.email} | Subject: ${subject}`);
 
   return NextResponse.json({
     success: true,
-    to: dossier.client.email,
+    to: dossier.Client.email,
     subject,
     preview: body.substring(0, 100) + '...',
   });

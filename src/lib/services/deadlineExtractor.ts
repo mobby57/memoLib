@@ -497,8 +497,8 @@ function detectDocumentType(fileName: string): string | undefined {
  */
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
-    // Utiliser pdf2json comme alternative sécurisée à pdf-parse
-    const PDFParser = require('pdf2json');
+    // Dynamic import keeps this optional parser isolated from server startup.
+    const { default: PDFParser } = await import('pdf2json');
 
     return new Promise((resolve, reject) => {
       const pdfParser = new PDFParser();
@@ -519,7 +519,7 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
         }
       );
 
-      pdfParser.on('pdfParser_dataError', (errData: Error) => {
+      pdfParser.on('pdfParser_dataError', (errData: Error | { parserError: Error }) => {
         reject(errData);
       });
 
