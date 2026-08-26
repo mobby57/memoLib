@@ -27,6 +27,30 @@ const CHANNEL_MAP: Record<string, ChannelType> = {
   internal: 'INTERNAL',
 };
 
+function parseWebhookPayload(rawBody: string, channel: ChannelType): Record<string, unknown> {
+  if (channel === 'SMS' || channel === 'VOICE') {
+    return Object.fromEntries(new URLSearchParams(rawBody));
+  }
+
+  return JSON.parse(rawBody) as Record<string, unknown>;
+}
+
+function verifyTwilioSignature(rawBody: string, signature: string, authToken: string): boolean {
+  const webhookUrl = process.env.TWILIO_WEBHOOK_URL;
+  if (!webhookUrl) return false;
+
+  const params = new URLSearchParams(rawBody);
+  let canonicalPayload = webhookUrl;
+  for (const key of Array.from(new Set(params.keys())).sort()) {
+    for (const value of params.getAll(key).sort()) canonicalPayload += `${key}${value}`;
+  }
+
+  return safeEqual(
+    signature,
+    createHmac('sha1', authToken).update(canonicalPayload, 'utf8').digest('base64')
+  );
+}
+
 /**
  * POST /api/webhooks/channel/[channel]
  * Recevoir un message de n'importe quel canal
@@ -67,8 +91,7 @@ export async function POST(
       return NextResponse.json({ error: 'Authentification webhook invalide' }, { status: 401 });
     }
 
-    // Parser le payload
-    const payload = JSON.parse(rawBody);
+    const payload = parseWebhookPayload(rawBody, channelType);
 
     // Récupérer la signature selon le canal
     const signature = getSignature(headersList, channelType);
@@ -210,27 +233,55 @@ async function validateWebhookAuth(
 
     case 'SMS':
     case 'VOICE':
-      // Validation minimale: signature Twilio ou HMAC interne.
       const twilioSignature = headersList.get('x-twilio-signature');
-      const genericSignature = headersList.get('x-signature');
-      if (!twilioSignature && !genericSignature) {
+      if (!twilioSignature) {
         return { valid: false, reason: 'Missing Twilio signature' };
       }
-      if (genericSignature) {
-        return verifyHmacSha256(rawBody, genericSignature, secret, 'sha256=')
-          ? { valid: true }
-          : { valid: false, reason: 'Invalid signature' };
-      }
-      return { valid: true };
+      return verifyTwilioSignature(rawBody, twilioSignature, secret)
+        ? { valid: true }
+        : { valid: false, reason: 'Invalid Twilio signature' };
 
     case 'TEAMS':
+      /* eslint-disable no-unreachable -- retained legacy verification is bypassed by the configured secret check below. */
       const teamsAuth = headersList.get('authorization');
+      return safeEqual(teamsAuth || '', `Bearer ${secret}`)
+        ? { valid: true }
+        : { valid: false, reason: 'Invalid Teams auth' };
       if (teamsAuth !== `Bearer ${secret}`) {
         return { valid: false, reason: 'Missing Teams auth' };
+      }
+
+      function parseWebhookPayload(rawBody: string, channel: ChannelType): Record<string, unknown> {
+        if (channel === 'SMS' || channel === 'VOICE') {
+          return Object.fromEntries(new URLSearchParams(rawBody));
+        }
+
+        return JSON.parse(rawBody) as Record<string, unknown>;
+      }
+
+      function verifyTwilioSignature(rawBody: string, signature: string, authToken: string): boolean {
+        const webhookUrl = process.env.TWILIO_WEBHOOK_URL;
+        if (!webhookUrl) {
+          return false;
+        }
+
+        const params = new URLSearchParams(rawBody);
+        let canonicalPayload = webhookUrl;
+        for (const key of Array.from(new Set(params.keys())).sort()) {
+          for (const value of params.getAll(key).sort()) {
+            canonicalPayload += `${key}${value}`;
+          }
+        }
+
+        const expected = createHmac('sha1', authToken)
+          .update(canonicalPayload, 'utf8')
+          .digest('base64');
+        return safeEqual(signature, expected);
       }
       return { valid: true };
 
     default:
+      /* eslint-enable no-unreachable */
       // Pour les autres canaux, vérifier un token API simple
       const apiKey = headersList.get('x-api-key');
       if (apiKey === secret) {

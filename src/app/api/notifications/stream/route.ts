@@ -1,13 +1,15 @@
 ﻿import { NextRequest } from 'next/server';
 import { registerSSEClient, unregisterSSEClient } from '@/lib/notifications';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth';
 
 // GET - Stream SSE pour les notifications en temps reel
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId');
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
 
   if (!userId) {
-    return new Response('userId requis', { status: 400 });
+    return new Response('Non authentifié', { status: 401 });
   }
 
   const stream = new ReadableStream({
