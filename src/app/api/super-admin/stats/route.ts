@@ -1,4 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
@@ -6,13 +10,13 @@ import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const user = session.user as { role?: string };
+    const user = user as { role?: string };
 
     // Seul le super admin peut acceder a ces statistiques
     if (user.role !== 'SUPER_ADMIN') {
@@ -75,3 +79,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

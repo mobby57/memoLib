@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -20,13 +24,13 @@ export const dynamic = 'force-dynamic';
  * Idempotent : ne fait rien si des données existent déjà.
  */
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user?.tenantId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const tenantId = session.user.tenantId;
-  const userId = session.user.id;
+  const tenantId = user.tenantId;
+  const userId = user.id;
 
   try {
     // Vérifier si le tenant a déjà des données
@@ -198,3 +202,7 @@ Service de l'éloignement`,
     );
   }
 }
+
+
+
+

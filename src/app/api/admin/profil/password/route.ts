@@ -1,4 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../auth/[...nextauth]/route';
@@ -8,9 +12,9 @@ import bcrypt from 'bcryptjs';
 // PUT change password
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
     }
 
@@ -27,7 +31,7 @@ export async function PUT(request: NextRequest) {
 
     // Get current user
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: user.id },
     });
 
     if (!user) {
@@ -45,7 +49,7 @@ export async function PUT(request: NextRequest) {
 
     // Update password
     await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: user.id },
       data: { password: hashedPassword },
     });
 
@@ -55,3 +59,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

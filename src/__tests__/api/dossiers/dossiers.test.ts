@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 ﻿/**
@@ -42,7 +46,7 @@ describe('API /api/dossiers', () => {
       getServerSession.mockResolvedValue(null);
 
       // Simulation de la logique de la route
-      const session = await getServerSession();
+      const session = await auth();
       const isAuthenticated = !!session;
 
       expect(isAuthenticated).toBe(false);
@@ -144,7 +148,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { tenantId: 'tenant_A' } };
       const dossier = { id: 'dos_123', tenantId: 'tenant_B' };
 
-      const hasAccess = dossier.tenantId === session.user.tenantId;
+      const hasAccess = dossier.tenantId === user.tenantId;
 
       expect(hasAccess).toBe(false);
     });
@@ -208,7 +212,7 @@ describe('API /api/dossiers', () => {
       const client = await mockPrisma.client.findFirst({
         where: {
           id: 'cli_123',
-          tenantId: session.user.tenantId,
+          tenantId: user.tenantId,
         },
       });
 
@@ -275,7 +279,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { role: 'CLIENT' } };
 
       const canDelete = ['ADMIN', 'AVOCAT', 'SUPER_ADMIN'].includes(
-        session.user.role
+        user.role
       );
 
       expect(canDelete).toBe(false);
@@ -285,7 +289,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { role: 'ADMIN' } };
 
       const canDelete = ['ADMIN', 'AVOCAT', 'SUPER_ADMIN'].includes(
-        session.user.role
+        user.role
       );
 
       expect(canDelete).toBe(true);
@@ -344,3 +348,7 @@ describe('Dossier Priority', () => {
     expect(priorities.HAUTE).toBeGreaterThan(priorities.NORMALE);
   });
 });
+
+
+
+

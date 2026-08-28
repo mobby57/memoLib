@@ -1,4 +1,8 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
 import { logger } from '@/lib/logger';
  * API Route: POST /api/workspace-reasoning/create
  * Cree un nouveau workspace reasoning
@@ -12,7 +16,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non authentifie' },
@@ -40,8 +44,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userId = (session.user as any).id;
-    const tenantId = (session.user as any).tenantId;
+    const userId = (user as any).id;
+    const tenantId = (user as any).tenantId;
 
     // Creer le workspace
     const workspace = await prisma.workspaceReasoning.create({
@@ -104,3 +108,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+
+

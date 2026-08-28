@@ -1,4 +1,6 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import {
@@ -15,7 +17,7 @@ import {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -38,7 +40,7 @@ export async function GET(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -69,3 +71,5 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+
+

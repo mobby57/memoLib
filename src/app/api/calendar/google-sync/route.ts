@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -8,10 +12,10 @@ import { prisma } from '@/lib/prisma';
  * Synchronise les deadlines MemoLib vers Google Calendar.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const { accessToken } = await req.json();
 
   if (!accessToken) {
@@ -50,3 +54,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true, synced, total: deadlines.length });
 }
+
+
+
+

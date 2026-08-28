@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { ClerkProvider } from '@clerk/nextjs';
+
 import { defaultMetadata } from '@/lib/metadata';
 import CrispChat from '@/components/support/CrispChat';
 
@@ -12,8 +14,10 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="antialiased">
-        {children}
-        <CrispChat />
+        <ClerkProvider>
+          {children}
+          <CrispChat />
+        </ClerkProvider>
       </body>
     </html>
   );

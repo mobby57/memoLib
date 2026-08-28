@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest) {
         { status: 503 }
       );
     }
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
@@ -44,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier que le client a accès à cette facture
-    if (facture.client?.userId !== session.user.id && session.user.role === 'CLIENT') {
+    if (facture.client?.userId !== user.id && user.role === 'CLIENT') {
       return NextResponse.json({ error: 'Accès non autorisé à cette facture' }, { status: 403 });
     }
 
@@ -57,7 +61,7 @@ export async function POST(request: NextRequest) {
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ['card', 'sepa_debit'],
       mode: 'payment',
-      customer_email: facture.client?.email || session.user.email || undefined,
+      customer_email: facture.client?.email || user.email || undefined,
       client_reference_id: factureId,
       metadata: {
         factureId,
@@ -85,7 +89,7 @@ export async function POST(request: NextRequest) {
     await prisma.auditLog.create({
       data: {
         action: 'PAYMENT_INITIATED',
-        userId: session.user.id,
+        userId: user.id,
         tenantId: facture.tenantId,
         entityType: 'Facture',
         entityId: factureId,
@@ -117,3 +121,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+
+

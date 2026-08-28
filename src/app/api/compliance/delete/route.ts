@@ -1,10 +1,14 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { GDPRCompliance } from '@/lib/compliance/gdpr';
 
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await auth();
 
         if (!session?.user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -14,7 +18,7 @@ export async function POST(req: NextRequest) {
 
         // Request account deletion
         const deletion = await GDPRCompliance.requestDeletion(
-            session.user.email,
+            user.email,
             reason
         );
 
@@ -35,14 +39,14 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await auth();
 
         if (!session?.user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         // Cancel deletion request
-        await GDPRCompliance.cancelDeletion(session.user.email);
+        await GDPRCompliance.cancelDeletion(user.email);
 
         return NextResponse.json({
             message: 'Deletion request cancelled successfully'
@@ -55,3 +59,7 @@ export async function DELETE(req: NextRequest) {
         );
     }
 }
+
+
+
+

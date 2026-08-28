@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -9,10 +13,10 @@ import { prisma } from '@/lib/prisma';
  * Compare le nom, email, parties adverses dans les dossiers existants.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const { clientName, clientEmail, partieAdverse, reference } = await req.json();
 
   if (!clientName && !clientEmail) {
@@ -72,3 +76,7 @@ export async function POST(req: NextRequest) {
       : 'Aucun conflit detecte',
   });
 }
+
+
+
+

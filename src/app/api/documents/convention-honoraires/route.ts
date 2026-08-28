@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -8,10 +12,10 @@ import { prisma } from '@/lib/prisma';
  * Genere une convention d'honoraires pre-remplie.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const { dossierId, tauxHoraire, provision, forfait } = await req.json();
 
   let client: any = null;
@@ -106,3 +110,7 @@ Me. ${user.name || '[NOM]'}        ${client ? `${client.firstName} ${client.last
     },
   });
 }
+
+
+
+

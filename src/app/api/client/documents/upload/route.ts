@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
@@ -72,7 +74,7 @@ export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     if (!user) {
@@ -241,3 +243,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors du dépôt sécurisé' }, { status: 500 });
   }
 }
+
+

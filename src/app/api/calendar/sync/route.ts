@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { calendarService, type CalendarProvider } from '@/lib/calendar/calendar-service';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
@@ -9,13 +13,13 @@ async function resolveTenantAccess(requestedTenantId: string | null): Promise<
   | { tenantId: string }
   | { error: NextResponse }
 > {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return { error: NextResponse.json({ error: 'Non authentifie' }, { status: 401 }) };
   }
 
-  const role = String((session.user as any).role || '').toUpperCase();
-  const sessionTenantId = (session.user as any).tenantId as string | undefined;
+  const role = String((user as any).role || '').toUpperCase();
+  const sessionTenantId = (user as any).tenantId as string | undefined;
 
   if (role === 'SUPER_ADMIN') {
     if (!requestedTenantId) {
@@ -67,3 +71,7 @@ export async function GET(req: Request) {
   const events = calendarService.listEvents(tenantId);
   return NextResponse.json({ events }, { status: 200 });
 }
+
+
+
+

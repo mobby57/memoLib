@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route: PATCH /api/user/profile
  * 
@@ -19,12 +23,12 @@ const updateProfileSchema = z.object({
 });
 
 export async function PATCH(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const userId = (session.user as any).id;
+  const userId = (user as any).id;
   if (!userId) {
     return NextResponse.json({ error: 'ID utilisateur manquant' }, { status: 400 });
   }
@@ -71,12 +75,12 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const userId = (session.user as any).id;
+  const userId = (user as any).id;
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true, name: true, email: true, role: true, language: true, timezone: true, createdAt: true },
@@ -88,3 +92,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ user });
 }
+
+
+
+

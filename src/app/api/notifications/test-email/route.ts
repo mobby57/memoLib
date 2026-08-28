@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route: POST /api/notifications/test-email
  *
@@ -22,7 +26,7 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
@@ -77,7 +81,7 @@ export async function POST(req: NextRequest) {
       break;
   }
 
-  const to = session.user.email as string | undefined;
+  const to = user.email as string | undefined;
   if (!to) {
     return NextResponse.json(
       { error: 'Aucune adresse email associée à votre compte' },
@@ -101,3 +105,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true, messageId: result.messageId });
 }
+
+
+
+

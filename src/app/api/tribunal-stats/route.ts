@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -10,7 +12,7 @@ import { prisma } from '@/lib/prisma';
  * Minimum 5 dossiers par catégorie pour éviter la ré-identification.
  */
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
@@ -86,3 +88,5 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json(stats);
 }
+
+

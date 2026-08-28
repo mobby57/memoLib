@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route - Écritures comptables
  * GET /api/comptabilite/ecritures — Liste des écritures
@@ -10,10 +14,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { EcrituresService } from '@/lib/services/comptabilite';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const { searchParams } = new URL(req.url);
 
   try {
@@ -38,10 +42,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
 
   try {
     const body = await req.json();
@@ -72,3 +76,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+
+
+

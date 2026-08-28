@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
@@ -14,7 +18,7 @@ const smsSchema = z.object({
 });
 
 export const POST = withRateLimit(async (request: NextRequest) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
@@ -24,7 +28,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     return permission.response;
   }
 
-  const user = session.user;
+  const user = user;
   if (!user.id || !user.tenantId) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
@@ -97,3 +101,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     return NextResponse.json({ error: 'Service SMS indisponible' }, { status: 503 });
   }
 }, { type: 'email' });
+
+
+
+

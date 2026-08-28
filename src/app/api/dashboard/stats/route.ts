@@ -1,17 +1,21 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const tenantId = session.user.tenantId;
+    const tenantId = user.tenantId;
 
     const totalDossiers = await prisma.dossier.count({
       where: { tenantId },
@@ -65,3 +69,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

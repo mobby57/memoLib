@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
 import { NextResponse } from 'next/server';
 
 export const RBAC_PERMISSIONS = {
@@ -214,8 +216,8 @@ export function requireApiPermission(
   }
 
   const context = buildRbacContext({
-    role: session.user.role,
-    groups: session.user.groups,
+    role: user.role,
+    groups: user.groups,
   });
 
   const allowed = context.permissions.includes('*') || context.permissions.includes(required);
@@ -233,3 +235,5 @@ export function requireApiPermission(
     permissions: context.permissions,
   };
 }
+
+

@@ -1,4 +1,8 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API Checkout Stripe
  * Cree une session de paiement pour s'abonner a un plan
  */
@@ -12,12 +16,12 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = user as any;
     const tenantId = user.tenantId;
 
     if (!tenantId) {
@@ -73,3 +77,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+
+

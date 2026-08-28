@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Routes — Portail Client : Partages de documents
  * 
@@ -15,10 +19,10 @@ import { prisma } from '@/lib/prisma';
 // ─── POST : Partager un document ────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase();
 
@@ -73,10 +77,10 @@ export async function POST(req: NextRequest) {
 // ─── GET : Lister les partages ──────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase();
 
@@ -104,10 +108,10 @@ export async function GET(req: NextRequest) {
 // ─── PATCH : Actions sur un partage ─────────────────────────────────────────────
 
 export async function PATCH(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const role = user.role?.toUpperCase();
   const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
   const userAgent = req.headers.get('user-agent') || 'unknown';
@@ -195,3 +199,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
 }
+
+
+
+

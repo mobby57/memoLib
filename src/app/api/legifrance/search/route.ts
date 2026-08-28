@@ -1,4 +1,9 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement import getServerSession
+/**
  * API Routes Legifrance pour Next.js
  * 
  * Endpoints pour exposer les fonctionnalites Legifrance
@@ -6,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@clerk/nextjs/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { legifranceApi } from '@/lib/legifrance/api-client';
 import { logger } from '@/lib/logger';
@@ -37,7 +42,7 @@ export const POST = withRateLimit(
   async (req: NextRequest) => {
   try {
     // Authentification
-    const session: any = await getServerSession(authOptions as any);
+    const session: any = await auth();
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non authentifie' },
@@ -45,8 +50,8 @@ export const POST = withRateLimit(
       );
     }
 
-    const userId = (session.user as any).id;
-    const tenantId = (session.user as any).tenantId;
+    const userId = (user as any).id;
+    const tenantId = (user as any).tenantId;
 
     // Parse body
     const body = await req.json();
@@ -190,7 +195,7 @@ export const POST = withRateLimit(
  */
 export async function GET(req: NextRequest) {
   try {
-    const session: any = await getServerSession(authOptions as any);
+    const session: any = await auth();
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non authentifie' },
@@ -227,3 +232,8 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+
+
+
+

@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Middleware d'authentification
  * Gère la vérification des sessions et des tokens
@@ -32,7 +36,7 @@ export interface AuthResult {
  */
 export async function verifyAuth(req: NextRequest): Promise<AuthResult> {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return {
@@ -44,10 +48,10 @@ export async function verifyAuth(req: NextRequest): Promise<AuthResult> {
     return {
       authenticated: true,
       user: {
-        id: session.user.id || '',
-        email: session.user.email || '',
-        role: (session.user as { role?: string }).role || 'user',
-        tenantId: (session.user as { tenantId?: string }).tenantId,
+        id: user.id || '',
+        email: user.email || '',
+        role: (user as { role?: string }).role || 'user',
+        tenantId: (user as { tenantId?: string }).tenantId,
       },
     };
   } catch (error) {
@@ -111,3 +115,7 @@ export async function roleMiddleware(
 }
 
 export default authMiddleware;
+
+
+
+

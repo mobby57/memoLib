@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { oauthService, type OAuthProvider } from '@/lib/oauth/oauth-service';
 import { oauthTokenService } from '@/lib/oauth/token-service';
 import { getServerSession } from 'next-auth';
@@ -12,7 +16,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'unauthorized', detail: 'No session found' },
@@ -30,7 +34,7 @@ export async function POST(req: Request) {
     const result = await oauthService.exchangeCode(provider as OAuthProvider, code);
 
     // Store token in database
-    await oauthTokenService.storeToken(session.user.id, {
+    await oauthTokenService.storeToken(user.id, {
       provider: provider as OAuthProvider,
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
@@ -49,3 +53,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'callback_failed', detail: e?.message }, { status: 400 });
   }
 }
+
+
+
+

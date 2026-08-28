@@ -1,4 +1,8 @@
-﻿import { logger } from '@/lib/logger';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,14 +11,14 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 // GET admin profile
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: user.id },
       select: {
         id: true,
         name: true,
@@ -39,9 +43,9 @@ export async function GET(request: NextRequest) {
 // PUT update admin profile
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
     }
 
@@ -49,7 +53,7 @@ export async function PUT(request: NextRequest) {
     const { firstName, lastName, phone, address, city, postalCode, country } = body;
 
     const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: user.id },
       data: {
         name: `${firstName} ${lastName}`,
         phone,
@@ -71,3 +75,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

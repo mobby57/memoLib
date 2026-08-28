@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -13,12 +17,12 @@ const VALID_ROLES = ['AVOCAT', 'ASSOCIE', 'COLLABORATEUR', 'STAGIAIRE', 'SECRETA
  * GET /api/admin/team — Lister les membres de l'équipe du cabinet
  */
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const { role, tenantId } = session.user as any;
+  const { role, tenantId } = user as any;
   if (!['SUPER_ADMIN', 'AVOCAT', 'ASSOCIE', 'ADMIN'].includes(role) || !tenantId) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
@@ -45,12 +49,12 @@ export async function GET() {
  * POST /api/admin/team — Inviter un nouveau membre dans le cabinet
  */
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const { role, tenantId } = session.user as any;
+  const { role, tenantId } = user as any;
   if (!['SUPER_ADMIN', 'AVOCAT', 'ADMIN'].includes(role) || !tenantId) {
     return NextResponse.json({ error: 'Seul l\'avocat titulaire peut inviter des membres' }, { status: 403 });
   }
@@ -126,12 +130,12 @@ export async function POST(request: NextRequest) {
  * PATCH /api/admin/team — Modifier le rôle ou désactiver un membre
  */
 export async function PATCH(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const { role, tenantId } = session.user as any;
+  const { role, tenantId } = user as any;
   if (!['SUPER_ADMIN', 'AVOCAT', 'ADMIN'].includes(role) || !tenantId) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
@@ -162,3 +166,7 @@ export async function PATCH(request: NextRequest) {
 
   return NextResponse.json({ success: true, member: updated });
 }
+
+
+
+

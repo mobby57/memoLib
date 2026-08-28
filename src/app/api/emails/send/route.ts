@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route: POST /api/emails/send
  * 
@@ -24,12 +28,12 @@ const sendEmailSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   if (!tenantId) {
     return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
@@ -122,3 +126,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

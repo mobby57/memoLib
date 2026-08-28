@@ -1,16 +1,18 @@
-'use client';
+﻿'use client';
 
+
+import { useSignIn } from '@clerk/nextjs';
 export const dynamic = 'force-dynamic';
 
 import { logger } from '@/lib/logger';
 import { ArrowRight, CheckCircle, Eye, EyeOff, Lock, Mail, Shield, Users, Zap } from 'lucide-react';
-import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { signIn, isLoaded } = useSignIn();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -348,3 +350,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

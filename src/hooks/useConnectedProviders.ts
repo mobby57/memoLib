@@ -1,6 +1,9 @@
+// CLERK-MIGRATION: Remplacement useSession() -> useUser()
+// CLERK-MIGRATION: Remplacement useUser() -> useUser()
+// CLERK-MIGRATION: Remplacement import useSession
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useUser } from '@clerk/nextjs';
 import { useCallback, useEffect, useState } from 'react';
 
 type ConnectedProvider = {
@@ -11,7 +14,7 @@ type ConnectedProvider = {
 };
 
 export function useConnectedProviders() {
-  const { data: session } = useSession();
+  const { data: session } = useUser();
   const [providers, setProviders] = useState<ConnectedProvider[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,3 +60,6 @@ export function useConnectedProviders() {
 
   return { providers, loading, error, refresh, revoke };
 }
+
+
+

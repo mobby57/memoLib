@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route - Validation d'écritures
  * POST /api/comptabilite/ecritures/valider — Valider un lot d'écritures
@@ -9,10 +13,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { EcrituresService } from '@/lib/services/comptabilite';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
 
   try {
     const { ecritureIds } = await req.json();
@@ -35,3 +39,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

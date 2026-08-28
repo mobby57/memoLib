@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -10,13 +14,13 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
  * C'est la méthode la plus simple : copier-coller depuis Gmail/Outlook.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { from, subject, body } = await req.json();
   if (!body) return NextResponse.json({ error: 'Collez le contenu de l\'email' }, { status: 400 });
 
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = (user as any).tenantId;
   const webhookUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/webhooks/email-inbound`;
 
   const res = await fetch(webhookUrl, {
@@ -38,3 +42,7 @@ export async function POST(req: NextRequest) {
   const result = await res.json();
   return NextResponse.json({ success: true, ...result });
 }
+
+
+
+

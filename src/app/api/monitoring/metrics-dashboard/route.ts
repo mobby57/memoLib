@@ -1,4 +1,8 @@
-﻿export const dynamic = 'force-dynamic';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 /**
  * Sentry Metrics Dashboard Endpoint
@@ -28,12 +32,12 @@ import { NextResponse } from 'next/server';
 export const revalidate = 60; // ISR - revalidate every 60 seconds
 
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }
 
-  const role = String((session.user as any).role || '').toUpperCase();
+  const role = String((user as any).role || '').toUpperCase();
   const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
   if (!allowedRoles.has(role)) {
     return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
@@ -195,3 +199,7 @@ function generateRecommendations(
 
   return recommendations;
 }
+
+
+
+

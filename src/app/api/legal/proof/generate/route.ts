@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { legalProofService } from '@/lib/services/legal-proof.service';
 import { ProofType } from '@/types/legal-proof';
 import { getServerSession } from 'next-auth';
@@ -28,7 +32,7 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -52,10 +56,10 @@ export async function POST(req: NextRequest) {
     // Générer la preuve
     const proof = await legalProofService.generateProofBundle({
       type,
-      tenantId: (session.user as any).tenantId || 'default',
+      tenantId: (user as any).tenantId || 'default',
       entityId,
       entityType,
-      createdBy: session.user.email || 'unknown',
+      createdBy: user.email || 'unknown',
       reason,
       jurisdiction,
       includeTimestampAuthority,
@@ -83,3 +87,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

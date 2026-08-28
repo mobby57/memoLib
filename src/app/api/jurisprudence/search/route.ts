@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -10,11 +14,11 @@ import { withRateLimit } from '@/lib/middleware/rate-limit';
 
 export const GET = withRateLimit(
   async (req: NextRequest) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   // Feature gate : jurisprudence réservée au plan Cabinet+
-  const tenantId = (session.user as any)?.tenantId;
+  const tenantId = (user as any)?.tenantId;
   if (tenantId) {
     const gate = await checkFeatureAccess(tenantId, 'jurisprudence_search');
     if (!gate.allowed) {
@@ -212,3 +216,7 @@ function searchFallback(query: string, type: string) {
     r.themes.some(t => t.toLowerCase().includes(q))
   ).slice(0, 10);
 }
+
+
+
+

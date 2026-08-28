@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route pour les événements en temps réel (SSE)
  * Permet aux clients de recevoir des mises à jour en temps réel
@@ -94,14 +98,14 @@ export function publishToTenant(
  */
 export async function GET(req: NextRequest) {
   // Vérifier l'authentification
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user?.id) {
     return new Response('Non autorisé', { status: 401 });
   }
 
-  const userId = session.user.id;
-  const tenantId = String((session.user as any).tenantId || '');
+  const userId = user.id;
+  const tenantId = String((user as any).tenantId || '');
 
   if (tenantId) {
     userTenantMap.set(userId, tenantId);
@@ -179,10 +183,10 @@ export async function GET(req: NextRequest) {
  * Handler POST pour envoyer des événements (usage interne)
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   // Seulement les admins peuvent publier des événements
-  if (!session?.user || !['ADMIN', 'SUPER_ADMIN'].includes(session.user.role as string)) {
+  if (!session?.user || !['ADMIN', 'SUPER_ADMIN'].includes(user.role as string)) {
     return new Response('Non autorisé', { status: 403 });
   }
 
@@ -207,3 +211,7 @@ export async function POST(req: NextRequest) {
 
 // Export pour utilisation depuis d'autres modules
 export { clients };
+
+
+
+

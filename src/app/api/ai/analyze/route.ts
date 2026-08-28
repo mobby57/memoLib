@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { logger } from '@/lib/logger';
@@ -11,9 +15,9 @@ const serviceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 export const POST = withAIRateLimit(async (request: NextRequest) => {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-    const user = session.user as { id?: string; tenantId?: string; role?: string; groups?: string[] };
+    const user = user as { id?: string; tenantId?: string; role?: string; groups?: string[] };
     if (!user.id || !user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     const payload = payloadSchema.safeParse(await request.json());
     if (!payload.success) return NextResponse.json({ error: 'Requête IA invalide' }, { status: 400 });
@@ -38,3 +42,7 @@ export const POST = withAIRateLimit(async (request: NextRequest) => {
     return NextResponse.json({ error: 'Failed to connect to AI service' }, { status: 503 });
   }
 });
+
+
+
+

@@ -1,4 +1,6 @@
-﻿import { logger } from '@/lib/logger';
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import {
   getUnreadCount,
   markAllNotificationsAsRead,
@@ -10,7 +12,7 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function getAuthenticatedUserId(): Promise<string | null> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   return session?.user?.id ?? null;
 }
 
@@ -117,3 +119,5 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+

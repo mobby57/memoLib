@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -9,7 +13,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
  * Scope: Mail.Read (lecture emails)
  */
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const baseUrl = process.env.NEXTAUTH_URL || 'https://memolib.space';
 
   if (!session?.user?.tenantId) {
@@ -35,8 +39,8 @@ export async function GET(request: NextRequest) {
 
   // State = tenantId + userId
   const state = Buffer.from(JSON.stringify({
-    tenantId: (session.user as any).tenantId,
-    userId: (session.user as any).id,
+    tenantId: (user as any).tenantId,
+    userId: (user as any).id,
   })).toString('base64url');
 
   const params = new URLSearchParams({
@@ -53,3 +57,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.redirect(microsoftAuthUrl);
 }
+
+
+
+

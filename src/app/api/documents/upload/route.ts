@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { getBlobServiceClient } from '@/lib/azure/clients';
@@ -169,13 +173,13 @@ export const maxDuration = 30;
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const user = session.user as { tenantId?: string; id?: string };
+    const user = user as { tenantId?: string; id?: string };
     const tenantId = user.tenantId;
     const userId = user.id;
 
@@ -440,13 +444,13 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const user = session.user as { tenantId?: string; id?: string };
+    const user = user as { tenantId?: string; id?: string };
     const tenantId = user.tenantId;
     const userId = user.id;
 
@@ -531,3 +535,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors de la récupération' }, { status: 500 });
   }
 }
+
+
+
+

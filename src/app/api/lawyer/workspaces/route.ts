@@ -1,4 +1,8 @@
-﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
@@ -9,13 +13,13 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = user as any;
     const tenantId = user.tenantId;
 
     if (!tenantId) {
@@ -121,13 +125,13 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const { role, tenantId, id: userId } = session.user as any;
+    const { role, tenantId, id: userId } = user as any;
 
     if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
@@ -266,3 +270,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors de la creation du workspace' }, { status: 500 });
   }
 }
+
+
+
+

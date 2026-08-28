@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -8,7 +10,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
  * Utilise Ollama (local) ou fallback regex pour l'extraction.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const formData = await req.formData();
@@ -117,3 +119,5 @@ function analyzeDocument(text: string): Record<string, any> {
 
   return result;
 }
+
+

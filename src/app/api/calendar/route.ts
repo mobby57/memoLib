@@ -1,4 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { NotificationService } from '@/lib/notifications';
@@ -8,11 +12,11 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 // GET - Recuperer les evenements du calendrier
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = (user as any).tenantId as string | undefined;
     if (!tenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -58,11 +62,11 @@ export async function GET(request: NextRequest) {
 // POST - Creer un evenement
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = (user as any).tenantId as string | undefined;
     if (!tenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -132,11 +136,11 @@ export async function POST(request: NextRequest) {
 // PATCH - Mettre a jour un evenement
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = (user as any).tenantId as string | undefined;
     if (!tenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -178,11 +182,11 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Supprimer un evenement
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = (user as any).tenantId as string | undefined;
     if (!tenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -244,3 +248,7 @@ async function scheduleReminders(
     }
   }
 }
+
+
+
+

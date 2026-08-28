@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -18,10 +22,10 @@ export const dynamic = 'force-dynamic';
  * Export CSV : body = { action: 'export', type: 'clients'|'dossiers'|'factures', dateFrom?, dateTo? }
  */
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
@@ -80,3 +84,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ error: 'Action non supportée (import, export)' }, { status: 400 });
 }
+
+
+
+

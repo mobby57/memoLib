@@ -1,4 +1,8 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * GitHub User Client - Authentication User-to-Server
  * Permet a l'application d'agir pour le compte d'un utilisateur GitHub
  */
@@ -18,7 +22,7 @@ export interface GitHubUserClient {
  * Obtenir le client GitHub pour l'utilisateur connecte
  */
 export async function getUserGitHubClient(): Promise<GitHubUserClient> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user) {
     throw new Error('User not authenticated');
@@ -39,13 +43,13 @@ export async function getUserGitHubClient(): Promise<GitHubUserClient> {
     const { data: user } = await octokit.users.getAuthenticated();
 
     logger.debug('GitHub user client created', {
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       githubUsername: user.login,
     });
 
     return {
       octokit,
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       username: user.login,
     };
   } catch (error) {
@@ -59,7 +63,7 @@ export async function getUserGitHubClient(): Promise<GitHubUserClient> {
  */
 export async function isGitHubAuthorized(): Promise<boolean> {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     return !!session && !!(session as any).githubAccessToken;
   } catch {
     return false;
@@ -131,3 +135,7 @@ export async function refreshGitHubToken(refreshToken: string) {
     throw error;
   }
 }
+
+
+
+

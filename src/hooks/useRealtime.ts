@@ -1,10 +1,13 @@
+// CLERK-MIGRATION: Remplacement useSession() -> useUser()
+// CLERK-MIGRATION: Remplacement useUser() -> useUser()
+// CLERK-MIGRATION: Remplacement import useSession
 'use client';
 
 /**
  * Hook React pour consommer les événements temps réel (SSE)
  */
 
-import { useSession } from 'next-auth/react';
+import { useUser } from '@clerk/nextjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -75,7 +78,7 @@ export function useRealtime(options: UseRealtimeOptions = {}): UseRealtimeReturn
     onError,
   } = options;
 
-  const { data: session, status } = useSession();
+  const { data: session, status } = useUser();
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [lastEvent, setLastEvent] = useState<SSEEvent | null>(null);
@@ -282,3 +285,6 @@ export function useRealtimeEvent<T = Record<string, unknown>>(
 }
 
 export default useRealtime;
+
+
+

@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { Packer } from 'docx';
@@ -18,12 +22,12 @@ import {
 } from '@/lib/documents/docx-generator';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
 
   let body: any;
@@ -119,3 +123,7 @@ export async function GET() {
     })),
   });
 }
+
+
+
+

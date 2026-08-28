@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Tests pour src/app/api/audit-logs/route.ts
  */
@@ -6,7 +8,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 // Mock next-auth
 const mockGetServerSession = vi.fn();
 vi.mock('next-auth', () => ({
-  getServerSession: (...args: any[]) => mockGetServerSession(...args),
+  getServerSession: (...args: any[]) => mockauth(),
 }));
 
 // Mock authOptions
@@ -244,3 +246,5 @@ describe('audit-logs route — Full Coverage', () => {
     });
   });
 });
+
+

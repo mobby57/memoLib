@@ -1,4 +1,8 @@
-﻿import { logger } from '@/lib/logger';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
@@ -9,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -46,7 +50,7 @@ export async function POST(request: NextRequest) {
         ${mitigationPlan},
         ${responsiblePerson},
         'active',
-        ${session.user.email},
+        ${user.email},
         ${new Date().toISOString()},
         ${new Date().toISOString()}
       )
@@ -175,3 +179,7 @@ Sois concis et actionnable.`,
 function generateId(): string {
   return `risk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
+
+
+
+

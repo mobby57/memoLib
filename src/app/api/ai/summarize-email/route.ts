@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -16,7 +18,7 @@ interface EmailSummary {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const isDemoRequest = !session && req.headers.get('referer')?.includes('/demo');
   if (!session?.user && !isDemoRequest) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -89,7 +91,7 @@ Retourne ce JSON:
   "resumeCourt": "résumé complet en 2 phrases max"
 }`;
 
-  const user = await getServerSession(authOptions);
+  const user = await auth();
   const tenantId = (user?.user as any)?.tenantId || 'demo';
 
   const aiResult = await hybridAI.generateWithCostControl(prompt, tenantId);
@@ -133,3 +135,5 @@ function summarizeWithRegex(subject: string, body: string, from: string): EmailS
     resumeCourt: `Email de ${client || 'expéditeur inconnu'} concernant ${typeDossier.toLowerCase().replace('_', ' ')}. ${urgence === 'critique' ? 'Action urgente requise.' : 'À traiter.'}`,
   };
 }
+
+

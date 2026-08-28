@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 ﻿/**
@@ -49,7 +53,7 @@ describe('API /api/client', () => {
       const { getServerSession } = require('next-auth');
       getServerSession.mockResolvedValue(null);
 
-      const session = await getServerSession();
+      const session = await auth();
 
       expect(session).toBeNull();
     });
@@ -57,7 +61,7 @@ describe('API /api/client', () => {
     it('rejette les utilisateurs sans rôle CLIENT', async () => {
       const session = { user: { role: 'ADMIN' } };
 
-      const isClient = session.user.role === 'CLIENT';
+      const isClient = user.role === 'CLIENT';
 
       expect(isClient).toBe(false);
     });
@@ -72,8 +76,8 @@ describe('API /api/client', () => {
         },
       };
 
-      const isClient = session.user.role === 'CLIENT';
-      const hasClientId = !!session.user.clientId;
+      const isClient = user.role === 'CLIENT';
+      const hasClientId = !!user.clientId;
 
       expect(isClient).toBe(true);
       expect(hasClientId).toBe(true);
@@ -367,3 +371,7 @@ describe('Client Plan Limits', () => {
     expect(canUpload).toBe(true);
   });
 });
+
+
+
+

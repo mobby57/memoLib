@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Middleware Feature Gate — MemoLib
  *
@@ -45,7 +49,7 @@ export function withFeatureGate(
 ): (request: NextRequest, context?: RouteContext) => Promise<NextResponse> {
   return async (request: NextRequest, context: RouteContext = {}) => {
     // 1. Vérifier la session
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non autorisé', code: 'UNAUTHORIZED' },
@@ -53,7 +57,7 @@ export function withFeatureGate(
       );
     }
 
-    const tenantId = (session.user as any).tenantId;
+    const tenantId = (user as any).tenantId;
     if (!tenantId) {
       return NextResponse.json(
         { error: 'Tenant non identifié', code: 'NO_TENANT' },
@@ -104,7 +108,7 @@ export async function softFeatureCheck(
   request: NextRequest,
   feature: Feature,
 ): Promise<FeatureCheckResult & { tenantId: string | null }> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const tenantId = (session?.user as any)?.tenantId || null;
 
   if (!tenantId) {
@@ -122,3 +126,7 @@ export async function softFeatureCheck(
   const result = await checkFeatureAccess(tenantId, feature);
   return { ...result, tenantId };
 }
+
+
+
+

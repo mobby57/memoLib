@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { createHash, randomUUID } from 'crypto';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
@@ -96,13 +100,13 @@ export type ActionProposalDecisionResult =
 export const ACTION_PROPOSAL_EXECUTION_POLICY = 'RECORD_DECISION_ONLY' as const;
 
 export async function getActionProposalAccess(): Promise<ActionProposalAccessResult> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user?.id) {
     return { kind: 'unauthenticated' };
   }
 
-  const tenantId = session.user.tenantId;
-  const role = session.user.role?.toUpperCase() ?? '';
+  const tenantId = user.tenantId;
+  const role = user.role?.toUpperCase() ?? '';
   if (!tenantId || !allowedRoles.has(role)) {
     return { kind: 'forbidden' };
   }
@@ -111,7 +115,7 @@ export async function getActionProposalAccess(): Promise<ActionProposalAccessRes
     kind: 'ok',
     actor: {
       tenantId,
-      userId: session.user.id,
+      userId: user.id,
       role,
     },
   };
@@ -334,3 +338,7 @@ async function writeDecisionAudit(
 export function parseActionProposalId(id: string) {
   return ProposalIdSchema.safeParse(id);
 }
+
+
+
+

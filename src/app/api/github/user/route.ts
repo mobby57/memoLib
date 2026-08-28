@@ -1,4 +1,6 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API Route: Obtenir les informations du compte GitHub de l'utilisateur
  * GET /api/github/user
  */
@@ -11,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,3 +48,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+

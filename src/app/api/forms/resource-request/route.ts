@@ -1,4 +1,8 @@
-﻿import { logger } from '@/lib/logger';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
@@ -9,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -33,7 +37,7 @@ export async function POST(request: NextRequest) {
       ) VALUES (
         ${generateId()},
         'resource-request',
-        ${session.user.email},
+        ${user.email},
         'pending',
         ${JSON.stringify(data)},
         ${metadata.impactScore},
@@ -53,7 +57,7 @@ export async function POST(request: NextRequest) {
     // Envoyer notification par email
     await sendNotificationEmail(metadata.approvers, {
       formType: 'Demande de ressources',
-      submitter: session.user.email,
+      submitter: user.email,
       urgency,
       impactScore: metadata.impactScore,
     });
@@ -94,3 +98,7 @@ async function sendNotificationEmail(approvers: string[], context: any) {
 function generateId(): string {
   return `form_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
+
+
+
+

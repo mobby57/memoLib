@@ -1,3 +1,8 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement import getServerSession
 /**
  * WebSocket Server for Real-Time Notifications
  * - Email arrivals
@@ -10,7 +15,7 @@ import prisma from '@/lib/prisma';
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 import { NextApiRequest } from 'next';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@clerk/nextjs/server';
 import type { Session } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
@@ -96,18 +101,18 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
   io.use(async (socket, next) => {
     try {
       const req = socket.request as any;
-      const session = (await getServerSession(authOptions as any)) as Session | null;
+      const session = (await auth()) as Session | null;
 
       if (!session?.user) {
         return next(new Error('Unauthorized'));
       }
 
       // Attach user info to socket
-      socket.data.userId = (session.user as any).id;
-      socket.data.tenantId = (session.user as any).tenantId;
-      socket.data.role = (session.user as any).role;
+      socket.data.userId = (user as any).id;
+      socket.data.tenantId = (user as any).tenantId;
+      socket.data.role = (user as any).role;
 
-      console.log(`[WebSocket] User ${(session.user as any).email} authenticated`);
+      console.log(`[WebSocket] User ${(user as any).email} authenticated`);
       next();
     } catch (error) {
       console.error('[WebSocket] Auth error:', error);
@@ -301,3 +306,8 @@ export default {
   getConnectedClientsCount,
   getTenantClientsCount,
 };
+
+
+
+
+

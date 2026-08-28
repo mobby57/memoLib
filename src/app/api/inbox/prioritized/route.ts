@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route - Inbox Priorisée (Smart Inbox)
  * GET /api/inbox/prioritized - Retourne emails triés par score de priorité
@@ -11,15 +15,15 @@ import { authOptions } from '@/lib/auth/authOptions';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
 
-    const userRole = String((session.user as any).role || '');
-    const sessionTenantId = String((session.user as any).tenantId || '');
+    const userRole = String((user as any).role || '');
+    const sessionTenantId = String((user as any).tenantId || '');
     const queryTenantId = searchParams.get('tenantId') || '';
 
     const tenantId = userRole === 'SUPER_ADMIN' ? queryTenantId || sessionTenantId : sessionTenantId;
@@ -95,3 +99,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur', details: String(error) }, { status: 500 });
   }
 }
+
+
+
+

@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { oauthTokenService } from '@/lib/oauth/token-service';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
@@ -10,12 +14,12 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
 
-    const tokens = await oauthTokenService.listTokens(session.user.id);
+    const tokens = await oauthTokenService.listTokens(user.id);
     return NextResponse.json({ tokens }, { status: 200 });
   } catch (e: any) {
     return NextResponse.json({ error: 'list_failed', detail: e?.message }, { status: 500 });
@@ -28,7 +32,7 @@ export async function GET() {
  */
 export async function DELETE(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
@@ -40,7 +44,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: 'provider requis' }, { status: 400 });
     }
 
-    await oauthTokenService.revokeToken(session.user.id, provider as any, 'User initiated revoke');
+    await oauthTokenService.revokeToken(user.id, provider as any, 'User initiated revoke');
 
     return NextResponse.json(
       { success: true, provider, message: 'Token revoked' },
@@ -50,3 +54,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'revoke_failed', detail: e?.message }, { status: 500 });
   }
 }
+
+
+
+

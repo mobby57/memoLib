@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -12,7 +16,7 @@ import { ImapFlow } from 'imapflow';
  * L'app détecte le fournisseur, teste la connexion, et sauvegarde.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { email, password } = await req.json();
@@ -48,7 +52,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Save
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = (user as any).tenantId;
   await prisma.tenant.update({
     where: { id: tenantId },
     data: {
@@ -81,3 +85,7 @@ function getImapConfig(domain: string) {
   };
   return configs[domain] || null;
 }
+
+
+
+

@@ -1,4 +1,8 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
 import { logger } from '@/lib/logger';
  * API Endpoint - Dashboard des coûts IA
  * GET /api/billing/ai-costs
@@ -19,7 +23,7 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -28,7 +32,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const tenantId = (session.user as { tenantId?: string }).tenantId;
+    const tenantId = (user as { tenantId?: string }).tenantId;
     
     if (!tenantId) {
       return NextResponse.json(
@@ -42,7 +46,7 @@ export async function GET(request: NextRequest) {
     
     // Vérifier la rentabilité (admin seulement)
     let profitability: Awaited<ReturnType<typeof checkTenantProfitability>> | null = null;
-    const userRole = (session.user as { role?: string }).role;
+    const userRole = (user as { role?: string }).role;
     if (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') {
       profitability = await checkTenantProfitability(tenantId);
     }
@@ -66,3 +70,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+
+
+

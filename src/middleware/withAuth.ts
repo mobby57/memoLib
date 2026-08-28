@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * HOC (Higher Order Component) pour les routes API protégées
  * Wrapper simplifié pour l'authentification
@@ -39,7 +43,7 @@ export function withAuth(handler: AuthenticatedHandler) {
     context?: { params?: Record<string, string> }
   ): Promise<NextResponse> => {
     try {
-      const session = await getServerSession(authOptions);
+      const session = await auth();
 
       if (!session?.user) {
         return NextResponse.json(
@@ -49,11 +53,11 @@ export function withAuth(handler: AuthenticatedHandler) {
       }
 
       const user: AuthenticatedUser = {
-        id: session.user.id || '',
-        email: session.user.email || '',
-        name: session.user.name || undefined,
-        role: (session.user as { role?: string }).role || 'user',
-        tenantId: (session.user as { tenantId?: string }).tenantId,
+        id: user.id || '',
+        email: user.email || '',
+        name: user.name || undefined,
+        role: (user as { role?: string }).role || 'user',
+        tenantId: (user as { tenantId?: string }).tenantId,
       };
 
       return handler(req, {
@@ -82,7 +86,7 @@ export function withRole(allowedRoles: string[]) {
       context?: { params?: Record<string, string> }
     ): Promise<NextResponse> => {
       try {
-        const session = await getServerSession(authOptions);
+        const session = await auth();
 
         if (!session?.user) {
           return NextResponse.json(
@@ -91,18 +95,18 @@ export function withRole(allowedRoles: string[]) {
           );
         }
 
-        const userRole = (session.user as { role?: string }).role || 'user';
+        const userRole = (user as { role?: string }).role || 'user';
 
         if (!allowedRoles.includes(userRole)) {
           return NextResponse.json({ error: 'Accès refusé', code: 'FORBIDDEN' }, { status: 403 });
         }
 
         const user: AuthenticatedUser = {
-          id: session.user.id || '',
-          email: session.user.email || '',
-          name: session.user.name || undefined,
+          id: user.id || '',
+          email: user.email || '',
+          name: user.name || undefined,
           role: userRole,
-          tenantId: (session.user as { tenantId?: string }).tenantId,
+          tenantId: (user as { tenantId?: string }).tenantId,
         };
 
         return handler(req, {
@@ -131,3 +135,7 @@ export const withAdmin = withRole(['admin', 'super_admin']);
 export const withLawyer = withRole(['lawyer', 'admin', 'super_admin']);
 
 export default withAuth;
+
+
+
+

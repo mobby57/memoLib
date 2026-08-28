@@ -1,4 +1,8 @@
-﻿import { authOptions } from '@/lib/auth';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { authOptions } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import fs from 'fs';
 import { getServerSession } from 'next-auth';
@@ -7,9 +11,9 @@ import path from 'path';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
@@ -75,9 +79,9 @@ export async function GET(request: NextRequest) {
 // Marquer un email comme lu
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
@@ -107,3 +111,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

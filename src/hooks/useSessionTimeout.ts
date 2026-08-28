@@ -1,7 +1,10 @@
-﻿'use client';
+// CLERK-MIGRATION: Remplacement useSession() -> useUser()
+// CLERK-MIGRATION: Remplacement useUser() -> useUser()
+// CLERK-MIGRATION: Remplacement import useSession
+'use client';
 
 import { useEffect, useRef } from 'react';
-import { signOut, useSession } from 'next-auth/react';
+import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -10,7 +13,7 @@ import { useRouter } from 'next/navigation';
  * - Avertissement 5 minutes avant expiration
  */
 export function useSessionTimeout() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useUser();
   const router = useRouter();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
@@ -75,3 +78,6 @@ export function useSessionTimeout() {
 
   return { session, status };
 }
+
+
+

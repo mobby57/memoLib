@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Feature Gate — Guide d'intégration
  *
@@ -24,7 +26,7 @@
  * import { checkFeatureAccess } from '@/lib/billing/features';
  *
  * export async function POST(req: NextRequest) {
- *   const session = await getServerSession(authOptions);
+ *   const session = await auth();
  *   const tenantId = (session?.user as any)?.tenantId;
  *
  *   // Ajouter cette vérification au début de la route
@@ -107,3 +109,5 @@
 //
 
 export {};
+
+

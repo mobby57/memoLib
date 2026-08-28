@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 // @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
@@ -6,14 +10,14 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { emailMonitor } from '@/lib/email/email-monitor-service';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  const tenantId = (session.user as any).tenantId;
-  const role = String((session.user as any).role || '').toUpperCase();
+  const tenantId = (user as any).tenantId;
+  const role = String((user as any).role || '').toUpperCase();
   const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
   if (!allowedRoles.has(role)) {
     return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
@@ -52,3 +56,7 @@ export async function POST(req: NextRequest) {
     }, { status: 500 });
   }
 }
+
+
+
+

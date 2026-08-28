@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route - Rapprochement bancaire : confirmer
  * POST /api/comptabilite/banque/rapprocher — Confirme un rapprochement
@@ -9,10 +13,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { RapprochementService } from '@/lib/services/comptabilite';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
 
   try {
     const { mouvementId, ecritureId } = await req.json();
@@ -38,3 +42,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -7,7 +9,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
  * Suggere une strategie juridique basee sur le type de dossier et les elements.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { typeDossier, elements } = await req.json();
@@ -71,3 +73,5 @@ export async function POST(req: NextRequest) {
     note: 'Suggestions generees par IA. L\'avocat doit adapter la strategie au cas particulier.',
   });
 }
+
+

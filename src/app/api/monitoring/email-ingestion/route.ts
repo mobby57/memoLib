@@ -1,15 +1,19 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getEmailIngestionMetricsSnapshot, resetEmailIngestionMetrics } from '@/lib/email/ingestion-metrics';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function requireAdmin() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }
 
-  const role = String((session.user as any).role || '').toUpperCase();
+  const role = String((user as any).role || '').toUpperCase();
   if (!['ADMIN', 'SUPER_ADMIN'].includes(role)) {
     return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
   }
@@ -54,3 +58,7 @@ export async function POST(request: NextRequest) {
     data: snapshot,
   });
 }
+
+
+
+

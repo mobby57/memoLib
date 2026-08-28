@@ -1,11 +1,13 @@
-﻿import { NextRequest } from 'next/server';
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest } from 'next/server';
 import { registerSSEClient, unregisterSSEClient } from '@/lib/notifications';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
 
 // GET - Stream SSE pour les notifications en temps reel
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const userId = session?.user?.id;
 
   if (!userId) {
@@ -55,3 +57,5 @@ export async function GET(request: NextRequest) {
     },
   });
 }
+
+

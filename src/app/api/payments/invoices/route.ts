@@ -1,16 +1,20 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await auth();
         if (!session?.user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const user = await prisma.user.findUnique({
-            where: { email: session.user.email },
+            where: { email: user.email },
             include: {
                 stripeCustomer: {
                     include: {
@@ -47,3 +51,7 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+
+
+

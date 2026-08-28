@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -7,7 +9,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
  * Genere une preparation d'entretien OFPRA (questions probables + points cles).
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { nationalite, typePersecution, recitResume } = await req.json();
@@ -56,3 +58,5 @@ export async function POST(req: NextRequest) {
     note: 'Preparation generee par IA. Adaptez selon le cas particulier du client.',
   });
 }
+
+

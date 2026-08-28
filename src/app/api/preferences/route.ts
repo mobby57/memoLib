@@ -1,13 +1,17 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as any).id;
+  const userId = (user as any).id;
   const prefs = await prisma.userPreference.findMany({ where: { userId } });
 
   const result: Record<string, any> = {};
@@ -18,11 +22,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as any).id;
-  const tenantId = (session.user as any).tenantId || '';
+  const userId = (user as any).id;
+  const tenantId = (user as any).tenantId || '';
   const body = await request.json();
   const { key, value } = body;
 
@@ -36,3 +40,7 @@ export async function PUT(request: NextRequest) {
 
   return NextResponse.json({ key: pref.key, value: JSON.parse(pref.value) });
 }
+
+
+
+

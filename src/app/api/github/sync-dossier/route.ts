@@ -1,4 +1,8 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API Route: Synchroniser un dossier avec GitHub
  * POST /api/github/sync-dossier
  */
@@ -12,7 +16,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json(
@@ -21,8 +25,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const userId = (session.user as any).id;
-    const tenantId = (session.user as any).tenantId;
+    const userId = (user as any).id;
+    const tenantId = (user as any).tenantId;
 
     const { dossierId, repo } = await req.json();
 
@@ -111,3 +115,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

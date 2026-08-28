@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API : Features disponibles pour le tenant courant
  *
@@ -14,12 +18,12 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getFeatureGate, FEATURE_CATEGORIES } from '@/lib/billing/features';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const tenantId = (session.user as any)?.tenantId;
+  const tenantId = (user as any)?.tenantId;
   if (!tenantId) {
     return NextResponse.json({ error: 'No tenant' }, { status: 403 });
   }
@@ -49,3 +53,7 @@ export async function GET(req: NextRequest) {
     })),
   });
 }
+
+
+
+

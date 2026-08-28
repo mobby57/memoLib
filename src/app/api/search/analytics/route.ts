@@ -1,4 +1,8 @@
-﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import {
   getEmptySearches,
@@ -12,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
@@ -20,8 +24,8 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'stats';
-    const tenantId = session.user.tenantId || undefined;
-    const userId = session.user.id;
+    const tenantId = user.tenantId || undefined;
+    const userId = user.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Utilisateur invalide' }, { status: 401 });
@@ -70,3 +74,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+
+
+

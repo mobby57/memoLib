@@ -1,4 +1,8 @@
-﻿import { logger } from '@/lib/logger';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
@@ -9,11 +13,11 @@ type ReportType = 'factures' | 'dossiers' | 'clients' | 'activite' | 'financier'
 // POST - Generer un rapport PDF
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = (user as any).tenantId as string | undefined;
     if (!tenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -357,3 +361,7 @@ function generateHTMLReport(type: ReportType, data: unknown): string {
 </html>
   `;
 }
+
+
+
+

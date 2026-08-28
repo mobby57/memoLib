@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 /**
@@ -23,7 +25,7 @@ describe('Middleware Logic - Pure Unit Tests', () => {
     it('should validate session', () => {
       const isValidSession = (session: any) => 
         session && 
-        session.userId && 
+        userId && 
         session.expiresAt && 
         new Date(session.expiresAt) > new Date();
 
@@ -210,3 +212,5 @@ describe('Middleware Logic - Pure Unit Tests', () => {
     });
   });
 });
+
+

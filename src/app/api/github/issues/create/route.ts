@@ -1,4 +1,8 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API Route: Creer une issue GitHub pour le compte de l'utilisateur
  * POST /api/github/issues/create
  */
@@ -11,7 +15,7 @@ import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json(
@@ -34,7 +38,7 @@ export async function POST(req: NextRequest) {
     const issue = await createIssueAsUser(repo, title, body, labels, assignees);
 
     logger.info('GitHub issue created via API', {
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       issueNumber: issue.number,
       repo,
     });
@@ -68,3 +72,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

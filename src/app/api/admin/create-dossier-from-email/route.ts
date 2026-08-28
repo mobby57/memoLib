@@ -1,4 +1,8 @@
-﻿import { authOptions } from '@/lib/auth';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { authOptions } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import fs from 'fs';
@@ -58,9 +62,9 @@ function extractClientInfo(emailData: any): ClientInfo {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
@@ -102,7 +106,7 @@ export async function POST(request: NextRequest) {
           adresse: '',
           codePostal: '',
           ville: '',
-          userId: session.user.id,
+          userId: user.id,
         },
       });
     }
@@ -147,3 +151,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

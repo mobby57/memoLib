@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -30,7 +32,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { slot, clientName, clientEmail, motif, dossierId } = await req.json();
@@ -52,3 +54,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true, appointment, message: `RDV confirme le ${new Date(slot).toLocaleDateString('fr-FR')} a ${new Date(slot).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}` });
 }
+
+

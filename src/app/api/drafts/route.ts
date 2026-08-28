@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * GET  /api/drafts — Liste les drafts du tenant
  * POST /api/drafts — Crée un draft depuis un email
@@ -11,10 +15,10 @@ import { extractDraft } from '@/lib/adapters/email.adapter';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-    const tenantId = (session.user as any).tenantId;
+    const tenantId = (user as any).tenantId;
     if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
     const status = new URL(request.url).searchParams.get('status') || 'PENDING';
@@ -43,10 +47,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-    const tenantId = (session.user as any).tenantId;
+    const tenantId = (user as any).tenantId;
     if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
     const { emailId, from, subject, bodyText } = await request.json();
@@ -75,3 +79,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

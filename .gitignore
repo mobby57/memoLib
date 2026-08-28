@@ -128,3 +128,12 @@ sftp_host_key.pub
 # MemoLib local document vault
 .vault/
 .vault-test/
+
+scripts/check-resend-domain.js
+scripts/setup-resend-domain.js
+scripts/sync-resend-domains.js
+scripts/test-complete-flow.ts
+
+tsconfig.tsbuildinfo
+
+security-backup-*/

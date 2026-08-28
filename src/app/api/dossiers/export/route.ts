@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route : GET /api/dossiers/export?dossierId=xxx
  * 
@@ -12,10 +16,10 @@ import { prisma } from '@/lib/prisma';
 import { generateDossierPDF, type DossierExportData } from '@/lib/documents/dossier-pdf-export';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase();
 
@@ -153,3 +157,7 @@ export async function GET(req: NextRequest) {
     },
   });
 }
+
+
+
+

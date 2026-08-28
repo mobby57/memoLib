@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
@@ -41,10 +45,10 @@ const UpdateDeadlineSchema = z.object({
 });
 
 async function resolveAccess(requestedTenantId: string | null) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return { error: NextResponse.json({ error: 'Non autorisé' }, { status: 401 }) };
 
-  const user = session.user as { id?: string; tenantId?: string; role?: string };
+  const user = user as { id?: string; tenantId?: string; role?: string };
   const role = user.role?.toUpperCase() ?? '';
   if (!user.id) return { error: NextResponse.json({ error: 'Session invalide' }, { status: 401 }) };
 
@@ -169,3 +173,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

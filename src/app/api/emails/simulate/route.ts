@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -73,10 +77,10 @@ Préfecture du Bas-Rhin`,
  * Injecte un email démo réaliste dans le système
  */
 export async function POST() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = (user as any).tenantId;
   const email = DEMO_EMAILS[Math.floor(Math.random() * DEMO_EMAILS.length)];
 
   // Call the webhook internally
@@ -103,3 +107,7 @@ export async function POST() {
     ...result,
   });
 }
+
+
+
+

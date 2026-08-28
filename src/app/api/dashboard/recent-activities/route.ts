@@ -1,19 +1,23 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
-    const userRole = (session.user as any).role;
-    const tenantId = (session.user as any).tenantId;
+    const userId = (user as any).id;
+    const userRole = (user as any).role;
+    const tenantId = (user as any).tenantId;
 
     const activities: any[] = [];
 
@@ -112,3 +116,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+
+
+

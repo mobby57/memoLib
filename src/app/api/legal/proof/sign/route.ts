@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { legalProofService } from '@/lib/services/legal-proof.service';
 import { SignatureType } from '@/types/legal-proof';
 import { getServerSession } from 'next-auth';
@@ -19,7 +23,7 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -37,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // Ajouter la signature
     const updatedProof = await legalProofService.addSignature(proofId, {
-      signerId: session.user.email || 'unknown',
+      signerId: user.email || 'unknown',
       signerName,
       signerEmail,
       type,
@@ -61,3 +65,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

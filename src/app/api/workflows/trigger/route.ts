@@ -1,4 +1,8 @@
-﻿import { logger } from '@/lib/logger';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { createContextualNotification } from '@/lib/workflows/notification-engine';
 import { ALL_WORKFLOWS, executeWorkflow } from '@/lib/workflows/workflow-engine';
@@ -12,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -37,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // eTAPE 2: Creer notification contextuelle obligatoire
     logger.info(' Creation notification contextuelle...');
-    const notification = await createContextualNotification(analysis, session.user.email);
+    const notification = await createContextualNotification(analysis, user.email);
 
     logger.info('Notification creee:', { notificationId: notification.id });
 
@@ -48,7 +52,7 @@ export async function POST(request: NextRequest) {
     const workflowResult = await executeWorkflow(workflow, {
       emailAnalysis: analysis,
       notification,
-      userId: session.user.email,
+      userId: user.email,
     });
 
     logger.info('Workflow complete:', { success: workflowResult.success });
@@ -98,3 +102,7 @@ function determineWorkflow(analysis: any): any {
   const workflowIndex = workflowMap[analysis.category] ?? 0;
   return ALL_WORKFLOWS[workflowIndex];
 }
+
+
+
+

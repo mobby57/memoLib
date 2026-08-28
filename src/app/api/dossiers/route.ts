@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
@@ -64,11 +68,11 @@ function mapPrismaErrorToHttp(error: unknown): { status: number; message: string
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    const sessionTenantId = (user as any).tenantId as string | undefined;
     if (!sessionTenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -150,11 +154,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    const sessionTenantId = (user as any).tenantId as string | undefined;
     if (!sessionTenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -218,11 +222,11 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    const sessionTenantId = (user as any).tenantId as string | undefined;
     if (!sessionTenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -259,10 +263,10 @@ export async function PATCH(request: NextRequest) {
     if (!existing) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
 
     const access = await canAccessDossier({
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       tenantId,
-      role: (session.user as any).role,
-      groups: (session.user as any).groups,
+      role: (user as any).role,
+      groups: (user as any).groups,
       dossierId,
       action: 'write',
     });
@@ -311,11 +315,11 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    const sessionTenantId = (user as any).tenantId as string | undefined;
     if (!sessionTenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -336,10 +340,10 @@ export async function DELETE(request: NextRequest) {
     if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
 
     const access = await canAccessDossier({
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       tenantId,
-      role: (session.user as any).role,
-      groups: (session.user as any).groups,
+      role: (user as any).role,
+      groups: (user as any).groups,
       dossierId,
       action: 'manage',
     });
@@ -368,3 +372,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

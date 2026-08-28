@@ -1,6 +1,9 @@
-﻿'use client';
+// CLERK-MIGRATION: Remplacement useSession() -> useUser()
+// CLERK-MIGRATION: Remplacement useUser() -> useUser()
+// CLERK-MIGRATION: Remplacement import useSession
+'use client';
 
-import { useSession } from 'next-auth/react';
+import { useUser } from '@clerk/nextjs';
 import { UserRole, UserPermissions } from '@/types';
 
 export interface UseAuthReturn {
@@ -30,7 +33,7 @@ export interface UseAuthReturn {
 }
 
 export function useAuth(): UseAuthReturn {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useUser();
   
   const user = session?.user as any;
   const isLoading = status === 'loading';
@@ -105,3 +108,6 @@ export function useAuth(): UseAuthReturn {
     },
   };
 }
+
+
+

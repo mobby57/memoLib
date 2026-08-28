@@ -1,4 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../auth/[...nextauth]/route';
@@ -7,9 +11,9 @@ import { prisma } from '@/lib/prisma';
 // POST mark messages as read for a specific client
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
     }
 
@@ -24,7 +28,7 @@ export async function POST(request: NextRequest) {
     await prisma.message.updateMany({
       where: {
         senderId: clientId,
-        recipientId: session.user.id,
+        recipientId: user.id,
         isRead: false,
       },
       data: {
@@ -39,3 +43,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

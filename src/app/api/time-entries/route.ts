@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route: /api/time-entries
  * 
@@ -33,10 +37,10 @@ const patchTimeEntrySchema = createTimeEntrySchema.partial().extend({
 });
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
@@ -91,10 +95,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
@@ -133,10 +137,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
@@ -176,10 +180,10 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
@@ -196,3 +200,7 @@ export async function DELETE(req: NextRequest) {
   await prisma.timeEntry.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
+
+
+
+

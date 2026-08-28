@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -8,10 +12,10 @@ import { prisma } from '@/lib/prisma';
  * Morning Brief CESEDA — Résumé du jour pour l'avocat
  */
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const user = session.user as any;
+  const user = user as any;
   const now = new Date();
   const in7days = new Date(now.getTime() + 7 * 86400000);
 
@@ -74,3 +78,7 @@ export async function GET(req: NextRequest) {
     })),
   });
 }
+
+
+
+

@@ -1,10 +1,14 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { GDPRCompliance } from '@/lib/compliance/gdpr';
 
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await auth();
         const { consents } = await req.json();
 
         if (!consents || !Array.isArray(consents)) {
@@ -46,13 +50,13 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await auth();
 
         if (!session?.user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const consents = await GDPRCompliance.getUserConsents(session.user.email);
+        const consents = await GDPRCompliance.getUserConsents(user.email);
 
         return NextResponse.json({ consents });
     } catch (error: any) {
@@ -63,3 +67,7 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+
+
+

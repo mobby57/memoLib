@@ -1,4 +1,6 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * 🛡️ Admin Cost Management API
  *
  * Permet à l'admin de :
@@ -17,7 +19,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET - Liste tous les tenants avec leurs coûts
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
@@ -142,7 +144,7 @@ export async function GET(request: NextRequest) {
 // POST - Actions admin (ajuster limites, créer facture surcoût)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
@@ -351,3 +353,5 @@ async function toggleAIAccess(tenantId: string, enabled: boolean) {
     aiEnabled: enabled,
   });
 }
+
+

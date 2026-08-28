@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route - Verify All EventLog Integrity
  * POST /api/audit/verify-all
@@ -13,17 +17,17 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     // Auth check
-    const session = await getServerSession();
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const userRole = (session.user as any).role;
+    const userRole = (user as any).role;
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 });
     }
 
-    const tenantId = (session.user as any).tenantId;
+    const tenantId = (user as any).tenantId;
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 400 });
     }
@@ -48,3 +52,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message || 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

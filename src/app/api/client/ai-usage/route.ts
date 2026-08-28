@@ -1,4 +1,8 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API pour que les clients voient leur propre usage IA
  */
 
@@ -10,13 +14,13 @@ import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const tenantId = session.user.tenantId;
+    const tenantId = user.tenantId;
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 400 });
     }
@@ -208,3 +212,7 @@ function getBudgetLimit(planName: string): number {
   };
   return limits[planName] || 5;
 }
+
+
+
+

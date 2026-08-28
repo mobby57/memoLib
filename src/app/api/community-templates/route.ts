@@ -1,3 +1,7 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement getServerSession() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -8,7 +12,7 @@ import { prisma } from '@/lib/prisma';
  * Liste les templates communautaires publics, triés par upvotes.
  */
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
@@ -60,12 +64,12 @@ export async function GET(req: NextRequest) {
  * Publie un nouveau template communautaire.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  const user = session.user as any;
+  const user = user as any;
   const body = await req.json();
   const { title, description, category, typeDossier, typeRecours, juridiction, content, variables } = body;
 
@@ -92,3 +96,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true, template }, { status: 201 });
 }
+
+
+
+
