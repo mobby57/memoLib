@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "weights": {
+    "security": 20,
+    "functional": 15,
+    "legal": 15,
+    "email": 10,
+    "documents": 10,
+    "ai": 10,
+    "tests": 10,
+    "production": 10
+  },
+  "thresholds": {
+    "mvp": 6,
+    "pilot": 7,
+    "production": 8,
+    "mature": 9
+  },
+  "criticalBlockers": [
+    "critical-e2e",
+    "legal-deadlines",
+    "production-build",
+    "cross-tenant"
+  ]
+}
