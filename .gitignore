@@ -149,3 +149,8 @@ backups/database/
 .security-fix-backup-*/
 .fix-all-backup/
 backups/database/
+
+# Backup artifacts from scripts
+.security-fix-backup-*/
+.fix-all-backup/
+backups/database/
