@@ -1060,7 +1060,7 @@ model TenantSettings {
 }
 
 model UsageRecord {
-  id        String   @id
+  id        String   @id @default(uuid())
   tenantId  String
   type      String
   quantity  Float
@@ -1456,6 +1456,7 @@ enum AuditAction {
   RETENTION_POLICY_APPLIED
   DUPLICATE_MESSAGE_DETECTED
   WEBHOOK_SIGNATURE_INVALID
+  DOCUMENT_UPLOADED
 }
 
 // Canaux de communication normalisés (src/lib/multichannel)

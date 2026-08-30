@@ -37,7 +37,7 @@ const DEMO_STEPS: DemoStep[] = [
     why: 'Démarrer avec une base propre pour retrouver facilement clients, dossiers et documents.',
     action:
       'Créez un cabinet, ajoutez 1 collaborateur, puis définissez 3 types de dossier (OQTF, titre de séjour, naturalisation).',
-    href: '/auth/login',
+    href: '/fr/auth/login',
     tool: 'Paramètres + utilisateurs + modèles de dossier',
     expectedResult: 'Votre structure est prête et chaque nouveau dossier suit le bon cadre.',
   },

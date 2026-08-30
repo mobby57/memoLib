@@ -33,7 +33,7 @@ export default function TenantsPage() {
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
-      router.push('/auth/login');
+      router.push('/fr/auth/login');
       return;
     }
     loadTenants();

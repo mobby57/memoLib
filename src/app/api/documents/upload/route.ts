@@ -369,6 +369,7 @@ export async function POST(request: NextRequest) {
         dossierId,
         uploadedBy: userId!,
         antivirusStatus: 'PENDING',
+        updatedAt: new Date(),
       },
     });
 

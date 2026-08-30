@@ -168,7 +168,7 @@ export default function NouveauDossierClient() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login');
+      router.push('/fr/auth/login');
     } else if (session?.user && session.user.role !== 'CLIENT') {
       router.push('/dashboard');
     }

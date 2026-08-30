@@ -98,7 +98,7 @@ const PRICING = [
       'Résumé IA',
     ],
     cta: 'Essai gratuit',
-    href: '/auth/register?plan=PILOT',
+    href: '/fr/auth/register?plan=PILOT',
     highlighted: false,
   },
   {
@@ -115,7 +115,7 @@ const PRICING = [
       'Support email',
     ],
     cta: 'Commencer',
-    href: '/auth/register?plan=SOLO',
+    href: '/fr/auth/register?plan=SOLO',
     highlighted: false,
   },
   {
@@ -132,7 +132,7 @@ const PRICING = [
       'Brouillon réponse IA',
     ],
     cta: 'Commencer',
-    href: '/auth/register?plan=CABINET',
+    href: '/fr/auth/register?plan=CABINET',
     highlighted: true,
   },
   {
@@ -432,7 +432,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/auth/register?plan=PILOT"
+              href="/fr/auth/register?plan=PILOT"
               className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors"
             >
               Démarrer l'essai gratuit

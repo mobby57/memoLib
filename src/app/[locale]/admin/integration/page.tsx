@@ -14,7 +14,7 @@ export default function IntegrationPage() {
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.push('/auth/login');
+    if (status === 'unauthenticated') router.push('/fr/auth/login');
     else if (session?.user && !['ADMIN', 'AVOCAT', 'ASSOCIE'].includes(session.user.role || ''))
       router.push('/dashboard');
   }, [session, status, router]);

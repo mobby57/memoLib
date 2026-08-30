@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
 
             {/* Retour connexion */}
             <Link
-              href="/auth/login"
+              href="/fr/auth/login"
               className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
       <div className="max-w-md w-full">
         {/* Retour */}
         <Link
-          href="/auth/login"
+          href="/fr/auth/login"
           className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-200 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -175,7 +175,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-8 pt-6 border-t border-white/10 text-center">
             <p className="text-gray-400 text-sm">
               Vous n'avez pas de compte ?{' '}
-              <Link href="/auth/register" className="text-blue-400 hover:text-blue-300 font-medium">
+              <Link href="/fr/auth/register" className="text-blue-400 hover:text-blue-300 font-medium">
                 Créer un compte
               </Link>
             </p>

@@ -3,9 +3,7 @@
  * Wrapper centralisé pour appliquer le rate limiting à toutes les routes
  */
 
-import { authOptions } from '@/lib/auth/authOptions';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/security/rate-limiter';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 type RateLimitType = keyof typeof RATE_LIMITS;
@@ -74,25 +72,15 @@ export function withRateLimit<T>(
     // Déterminer la configuration
     const config = customConfig || RATE_LIMITS[type];
 
-    // Générer l'identifiant (IP par défaut, ou userId si authentifié)
+    // Générer l'identifiant.
+    // Le rate-limit reste indépendant de NextAuth pour éviter
+    // une dépendance circulaire avec authOptions/[...nextauth].
     let identifier: string;
 
     if (keyGenerator) {
       identifier = keyGenerator(req);
     } else {
-      const ip = getClientIP(req);
-
-      // Essayer d'obtenir l'utilisateur authentifié
-      try {
-        const session = await getServerSession(authOptions);
-        if (session?.user?.id) {
-          identifier = `user:${session.user.id}`;
-        } else {
-          identifier = `ip:${ip}`;
-        }
-      } catch {
-        identifier = `ip:${ip}`;
-      }
+      identifier = `ip:${getClientIP(req)}`;
     }
 
     // Ajouter le path pour différencier les endpoints

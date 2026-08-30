@@ -61,7 +61,7 @@ describe('Credentials authentication', () => {
     mockPrisma.user.findUnique.mockResolvedValue({
       id: 'demo-user',
       email: 'demo@memolib.fr',
-      password: '$2b$10$hash',
+      password: 'TEST_PASSWORD',
       role: 'AVOCAT',
       tenantId: 'tenant-demo',
       Tenant: { status: 'active', name: 'Demo', Plan: { name: 'CABINET' } },
@@ -72,7 +72,7 @@ describe('Credentials authentication', () => {
     await expect(
       credentialsAuthorize()({
         email: 'demo@memolib.fr',
-        password: 'arbitrary-password',
+        password: 'TEST_PASSWORD',
       })
     ).rejects.toThrow('Identifiants invalides');
   });
@@ -83,7 +83,7 @@ describe('Credentials authentication', () => {
     await expect(
       credentialsAuthorize()({
         email: 'demo@memolib.fr',
-        password: 'arbitrary-password',
+        password: 'TEST_PASSWORD',
       })
     ).rejects.toThrow('Identifiants invalides');
   });
@@ -94,7 +94,7 @@ describe('Credentials authentication', () => {
     await expect(
       credentialsAuthorize()({
         email: 'demo@memolib.fr',
-        password: 'arbitrary-password',
+        password: 'TEST_PASSWORD',
       })
     ).rejects.toThrow('Identifiants invalides (DB indisponible)');
   });
@@ -104,7 +104,7 @@ describe('Credentials authentication', () => {
       id: 'user-1',
       email: 'lawyer@example.test',
       name: 'Lawyer',
-      password: '$2b$10$hash',
+      password: 'TEST_PASSWORD',
       role: 'AVOCAT',
       tenantId: 'tenant-1',
       Tenant: { status: 'active', name: 'Cabinet', Plan: { name: 'CABINET' } },
@@ -115,7 +115,7 @@ describe('Credentials authentication', () => {
     await expect(
       credentialsAuthorize()({
         email: 'lawyer@example.test',
-        password: 'valid-password',
+        password: 'TEST_PASSWORD',
       })
     ).resolves.toMatchObject({
       id: 'user-1',
@@ -130,7 +130,7 @@ describe('Credentials authentication', () => {
     await expect(
       credentialsAuthorize()({
         email: 'demo@memolib.fr',
-        password: 'arbitrary-password',
+        password: 'TEST_PASSWORD',
       })
     ).rejects.toThrow('Service indisponible');
   });

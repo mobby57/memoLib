@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Scénarios Avancés MemoLib', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/signin');
-    await page.fill('[name="email"]', 'avocat@test.com');
-    await page.fill('[name="password"]', 'Test123!');
+    await page.goto('/fr/auth/login');
+    await page.fill('[name="email"]', 'avocat@memolib.local');
+    await page.fill('[name="password"]', 'Avocat123!');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL('/dashboard');
   });
@@ -144,8 +144,8 @@ test.describe('Scénarios Avancés MemoLib', () => {
     
     // Déconnexion et reconnexion
     await page.click('[data-testid="logout"]');
-    await page.fill('[name="email"]', 'avocat@test.com');
-    await page.fill('[name="password"]', 'Test123!');
+    await page.fill('[name="email"]', 'avocat@memolib.local');
+    await page.fill('[name="password"]', 'Avocat123!');
     await page.click('button[type="submit"]');
     
     // Vérifier demande 2FA

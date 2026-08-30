@@ -86,7 +86,7 @@ export default function RendezVousPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login');
+      router.push('/fr/auth/login');
     } else if (session?.user) {
       loadData();
     }

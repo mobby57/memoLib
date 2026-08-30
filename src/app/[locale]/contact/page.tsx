@@ -102,7 +102,7 @@ export default function ContactPage() {
             <ArrowLeft className="w-5 h-5" />
             Retour
           </Link>
-          <Link href="/auth/login" className="text-blue-300 hover:text-white transition-colors">
+          <Link href="/fr/auth/login" className="text-blue-300 hover:text-white transition-colors">
             Se connecter
           </Link>
         </div>
@@ -171,13 +171,13 @@ export default function ContactPage() {
                   <MessageSquare className="w-4 h-4" /> Demander une d\u00E9mo
                 </Link>
                 <Link
-                  href="/auth/register"
+                  href="/fr/auth/register"
                   className="flex items-center gap-2 text-blue-200 hover:text-white transition-colors"
                 >
                   <CheckCircle className="w-4 h-4" /> S&apos;inscrire
                 </Link>
                 <Link
-                  href="/auth/login"
+                  href="/fr/auth/login"
                   className="flex items-center gap-2 text-blue-200 hover:text-white transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" /> Se connecter

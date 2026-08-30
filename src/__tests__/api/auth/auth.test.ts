@@ -36,7 +36,7 @@ describe('NextAuth Configuration', () => {
 
   describe('Credentials Provider - authorize()', () => {
     it('rejette si email manquant', async () => {
-      const credentials = { email: '', password: 'test123' };
+      const credentials = { email: '', password: 'TEST_PASSWORD' };
       
       // Simulation de l'erreur
       expect(() => {
@@ -70,7 +70,7 @@ describe('NextAuth Configuration', () => {
       const mockUser = {
         id: 'user-123',
         email: 'test@example.com',
-        password: '$2a$12$hashedpassword',
+        password: 'TEST_PASSWORD',
         role: 'ADMIN',
         tenant: { id: 'tenant-123', status: 'active' },
       };
@@ -90,7 +90,7 @@ describe('NextAuth Configuration', () => {
       const mockUser = {
         id: 'user-123',
         email: 'admin@example.com',
-        password: '$2a$12$hashedpassword',
+        password: 'TEST_PASSWORD',
         role: 'ADMIN',
         tenant: { id: 'tenant-123', status: 'suspended' },
       };
@@ -114,7 +114,7 @@ describe('NextAuth Configuration', () => {
         id: 'user-123',
         email: 'valid@example.com',
         name: 'Valid User',
-        password: '$2a$12$hashedpassword',
+        password: 'TEST_PASSWORD',
         role: 'ADMIN',
         tenantId: 'tenant-123',
         tenant: { 
@@ -143,7 +143,7 @@ describe('NextAuth Configuration', () => {
       const mockUser = {
         id: 'user-123',
         email: 'client@example.com',
-        password: '$2a$12$hashedpassword',
+        password: 'TEST_PASSWORD',
         role: 'CLIENT',
         clientId: null,
         tenant: { id: 'tenant-123', status: 'active' },

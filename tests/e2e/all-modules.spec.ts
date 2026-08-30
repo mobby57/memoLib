@@ -36,7 +36,7 @@ const CREDENTIALS = {
 
 test.describe('Module 1 — Authentification', () => {
   test('Login avec identifiants valides', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login');
     await page.fill('input[name="email"]', CREDENTIALS.admin.email);
     await page.fill('input[name="password"]', CREDENTIALS.admin.password);
     await page.click('button[type="submit"]');
@@ -45,7 +45,7 @@ test.describe('Module 1 — Authentification', () => {
   });
 
   test('Login échoue avec mauvais mot de passe', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login');
     await page.fill('input[name="email"]', CREDENTIALS.admin.email);
     await page.fill('input[name="password"]', 'WrongPassword!');
     await page.click('button[type="submit"]');
@@ -54,7 +54,7 @@ test.describe('Module 1 — Authentification', () => {
 
   test('Redirection vers login si non authentifié', async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForURL('**/auth/login**', { timeout: 10000 });
+    await page.waitForURL('**/fr/auth/login**', { timeout: 10000 });
   });
 
   test('Page inscription beta accessible', async ({ page }) => {
@@ -73,7 +73,7 @@ test.describe('Module 1 — Authentification', () => {
 
 test.describe('Module 2 — Dashboard', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login');
     await page.fill('input[name="email"]', CREDENTIALS.admin.email);
     await page.fill('input[name="password"]', CREDENTIALS.admin.password);
     await page.click('button[type="submit"]');
@@ -104,7 +104,7 @@ test.describe('Module 2 — Dashboard', () => {
 
 test.describe('Module 3 — Clients', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login');
     await page.fill('input[name="email"]', CREDENTIALS.admin.email);
     await page.fill('input[name="password"]', CREDENTIALS.admin.password);
     await page.click('button[type="submit"]');
@@ -126,7 +126,7 @@ test.describe('Module 3 — Clients', () => {
 
 test.describe('Module 4 — Dossiers', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login');
     await page.fill('input[name="email"]', CREDENTIALS.admin.email);
     await page.fill('input[name="password"]', CREDENTIALS.admin.password);
     await page.click('button[type="submit"]');

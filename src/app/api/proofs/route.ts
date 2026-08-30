@@ -113,6 +113,7 @@ export async function POST(request: NextRequest) {
 
     const proof = await prisma.proof.create({
       data: {
+        id: crypto.randomUUID(),
         tenantId,
         type,
         title,
@@ -130,6 +131,7 @@ export async function POST(request: NextRequest) {
         timestampHash,
         chainPreviousId: lastProof?.id || null,
         metadata: metadata ? JSON.stringify(metadata) : null,
+        updatedAt: new Date(),
       },
     });
 

@@ -1,20 +1,19 @@
 #!/usr/bin/env tsx
 /**
- * 🩺 Health Check de la base de données - Expert Level
- * 
- * Vérifie:
- * - Connexion à la base de données
- * - Intégrité des données
- * - Performance des queries
- * - Taille et fragmentation
- * - État du WAL
+ * 🩺 Health Check PostgreSQL
+ *
+ * Vérifie :
+ * - Connexion PostgreSQL
+ * - Version PostgreSQL
+ * - Taille de la base
+ * - Nombre de tables
+ * - Connexions actives
+ * - Performance
+ * - Lecture/écriture
  */
 
 import 'dotenv/config';
-import { prisma, prismaExtended } from '../src/lib/prisma';
-import Database from 'better-sqlite3';
-
-const dbPath = process.env.DATABASE_URL?.replace('file:', '') || './prisma/dev.db';
+import { prisma } from '../src/lib/prisma';
 
 interface HealthCheckResult {
   status: 'healthy' | 'warning' | 'critical';
@@ -22,7 +21,7 @@ interface HealthCheckResult {
     name: string;
     status: 'pass' | 'warn' | 'fail';
     message: string;
-    details?: any;
+    details?: unknown;
   }[];
   timestamp: Date;
 }
@@ -34,175 +33,267 @@ async function healthCheck(): Promise<HealthCheckResult> {
     timestamp: new Date(),
   };
 
-  console.log('\n🩺 Health Check de la base de données SQLite\n');
+  console.log('\n🩺 Health Check de la base de données PostgreSQL\n');
+
+  // 1. Connexion
+  console.log('🔌 Test de connexion...');
 
   try {
-    // 1. Test de connexion
-    console.log('🔌 Test de connexion...');
-    try {
-      const health = await prismaExtended.$health();
-      result.checks.push({
-        name: 'Connection',
-        status: health.status === 'healthy' ? 'pass' : 'fail',
-        message: health.status === 'healthy' ? 'Connexion active' : 'Connexion impossible',
-        details: health,
-      });
-      console.log(`   ✅ Connexion: ${health.status}`);
-    } catch (error) {
-      result.checks.push({
-        name: 'Connection',
-        status: 'fail',
-        message: 'Erreur de connexion',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      });
-      result.status = 'critical';
-      console.log('   ❌ Connexion impossible');
+    const start = Date.now();
+    await prisma.$queryRaw`SELECT 1`;
+    const duration = Date.now() - start;
+
+    result.checks.push({
+      name: 'Connection',
+      status: 'pass',
+      message: `Connexion PostgreSQL active (${duration}ms)`,
+      details: { duration },
+    });
+
+    console.log(`   ✅ Connexion PostgreSQL OK (${duration}ms)`);
+  } catch (error) {
+    result.checks.push({
+      name: 'Connection',
+      status: 'fail',
+      message: 'Connexion PostgreSQL impossible',
+      details: error instanceof Error ? error.message : String(error),
+    });
+
+    result.status = 'critical';
+    console.log('   ❌ Connexion impossible');
+  }
+
+  // 2. Version PostgreSQL
+  console.log('\n🐘 Version PostgreSQL...');
+
+  try {
+    const rows = await prisma.$queryRaw<{ version: string }[]>`
+      SELECT version()
+    `;
+
+    const version = rows[0]?.version ?? 'Inconnue';
+
+    result.checks.push({
+      name: 'PostgreSQL Version',
+      status: 'pass',
+      message: version,
+      details: { version },
+    });
+
+    console.log(`   ✅ ${version}`);
+  } catch (error) {
+    result.checks.push({
+      name: 'PostgreSQL Version',
+      status: 'warn',
+      message: 'Version PostgreSQL indisponible',
+      details: error instanceof Error ? error.message : String(error),
+    });
+
+    if (result.status === 'healthy') {
+      result.status = 'warning';
     }
 
-    // 2. Intégrité de la base
-    console.log('\n🔍 Vérification d\'intégrité...');
-    try {
-      const integrity = await prisma.$queryRaw<{ integrity_check: string }[]>`
-        PRAGMA integrity_check
-      `;
-      const isOk = integrity[0]?.integrity_check === 'ok';
-      result.checks.push({
-        name: 'Integrity',
-        status: isOk ? 'pass' : 'fail',
-        message: isOk ? 'Intégrité OK' : 'Problèmes détectés',
-        details: integrity,
-      });
-      console.log(`   ${isOk ? '✅' : '❌'} Intégrité: ${isOk ? 'OK' : 'ERREUR'}`);
-      if (!isOk) result.status = 'critical';
-    } catch (error) {
-      result.checks.push({
-        name: 'Integrity',
-        status: 'fail',
-        message: 'Impossible de vérifier l\'intégrité',
-      });
-      result.status = 'critical';
-      console.log('   ❌ Erreur lors de la vérification');
-    }
+    console.log('   ⚠️ Version indisponible');
+  }
 
-    // 3. Statistiques de taille
-    console.log('\n📊 Statistiques de taille...');
-    const db = new Database(dbPath, { readonly: true });
-    
-    const pageCount = db.pragma('page_count', { simple: true }) as number;
-    const pageSize = db.pragma('page_size', { simple: true }) as number;
-    const freePages = db.pragma('freelist_count', { simple: true }) as number;
-    
-    const sizeBytes = pageCount * pageSize;
-    const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2);
-    const wastedMB = ((freePages * pageSize) / (1024 * 1024)).toFixed(2);
-    const wastedPercent = ((freePages / pageCount) * 100).toFixed(2);
-    
-    const needsVacuum = parseFloat(wastedPercent) > 20;
-    
+  // 3. Taille de la base
+  console.log('\n📊 Taille de la base...');
+
+  try {
+    const rows = await prisma.$queryRaw<{ database_size: bigint }[]>`
+      SELECT pg_database_size(current_database()) AS database_size
+    `;
+
+    const sizeBytes = Number(rows[0]?.database_size ?? 0);
+    const sizeMB = sizeBytes / (1024 * 1024);
+
     result.checks.push({
       name: 'Database Size',
-      status: needsVacuum ? 'warn' : 'pass',
-      message: `Taille: ${sizeMB} MB, ${wastedPercent}% fragmenté`,
-      details: { sizeMB, wastedMB, wastedPercent, needsVacuum },
+      status: 'pass',
+      message: `Taille: ${sizeMB.toFixed(2)} MB`,
+      details: { sizeBytes, sizeMB },
     });
-    
-    console.log(`   Taille totale: ${sizeMB} MB`);
-    console.log(`   Fragmentation: ${wastedPercent}% (${wastedMB} MB)`);
-    console.log(`   ${needsVacuum ? '⚠️  VACUUM recommandé' : '✅ Fragmentation acceptable'}`);
-    
-    if (needsVacuum && result.status === 'healthy') result.status = 'warning';
-    
-    db.close();
 
-    // 4. Mode WAL
-    console.log('\n📝 Configuration SQLite...');
-    const dbConfig = new Database(dbPath, { readonly: true });
-    
-    const journalMode = dbConfig.pragma('journal_mode', { simple: true });
-    const syncMode = dbConfig.pragma('synchronous', { simple: true });
-    const cacheSize = dbConfig.pragma('cache_size', { simple: true });
-    
+    console.log(`   ✅ Taille: ${sizeMB.toFixed(2)} MB`);
+  } catch (error) {
     result.checks.push({
-      name: 'SQLite Configuration',
-      status: journalMode === 'wal' ? 'pass' : 'warn',
-      message: `Journal: ${journalMode}, Sync: ${syncMode}, Cache: ${cacheSize}`,
-      details: { journalMode, syncMode, cacheSize },
+      name: 'Database Size',
+      status: 'warn',
+      message: 'Impossible de récupérer la taille',
+      details: error instanceof Error ? error.message : String(error),
     });
-    
-    console.log(`   Journal mode: ${journalMode} ${journalMode === 'wal' ? '✅' : '⚠️'}`);
-    console.log(`   Synchronous: ${syncMode}`);
-    console.log(`   Cache size: ${cacheSize} pages`);
-    
-    dbConfig.close();
 
-    // 5. Performance metrics
-    console.log('\n⚡ Métriques de performance...');
-    const metrics = prismaExtended.$metrics();
-    
-    const hasSlowQueries = metrics.slowQueries > 0;
-    const avgDurationOk = metrics.averageDuration < 100;
-    
-    result.checks.push({
-      name: 'Query Performance',
-      status: !avgDurationOk || hasSlowQueries ? 'warn' : 'pass',
-      message: `Moyenne: ${metrics.averageDuration}ms, Lentes: ${metrics.slowQueries}`,
-      details: metrics,
-    });
-    
-    console.log(`   Total queries: ${metrics.totalQueries}`);
-    console.log(`   Durée moyenne: ${metrics.averageDuration}ms ${avgDurationOk ? '✅' : '⚠️'}`);
-    console.log(`   Queries lentes: ${metrics.slowQueries} ${hasSlowQueries ? '⚠️' : '✅'}`);
-    
-    if (!avgDurationOk && result.status === 'healthy') result.status = 'warning';
-
-    // 6. Test de lecture/écriture
-    console.log('\n📝 Test de lecture/écriture...');
-    try {
-      await prisma.$queryRaw`SELECT 1`;
-      result.checks.push({
-        name: 'Read/Write Test',
-        status: 'pass',
-        message: 'Lecture/écriture fonctionnelle',
-      });
-      console.log('   ✅ Lecture/écriture OK');
-    } catch (error) {
-      result.checks.push({
-        name: 'Read/Write Test',
-        status: 'fail',
-        message: 'Erreur lors du test',
-      });
-      result.status = 'critical';
-      console.log('   ❌ Erreur de lecture/écriture');
+    if (result.status === 'healthy') {
+      result.status = 'warning';
     }
 
-    // Résumé final
-    console.log('\n' + '='.repeat(50));
-    const statusEmoji = result.status === 'healthy' ? '✅' : result.status === 'warning' ? '⚠️' : '❌';
-    console.log(`${statusEmoji} Status global: ${result.status.toUpperCase()}`);
-    console.log('='.repeat(50) + '\n');
-
-    return result;
-
-  } catch (error) {
-    console.error('\n❌ Erreur lors du health check:', error);
-    result.status = 'critical';
-    result.checks.push({
-      name: 'Health Check',
-      status: 'fail',
-      message: 'Erreur fatale',
-      details: error instanceof Error ? error.message : 'Unknown error',
-    });
-    return result;
-  } finally {
-    await prisma.$disconnect();
+    console.log('   ⚠️ Taille indisponible');
   }
+
+  // 4. Nombre de tables
+  console.log('\n📋 Vérification des tables...');
+
+  try {
+    const rows = await prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*) AS count
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_type = 'BASE TABLE'
+    `;
+
+    const tableCount = Number(rows[0]?.count ?? 0);
+
+    result.checks.push({
+      name: 'Tables',
+      status: tableCount > 0 ? 'pass' : 'fail',
+      message: `${tableCount} tables`,
+      details: { tableCount },
+    });
+
+    if (tableCount > 0) {
+      console.log(`   ✅ ${tableCount} tables`);
+    } else {
+      console.log('   ❌ Aucune table');
+      result.status = 'critical';
+    }
+  } catch (error) {
+    result.checks.push({
+      name: 'Tables',
+      status: 'fail',
+      message: 'Impossible de vérifier les tables',
+      details: error instanceof Error ? error.message : String(error),
+    });
+
+    result.status = 'critical';
+    console.log('   ❌ Erreur');
+  }
+
+  // 5. Connexions
+  console.log('\n🔗 Connexions PostgreSQL...');
+
+  try {
+    const rows = await prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*) AS count
+      FROM pg_stat_activity
+      WHERE datname = current_database()
+    `;
+
+    const connectionCount = Number(rows[0]?.count ?? 0);
+
+    result.checks.push({
+      name: 'Connections',
+      status: 'pass',
+      message: `${connectionCount} connexion(s)`,
+      details: { connectionCount },
+    });
+
+    console.log(`   ✅ ${connectionCount} connexion(s)`);
+  } catch (error) {
+    result.checks.push({
+      name: 'Connections',
+      status: 'warn',
+      message: 'Impossible de vérifier les connexions',
+      details: error instanceof Error ? error.message : String(error),
+    });
+
+    if (result.status === 'healthy') {
+      result.status = 'warning';
+    }
+
+    console.log('   ⚠️ Connexions indisponibles');
+  }
+
+  // 6. Performance
+  console.log('\n⚡ Performance...');
+
+  try {
+    const start = Date.now();
+    await prisma.$queryRaw`SELECT 1`;
+    const duration = Date.now() - start;
+
+    const status = duration < 100 ? 'pass' : 'warn';
+
+    result.checks.push({
+      name: 'Query Performance',
+      status,
+      message: `SELECT 1: ${duration}ms`,
+      details: { duration },
+    });
+
+    console.log(
+      `   ${duration < 100 ? '✅' : '⚠️'} Requête: ${duration}ms`
+    );
+
+    if (status === 'warn' && result.status === 'healthy') {
+      result.status = 'warning';
+    }
+  } catch (error) {
+    result.checks.push({
+      name: 'Query Performance',
+      status: 'fail',
+      message: 'Test de performance échoué',
+      details: error instanceof Error ? error.message : String(error),
+    });
+
+    result.status = 'critical';
+    console.log('   ❌ Test échoué');
+  }
+
+  // 7. Lecture
+  console.log('\n📖 Test de lecture...');
+
+  try {
+    const rows = await prisma.$queryRaw<{ result: number }[]>`
+      SELECT 1 AS result
+    `;
+
+    const ok = rows[0]?.result === 1;
+
+    result.checks.push({
+      name: 'Read Test',
+      status: ok ? 'pass' : 'fail',
+      message: ok ? 'Lecture fonctionnelle' : 'Résultat inattendu',
+    });
+
+    if (ok) {
+      console.log('   ✅ Lecture OK');
+    } else {
+      result.status = 'critical';
+      console.log('   ❌ Lecture incorrecte');
+    }
+  } catch (error) {
+    result.checks.push({
+      name: 'Read Test',
+      status: 'fail',
+      message: 'Lecture échouée',
+      details: error instanceof Error ? error.message : String(error),
+    });
+
+    result.status = 'critical';
+    console.log('   ❌ Lecture échouée');
+  }
+
+  // Résumé
+  console.log('\n' + '='.repeat(55));
+
+  const emoji =
+    result.status === 'healthy'
+      ? '✅'
+      : result.status === 'warning'
+        ? '⚠️'
+        : '❌';
+
+  console.log(`${emoji} STATUS: ${result.status.toUpperCase()}`);
+  console.log('='.repeat(55) + '\n');
+
+  return result;
 }
 
-// Exécuter si appelé directement
-if (require.main === module) {
-  healthCheck().then((result) => {
-    process.exit(result.status === 'critical' ? 1 : 0);
+healthCheck()
+  .catch((error) => {
+    console.error('\n❌ Erreur:', error);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
-}
-
-export { healthCheck };

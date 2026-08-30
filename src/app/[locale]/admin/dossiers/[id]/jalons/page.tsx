@@ -80,7 +80,7 @@ export default function NouveauDossierAvocatPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login')
+      router.push('/fr/auth/login')
     } else if (session?.user?.role !== 'AVOCAT' && session?.user?.role !== 'ADMIN') {
       router.push('/dashboard')
     } else {

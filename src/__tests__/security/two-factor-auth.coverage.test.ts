@@ -17,10 +17,11 @@ vi.mock('qrcode', () => ({
   },
 }));
 
-vi.mock('@prisma/client', () => ({
-  PrismaClient: class {
-    user = { update: vi.fn().mockResolvedValue({}) };
-    $disconnect = vi.fn();
+vi.mock('@/lib/prisma', () => ({
+  default: {
+    user: {
+      update: vi.fn().mockResolvedValue({}),
+    },
   },
 }));
 

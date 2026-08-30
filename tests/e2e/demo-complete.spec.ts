@@ -9,7 +9,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
   // PHASE 1: AUTHENTIFICATION
   // ============================================
   test('1️⃣ Login avec identifiants de test', async ({ page }) => {
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
@@ -47,7 +47,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
   // ============================================
   test('2️⃣ Accès au dashboard principal', async ({ page }) => {
     // Login d'abord
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
@@ -78,7 +78,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
   // ============================================
   test('3️⃣ Générer une preuve légale', async ({ page }) => {
     // Login
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
@@ -131,7 +131,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
   // ============================================
   test('4️⃣ Afficher la liste des preuves légales', async ({ page }) => {
     // Login
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
@@ -160,7 +160,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
   // ============================================
   test("5️⃣ Consulter les détails d'une preuve", async ({ page }) => {
     // Login
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
@@ -197,7 +197,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
   // ============================================
   test('6️⃣ Exporter une preuve (PDF/JSON/XML)', async ({ page }) => {
     // Login
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
@@ -232,7 +232,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
   // ============================================
   test('7️⃣ Ajouter une signature eIDAS', async ({ page }) => {
     // Login
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
@@ -275,7 +275,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
   // ============================================
   test('8️⃣ Consulter les règles sectorielles', async ({ page }) => {
     // Login
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
@@ -337,7 +337,7 @@ test.describe('🎯 Démo Complète MemoLib', () => {
 
     // Login page
     const t1 = Date.now();
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });

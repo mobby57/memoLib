@@ -94,6 +94,7 @@ export async function POST(req: NextRequest) {
       if (parsed) {
         await prisma.legalDeadline.create({
           data: {
+            id: crypto.randomUUID(),
             tenantId,
             dossierId: dossier.id,
             clientId: client?.id,
@@ -101,6 +102,7 @@ export async function POST(req: NextRequest) {
             label: `Échéance détectée par IA — ${summary.objet}`,
             dueDate: parsed,
             status: 'PENDING',
+            updatedAt: new Date(),
           },
         }).catch(() => {});
       }
@@ -111,6 +113,7 @@ export async function POST(req: NextRequest) {
     for (const dl of cesedaDeadlines) {
       await prisma.legalDeadline.create({
         data: {
+          id: crypto.randomUUID(),
           tenantId,
           dossierId: dossier.id,
           clientId: client?.id,
@@ -118,6 +121,7 @@ export async function POST(req: NextRequest) {
           label: dl.label,
           dueDate: dl.dueDate,
           status: 'PENDING',
+          updatedAt: new Date(),
         },
       }).catch(() => {});
     }

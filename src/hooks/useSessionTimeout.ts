@@ -48,7 +48,7 @@ export function useSessionTimeout() {
 
     const handleLogout = async () => {
       await signOut({ 
-        callbackUrl: '/auth/login?timeout=true',
+        callbackUrl: '/fr/auth/login?timeout=true',
         redirect: true 
       });
     };

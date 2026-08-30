@@ -26,7 +26,7 @@ test.describe('Tests Performance Avancés', () => {
 
     await Promise.all(
       pages.map(async (page, i) => {
-        await page.goto('/auth/signin');
+        await page.goto('/fr/auth/login');
         await page.fill('[name="email"]', `user${i}@test.com`);
         await page.fill('[name="password"]', 'Test123!');
         await page.click('button[type="submit"]');

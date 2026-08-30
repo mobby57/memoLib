@@ -13,7 +13,7 @@ export default function SuperAdminDemoDashboard() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login');
+      router.push('/fr/auth/login');
     }
   }, [status, router]);
 

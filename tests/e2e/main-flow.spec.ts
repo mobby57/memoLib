@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Flow principal MemoLib', () => {
   test.beforeEach(async ({ page }) => {
     // Login
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login');
     await page.fill('input[name="email"]', 'admin@memolib.local');
     await page.fill('input[name="password"]', 'Admin123!');
     await page.click('button[type="submit"]');

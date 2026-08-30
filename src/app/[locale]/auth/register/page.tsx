@@ -439,7 +439,7 @@ export default function RegisterPage() {
                 Retour
               </Button>
             ) : (
-              <Link href="/auth/login" className="text-blue-600 hover:underline flex items-center">
+              <Link href="/fr/auth/login" className="text-blue-600 hover:underline flex items-center">
                 Déjà inscrit ? Se connecter
               </Link>
             )}

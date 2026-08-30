@@ -45,32 +45,32 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         return prisma.dossier.findFirst({
           where: { id: dossierId, tenantId },
           include: {
-            client: {
+            Client: {
               select: {
                 id: true,
                 firstName: true,
                 lastName: true,
                 email: true,
                 phone: true,
-                type: true,
+
               },
             },
-            documents: {
+            Document: {
               orderBy: { createdAt: 'desc' },
               take: 50,
             },
-            delais: {
+            LegalDeadline: {
               orderBy: { dateEcheance: 'asc' },
             },
-            evenements: {
+            CalendarEvent: {
               orderBy: { dateEvenement: 'desc' },
               take: 50,
             },
             _count: {
               select: {
-                documents: true,
-                delais: true,
-                evenements: true,
+                Document: true,
+                LegalDeadline: true,
+                CalendarEvent: true,
               },
             },
           },
@@ -140,7 +140,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         updatedAt: new Date(),
       },
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             firstName: true,

@@ -92,18 +92,29 @@ export async function GET(request: NextRequest) {
           return prisma.dossier.findFirst({
             where: { id: dossierId, tenantId },
             include: {
-              client: true,
-              documents: { take: 10, orderBy: { createdAt: 'desc' } },
-              legalDeadlines: { orderBy: { dueDate: 'asc' }, take: 10 },
-              emails: { take: 10, orderBy: { createdAt: 'desc' } },
+              Client: true,
+              Document: { take: 10, orderBy: { createdAt: 'desc' } },
+              LegalDeadline: { orderBy: { dueDate: 'asc' }, take: 10 },
+              Email: { take: 10, orderBy: { createdAt: 'desc' } },
             },
           });
         },
         'WARM'
       );
 
-      if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
-      return NextResponse.json({ dossier });
+      if (!dossier) {
+        return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
+      }
+
+      return NextResponse.json({
+        dossier: {
+          ...dossier,
+          client: dossier.Client,
+          documents: dossier.Document,
+          legalDeadlines: dossier.LegalDeadline,
+          emails: dossier.Email,
+        },
+      });
     }
 
     const cacheKey = `dossiers:${tenantId}:${clientId || 'all'}:${status || 'all'}:${limit}:${offset}`;
@@ -113,7 +124,7 @@ export async function GET(request: NextRequest) {
       async () => {
         const where: Record<string, unknown> = { tenantId };
         if (clientId) where.clientId = clientId;
-        if (status) where.status = status;
+        if (status) where.statut = status;
 
         const [dossiers, total] = await Promise.all([
           prisma.dossier.findMany({
@@ -271,12 +282,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updateData: Record<string, unknown> = {};
-    if (titre !== undefined) updateData.titre = titre;
+    if (titre !== undefined) updateData.objet = titre;
     if (description !== undefined) updateData.description = description;
-    if (status !== undefined) updateData.status = status;
+    if (status !== undefined) updateData.statut = status;
     if (priorite !== undefined) updateData.priorite = priorite;
     if (juridiction !== undefined) updateData.juridiction = juridiction;
-    if (numeroRG !== undefined) updateData.numeroRG = numeroRG;
+    if (numeroRG !== undefined) updateData.numeroJuridiction = numeroRG;
     if (dateCloture !== undefined) {
       const parsedDate =
         typeof dateCloture === 'string' && dateCloture.trim().length > 0

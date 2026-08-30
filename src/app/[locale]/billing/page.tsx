@@ -53,7 +53,7 @@ export default function BillingPage() {
 
     useEffect(() => {
         if (status === 'unauthenticated') {
-            router.push('/auth/signin');
+            router.push('/fr/auth/login');
             return;
         }
 

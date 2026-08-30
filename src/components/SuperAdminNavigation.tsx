@@ -50,7 +50,7 @@ export default function SuperAdminNavigation() {
 
           {/* Logout Button */}
           <button
-            onClick={() => signOut({ callbackUrl: '/auth/login' })}
+            onClick={() => signOut({ callbackUrl: '/fr/auth/login' })}
             className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
           >
             Deconnexion

@@ -21,7 +21,7 @@ const LAWYER = { email: 'avocat@memolib.local', password: 'Avocat123!' };
 
 // Helper: login
 async function login(page: any, creds = ADMIN) {
-  await page.goto('/auth/login');
+  await page.goto('/fr/auth/login');
   await page.fill('input[name="email"]', creds.email);
   await page.fill('input[name="password"]', creds.password);
   await page.click('button[type="submit"]');
@@ -468,7 +468,7 @@ test.describe('Mobile — Responsive', () => {
   test.use({ viewport: { width: 375, height: 812 } }); // iPhone X
 
   test('Login fonctionne en mobile', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login');
     await expect(page.locator('input[name="email"]')).toBeVisible();
     await expect(page.locator('button[type="submit"]')).toBeVisible();
   });

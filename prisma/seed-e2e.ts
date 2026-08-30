@@ -60,7 +60,7 @@ async function main() {
     create: {
       id: 'tenant_e2e',
       name: 'Cabinet E2E Test',
-      slug: 'cabinet-e2e',
+      subdomain: 'cabinet-e2e',
       planId: plan.id,
       status: 'active',
       currentDossiers: 0,
@@ -116,11 +116,9 @@ async function main() {
       firstName: 'Mohamed',
       lastName: 'BENALI',
       email: 'm.benali@email.com',
-      telephone: '+33612345678',
+      phone: '+33612345678',
       tenantId: tenant.id,
       status: 'actif',
-      consentementRGPD: true,
-      dateConsentementRGPD: new Date(),
       updatedAt: new Date(),
     },
   });
@@ -133,11 +131,9 @@ async function main() {
       firstName: 'Jean',
       lastName: 'DUPONT',
       email: 'j.dupont@email.com',
-      telephone: '+33698765432',
+      phone: '+33698765432',
       tenantId: tenant.id,
       status: 'actif',
-      consentementRGPD: true,
-      dateConsentementRGPD: new Date(),
       updatedAt: new Date(),
     },
   });
@@ -206,26 +202,43 @@ async function main() {
   });
 
   // 8. Deadline légale
-  try {
-    await prisma.legalDeadline.upsert({
-      where: { id: 'deadline_e2e_1' },
-      update: {},
-      create: {
-        id: 'deadline_e2e_1',
-        tenantId: tenant.id,
-        dossierId: dossier1.id,
-        title: 'Recours TA contre OQTF',
-        type: 'delai_recours_contentieux',
-        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        status: 'URGENT',
-        priority: 'CRITIQUE',
-        description: 'Délai de 48h pour le référé-liberté contre l\'OQTF sans délai',
-        updatedAt: new Date(),
-      },
-    });
-  } catch (e) {
-    console.log('⚠️  legalDeadline: table peut ne pas exister, skip');
-  }
+  // IMPORTANT : LegalDeadline est une fonctionnalité cœur.
+  // On ne masque volontairement aucune erreur ici.
+  const deadline = await prisma.legalDeadline.upsert({
+    where: { id: 'deadline_e2e_1' },
+    update: {
+      tenantId: tenant.id,
+      dossierId: dossier1.id,
+      clientId: client1.id,
+      type: 'OQTF',
+      label: 'Recours TA contre OQTF',
+      description: 'Délai de 48h pour le recours contre l’OQTF sans délai',
+      referenceDate: new Date(),
+      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      status: 'CRITICAL',
+      legalBasis: 'CESEDA — OQTF',
+      legalDays: 2,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: 'deadline_e2e_1',
+      tenantId: tenant.id,
+      dossierId: dossier1.id,
+      clientId: client1.id,
+      type: 'OQTF',
+      label: 'Recours TA contre OQTF',
+      description: 'Délai de 48h pour le recours contre l’OQTF sans délai',
+      referenceDate: new Date(),
+      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      status: 'CRITICAL',
+      legalBasis: 'CESEDA — OQTF',
+      legalDays: 2,
+      createdBy: lawyer.id,
+      updatedAt: new Date(),
+    },
+  });
+
+  console.log(`⏰ Deadline créée: ${deadline.id}`);
 
   // Update tenant counts
   await prisma.tenant.update({

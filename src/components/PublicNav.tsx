@@ -15,8 +15,8 @@ export function PublicNav() {
           <Link href="/faq" className="hover:text-gray-900 transition-colors">FAQ</Link>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/auth/login" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Connexion</Link>
-          <Link href="/auth/register?plan=PILOT" className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">Essai gratuit</Link>
+          <Link href="/fr/auth/login" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Connexion</Link>
+          <Link href="/fr/auth/register?plan=PILOT" className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">Essai gratuit</Link>
         </div>
       </div>
     </nav>

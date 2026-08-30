@@ -1,39 +1,37 @@
-﻿import { DefaultSession } from 'next-auth';
+import 'next-auth';
+import 'next-auth/jwt';
 
 declare module 'next-auth' {
-  interface User {
-    id?: string;
-    tenantId?: string;
+  interface Session {
+    user: {
+      id: string;
+      role?: string;
+      tenantId?: string;
     tenantName?: string;
     tenantPlan?: string;
-    clientId?: string | null;
-    role?: string;
-    groups?: string[];
-    rbacPermissions?: string[];
+      clientId?: string | null;
+      groups?: string[];
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
   }
 
-  interface Session {
-    user: DefaultSession['user'] & {
-      id?: string;
-      tenantId?: string;
-      tenantName?: string;
-      tenantPlan?: string;
-      clientId?: string | null;
-      role?: string;
-      groups?: string[];
-      rbacPermissions?: string[];
-    };
+  interface User {
+    id: string;
+    role?: string;
+    tenantId?: string;
+    clientId?: string | null;
+    groups?: string[];
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    tenantId?: string;
-    tenantName?: string;
-    tenantPlan?: string;
-    clientId?: string | null;
+    id?: string;
     role?: string;
+    tenantId?: string;
+    clientId?: string | null;
     groups?: string[];
-    rbacPermissions?: string[];
   }
 }

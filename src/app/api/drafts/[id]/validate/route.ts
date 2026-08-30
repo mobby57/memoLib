@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 /**
  * PUT /api/drafts/[id]/validate — Valide un draft → crée dossier + deadline auto
  */
@@ -42,12 +43,14 @@ export async function PUT(
       const nameParts = body.clientName.split(' ');
       client = await prisma.client.create({
         data: {
+          id: crypto.randomUUID(),
           tenantId,
           firstName: nameParts[0] || 'Client',
           lastName: nameParts.slice(1).join(' ') || body.clientName,
           email: body.clientEmail.toLowerCase(),
           phone: body.clientPhone || null,
           status: 'actif',
+          updatedAt: new Date(),
         },
       });
     }

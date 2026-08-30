@@ -199,7 +199,7 @@ describe('logger.ts — Full Coverage', () => {
 
   describe('sanitizeContext (via logger methods)', () => {
     it('should redact sensitive technical fields', () => {
-      logger.info('Test', { password: 'secret123', apiKey: 'key-abc', normal: 'ok' });
+      logger.info('Test', { password: 'TEST_PASSWORD', apiKey: 'TEST_API_KEY', normal: 'ok' });
       // Internal sanitization — no way to directly assert, but should not throw
     });
 

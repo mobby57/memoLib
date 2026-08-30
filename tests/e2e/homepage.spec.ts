@@ -15,7 +15,7 @@ test.describe('Homepage', () => {
 
   test('should have navigation links', async ({ page }) => {
     await expect(page.locator('nav')).toBeVisible();
-    await expect(page.locator('a[href="/api/auth/signin"]')).toBeVisible();
+    await expect(page.locator('a[href="/fr/auth/login"]')).toBeVisible();
   });
 
   test('should be responsive', async ({ page }) => {

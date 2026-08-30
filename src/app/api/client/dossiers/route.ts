@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
     // Creer le dossier
     const dossier = await prisma.dossier.create({
       data: {
+        id: crypto.randomUUID(),
         numero,
         typeDossier,
         objet,
@@ -68,6 +70,7 @@ export async function POST(request: NextRequest) {
         articleCeseda: articleCeseda || undefined,
         tenantId: user.tenantId,
         clientId: user.clientId,
+        updatedAt: new Date(),
       },
     });
 

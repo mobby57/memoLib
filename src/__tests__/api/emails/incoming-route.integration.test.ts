@@ -96,7 +96,7 @@ describe('POST /api/emails/incoming (integration db)', () => {
         id: `int-user-id-${suffix}`,
         email: recipientEmail,
         name: 'Lawyer Integration',
-        password: 'not-used-in-test',
+        password: 'TEST_PASSWORD',
         role: 'LAWYER',
         tenantId,
         updatedAt: new Date(),

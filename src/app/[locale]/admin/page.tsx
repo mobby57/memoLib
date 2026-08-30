@@ -42,7 +42,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login');
+      router.push('/fr/auth/login');
     } else if (user?.role === 'SUPER_ADMIN') {
       router.push('/super-admin');
     } else if (user?.role === 'CLIENT') {

@@ -75,7 +75,7 @@ function AuthErrorContent() {
           {/* Actions */}
           <div className="space-y-3">
             <Link
-              href="/auth/login"
+              href="/fr/auth/login"
               className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
             >
               Retour à la connexion

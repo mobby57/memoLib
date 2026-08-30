@@ -56,7 +56,7 @@ test.describe('Lawyer Dashboard', () => {
     await page.click('button:has-text("Déconnexion")');
     
     // Devrait rediriger vers la page de login
-    await page.waitForURL('/api/auth/signin');
-    await expect(page).toHaveURL(/signin/);
+    await page.waitForURL('/fr/auth/login');
+    await expect(page).toHaveURL(/\/fr\/auth\/login/);
   });
 });
