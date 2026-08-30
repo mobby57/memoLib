@@ -128,3 +128,24 @@ sftp_host_key.pub
 # MemoLib local document vault
 .vault/
 .vault-test/
+
+# Local backup / database artifacts
+*.bak
+*.bak.*
+*.save
+*.dump
+
+# Backup artifacts from scripts
+.security-fix-backup-*/
+.fix-all-backup-/
+backups/database/
+
+# Backup artifacts from scripts
+.security-fix-backup-*/
+.fix-all-backup-/
+backups/database/
+
+# Backup artifacts from scripts
+.security-fix-backup-*/
+.fix-all-backup/
+backups/database/
