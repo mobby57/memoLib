@@ -57,7 +57,7 @@ export default function EmailMonitoringPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login');
+      router.push('/fr/auth/login');
     } else if (session?.user?.role !== 'ADMIN') {
       router.push('/client');
     }

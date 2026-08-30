@@ -1,0 +1,119 @@
+﻿import { logger } from '@/lib/logger';
+import {
+  getUnreadCount,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+} from '@/lib/notifications';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+
+async function getAuthenticatedUserId(): Promise<string | null> {
+  const session = await getServerSession(authOptions);
+  return session?.user?.id ?? null;
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const unreadOnly = searchParams.get('unreadOnly') === 'true';
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50', 10) || 50, 1), 100);
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0', 10) || 0, 0);
+
+    const [notifications, unreadCount] = await Promise.all([
+      prisma.notification.findMany({
+        where: {
+          userId,
+          ...(unreadOnly ? { isRead: false } : {}),
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+      }),
+      getUnreadCount(userId),
+    ]);
+
+    return NextResponse.json({
+      notifications,
+      unreadCount,
+      hasMore: notifications.length === limit,
+    });
+  } catch (error) {
+    logger.error('Erreur GET notifications', error instanceof Error ? error : undefined, {
+      route: '/api/notifications',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+
+// PATCH - Marquer notification(s) comme lue(s)
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { notificationId, markAll } = body;
+
+    if (markAll) {
+      await markAllNotificationsAsRead(userId);
+      return NextResponse.json({
+        success: true,
+        message: 'Toutes les notifications marquees comme lues',
+      });
+    }
+
+    if (notificationId) {
+      await markNotificationAsRead(notificationId, userId);
+      return NextResponse.json({ success: true, message: 'Notification marquee comme lue' });
+    }
+
+    return NextResponse.json({ error: 'notificationId ou markAll requis' }, { status: 400 });
+  } catch (error) {
+    logger.error('Erreur PATCH notifications:', { error });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+
+// DELETE - Supprimer une notification
+export async function DELETE(request: NextRequest) {
+  try {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const notificationId = searchParams.get('id');
+
+    if (!notificationId) {
+      return NextResponse.json({ error: 'id requis' }, { status: 400 });
+    }
+
+    const existing = await prisma.notification.findFirst({
+      where: { id: notificationId, userId },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Notification introuvable' }, { status: 404 });
+    }
+
+    await prisma.notification.delete({
+      where: { id: notificationId },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logger.error('Erreur DELETE notification:', { error });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}

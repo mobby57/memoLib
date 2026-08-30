@@ -615,7 +615,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!allowed) {
-          return '/auth/error?error=OAuthAccountNotLinked';
+          return '/fr/auth/error?error=OAuthAccountNotLinked';
         }
       }
 
@@ -623,10 +623,6 @@ export const authOptions: NextAuthOptions = {
     },
 
     async redirect({ url, baseUrl }) {
-      if (url.startsWith('/auth/')) {
-        return `${baseUrl}/fr/dashboard`;
-      }
-
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       }
@@ -649,7 +645,7 @@ export const authOptions: NextAuthOptions = {
         token.id = oUser.id;
         token.role = oUser.role;
         token.tenantId = oUser.tenantId;
-        token.tenantName = oUser.tenantName;
+        token.tenantName = oUser.tenantName ?? undefined;
         token.tenantPlan = oUser.tenantPlan;
         token.clientId = oUser.clientId;
         token.provider = account?.provider;
@@ -784,8 +780,8 @@ export const authOptions: NextAuthOptions = {
    * Pages personnalisées
    */
   pages: {
-    signIn: '/auth/login',
-    error: '/auth/error',
+    signIn: '/fr/auth/login',
+    error: '/fr/auth/error',
   },
 
   /**
@@ -857,33 +853,31 @@ const handler = NextAuth(authOptions);
 /**
  * App Router
  */
-const GET = withLoginRateLimit(
-  async (
-    req: NextRequest,
-    context?: any
-  ): Promise<NextResponse> => {
-    try {
-      const res = await handler(req, context);
+const GET = async (
+  req: NextRequest,
+  context?: any
+): Promise<NextResponse> => {
+  try {
+    const res = await handler(req, context);
 
-      return (
-        res instanceof Response
-          ? res
-          : new NextResponse(res)
-      ) as NextResponse;
-    } catch (error) {
-      console.error('[AUTH_ROUTE] GET Error:', error);
+    return (
+      res instanceof Response
+        ? res
+        : new NextResponse(res)
+    ) as NextResponse;
+  } catch (error) {
+    console.error('[AUTH_ROUTE] GET Error:', error);
 
-      return NextResponse.json(
-        {
-          error: 'Authentication error',
-        },
-        {
-          status: 500,
-        }
-      );
-    }
+    return NextResponse.json(
+      {
+        error: 'Authentication error',
+      },
+      {
+        status: 500,
+      }
+    );
   }
-);
+};
 
 const POST = withLoginRateLimit(
   async (

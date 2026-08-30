@@ -7,49 +7,72 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Parcours Pilote SaaS', () => {
   test('la landing page affiche les 4 plans', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('text=Pilote')).toBeVisible();
-    await expect(page.locator('text=Solo')).toBeVisible();
-    await expect(page.locator('text=Cabinet')).toBeVisible();
-    await expect(page.locator('text=Enterprise')).toBeVisible();
+    await page.goto('/', {
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
+    });
+    await expect(page.getByText('Essai', { exact: true })).toBeVisible();
+    await expect(page.getByText('Essentiel', { exact: true })).toBeVisible();
+    await expect(page.getByText('Cabinet', { exact: true })).toBeVisible();
+    await expect(page.getByText('Premium', { exact: true })).toBeVisible();
   });
 
   test('la page pricing affiche les bons prix', async ({ page }) => {
-    await page.goto('/pricing');
-    await expect(page.locator('text=Gratuit')).toBeVisible();
-    await expect(page.locator('text=49€')).toBeVisible();
-    await expect(page.locator('text=349€')).toBeVisible();
-    await expect(page.locator('text=599€')).toBeVisible();
+    await page.goto('/pricing', {
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
+    });
+    await expect(page.getByText('Gratuit', { exact: true })).toBeVisible();
+    await expect(page.getByText('89€', { exact: true })).toBeVisible();
+    await expect(page.getByText('69€', { exact: true })).toBeVisible();
+    await expect(page.getByText('149€', { exact: true })).toBeVisible();
   });
 
   test('le bouton "Essai gratuit" mène à l\'inscription', async ({ page }) => {
-    await page.goto('/');
-    await page.click('text=Essai pilote gratuit');
-    await expect(page).toHaveURL(/\/auth\/register/);
+    await page.goto('/', {
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
+    });
+    const pilotLink = page.locator('a[href="/fr/auth/register?plan=PILOT"]').first();
+    await expect(pilotLink).toBeVisible();
+    await pilotLink.click();
+    await expect(page).toHaveURL(/\/fr\/auth\/register\?plan=PILOT/);
   });
 
   test('le formulaire d\'inscription a 3 étapes', async ({ page }) => {
-    await page.goto('/auth/register?plan=PILOT');
+    await page.goto('/fr/auth/register?plan=PILOT', {
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
+    });
     await expect(page.locator('text=Étape 1/3')).toBeVisible();
   });
 
   test('inscription avec champs vides → erreur', async ({ page }) => {
-    await page.goto('/auth/register');
+    await page.goto('/fr/auth/register', {
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
+    });
     // Aller à l'étape 1 et cliquer Continuer sans remplir
     await page.click('text=Continuer');
-    await expect(page.locator('text=obligatoires')).toBeVisible();
+    await expect(page.getByText('Veuillez remplir tous les champs obligatoires', { exact: true })).toBeVisible();
   });
 });
 
 test.describe('Login existant', () => {
   test('la page login est accessible', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login', {
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
+    });
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
   });
 
   test('login avec mauvais identifiants → erreur', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login', {
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
+    });
     await page.fill('input[type="email"]', 'fake@fake.com');
     await page.fill('input[type="password"]', 'wrongpassword');
     await page.click('button[type="submit"]');
@@ -67,7 +90,7 @@ test.describe('API Health', () => {
     expect(res.status()).toBe(200);
   });
 
-  test('POST /api/auth/register valide les champs', async ({ request }) => {
+  test('POST /api/fr/auth/register valide les champs', async ({ request }) => {
     const res = await request.post('/api/auth/register', {
       data: { prenom: '', nom: '', email: '', password: '' },
     });

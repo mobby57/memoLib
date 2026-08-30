@@ -5,7 +5,7 @@ import { expect, Page, test } from '@playwright/test';
  * Optimisés pour production Vercel
  */
 
-const LOGIN_PATH = '/auth/login';
+const LOGIN_PATH = '/fr/auth/login';
 
 async function gotoLogin(page: Page, baseURL?: string) {
   const url = baseURL ? `${baseURL}${LOGIN_PATH}` : LOGIN_PATH;

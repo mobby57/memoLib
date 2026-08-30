@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Workspace Management', () => {
   test.beforeEach(async ({ page }) => {
     // Login as lawyer/admin
-    await page.goto('/auth/login');
+    await page.goto('/fr/auth/login');
     await page.fill('input[name="email"]', 'avocat@cabinet-dupont.fr');
     await page.fill('input[name="password"]', 'test123');
     await page.click('button[type="submit"]');
@@ -139,7 +139,7 @@ test.describe('Workspace Management', () => {
     
     // Open second tab to simulate another user
     const page2 = await context.newPage();
-    await page2.goto('/auth/login');
+    await page2.goto('/fr/auth/login');
     await page2.fill('input[name="email"]', 'avocat2@cabinet-dupont.fr');
     await page2.fill('input[name="password"]', 'test123');
     await page2.click('button[type="submit"]');

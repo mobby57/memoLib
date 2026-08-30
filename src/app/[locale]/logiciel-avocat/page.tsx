@@ -65,7 +65,7 @@ export default function LogicielAvocatPage() {
             MemoLib centralise vos dossiers, emails, délais et factures dans une seule plateforme. Avec l'IA en plus.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/register?plan=PILOT" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2">
+            <Link href="/fr/auth/register?plan=PILOT" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2">
               Essai gratuit 14 jours <ArrowRight className="w-5 h-5" />
             </Link>
             <Link href="/fr/demo" className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-colors">
@@ -135,7 +135,7 @@ export default function LogicielAvocatPage() {
       <section className="max-w-4xl mx-auto px-6 py-20 text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">Prêt à essayer ?</h2>
         <p className="text-gray-500 mb-8">14 jours gratuits, sans carte bancaire. Données importables depuis votre outil actuel.</p>
-        <Link href="/auth/register?plan=PILOT" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2">
+        <Link href="/fr/auth/register?plan=PILOT" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2">
           Démarrer l'essai gratuit <ArrowRight className="w-5 h-5" />
         </Link>
       </section>

@@ -100,7 +100,7 @@ export function useAuth(): UseAuthReturn {
     canAccessClient,
     requireAuth: () => {
       if (!isAuthenticated) {
-        window.location.href = '/auth/login';
+        window.location.href = '/fr/auth/login';
       }
     },
   };

@@ -98,7 +98,7 @@ export default function EquipeDetailPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login');
+      router.push('/fr/auth/login');
       return;
     }
     if (status === 'authenticated') {
