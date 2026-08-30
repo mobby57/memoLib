@@ -15,7 +15,7 @@ export function DemoBanner() {
       <Info className="w-4 h-4 flex-shrink-0" />
       <span>Mode démo — Données fictives pour découvrir MemoLib</span>
       <Link
-        href="/auth/register?plan=PILOT"
+        href="/fr/auth/register?plan=PILOT"
         className="inline-flex items-center gap-1 bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg font-medium transition-colors"
       >
         Créer mon cabinet

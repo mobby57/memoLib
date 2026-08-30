@@ -151,7 +151,7 @@ export default function DemoHomePage() {
                 Voir MemoLib en action (3 min)
               </Link>
               <Link
-                href="/auth/register?plan=PILOT"
+                href="/fr/auth/register?plan=PILOT"
                 className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg border border-gray-200"
               >
                 <Zap className="w-5 h-5" />

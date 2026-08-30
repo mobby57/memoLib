@@ -213,7 +213,7 @@ export default function LoginPage() {
                   <span className="text-sm text-gray-600">Se souvenir de moi</span>
                 </label>
                 <Link
-                  href="/auth/forgot-password"
+                  href="/fr/auth/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                 >
                   {`Mot de passe oubli\u00E9 ?`}
@@ -321,7 +321,7 @@ export default function LoginPage() {
           <div className="text-center mt-6 space-y-3">
             <p className="text-blue-200 text-sm">
               {'Pas encore de compte ? '}
-              <Link href="/auth/register" className="font-semibold text-white hover:underline">
+              <Link href="/fr/auth/register" className="font-semibold text-white hover:underline">
                 {`Cr\u00E9er un compte`}
               </Link>
             </p>

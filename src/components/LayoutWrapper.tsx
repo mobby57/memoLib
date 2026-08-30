@@ -18,10 +18,6 @@ interface LayoutWrapperProps {
 // Pages qui doivent s'afficher en plein ecran sans sidebar
 const FULLSCREEN_PAGES = [
   '/',
-  '/auth/login',
-  '/auth/register',
-  '/auth/forgot-password',
-  '/auth/reset-password',
   '/login',
   '/register',
 ];
@@ -37,7 +33,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
 
   // Verifier si la page courante doit etre en plein ecran
   const isFullscreenPage = FULLSCREEN_PAGES.some(
-    page => pathname === page || pathname?.startsWith('/auth/')
+    page => pathname === page
   ) || pathname?.includes('/auth/') || pathname?.includes('/demo/') || pathname === '/fr' || pathname === '/en';
 
   // Pendant l'hydratation, retourner un layout minimal coherent

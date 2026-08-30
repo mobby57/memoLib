@@ -159,7 +159,7 @@ export default function ResetPasswordPage() {
               Ce lien de reinitialisation n'est plus valide. Il a peut-etre expire ou a deja été utilise.
             </p>
             <Link
-              href="/auth/forgot-password"
+              href="/fr/auth/forgot-password"
               className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               Demander un nouveau lien
@@ -198,7 +198,7 @@ export default function ResetPasswordPage() {
               Votre mot de passe a été reinitialise avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
             </p>
             <Link
-              href="/auth/login"
+              href="/fr/auth/login"
               className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               Se connecter
@@ -214,7 +214,7 @@ export default function ResetPasswordPage() {
       <div className="max-w-md w-full">
         {/* Retour */}
         <Link
-          href="/auth/login"
+          href="/fr/auth/login"
           className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-200 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />

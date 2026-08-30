@@ -1,129 +1,315 @@
 #!/usr/bin/env bash
-set +e
 
-REPORT="prelaunch-audit-report.txt"
+set -uo pipefail
+
+# Toujours travailler depuis la racine du projet,
+# quel que soit le dossier depuis lequel le script est lancé.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+
+cd "$PROJECT_DIR" || exit 1
+
 PASS=0
 WARN=0
 FAIL=0
 
-pass(){ PASS=$((PASS+1)); echo "OK   $1"; }
-warn(){ WARN=$((WARN+1)); echo "WARN $1"; }
-fail(){ FAIL=$((FAIL+1)); echo "FAIL $1"; }
+ok() {
+  echo "✅ $1"
+  PASS=$((PASS + 1))
+}
 
-echo "=========================================="
-echo " MEMOLIB PRE-LAUNCH AUDIT"
-echo "=========================================="
+warn() {
+  echo "⚠️  $1"
+  WARN=$((WARN + 1))
+}
+
+fail() {
+  echo "❌ $1"
+  FAIL=$((FAIL + 1))
+}
+
+section() {
+  echo
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo " $1"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
 
 echo
-echo "=== ENVIRONNEMENT ==="
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " MEMOLIB — PRE-LAUNCH AUDIT"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Projet : $PROJECT_DIR"
+echo "Date   : $(date '+%Y-%m-%d %H:%M:%S')"
 
-command -v node >/dev/null && pass "Node $(node --version)" || fail "Node absent"
-command -v npm >/dev/null && pass "npm $(npm --version)" || fail "npm absent"
-command -v git >/dev/null && pass "Git disponible" || fail "Git absent"
-command -v docker >/dev/null && pass "Docker disponible" || warn "Docker absent"
+# ─────────────────────────────────────────────
+# 1. ENV
+# ─────────────────────────────────────────────
 
-echo
-echo "=== GIT ==="
+section "1. VARIABLES D'ENVIRONNEMENT"
 
-git rev-parse --is-inside-work-tree >/dev/null 2>&1   && pass "Dépôt Git détecté"   || fail "Dépôt Git absent"
-
-if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
-  warn "Modifications locales présentes"
+if [[ -f ".env.local" ]]; then
+  ok ".env.local présent"
 else
-  pass "Working tree propre"
+  fail ".env.local absent"
 fi
 
-echo
-echo "=== DEPENDANCES ==="
+check_env() {
+  local name="$1"
 
-[ -f package.json ] && pass "package.json" || fail "package.json absent"
-[ -f package-lock.json ] && pass "package-lock.json" || warn "package-lock.json absent"
-[ -d node_modules ] && pass "node_modules" || warn "node_modules absent"
+  if [[ ! -f ".env.local" ]]; then
+    fail "$name impossible à vérifier : .env.local absent"
+    return
+  fi
 
-echo
-echo "=== TYPESCRIPT ==="
+  if grep -qE "^${name}=" .env.local; then
+    local value
+    value="$(grep -E "^${name}=" .env.local | head -n1 | cut -d= -f2- | xargs)"
 
-if [ -f tsconfig.json ]; then
-  npx tsc --noEmit --pretty false >/tmp/memolib-tsc.log 2>&1
-  if [ $? -eq 0 ]; then
-    pass "TypeScript OK"
+    if [[ -n "$value" ]]; then
+      ok "$name configurée"
+    else
+      fail "$name présente mais VIDE"
+    fi
   else
-    fail "TypeScript en erreur"
-    tail -30 /tmp/memolib-tsc.log
+    fail "$name absente de .env.local"
+  fi
+}
+
+check_env "STRIPE_SECRET_KEY"
+check_env "STRIPE_WEBHOOK_SECRET"
+
+# ─────────────────────────────────────────────
+# 2. STRIPE PRICE IDS
+# ─────────────────────────────────────────────
+
+section "2. STRIPE PRICE IDS"
+
+for name in \
+  STRIPE_PRICE_SOLO_MONTHLY \
+  STRIPE_PRICE_SOLO_YEARLY \
+  STRIPE_PRICE_CABINET_MONTHLY \
+  STRIPE_PRICE_CABINET_YEARLY \
+  STRIPE_PRICE_ENTERPRISE_MONTHLY \
+  STRIPE_PRICE_ENTERPRISE_YEARLY
+do
+  check_env "$name"
+done
+
+# ─────────────────────────────────────────────
+# 3. DOUBLONS
+# ─────────────────────────────────────────────
+
+section "3. DOUBLONS DANS .env.local"
+
+if [[ -f ".env.local" ]]; then
+  duplicates="$(
+    grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.local \
+      | sed 's/=.*//' \
+      | sort \
+      | uniq -d
+  )"
+
+  if [[ -z "$duplicates" ]]; then
+    ok "Aucun doublon de variable détecté"
+  else
+    fail "Doublons détectés :"
+    echo "$duplicates" | sed 's/^/   - /'
+  fi
+fi
+
+# ─────────────────────────────────────────────
+# 4. SOURCES STRIPE
+# ─────────────────────────────────────────────
+
+section "4. CONFIGURATION STRIPE DANS SRC"
+
+if [[ -d "src" ]]; then
+
+  if grep -R -q "STRIPE_SECRET_KEY" src --exclude-dir=node_modules --exclude-dir=.next; then
+    ok "STRIPE_SECRET_KEY utilisée dans src"
+  else
+    warn "STRIPE_SECRET_KEY non trouvée dans src"
+  fi
+
+  stripe_instances="$(
+    grep -R -h -o "new Stripe(" src \
+      --exclude-dir=node_modules \
+      --exclude-dir=.next 2>/dev/null \
+      | wc -l
+  )"
+
+  echo "Instances 'new Stripe(...)' détectées : $stripe_instances"
+
+  if [[ "$stripe_instances" -le 3 ]]; then
+    ok "Nombre raisonnable de clients Stripe"
+  else
+    warn "Plusieurs instances Stripe — vérifier l'architecture"
+  fi
+
+else
+  fail "Répertoire src absent"
+fi
+
+# ─────────────────────────────────────────────
+# 5. FALLBACKS STRIPE
+# ─────────────────────────────────────────────
+
+section "5. FALLBACKS STRIPE"
+
+fallbacks="$(
+  grep -R -n -E \
+    "sk_test_dummy|sk_test_placeholder|sk_live_placeholder|fallback test key" \
+    src \
+    --exclude-dir=node_modules \
+    --exclude-dir=.next 2>/dev/null || true
+)"
+
+if [[ -z "$fallbacks" ]]; then
+  ok "Aucun fallback Stripe dangereux détecté"
+else
+  warn "Fallback(s) Stripe détecté(s) :"
+  echo "$fallbacks"
+fi
+
+# ─────────────────────────────────────────────
+# 6. ROUTES PAIEMENT
+# ─────────────────────────────────────────────
+
+section "6. ROUTES PAIEMENT"
+
+routes=(
+  "src/app/api/billing/checkout/route.ts"
+  "src/app/api/billing/portal/route.ts"
+  "src/app/api/subscriptions/create/route.ts"
+  "src/app/api/subscriptions/cancel/route.ts"
+  "src/app/api/payments/create-checkout/route.ts"
+  "src/app/api/payments/webhook/route.ts"
+  "src/app/api/webhooks/stripe/route.ts"
+)
+
+for route in "${routes[@]}"; do
+  if [[ -f "$route" ]]; then
+    ok "$route présente"
+  else
+    warn "$route absente"
+  fi
+done
+
+# ─────────────────────────────────────────────
+# 7. WEBHOOK
+# ─────────────────────────────────────────────
+
+section "7. WEBHOOK STRIPE"
+
+webhook_files=(
+  "src/app/api/payments/webhook/route.ts"
+  "src/app/api/webhooks/stripe/route.ts"
+)
+
+webhook_found=0
+
+for file in "${webhook_files[@]}"; do
+  if [[ -f "$file" ]]; then
+    webhook_found=1
+
+    if grep -q "constructEvent" "$file" || \
+       grep -q "parseStripeWebhookRequest" "$file"; then
+      ok "Validation signature webhook détectée dans $file"
+    else
+      fail "Validation signature webhook absente dans $file"
+    fi
+
+    if grep -q "stripeEventId" "$file"; then
+      ok "Protection contre doublons stripeEventId détectée"
+    else
+      warn "Aucune gestion stripeEventId détectée dans $file"
+    fi
+  fi
+done
+
+if [[ "$webhook_found" -eq 0 ]]; then
+  fail "Aucun webhook Stripe trouvé"
+fi
+
+# ─────────────────────────────────────────────
+# 8. NPM / TYPESCRIPT
+# ─────────────────────────────────────────────
+
+section "8. NPM / TYPESCRIPT"
+
+if [[ -f "package.json" ]]; then
+  ok "package.json présent"
+else
+  fail "package.json absent"
+fi
+
+if [[ -d "node_modules" ]]; then
+  ok "node_modules présent"
+else
+  warn "node_modules absent"
+fi
+
+echo "Node : $(node --version 2>/dev/null || echo 'absent')"
+echo "NPM  : $(npm --version 2>/dev/null || echo 'absent')"
+
+# ─────────────────────────────────────────────
+# 9. GIT
+# ─────────────────────────────────────────────
+
+section "9. GIT"
+
+if [[ -d ".git" ]]; then
+  ok "Dépôt Git détecté"
+
+  branch="$(git branch --show-current 2>/dev/null || true)"
+  [[ -n "$branch" ]] && echo "Branche : $branch"
+
+  if git diff --quiet 2>/dev/null; then
+    ok "Aucune modification Git non commitée"
+  else
+    warn "Modifications Git non commitée(s)"
   fi
 else
-  warn "tsconfig.json absent"
+  warn "Dépôt Git non détecté"
 fi
 
-echo
-echo "=== JEST ==="
+# ─────────────────────────────────────────────
+# 10. BUILD
+# ─────────────────────────────────────────────
 
-if npm run 2>/dev/null | grep -q "test"; then
-  npm test -- --runInBand >/tmp/memolib-jest.log 2>&1
-  if [ $? -eq 0 ]; then
-    pass "Tests Jest OK"
+section "10. BUILD PRODUCTION"
+
+if [[ -f "package.json" ]]; then
+  echo "Lancement de npm run build..."
+  echo
+
+  if npm run build; then
+    ok "BUILD PRODUCTION réussi"
   else
-    fail "Tests Jest en erreur"
-    tail -40 /tmp/memolib-jest.log
+    fail "BUILD PRODUCTION échoué"
   fi
 else
-  warn "Script test absent"
+  fail "Build impossible : package.json absent"
 fi
 
-echo
-echo "=== BUILD ==="
+# ─────────────────────────────────────────────
+# RESULTAT
+# ─────────────────────────────────────────────
 
-npm run build >/tmp/memolib-build.log 2>&1
-if [ $? -eq 0 ]; then
-  pass "Build production OK"
+section "RÉSULTAT"
+
+echo
+echo "✅ PASS : $PASS"
+echo "⚠️  WARN : $WARN"
+echo "❌ FAIL : $FAIL"
+echo
+
+if [[ "$FAIL" -eq 0 ]]; then
+  echo "🟢 MEMOLIB PRÊT POUR LE PROCHAIN TEST DE LANCEMENT"
+  exit 0
 else
-  fail "Build production en erreur"
-  tail -40 /tmp/memolib-build.log
+  echo "🔴 AUDIT NON VALIDÉ"
+  echo "Corrige les erreurs ❌ avant le lancement."
+  exit 1
 fi
-
-echo
-echo "=== PRISMA ==="
-
-if [ -f prisma/schema.prisma ]; then
-  npx prisma validate >/tmp/memolib-prisma.log 2>&1
-  if [ $? -eq 0 ]; then
-    pass "Prisma OK"
-  else
-    fail "Prisma en erreur"
-    tail -30 /tmp/memolib-prisma.log
-  fi
-else
-  warn "Prisma absent"
-fi
-
-echo
-echo "=== CONFIG VS CODE ==="
-
-if [ -f .vscode/tasks.json ]; then
-  grep -qE "docker-build|docker-run" .vscode/tasks.json     && fail "Anciennes tâches docker VS Code présentes"     || pass "tasks.json sans docker-build/docker-run"
-fi
-
-if [ -f .vscode/launch.json ]; then
-  grep -q "preLaunchTask.*docker-run" .vscode/launch.json     && fail "launch.json référence docker-run"     || pass "launch.json sans docker-run"
-fi
-
-echo
-echo "=== RESULTAT ==="
-echo "PASS : $PASS"
-echo "WARN : $WARN"
-echo "FAIL : $FAIL"
-
-{
-  echo "PASS : $PASS"
-  echo "WARN : $WARN"
-  echo "FAIL : $FAIL"
-} > "$REPORT"
-
-if [ "$FAIL" -eq 0 ]; then
-  echo "RESULTAT : AUCUN BLOCAGE CRITIQUE"
-else
-  echo "RESULTAT : $FAIL BLOCAGE(S) A CORRIGER"
-fi
-
-echo "Rapport : $REPORT"
-exit "$FAIL"

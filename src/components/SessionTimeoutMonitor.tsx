@@ -65,7 +65,7 @@ export function SessionTimeoutMonitor({ onTimeout }: SessionTimeoutMonitorProps)
     }
     
     await signOut({ redirect: false });
-    router.push('/auth/login?timeout=true');
+    router.push('/fr/auth/login?timeout=true');
   }, [onTimeout, router]);
 
   // Detecter les evenements d'activite
