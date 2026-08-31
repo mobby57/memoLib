@@ -1327,3 +1327,25 @@ model VerificationToken {
   @@index([token])
   @@index([expiresAt])
 }
+
+model AIDecision {
+  blockchainHash String?
+  id            String   @id @default(cuid())
+  tenantId      String
+  userId        String?
+  entityType    String   // "email", "document", "dossier"
+  entityId      String
+  decisionType  String   // "classification", "date_extraction", "vote"
+  input         Json
+  output        Json
+  confidence    Float
+  source        String   // "ia", "regex", "rule", "hybrid", "human"
+  humanReviewed Boolean  @default(false)
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([entityId])
+  @@index([createdAt])
+}
