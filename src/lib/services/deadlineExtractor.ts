@@ -1,3 +1,4 @@
+import { fallbackService } from "@/lib/ai/fallbackService";
 ﻿/**
  * Service d'extraction automatique des delais (echeances) depuis les documents CESEDA
  * Utilise l'IA (OpenAI/Ollama) pour analyser les documents et extraire les dates cles
@@ -291,6 +292,34 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
 /**
  * Extrait les delais d'un document texte - Version amelioree avec templates
  */
+
+/**
+ * Extrait une date avec fallback (IA + regex + règles)
+ */
+async function extractDateWithFallback(text: string, context?: any): Promise<{ date: string | null; confidence: number; source: string; humanReviewRequired: boolean }> {
+  // IA (appel existant)
+  let iaDate: string | null = null;
+  try {
+    const iaResult = await callAIForDate(text); // à adapter selon ton code
+    iaDate = iaResult.date || null;
+  } catch {}
+
+  // Regex (extraction existante)
+  const regexDate = extractDateRegex(text);
+
+  // Règle métier (ex: si OQTF -> +30 jours)
+  const ruleDate = extractDateRule(text);
+
+  const vote = fallbackService.voteDate(iaDate, regexDate, ruleDate, context);
+
+  return {
+    date: vote.value,
+    confidence: vote.confidence,
+    source: vote.selectedSource,
+    humanReviewRequired: vote.humanReviewRequired,
+  };
+}
+
 export async function extractDeadlinesFromText(
   documentText: string,
   documentType?: string
