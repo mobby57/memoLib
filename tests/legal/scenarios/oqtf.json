@@ -1,0 +1,54 @@
+[
+  {
+    "id": "OQTF_001",
+    "description": "OQTF avec délai de départ volontaire de 30 jours",
+    "legalBasis": "L.612-1 CESEDA",
+    "input": {
+      "procedureType": "OQTF",
+      "notificationDate": "2026-08-01",
+      "metadata": {
+        "oqtfType": "avec_delai"
+      }
+    },
+    "expected": {
+      "expectedDeadline": "2026-08-31",
+      "urgency": "critique",
+      "humanReviewRequired": false
+    }
+  },
+  {
+    "id": "OQTF_002",
+    "description": "OQTF sans délai – 48h (urgence critique)",
+    "legalBasis": "L.612-2 CESEDA",
+    "input": {
+      "procedureType": "OQTF",
+      "notificationDate": "2026-08-01T17:00:00Z",
+      "metadata": {
+        "oqtfType": "sans_delai"
+      }
+    },
+    "expected": {
+      "expectedDeadline": "2026-08-03",
+      "urgency": "critique",
+      "humanReviewRequired": false
+    }
+  },
+  {
+    "id": "OQTF_003",
+    "description": "OQTF avec délai tombant un week-end (mode jours ouvrés)",
+    "legalBasis": "L.612-1 CESEDA + jours ouvrés",
+    "input": {
+      "procedureType": "OQTF",
+      "notificationDate": "2026-08-28",
+      "metadata": {
+        "oqtfType": "avec_delai",
+        "mode": "working"
+      }
+    },
+    "expected": {
+      "expectedDeadline": "2026-09-27",
+      "urgency": "faible",
+      "humanReviewRequired": false
+    }
+  }
+]
