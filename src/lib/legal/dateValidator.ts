@@ -234,3 +234,10 @@ export class DateValidatorService {
 
 export const dateValidator = new DateValidatorService();
 export default dateValidator;
+
+// Ajout d’une méthode utilitaire pour récupérer les IDs des règles violées
+export function getViolatedRuleIds(result: ValidationResult): string[] {
+  const ids = result.errors.map(e => e.ruleId);
+  ids.push(...result.warnings.map(w => w.ruleId));
+  return [...new Set(ids)]; // dédoublonnage
+}
