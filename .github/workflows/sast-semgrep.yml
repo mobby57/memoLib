@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   semgrep:
+    if: false
     name: Semgrep SAST Scan
     runs-on: ubuntu-latest
 

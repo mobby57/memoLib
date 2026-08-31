@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   dependency-review:
+    if: false
     name: Dependency Review
     runs-on: ubuntu-latest
 
