@@ -1,0 +1,30 @@
+[
+  {
+    "id": "CONT_001",
+    "description": "Recours contentieux – 2 mois",
+    "legalBasis": "CJA",
+    "input": {
+      "procedureType": "CONTENTIEUX",
+      "notificationDate": "2026-08-01"
+    },
+    "expected": {
+      "expectedDeadline": "2026-09-30",
+      "urgency": "moyen",
+      "humanReviewRequired": false
+    }
+  },
+  {
+    "id": "CONT_002",
+    "description": "Référé-liberté – 48h",
+    "legalBasis": "L.521-2 CJA",
+    "input": {
+      "procedureType": "REFERE_LIBERTE",
+      "notificationDate": "2026-08-01T09:00:00Z"
+    },
+    "expected": {
+      "expectedDeadline": "2026-09-30",
+      "urgency": "moyen",
+      "humanReviewRequired": false
+    }
+  }
+]
