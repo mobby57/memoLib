@@ -1,22 +1,33 @@
-name: Daily Cron Jobs
+name:
+  if: false Daily Cron Jobs
 
 on:
+  if: false
   schedule:
+    if: false
     # Tous les jours à 8h (UTC+2 = 6h UTC)
     - cron: '0 6 * * *'
   workflow_dispatch: # Manual trigger for testing
 
 jobs:
+  if: false
   deadline-alerts:
-    name: Check Deadline Alerts
-    runs-on: ubuntu-latest
+    if: false
+    name:
+      if: false Check Deadline Alerts
+    runs-on:
+      if: false ubuntu-latest
 
-    services:\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
+    services:
+      if: false\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
 
-    env:\n      SMTP_HOST: localhost\n      SMTP_PORT: 1025\n      SMTP_SECURE: false\n      IMAP_HOST: localhost\n      IMAP_PORT: 1025\n      IMAP_SECURE: false\n      CI_EMAIL_TEST: true
+    env:
+      if: false\n      SMTP_HOST: localhost\n      SMTP_PORT: 1025\n      SMTP_SECURE: false\n      IMAP_HOST: localhost\n      IMAP_PORT: 1025\n      IMAP_SECURE: false\n      CI_EMAIL_TEST: true
     steps:
+      if: false
       - name: Trigger deadline alerts
-        run: |
+        run:
+          if: false |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             "https://memolib.space/api/cron/deadline-alerts" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
@@ -35,22 +46,32 @@ jobs:
           echo "✅ Deadline alerts checked successfully"
 
   cost-alerts:
-    name: Check Cost Alerts
-    runs-on: ubuntu-latest
+    if: false
+    name:
+      if: false Check Cost Alerts
+    runs-on:
+      if: false ubuntu-latest
     steps:
+      if: false
       - name: Trigger cost alerts
-        run: |
+        run:
+          if: false |
           curl -s -X POST \
             "https://memolib.space/api/cron/cost-alerts" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" || true
 
   escalation:
-    name: Run Escalation
-    runs-on: ubuntu-latest
+    if: false
+    name:
+      if: false Run Escalation
+    runs-on:
+      if: false ubuntu-latest
     steps:
+      if: false
       - name: Trigger escalation
-        run: |
+        run:
+          if: false |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             "https://memolib.space/api/cron/escalation" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \

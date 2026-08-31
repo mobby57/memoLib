@@ -1,47 +1,76 @@
-name: codeql-analyze
+name:
+  if: false codeql-analyze
 
 on:
+  if: false
   push:
-    branches: [main]
+    if: false
+    branches:
+      if: false [main]
   pull_request:
-    branches: [main]
+    branches:
+      if: false [main]
   workflow_dispatch:
   schedule:
+    if: false
     - cron: '0 6 * * 1' # Weekly on Monday
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  if: false
+  group:
+    if: false ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress:
+    if: false true
 
 permissions:
-  security-events: write
-  contents: read
+  if: false
+  security-events:
+    if: false write
+  contents:
+    if: false read
 
 jobs:
+  if: false
   analyze:
-    runs-on: ubuntu-latest
+    if: false
+    runs-on:
+      if: false ubuntu-latest
 
-    services:\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
+    services:
+      if: false\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
 
-    env:\n      SMTP_HOST: localhost\n      SMTP_PORT: 1025\n      SMTP_SECURE: false\n      IMAP_HOST: localhost\n      IMAP_PORT: 1025\n      IMAP_SECURE: false\n      CI_EMAIL_TEST: true
-    timeout-minutes: 15
+    env:
+      if: false\n      SMTP_HOST: localhost\n      SMTP_PORT: 1025\n      SMTP_SECURE: false\n      IMAP_HOST: localhost\n      IMAP_PORT: 1025\n      IMAP_SECURE: false\n      CI_EMAIL_TEST: true
+    timeout-minutes:
+      if: false 15
     strategy:
-      fail-fast: false
+      if: false
+      fail-fast:
+        if: false false
       matrix:
-        language: [javascript]
+        if: false
+        language:
+          if: false [javascript]
     steps:
+      if: false
       - uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        id: init-codeql
-        uses: github/codeql-action/init@v4
+        id:
+          if: false init-codeql
+        uses:
+          if: false github/codeql-action/init@v4
         with:
-          languages: ${{ matrix.language }}
+          if: false
+          languages:
+            if: false ${{ matrix.language }}
 
       - name: Autobuild
         id: autobuild
         uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
-        id: analyze-codeql
-        uses: github/codeql-action/analyze@v4
+        id:
+          if: false analyze-codeql
+        uses:
+          if: false github/codeql-action/analyze@v4
