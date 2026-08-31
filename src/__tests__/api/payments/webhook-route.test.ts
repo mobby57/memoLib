@@ -15,6 +15,13 @@ vi.mock('@/lib/stripe/config', () => ({
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: mockTransaction,
+    aIDecision: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+    },
   },
 }));
 
