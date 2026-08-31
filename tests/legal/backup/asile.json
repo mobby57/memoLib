@@ -1,0 +1,38 @@
+[
+  {
+    "id": "ASILE_001",
+    "description": "Rejet OFPRA – recours CNDA 1 mois",
+    "legalBasis": "L.723-2 CESEDA",
+    "input": {
+      "procedureType": "ASILE",
+      "notificationDate": "2026-08-01",
+      "metadata": {
+        "stade": "CNDA"
+      }
+    },
+    "expected": {
+      "daysRemaining": 30,
+      "urgencyLevel": "ELEVE",
+      "humanReviewRequired": false,
+      "expectedDeadline": "2026-08-01"
+    }
+  },
+  {
+    "id": "ASILE_002",
+    "description": "Procédure accélérée – recours CNDA 15 jours",
+    "legalBasis": "L.723-2 CESEDA (procédure accélérée)",
+    "input": {
+      "procedureType": "ASILE",
+      "notificationDate": "2026-08-01",
+      "metadata": {
+        "stade": "CNDA_accelere"
+      }
+    },
+    "expected": {
+      "daysRemaining": 15,
+      "urgencyLevel": "CRITIQUE",
+      "humanReviewRequired": true,
+      "expectedDeadline": "2026-08-01"
+    }
+  }
+]
