@@ -22,7 +22,21 @@ vi.mock('@/lib/prisma', () => {
     },
     $disconnect: vi.fn(),
   };
+    aIDecision: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+    },
   return { prisma: mockPrisma, default: mockPrisma };
+    aIDecision: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+    },
 });
 
 vi.mock('@/lib/logger', () => ({

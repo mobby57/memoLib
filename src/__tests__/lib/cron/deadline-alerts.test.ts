@@ -17,6 +17,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
+    aIDecision: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+    },
 }));
 
 const { checkDeadlineAlerts } = require('@/lib/cron/deadline-alerts') as typeof import('@/lib/cron/deadline-alerts');
