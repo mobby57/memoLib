@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/emails?status=RECEIVED&limit=50
- * Liste les emails du tenant, filtrables par processingStatus.
+ * Liste les emails du tenant, filtrables par isProcessed.
  */
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '50'), 100);
 
   const where: any = { tenantId };
-  if (status) where.processingStatus = status;
+  if (status) where.isProcessed = status;
 
   const emails = await prisma.email.findMany({
     where,
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       category: true,
       urgency: true,
       receivedAt: true,
-      processingStatus: true,
+      isProcessed: true,
       aiAnalysis: true,
       hasAttachments: true,
     },

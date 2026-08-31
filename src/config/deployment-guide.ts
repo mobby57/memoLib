@@ -99,7 +99,7 @@ export const DeploymentGuide = {
       },
       {
         check: 'Sentry release configured',
-        file: 'sentry.client.config.ts, sentry.server.config.ts',
+        file: 'instrumentation-client.ts, sentry.server.config.ts, sentry.edge.config.ts',
         version: 'v1.0.0 or git hash',
       },
       {

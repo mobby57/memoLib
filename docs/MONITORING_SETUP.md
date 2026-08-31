@@ -20,7 +20,6 @@ SENTRY_AUTH_TOKEN=sntrys_xxx
 ```
 
 #### Fichiers créés automatiquement
-- `sentry.client.config.ts`
 - `sentry.server.config.ts`
 - `sentry.edge.config.ts`
 
@@ -201,7 +200,6 @@ export async function GET() {
 
 ### **Sentry - Performance Monitoring**
 ```typescript
-// sentry.client.config.ts
 import * as Sentry from '@sentry/nextjs';
 
 Sentry.init({

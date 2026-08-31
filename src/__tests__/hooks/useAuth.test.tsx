@@ -20,7 +20,7 @@ describe('useAuth Hook', () => {
     <SessionProvider session={mockSession}>{children}</SessionProvider>
   )
 
-  it.skip('returns session data', () => {
+  it('returns session data', () => {
     const { result } = renderHook(() => useAuth(), { wrapper })
 
     expect(result.current.session).not.toBeNull()

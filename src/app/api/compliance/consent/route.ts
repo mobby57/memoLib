@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { GDPRCompliance } from '@/lib/compliance/gdpr';
@@ -16,6 +17,12 @@ export async function POST(req: NextRequest) {
 
         // Get user info
         const userId = session?.user?.email || 'anonymous';
+ 
+  // Vérifier que l'utilisateur existe
+  const userExists = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userExists) {
+    return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+  }
         const ipAddress = req.headers.get('x-forwarded-for') ||
             req.headers.get('x-real-ip') ||
             'unknown';

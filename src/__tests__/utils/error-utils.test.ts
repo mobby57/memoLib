@@ -104,7 +104,7 @@ describe('Error Utils', () => {
       vi.useRealTimers();
     });
 
-    it.skip('devrait lancer après tous les échecs', async () => {
+    it('devrait lancer après tous les échecs', async () => {
       // Skip: Fake timers have issues with async rejection in this test setup
       vi.useFakeTimers();
       const fn = vi.fn().mockRejectedValue(new Error('always fail'));
