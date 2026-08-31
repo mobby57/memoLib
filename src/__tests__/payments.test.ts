@@ -5,6 +5,13 @@
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
+    aIDecision: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+    },
     payment: { create: vi.fn(), findUnique: vi.fn() },
     invoice: { create: vi.fn() },
   },
