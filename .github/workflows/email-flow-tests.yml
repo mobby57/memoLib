@@ -73,4 +73,7 @@ jobs:
         run: npm run email:test:demo
 
       - name: Run email integration db tests
-        run: npm run email:test:integration-db
+        run: >-
+          REAL_DB_TESTS=1 USE_REAL_DB_FOR_TESTS=1
+          npx vitest run --config vitest.config.ts --passWithNoTests
+          --maxWorkers=1 src/__tests__/api/emails/incoming-route.integration.test.ts
