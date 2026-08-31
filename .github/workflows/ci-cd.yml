@@ -41,9 +41,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # =========================================================================
-  # Build, Lint, Type-check, Test
-  # =========================================================================
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
@@ -55,7 +52,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -70,26 +67,20 @@ jobs:
         run: npm run type-check
 
       - name: Unit tests
-        run: npm run test:ci || echo "JEST_EXIT_CODE=1" >> $GITHUB_ENV
+        run: npm run test:ci
         env:
-          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
-          NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: ci-test-secret-not-for-production
 
-      - name: Verify tests passed
-        run: |
-          if [ -f ./coverage/coverage-summary.json ]; then
-            echo "✅ Tests passed (coverage report found)"
-          else
-            echo "❌ Tests failed — no coverage report"
-            exit 1
-          fi
+      - name: Verify coverage report
+        run: test -f ./coverage/coverage-summary.json
 
       - name: Build Next.js
         run: npm run build
         env:
-          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
-          NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
-          NEXTAUTH_URL: 'http://localhost:3000'
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: ci-test-secret-not-for-production
+          NEXTAUTH_URL: http://localhost:3000
 
       - name: Upload coverage
         if: always()
@@ -119,10 +110,6 @@ jobs:
           UPSTASH_REDIS_REST_URL: https://example.upstash.io
           UPSTASH_REDIS_REST_TOKEN: ci-test-token
 
-  # =========================================================================
-  # Security Scan (reports CRITICAL/HIGH, does not block PR merge)
-  # Blocking will be enabled once existing vulnerabilities are resolved.
-  # =========================================================================
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
@@ -135,22 +122,19 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
           exit-code: '0'
 
       - name: Upload Trivy results
         uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: trivy-results.sarif
 
-  # =========================================================================
-  # Prisma Migrations (production only — deploy handled by Vercel integration)
-  # =========================================================================
   migrate-production:
     name: Run Migrations (Production)
     runs-on: ubuntu-latest
@@ -164,7 +148,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: npm
 
       - name: Run Prisma migrations
         run: |
@@ -175,9 +159,6 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
-  # =========================================================================
-  # Post-deploy smoke test (production — Render)
-  # =========================================================================
   smoke-test:
     name: Smoke Test (Production)
     runs-on: ubuntu-latest
@@ -193,43 +174,38 @@ jobs:
 
       - name: Health check
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 $PROD_URL)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$PROD_URL")
           if [ "$STATUS" -ne 200 ] && [ "$STATUS" -ne 307 ]; then
-            echo "❌ Health check failed (HTTP $STATUS)"
-            echo "Response:"
-            curl -s --max-time 10 $PROD_URL | head -50
+            echo "Health check failed (HTTP $STATUS)"
+            curl -s --max-time 10 "$PROD_URL" | head -50
             exit 1
           fi
-          echo "✅ App responding (HTTP $STATUS)"
+          echo "App responding (HTTP $STATUS)"
 
       - name: Auth endpoint check
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $PROD_URL/api/auth/providers)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$PROD_URL/api/auth/providers")
           if [ "$STATUS" -ne 200 ]; then
-            echo "❌ Auth endpoint failed (HTTP $STATUS)"
+            echo "Auth endpoint failed (HTTP $STATUS)"
             exit 1
           fi
-          echo "✅ Auth endpoint OK"
+          echo "Auth endpoint OK"
 
       - name: API version check
         run: |
-          RESPONSE=$(curl -s --max-time 10 $PROD_URL/api/version)
+          RESPONSE=$(curl -s --max-time 10 "$PROD_URL/api/version")
           echo "API response: $RESPONSE"
           if echo "$RESPONSE" | grep -q "error"; then
-            echo "⚠️ Version endpoint returned error (non-blocking)"
+            echo "Version endpoint returned an error (non-blocking)"
           else
-            echo "✅ Version endpoint OK"
+            echo "Version endpoint OK"
           fi
 
-  # =========================================================================
-  # Quality Gate — always runs, even when paths filter skips other jobs.
-  # Configure THIS job as the single required status check in Branch Protection.
-  # =========================================================================
   quality-gate:
     name: Quality Gate
     runs-on: ubuntu-latest
     if: always()
-    needs: [build-and-test, security-scan]
+    needs: [build-and-test, docker-build, security-scan]
 
     steps:
       - name: Evaluate results
@@ -237,21 +213,21 @@ jobs:
           BUILD_RESULT="${{ needs.build-and-test.result }}"
           DOCKER_RESULT="${{ needs.docker-build.result }}"
           SCAN_RESULT="${{ needs.security-scan.result }}"
-          echo "build-and-test : $BUILD_RESULT"
-          echo "docker-build    : $DOCKER_RESULT"
-          echo "security-scan  : $SCAN_RESULT"
+          echo "build-and-test: $BUILD_RESULT"
+          echo "docker-build: $DOCKER_RESULT"
+          echo "security-scan: $SCAN_RESULT"
 
-          # "skipped" means the paths filter prevented the job from running → treat as pass
-          if [[ "$BUILD_RESULT" == "failure" || "$BUILD_RESULT" == "cancelled" ]]; then
-            echo "❌ build-and-test failed — quality gate blocked."
+          if [[ "$BUILD_RESULT" != "success" ]]; then
+            echo "build-and-test did not pass — quality gate blocked."
             exit 1
           fi
-          if [[ "$DOCKER_RESULT" == "failure" || "$DOCKER_RESULT" == "cancelled" ]]; then
-            echo "❌ docker-build failed — quality gate blocked."
+          if [[ "$DOCKER_RESULT" != "success" ]]; then
+            echo "docker-build did not pass — quality gate blocked."
             exit 1
           fi
-          if [[ "$SCAN_RESULT" == "failure" || "$SCAN_RESULT" == "cancelled" ]]; then
-            echo "❌ security-scan failed — quality gate blocked."
+          if [[ "$SCAN_RESULT" != "success" ]]; then
+            echo "security-scan did not pass — quality gate blocked."
             exit 1
           fi
-          echo "✅ Quality gate passed."
+
+          echo "Quality gate passed."
