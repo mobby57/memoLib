@@ -11,6 +11,8 @@ jobs:
   triage:
     name: Auto-triage Issue
     runs-on: ubuntu-latest
+
+    services:\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
     timeout-minutes: 5
 
     steps:

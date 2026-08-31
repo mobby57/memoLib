@@ -10,6 +10,10 @@ jobs:
   deadline-alerts:
     name: Check Deadline Alerts
     runs-on: ubuntu-latest
+
+    services:\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
+
+    env:\n      SMTP_HOST: localhost\n      SMTP_PORT: 1025\n      SMTP_SECURE: false\n      IMAP_HOST: localhost\n      IMAP_PORT: 1025\n      IMAP_SECURE: false\n      CI_EMAIL_TEST: true
     steps:
       - name: Trigger deadline alerts
         run: |
