@@ -11,6 +11,13 @@ vi.mock('@/lib/prisma', () => ({
       update: vi.fn(),
       findMany: vi.fn(),
       groupBy: vi.fn(),
+    aIDecision: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+    },
     },
   },
 }));
