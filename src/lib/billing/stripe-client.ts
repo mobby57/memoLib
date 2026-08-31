@@ -4,15 +4,7 @@
  */
 
 import Stripe from 'stripe';
-
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('? STRIPE_SECRET_KEY non definie - Paiements desactives');
-}
-
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_dummy', {
-  apiVersion: '2026-01-28.clover',
-  typescript: true,
-});
+import { stripe } from '@/lib/stripe/config';
 
 /**
  * Creer un client Stripe

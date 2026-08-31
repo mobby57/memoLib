@@ -3,7 +3,7 @@
  * IMPORTANT: Cette route doit etre en mode RAW body (pas de parsing JSON automatique)
  */
 
-import { stripe } from '@/lib/billing/stripe-client';
+import { stripe } from '@/lib/stripe/config';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { activateAfterPayment } from '@/lib/services/saas-provisioning';

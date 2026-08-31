@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
             }),
           },
         },
-        include: { client: true, lignes: true },
+        include: { Client: true, LigneFacture: true },
       });
     });
 

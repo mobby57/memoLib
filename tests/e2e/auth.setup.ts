@@ -9,17 +9,17 @@ const authFile = path.join(__dirname, '.auth', 'user.json');
  */
 setup('authenticate', async ({ page }) => {
   // Aller sur la page de login
-  await page.goto('/api/auth/signin');
+  await page.goto('/fr/auth/login');
 
   // Remplir le formulaire de connexion
-  await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL || 'admin@avocat.com');
+  await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL || 'admin@memolib.local');
   await page.fill('input[name="password"]', process.env.TEST_USER_PASSWORD || 'Admin123!');
 
   // Soumettre
   await page.click('button[type="submit"]');
 
   // Attendre la redirection
-  await page.waitForURL('/lawyer/dashboard');
+  await page.waitForURL('/fr/admin');
 
   // Vérifier que l'utilisateur est connecté
   await expect(page.locator('text=Dashboard')).toBeVisible();

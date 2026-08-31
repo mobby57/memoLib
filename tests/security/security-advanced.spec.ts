@@ -66,7 +66,7 @@ test.describe('Tests Sécurité Avancés', () => {
   });
 
   test('Session Security', async ({ page, context }) => {
-    await page.goto('/auth/signin');
+    await page.goto('/fr/auth/login');
     await page.fill('[name="email"]', 'test@test.com');
     await page.fill('[name="password"]', 'Test123!');
     await page.click('button[type="submit"]');

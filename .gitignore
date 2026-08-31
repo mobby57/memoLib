@@ -16,7 +16,6 @@ dist/
 build/
 coverage/
 .tsbuildinfo
-tsconfig.tsbuildinfo
 
 ## === Residual / generated ===
 cookies.txt
@@ -117,3 +116,41 @@ $null
 
 sftp_host_key
 sftp_host_key.pub
+.env.development
+.env.test
+*.tsbuildinfo
+.vault/
+
+
+# Sentry Config File
+.env.sentry-build-plugin
+
+# MemoLib local document vault
+.vault/
+.vault-test/
+
+# Local backup / database artifacts
+*.bak
+*.bak.*
+*.save
+*.dump
+
+# Backup artifacts from scripts
+.security-fix-backup-*/
+.fix-all-backup-/
+backups/database/
+
+# Backup artifacts from scripts
+.security-fix-backup-*/
+.fix-all-backup-/
+backups/database/
+
+# Backup artifacts from scripts
+.security-fix-backup-*/
+.fix-all-backup/
+backups/database/
+
+# Backup artifacts from scripts
+.security-fix-backup-*/
+.fix-all-backup/
+backups/database/

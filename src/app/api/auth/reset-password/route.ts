@@ -3,11 +3,13 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { logger } from '@/lib/logger';
+import { withLoginRateLimit } from '@/lib/middleware/rate-limit';
 
 /**
  * API pour reinitialiser le mot de passe avec un token valide
+ * Rate-limited pour eviter le brute-force du token
  */
-export async function POST(request: NextRequest) {
+export const POST = withLoginRateLimit(async function resetPasswordHandler(request: NextRequest) {
   try {
     let body: Record<string, unknown>;
     try {
@@ -88,4 +90,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

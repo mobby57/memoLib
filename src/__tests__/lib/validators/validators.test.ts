@@ -165,7 +165,7 @@ describe('Validators Module', () => {
       if (validators?.registerUserSchema) {
         const result = validators.registerUserSchema.safeParse({
           email: 'test@example.com',
-          password: 'SecurePass123!',
+          password: 'TEST_PASSWORD',
           name: 'Test User',
         });
         expect(result.success).toBeDefined();
@@ -178,7 +178,7 @@ describe('Validators Module', () => {
       if (validators?.registerUserSchema) {
         const result = validators.registerUserSchema.safeParse({
           email: 'test@example.com',
-          password: '123', // Too weak
+          password: 'TEST_PASSWORD', // Too weak
           name: 'Test User',
         });
         expect(result.success).toBe(false);
@@ -191,7 +191,7 @@ describe('Validators Module', () => {
       if (validators?.loginSchema) {
         const result = validators.loginSchema.safeParse({
           email: 'test@example.com',
-          password: 'password123',
+          password: 'TEST_PASSWORD',
         });
         expect(result.success).toBeDefined();
       } else {

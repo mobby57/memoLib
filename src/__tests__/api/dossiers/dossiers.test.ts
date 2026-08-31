@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { getServerSession } from 'next-auth';
 
 ﻿/**
  * Tests unitaires pour l'API /api/dossiers
@@ -38,8 +39,7 @@ describe('API /api/dossiers', () => {
 
   describe('GET /api/dossiers', () => {
     it('retourne 401 si non authentifié', async () => {
-      const { getServerSession } = require('next-auth');
-      getServerSession.mockResolvedValue(null);
+      vi.mocked(getServerSession).mockResolvedValue(null);
 
       // Simulation de la logique de la route
       const session = await getServerSession();

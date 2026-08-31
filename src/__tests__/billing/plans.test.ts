@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 /**
  * Tests unitaires — plans.ts
@@ -84,8 +84,38 @@ describe('Stripe price helpers', () => {
     expect(getPlanPriceCents('ENTERPRISE')).toBe(19900);
   });
 
-  it('fournit un fallback priceId si env non configurée', () => {
-    expect(getStripePriceId('SOLO', 'monthly')).toBe('price_solo_monthly');
-    expect(getStripePriceId('ENTERPRISE', 'yearly')).toBe('price_enterprise_yearly');
+  it('fournit un fallback priceId si env non configurée', async () => {
+    const saved = {
+      STRIPE_PRICE_SOLO_MONTHLY: process.env.STRIPE_PRICE_SOLO_MONTHLY,
+      STRIPE_PRICE_ENTERPRISE_YEARLY: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY,
+    };
+
+    try {
+      delete process.env.STRIPE_PRICE_SOLO_MONTHLY;
+      delete process.env.STRIPE_PRICE_ENTERPRISE_YEARLY;
+
+      vi.resetModules();
+
+      const {
+        getStripePriceId: getFreshStripePriceId,
+      } = await import('@/lib/billing/plans');
+
+      expect(getFreshStripePriceId('SOLO', 'monthly')).toBe('price_solo_monthly');
+      expect(getFreshStripePriceId('ENTERPRISE', 'yearly')).toBe('price_enterprise_yearly');
+    } finally {
+      if (saved.STRIPE_PRICE_SOLO_MONTHLY !== undefined) {
+        process.env.STRIPE_PRICE_SOLO_MONTHLY = saved.STRIPE_PRICE_SOLO_MONTHLY;
+      } else {
+        delete process.env.STRIPE_PRICE_SOLO_MONTHLY;
+      }
+
+      if (saved.STRIPE_PRICE_ENTERPRISE_YEARLY !== undefined) {
+        process.env.STRIPE_PRICE_ENTERPRISE_YEARLY = saved.STRIPE_PRICE_ENTERPRISE_YEARLY;
+      } else {
+        delete process.env.STRIPE_PRICE_ENTERPRISE_YEARLY;
+      }
+
+      vi.resetModules();
+    }
   });
 });

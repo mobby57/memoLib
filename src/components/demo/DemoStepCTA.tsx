@@ -18,7 +18,7 @@ export function DemoStepCTA({ nextHref, nextLabel }: { nextHref?: string; nextLa
             {nextLabel || 'Étape suivante'}
           </Link>
         )}
-        <Link href="/auth/register?plan=PILOT" className="text-sm font-semibold bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+        <Link href="/fr/auth/register?plan=PILOT" className="text-sm font-semibold bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
           Créer mon cabinet
         </Link>
       </div>

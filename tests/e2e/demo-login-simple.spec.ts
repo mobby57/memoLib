@@ -6,10 +6,10 @@ const TEST_PASSWORD = 'admin123';
 
 test.describe('🔐 Test Login Simple - Mode Démo', () => {
   test('Login et redirection vers dashboard', async ({ page }) => {
-    console.log(`📍 Navigation vers: ${BASE_URL}/auth/login`);
+    console.log(`📍 Navigation vers: ${BASE_URL}/fr/auth/login`);
 
     // 1. Naviguer vers la page de login
-    await page.goto(`${BASE_URL}/auth/login`, {
+    await page.goto(`${BASE_URL}/fr/auth/login`, {
       waitUntil: 'networkidle',
       timeout: 30000,
     });

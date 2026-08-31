@@ -1,32 +1,52 @@
-name: Gemini Issue Triage
+name:
+  if: false Gemini Issue Triage
 
 on:
+  if: false
   issues:
-    types: [opened]
+    if: false
+    types:
+      if: false [opened]
 
 permissions:
-  issues: write
+  if: false
+  issues:
+    if: false write
 
 jobs:
+  if: false
   triage:
-    name: Auto-triage Issue
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    if: false
+    name:
+      if: false Auto-triage Issue
+    runs-on:
+      if: false ubuntu-latest
+
+    services:
+      if: false\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
+    timeout-minutes:
+      if: false 5
 
     steps:
+      if: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          if: false
+          node-version:
+            if: false '20'
 
       - name: Install Gemini CLI
-        run: npm install -g @google/gemini-cli@1
+        run:
+          if: false npm install -g @google/gemini-cli@1
 
       - name: Analyze and label issue
         env:
+          if: false
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
-        run: |
+        run:
+          if: false |
           BODY_TRUNCATED=$(echo "$ISSUE_BODY" | head -c 2000)
 
           PROMPT="You are a triage bot for MemoLib (legal platform: Next.js modular monolith, Prisma/PostgreSQL).
@@ -43,9 +63,12 @@ jobs:
           cat /tmp/triage.json
 
       - name: Apply labels
-        uses: actions/github-script@v7
+        uses:
+          if: false actions/github-script@v7
         with:
-          script: |
+          if: false
+          script:
+            if: false |
             const fs = require('fs');
             let triage;
             try {
@@ -58,8 +81,11 @@ jobs:
             const labels = [...(triage.labels || []), triage.priority].filter(Boolean);
 
             await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner:
+                if: false context.repo.owner,
+              repo:
+                if: false context.repo.repo,
               issue_number: context.issue.number,
-              labels: labels
+              labels:
+                if: false labels
             });

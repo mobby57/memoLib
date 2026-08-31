@@ -1,4 +1,6 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { logger } from '@/lib/logger';
@@ -6,17 +8,21 @@ import { logger } from '@/lib/logger';
 // GET - Liste des preuves
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
     const dossierId = searchParams.get('dossierId');
     const type = searchParams.get('type');
     const status = searchParams.get('status');
     const limit = Math.max(1, parseInt(searchParams.get('limit') || '50', 10));
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10));
-
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
-    }
 
     const where: Record<string, unknown> = { tenantId };
     if (dossierId) where.dossierId = dossierId;
@@ -49,9 +55,17 @@ export async function GET(request: NextRequest) {
 // POST - Créer une preuve
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const body = await request.json();
     const {
-      tenantId,
       type,
       title,
       description,
@@ -68,7 +82,7 @@ export async function POST(request: NextRequest) {
       metadata,
     } = body;
 
-    if (!tenantId || !type || !title || !proofDate || !capturedBy) {
+    if (!type || !title || !proofDate || !capturedBy) {
       return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 });
     }
 
@@ -99,6 +113,7 @@ export async function POST(request: NextRequest) {
 
     const proof = await prisma.proof.create({
       data: {
+        id: crypto.randomUUID(),
         tenantId,
         type,
         title,
@@ -116,6 +131,7 @@ export async function POST(request: NextRequest) {
         timestampHash,
         chainPreviousId: lastProof?.id || null,
         metadata: metadata ? JSON.stringify(metadata) : null,
+        updatedAt: new Date(),
       },
     });
 
@@ -131,6 +147,15 @@ export async function POST(request: NextRequest) {
 // PATCH - Valider/Rejeter une preuve
 export async function PATCH(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { proofId, status, validatedBy, rejectionReason } = body;
 
@@ -138,7 +163,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'proofId, status et validatedBy requis' }, { status: 400 });
     }
 
-    const existing = await prisma.proof.findUnique({ where: { id: proofId } });
+    const existing = await prisma.proof.findFirst({ where: { id: proofId, tenantId } });
     if (!existing) {
       return NextResponse.json({ error: 'Preuve non trouvée' }, { status: 404 });
     }

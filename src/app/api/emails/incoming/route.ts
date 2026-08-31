@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API Route - Reception Email Entrant (Webhook)
  * POST /api/emails/incoming - Recoit un email et declenche le workflow
  * 
@@ -14,13 +14,12 @@ import { eventLogService } from '@/lib/services/event-log.service';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { filterRuleService } from '@/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
-import { type Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { IncomingEmailPayloadSchema, normalizeIncomingEmailPayload } from '@/lib/email/ingestion';
-import { extractDraft } from '@/lib/adapters/email.adapter';
 import { recordEmailIngestion } from '@/lib/email/ingestion-metrics';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookRequest } from '@/lib/security/webhook-verification';
+import { createEmailActionProposal } from '@/lib/services/action-proposal.service';
 
 export async function POST(request: NextRequest) {
   const startedAt = Date.now();
@@ -87,7 +86,7 @@ export async function POST(request: NextRequest) {
     // Trouver le tenant destinataire base sur l'email "to"
     const tenant = await prisma.tenant.findFirst({
       where: {
-        users: {
+        User: {
           some: {
             email: { in: normalized.tenantLookupRecipients },
             role: { in: ['ADMIN', 'LAWYER', 'USER'] },
@@ -119,8 +118,6 @@ export async function POST(request: NextRequest) {
             source: 'incoming-webhook',
             deduplicated: true,
             duplicateOfEmailId: duplicateEmail.id,
-            messageId: normalized.messageId,
-            providerMessageId: normalized.providerMessageId,
             contentHash: normalized.contentHash,
           },
         });
@@ -138,17 +135,6 @@ export async function POST(request: NextRequest) {
         message: 'Email deja traite (idempotent)',
       });
     }
-
-    // Chercher si l'expediteur est un client connu
-    const client = await prisma.client.findFirst({
-      where: {
-        tenantId: tenant.id,
-        email: normalized.fromAddress || from.toLowerCase(),
-      },
-    });
-
-    let resolvedClientId = client?.id ?? null;
-    let linkedDossierId: string | null = null;
 
     // Analyser l'email avec l'IA
     let aiAnalysis: string | null = null;
@@ -177,64 +163,12 @@ export async function POST(request: NextRequest) {
       // Continuer sans analyse IA
     }
 
-    // Lier ou créer client/dossier en best effort pour les flux métier prioritaires.
-    try {
-      if (!resolvedClientId && shouldCreateClient(category, urgency)) {
-        const guessedIdentity = guessIdentityFromEmail(from);
-        const createdClient = await prisma.client.create({
-          data: {
-            tenantId: tenant.id,
-            firstName: guessedIdentity.firstName,
-            lastName: guessedIdentity.lastName,
-            email: normalized.fromAddress || from.toLowerCase(),
-            status: 'draft', // Validation humaine obligatoire avant activation
-          },
-        });
-        resolvedClientId = createdClient.id;
-      }
-
-      if (resolvedClientId) {
-        const existingDossier = await prisma.dossier.findFirst({
-          where: {
-            tenantId: tenant.id,
-            clientId: resolvedClientId,
-            statut: { in: ['en_cours', 'nouveau'] },
-          },
-          orderBy: { updatedAt: 'desc' },
-        });
-
-        if (existingDossier) {
-          linkedDossierId = existingDossier.id;
-        } else if (shouldCreateDossier(category, urgency)) {
-          const createdDossier = await prisma.dossier.create({
-            data: {
-              tenantId: tenant.id,
-              numero: generateDossierNumber(),
-              clientId: resolvedClientId,
-              typeDossier: mapCategoryToDossierType(category),
-              statut: 'nouveau',
-              priorite: urgency === 'high' ? 'haute' : 'normale',
-              phase: 'instruction',
-              objet: subject,
-              description: (emailBody || '').slice(0, 1000) || 'Dossier cree depuis email entrant',
-            },
-          });
-          linkedDossierId = createdDossier.id;
-        }
-      }
-    } catch (matchingError) {
-      logger.error('[EMAIL] Client/dossier matching best-effort failed:', {
-        error: matchingError,
-        from,
-        category,
-      });
-    }
-
     // Creer l'email dans la base
     let email;
     try {
       email = await prisma.email.create({
         data: {
+          id: crypto.randomUUID(),
           tenantId: tenant.id,
           messageId,
           providerMessageId: normalized.providerMessageId,
@@ -268,10 +202,10 @@ export async function POST(request: NextRequest) {
           urgency,
           sentiment,
           aiAnalysis,
-          clientId: resolvedClientId,
-          dossierId: linkedDossierId,
           receivedAt: normalized.receivedAt,
           receivedDate: normalized.receivedDate,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       });
     } catch (error) {
@@ -300,13 +234,8 @@ export async function POST(request: NextRequest) {
         tenantId: tenant.id,
         metadata: {
           source: 'incoming-webhook',
-          from,
-          to,
-          subject,
           category,
           urgency,
-          clientId: resolvedClientId,
-          dossierId: linkedDossierId,
           hasAttachments: attachments && attachments.length > 0,
         },
       });
@@ -359,32 +288,20 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Phase 5: Créer un Draft automatiquement pour validation humaine
+    // Phase 5: Créer une proposition structurée et idempotente pour validation humaine.
     try {
-      const existingDraft = await prisma.draft.findFirst({
-        where: { tenantId: tenant.id, sourceEmailId: email.id },
+      await createEmailActionProposal({
+        tenantId: tenant.id,
+        emailId: email.id,
+        category,
+        urgency: normalizeProposalUrgency(urgency),
+        sentiment,
+        hasAttachments: normalized.hasAttachments,
+        receivedAt: normalized.receivedAt,
       });
-      if (!existingDraft) {
-        const extracted = extractDraft({
-          from,
-          subject,
-          body: emailBody || '',
-          receivedAt: normalized.receivedAt,
-        });
-        await prisma.draft.create({
-          data: {
-            tenantId: tenant.id,
-            status: 'PENDING',
-            extractedData: JSON.stringify(extracted),
-            confidence: JSON.stringify(extracted.confidence),
-            sourceEmailId: email.id,
-          },
-        });
-        logger.info(`[DRAFT] Draft créé automatiquement pour email ${email.id}`);
-      }
-    } catch (draftError) {
-      logger.error('[EMAIL] Draft creation best-effort failed:', {
-        error: draftError,
+    } catch (proposalError) {
+      logger.error('[EMAIL] Action proposal creation failed:', {
+        error: proposalError,
         emailId: email.id,
       });
     }
@@ -394,6 +311,7 @@ export async function POST(request: NextRequest) {
       try {
         await prisma.emailAttachment.createMany({
           data: attachments.map(att => ({
+            id: crypto.randomUUID(),
             emailId: email.id,
             filename: att.filename,
             mimeType: att.mimeType,
@@ -424,6 +342,7 @@ export async function POST(request: NextRequest) {
     try {
       const workflow = await prisma.workflowExecution.create({
         data: {
+            id: crypto.randomUUID(),
           tenantId: tenant.id,
           workflowId: `email-${category}`,
           workflowName: getWorkflowName(category),
@@ -434,14 +353,11 @@ export async function POST(request: NextRequest) {
           triggerType: 'email',
           triggerData: JSON.stringify({
             emailId: email.id,
-            from,
-            subject,
             category,
             urgency,
-            clientId: resolvedClientId,
-            dossierId: linkedDossierId,
           }),
           startedAt: new Date(),
+          updatedAt: new Date(),
         },
       });
 
@@ -502,62 +418,11 @@ function getWorkflowName(category: string): string {
   return names[category] || 'Traitement Email';
 }
 
-function shouldCreateClient(category: string, urgency: string): boolean {
-  return (
-    ['new-case', 'client-urgent', 'document-request', 'appointment-request'].includes(category) ||
-    urgency === 'high'
-  );
-}
-
-function shouldCreateDossier(category: string, urgency: string): boolean {
-  return (
-    ['new-case', 'client-urgent', 'court-document', 'deadline-reminder'].includes(category) ||
-    urgency === 'high'
-  );
-}
-
-function mapCategoryToDossierType(category: string): string {
-  const mapping: Record<string, string> = {
-    'new-case': 'Ouverture dossier',
-    'client-urgent': 'Urgence client',
-    'court-document': 'Document judiciaire',
-    'deadline-reminder': 'Gestion echeance',
-    'document-request': 'Demande document',
-    'appointment-request': 'Demande rendez-vous',
-  };
-  return mapping[category] || 'Demande generale';
-}
-
-function generateDossierNumber(): string {
-  const stamp = new Date()
-    .toISOString()
-    .replace(/[\-\:TZ\.]/g, '')
-    .slice(0, 14);
-  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `DOS-${stamp}-${random}`;
-}
-
-function guessIdentityFromEmail(from: string): { firstName: string; lastName: string } {
-  const emailPart = from.includes('@') ? from.split('@')[0] : from;
-  const cleaned = emailPart.replace(/[^a-zA-Z0-9._-]/g, '');
-  const parts = cleaned.split(/[._-]+/).filter(Boolean);
-
-  if (parts.length >= 2) {
-    return {
-      firstName: capitalize(parts[0]),
-      lastName: capitalize(parts.slice(1).join(' ')),
-    };
+function normalizeProposalUrgency(urgency: string): 'low' | 'medium' | 'high' | 'critical' {
+  if (urgency === 'low' || urgency === 'high' || urgency === 'critical') {
+    return urgency;
   }
-
-  return {
-    firstName: 'Client',
-    lastName: capitalize(parts[0] || 'Email'),
-  };
-}
-
-function capitalize(value: string): string {
-  if (!value) return value;
-  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  return 'medium';
 }
 
 async function executeWorkflowSteps(

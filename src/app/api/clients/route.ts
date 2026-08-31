@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 ﻿import { cacheDelete, cacheInvalidatePattern, cacheThrough, TTL_TIERS } from '@/lib/cache';
 import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -121,7 +122,7 @@ export async function GET(request: NextRequest) {
         prisma.client.findMany({
           where,
           include: {
-            _count: { select: { dossiers: true } },
+            _count: { select: { Dossier: true } },
           },
           orderBy: { createdAt: 'desc' },
           take: limit,
@@ -196,6 +197,7 @@ export async function POST(request: NextRequest) {
       async (tx) => {
         const created = await tx.client.create({
           data: {
+            id: randomUUID(),
             tenantId: effectiveTenantId,
             firstName,
             lastName,
@@ -207,6 +209,7 @@ export async function POST(request: NextRequest) {
             dateOfBirth: parsedDate,
             nationality,
             civilite,
+            updatedAt: new Date(),
           },
         });
 

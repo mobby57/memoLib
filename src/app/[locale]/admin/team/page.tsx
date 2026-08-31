@@ -44,7 +44,7 @@ export default function TeamPage() {
   const [tempPassword, setTempPassword] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.push('/auth/login');
+    if (status === 'unauthenticated') router.push('/fr/auth/login');
     else if (session?.user) fetchTeam();
   }, [session, status]);
 
@@ -139,6 +139,14 @@ export default function TeamPage() {
             >
               {showInvite ? '✕ Fermer' : '+ Inviter un membre'}
             </button>
+          </div>
+          <div className="mt-4">
+            <Link
+              href="/admin/equipes"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1"
+            >
+              🧑‍🤝‍🧑 Gérer les équipes (groupes de collaborateurs)
+            </Link>
           </div>
         </div>
       </header>

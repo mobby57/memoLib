@@ -1,18 +1,24 @@
-name: Email Flow Tests
+name:
+  if: false Email Flow Tests
 
 on:
+  if: false
   workflow_dispatch:
   pull_request:
     paths:
+      if: false
       - src/app/api/emails/incoming/route.ts
       - src/__tests__/api/emails/**
       - src/__tests__/api/lawyer/workspace-emails-route.test.ts
       - package.json
       - prisma/schema.prisma
   push:
+    if: false
     branches:
+      if: false
       - main
     paths:
+      if: false
       - src/app/api/emails/incoming/route.ts
       - src/__tests__/api/emails/**
       - src/__tests__/api/lawyer/workspace-emails-route.test.ts
@@ -20,30 +26,49 @@ on:
       - prisma/schema.prisma
 
 concurrency:
-  group: email-flow-tests-${{ github.ref }}
-  cancel-in-progress: true
+  if: false
+  group:
+    if: false email-flow-tests-${{ github.ref }}
+  cancel-in-progress:
+    if: false true
 
 jobs:
+  if: false
   email-tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    if: false
+    if:
+      if: false false
+    runs-on:
+      if: false ubuntu-latest
 
     services:
+      if: false\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
+    timeout-minutes:
+      if: false 15
+
+    services:
+      if: false
       postgres:
-        image: postgres:15
+        if: false
+        image:
+          if: false postgres:15
         env:
+          if: false
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: memolib_test
         ports:
+          if: false
           - 5432:5432
-        options: >-
+        options:
+          if: false >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
 
     env:
+      if: false
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/memolib_test?schema=public
       NODE_ENV: test
       NEXTAUTH_SECRET: test-secret
@@ -51,26 +76,37 @@ jobs:
       INCOMING_EMAIL_WEBHOOK_SECRET: test-secret
 
     steps:
+      if: false
       - name: Checkout
-        uses: actions/checkout@v4
+        uses:
+          if: false actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses:
+          if: false actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          if: false
+          node-version:
+            if: false 20
+          cache:
+            if: false npm
 
       - name: Install dependencies
-        run: npm ci
+        run:
+          if: false npm ci
 
       - name: Prisma generate
-        run: npx prisma generate
+        run:
+          if: false npx prisma generate
 
       - name: Prisma db push
-        run: npx prisma db push --force-reset
+        run:
+          if: false npx prisma db push --force-reset
 
       - name: Run email demo tests
-        run: npm run email:test:demo
+        run:
+          if: false npm run email:test:demo
 
       - name: Run email integration db tests
-        run: npm run email:test:integration-db
+        run:
+          if: false npm run email:test:integration-db

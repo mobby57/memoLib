@@ -209,7 +209,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const existing = await prisma.client.findFirst({
       where: { id: clientId, tenantId },
       include: {
-        _count: { select: { dossiers: true } },
+        _count: { select: { Dossier: true } },
       },
     });
 

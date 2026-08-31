@@ -45,7 +45,12 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       'L.614-1',
       'L.611-1 II',
       'L.611-1 III',
-      'Article L.611-1 du CESEDA'
+      'Article L.611-1 du CESEDA',
+      // Ancienne numerotation CESEDA (avant recodification de mai 2024)
+      'L.511-1',
+      'L.512-1',
+      'L.513-1',
+      'L.514-1',
     ],
     delaisStandard: {
       departVolontaire: 30, // 30 jours pour depart volontaire

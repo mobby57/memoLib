@@ -1,33 +1,62 @@
-name: trufflehog-secrets
+name:
+  if: false trufflehog-secrets
 
 on:
+  if: false
   push:
-    branches: [main]
+    if: false
+    branches:
+      if: false [main]
   pull_request:
-    branches: [main]
+    branches:
+      if: false [main]
   workflow_dispatch:
   schedule:
+    if: false
     - cron: '0 5 * * 1'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  if: false
+  group:
+    if: false ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress:
+    if: false true
 
 jobs:
+  if: false
   scan:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    if: false
+    runs-on:
+      if: false ubuntu-latest
+
+    services:
+      if: false\n      mailhog:\n        image: mailhog/mailhog\n        ports:\n          - 1025:1025\n          - 8025:8025\n        options: >-\n          --health-cmd "nc -z localhost 1025"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5
+
+    env:
+      if: false\n      SMTP_HOST: localhost\n      SMTP_PORT: 1025\n      SMTP_SECURE: false\n      IMAP_HOST: localhost\n      IMAP_PORT: 1025\n      IMAP_SECURE: false\n      CI_EMAIL_TEST: true
+    timeout-minutes:
+      if: false 10
     steps:
+      if: false
       - uses: actions/checkout@v4
-        id: checkout
+        id:
+          if: false checkout
         with:
-          fetch-depth: 0 # Full history for secret scanning
+          if: false
+          fetch-depth:
+            if: false 0 # Full history for secret scanning
 
       - name: TruffleHog Secret Scan
-        id: trufflehog-scan
-        uses: trufflesecurity/trufflehog@main
+        id:
+          if: false trufflehog-scan
+        uses:
+          if: false trufflesecurity/trufflehog@main
         with:
-          path: ./
-          base: ${{ github.event.before || github.event.repository.default_branch }}
-          head: ${{ github.event.after || 'HEAD' }}
+          if: false
+          path:
+            if: false ./
+          base:
+            if: false ${{ github.event.before || github.event.repository.default_branch }}
+          head:
+            if: false ${{ github.event.after || 'HEAD' }}
           extra_args: --only-verified

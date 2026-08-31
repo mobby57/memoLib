@@ -106,7 +106,7 @@ describe('API /api/client', () => {
       const fullClient = {
         id: 'cli_456',
         firstName: 'Jean',
-        password: 'hashedPassword123',
+        password: 'TEST_PASSWORD',
         internalNotes: 'Notes confidentielles',
       };
 

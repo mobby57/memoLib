@@ -50,7 +50,7 @@ const VALID_BODY = {
   prenom: 'Jean',
   nom: 'Dupont',
   email: 'jean@avocat.fr',
-  password: 'SecurePass123!',
+  password: 'TEST_PASSWORD',
   cabinetNom: 'Cabinet Dupont',
   numeroBarreau: 'P123456',
   plan: 'SOLO',
@@ -86,7 +86,7 @@ describe('POST /api/auth/register', () => {
       status: 400,
     });
 
-    const res = await POST(makeRequest({ ...VALID_BODY, password: '1234567' }));
+    const res = await POST(makeRequest({ ...VALID_BODY, password: 'TEST_PASSWORD' }));
     expect(res.status).toBe(400);
   });
 

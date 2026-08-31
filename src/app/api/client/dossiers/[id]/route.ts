@@ -27,7 +27,7 @@ export async function GET(
     const dossier = await prisma.dossier.findFirst({
       where: {
         id: dossierId,
-        clientId: userId, // Securite: le client ne peut voir que ses propres dossiers
+        clientId: (session.user as any).clientId, // Securite: le client ne peut voir que ses propres dossiers
       },
       include: {
         documents: {

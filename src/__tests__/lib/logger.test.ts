@@ -111,7 +111,7 @@ describe('Logger - Systeme de logging professionnel', () => {
 
     test('Redacte les mots de passe', () => {
       logger.info('Test password', {
-        password: 'super-secret-123',
+        password: 'TEST_PASSWORD',
         token: 'abc123token',
       });
 

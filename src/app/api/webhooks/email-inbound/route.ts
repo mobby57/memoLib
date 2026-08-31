@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 import { encryptEmailBody } from '@/lib/security/email-encryption';
+import { getClientIP, checkRateLimit } from '@/lib/rate-limit';
+import { z } from 'zod';
+
+const inboundEmailSchema = z.object({
+  from: z.string().min(1).max(320),
+  to: z.string().max(320).optional(),
+  subject: z.string().max(998).optional(),
+  body: z.string().min(1).max(1_000_000),
+  html: z.string().max(2_000_000).optional(),
+  date: z.string().datetime().optional(),
+  messageId: z.string().max(998).optional(),
+  tenantId: z.string().min(1).max(128).optional(),
+});
 
 /**
  * Webhook pour recevoir des emails forwardés.
@@ -16,12 +29,28 @@ export async function POST(req: NextRequest) {
   // Auth par webhook secret
   const secret = req.headers.get('x-webhook-secret') || req.nextUrl.searchParams.get('secret');
   const expectedSecret = process.env.EMAIL_WEBHOOK_SECRET;
-  if (expectedSecret && secret !== expectedSecret) {
+  if (!expectedSecret) {
+    return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
+  }
+
+  const validSecret =
+    !!secret &&
+    secret.length === expectedSecret.length &&
+    crypto.timingSafeEqual(Buffer.from(secret), Buffer.from(expectedSecret));
+  if (!validSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const rateLimit = await checkRateLimit(getClientIP(req), 'webhook');
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rateLimit.reset.getTime() - Date.now()) / 1000)) } }
+    );
+  }
+
   const contentType = req.headers.get('content-type') || '';
-  let emailData: { from: string; to?: string; subject: string; body: string; html?: string; date?: string; messageId?: string; attachments?: any[]; tenantId?: string };
+  let emailData: unknown;
 
   if (contentType.includes('multipart/form-data')) {
     // SendGrid Inbound Parse format
@@ -43,50 +72,114 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  if (!emailData.from || !emailData.body) {
-    return NextResponse.json({ error: 'from et body requis' }, { status: 400 });
+  const parsedEmail = inboundEmailSchema.safeParse(emailData);
+  if (!parsedEmail.success) {
+    return NextResponse.json(
+      { error: 'Payload invalide', details: parsedEmail.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
+  const validatedEmail = parsedEmail.data;
 
   // Déterminer le tenant (par le "to" address ou header)
-  const tenantId = emailData.tenantId || await resolveTenant(emailData.to);
+  const tenantId = validatedEmail.tenantId || await resolveTenant(validatedEmail.to);
   if (!tenantId) {
     return NextResponse.json({ error: 'Tenant non résolu. Ajoutez tenantId ou configurez le routage.' }, { status: 400 });
   }
 
   // Déduplication par checksum
-  const checksum = crypto.createHash('sha256').update(`${emailData.messageId || ''}${emailData.from}${emailData.subject}${emailData.body.slice(0, 500)}`).digest('hex');
+  const checksum = crypto.createHash('sha256').update(`${validatedEmail.messageId || ''}${validatedEmail.from}${validatedEmail.subject || ''}${validatedEmail.body.slice(0, 500)}`).digest('hex');
 
-  const existing = await prisma.email.findFirst({ where: { tenantId, checksum } });
-  if (existing) {
-    return NextResponse.json({ success: true, duplicate: true, emailId: existing.id });
-  }
+  // Le schéma Email utilise contentHash comme empreinte d'idempotence.
+  const contentHash = checksum;
 
-  // Créer l'email (chiffrement at-rest)
-  const { body: storedBody, bodyEncrypted, htmlBody: storedHtml, htmlBodyEncrypted } = encryptEmailBody(
-    emailData.body,
-    emailData.html || null
-  );
-
-  const email = await prisma.email.create({
-    data: {
+  const existing = await prisma.email.findFirst({
+    where: {
       tenantId,
-      from: emailData.from,
-      to: emailData.to || '',
-      subject: emailData.subject || '(sans objet)',
-      body: storedBody,
-      bodyEncrypted,
-      htmlBody: storedHtml,
-      htmlBodyEncrypted,
-      messageId: emailData.messageId || null,
-      checksum,
-      direction: 'INCOMING',
-      status: 'PENDING',
-      receivedAt: emailData.date ? new Date(emailData.date) : new Date(),
+      OR: [
+        ...(validatedEmail.messageId
+          ? [{ messageId: validatedEmail.messageId }]
+          : []),
+        { contentHash },
+      ],
     },
   });
 
+  if (existing) {
+    return NextResponse.json({
+      success: true,
+      duplicate: true,
+      emailId: existing.id,
+    });
+  }
+
+  // Créer l'email (chiffrement at-rest)
+  const { body: storedBody, bodyEncrypted, htmlBody: storedHtml, htmlBodyEncrypted } =
+    encryptEmailBody(
+      validatedEmail.body,
+      validatedEmail.html || null
+    );
+
+  let email;
+
+  try {
+    email = await prisma.email.create({
+      data: {
+        id: crypto.randomUUID(),
+        tenantId,
+        messageId: validatedEmail.messageId || null,
+        from: validatedEmail.from.toLowerCase(),
+        fromAddress: validatedEmail.from.toLowerCase(),
+        to: validatedEmail.to || '',
+        toAddresses: validatedEmail.to ? JSON.stringify([validatedEmail.to]) : null,
+        subject: validatedEmail.subject || '(sans objet)',
+        body: storedBody,
+        bodyEncrypted,
+        htmlBody: storedHtml,
+        htmlBodyEncrypted,
+        contentHash,
+        sourceChannel: 'email',
+        sourceDirection: 'inbound',
+        sourceProvider: 'webhook',
+        hasAttachments: false,
+        receivedAt: validatedEmail.date ? new Date(validatedEmail.date) : new Date(),
+        receivedDate: validatedEmail.date ? new Date(validatedEmail.date) : new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      (error as { code?: string }).code === 'P2002'
+    ) {
+      const duplicate = await prisma.email.findFirst({
+        where: {
+          tenantId,
+          OR: [
+            ...(validatedEmail.messageId
+              ? [{ messageId: validatedEmail.messageId }]
+              : []),
+            { contentHash },
+          ],
+        },
+      });
+
+      if (duplicate) {
+        return NextResponse.json({
+          success: true,
+          duplicate: true,
+          emailId: duplicate.id,
+        });
+      }
+    }
+
+    throw error;
+  }
+
   // Lancer l'analyse IA en arrière-plan (fire-and-forget)
-  analyzeEmailAsync(email.id, emailData.subject, emailData.body, emailData.from).catch(() => {});
+  analyzeEmailAsync(email.id, validatedEmail.subject || '', validatedEmail.body, validatedEmail.from).catch(() => {});
 
   // Horodatage certifié RFC 3161 (preuve tierce de la date de réception)
   import('@/lib/services/certified-timestamp').then(({ certifyEmailReception }) => {
@@ -126,7 +219,7 @@ async function analyzeEmailAsync(emailId: string, subject: string, body: string,
       const summary = await res.json();
       await prisma.email.update({
         where: { id: emailId },
-        data: { aiSummary: JSON.stringify(summary), aiAnalyzedAt: new Date() },
+        data: { aiAnalysis: JSON.stringify(summary) },
       });
     }
   } catch {}

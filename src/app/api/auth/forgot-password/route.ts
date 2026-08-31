@@ -2,12 +2,14 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { withLoginRateLimit } from '@/lib/middleware/rate-limit';
 
 /**
  * API pour demander une reinitialisation de mot de passe
  * Genere un token unique et l'envoie par email
+ * Rate-limited pour eviter le spam/enumeration d'emails
  */
-export async function POST(request: NextRequest) {
+export const POST = withLoginRateLimit(async function forgotPasswordHandler(request: NextRequest) {
   try {
     let body: Record<string, unknown>;
     try {
@@ -104,4 +106,4 @@ export async function POST(request: NextRequest) {
     logger.error('Erreur forgot-password API', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
-}
+});

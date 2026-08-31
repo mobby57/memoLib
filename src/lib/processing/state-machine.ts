@@ -51,7 +51,7 @@ export async function transitionState({
     await prisma.email.update({
       where: { id: entityId },
       data: {
-        processingStatus: toState,
+        isProcessed: toState,
         ...(toState === 'PROCESSED' ? { isProcessed: true, processedAt: new Date() } : {}),
         ...(toState === 'FAILED' ? { processingError: metadata?.error } : {}),
       },
@@ -84,8 +84,7 @@ export async function getStuckItems(tenantId: string, olderThanMinutes = 5) {
   return prisma.email.findMany({
     where: {
       tenantId,
-      processingStatus: { in: ['RECEIVED', 'NORMALIZED', 'CLASSIFIED', 'LINKED'] },
-      isProcessed: false,
+      isProcessed: { in: ['RECEIVED', 'NORMALIZED', 'CLASSIFIED', 'LINKED'] },
       updatedAt: { lt: cutoff },
     },
     orderBy: { receivedAt: 'asc' },

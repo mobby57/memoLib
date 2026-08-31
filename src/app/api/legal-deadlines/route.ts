@@ -20,7 +20,7 @@ const deadlineTypes = [
   'CUSTOM',
 ] as const;
 const deadlineStatuses = ['PENDING', 'APPROACHING', 'URGENT', 'CRITICAL', 'OVERDUE', 'COMPLETED', 'CANCELLED', 'SUSPENDED'] as const;
-const managedRoles = new Set(['ADMIN', 'SUPER_ADMIN', 'LAWYER', 'MANAGER']);
+const managedRoles = new Set(['ADMIN', 'SUPER_ADMIN', 'AVOCAT', 'LAWYER', 'MANAGER']);
 
 const CreateDeadlineSchema = z.object({
   dossierId: z.string().min(1),
@@ -134,6 +134,7 @@ export async function POST(request: NextRequest) {
         legalDays,
         legalBasis: parsed.data.legalBasis,
         createdBy: access.userId,
+        updatedAt: new Date(),
       },
     });
     return NextResponse.json({ success: true, deadline }, { status: 201 });

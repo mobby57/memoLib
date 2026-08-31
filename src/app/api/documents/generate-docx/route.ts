@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   if (dossierId && tenantId) {
     dossierData = await prisma.dossier.findFirst({
       where: { id: dossierId, tenantId },
-      include: { client: true },
+      include: { Client: true },
     });
   }
 
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     lieu: 'Luxembourg',
     avocat: user.name || 'Maître',
     numeroDossier: dossierData?.numero || '',
-    ...(dossierData?.client ? { requerantNom: (dossierData.client as any).nom || '' } : {}),
+    ...(dossierData?.Client ? { requerantNom: `${dossierData.Client.firstName} ${dossierData.Client.lastName}` } : {}),
     ...variables,
   };
 

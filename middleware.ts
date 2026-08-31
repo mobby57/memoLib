@@ -119,7 +119,7 @@ export function middleware(request: NextRequest) {
   // Raccourcis directs — redirige sans locale prefix
   const shortcuts: Record<string, string> = {
     '/dashboard': `/${DEFAULT_LOCALE}/dashboard`,
-    '/login': `/${DEFAULT_LOCALE}/login`,
+    '/login': `/${DEFAULT_LOCALE}/auth/login`,
     '/emails': `/${DEFAULT_LOCALE}/emails`,
     '/dossiers': `/${DEFAULT_LOCALE}/dossiers`,
     '/clients': `/${DEFAULT_LOCALE}/clients`,

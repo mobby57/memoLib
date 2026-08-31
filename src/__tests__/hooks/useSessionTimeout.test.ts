@@ -102,9 +102,9 @@ describe('Session Timeout Logic', () => {
 
   describe('Logout URL', () => {
     it('devrait rediriger vers login avec timeout=true', () => {
-      const callbackUrl = '/auth/login?timeout=true';
+      const callbackUrl = '/fr/auth/login?timeout=true';
       
-      expect(callbackUrl).toContain('/auth/login');
+      expect(callbackUrl).toContain('/fr/auth/login');
       expect(callbackUrl).toContain('timeout=true');
     });
   });
