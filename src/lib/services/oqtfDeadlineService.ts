@@ -45,12 +45,14 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       'L.614-1',
       'L.611-1 II',
       'L.611-1 III',
+      'L.512-1',
+      'L.511-1',
       'Article L.611-1 du CESEDA'
     ],
     delaisStandard: {
-      departVolontaire: 30, // 30 jours pour depart volontaire
-      recoursTA: 48, // 48h si retention/assignation, sinon 30 jours
-      recoursCAA: 2 // 2 mois pour appel CAA
+      departVolontaire: 30,
+      recoursTA: 48,
+      recoursCAA: 2
     },
     keywords: [
       'prefecture',
@@ -77,17 +79,8 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       'refus de renouvellement',
       'decision de refus'
     ],
-    articles: [
-      'L.313-11',
-      'L.313-14',
-      'L.314-11',
-      'L.431-2'
-    ],
-    delaisStandard: {
-      departVolontaire: 30,
-      recoursTA: 60, // 2 mois pour recours contre refus
-      recoursCAA: 2
-    },
+    articles: ['L.313-11', 'L.313-14', 'L.314-11', 'L.431-2'],
+    delaisStandard: { departVolontaire: 30, recoursTA: 60, recoursCAA: 2 },
     keywords: [
       'vie privee et familiale',
       'CEDH Article 8',
@@ -107,17 +100,8 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       'OFPRA',
       'CNDA'
     ],
-    articles: [
-      'L.511-1 IV',
-      'L.743-1',
-      'L.723-2',
-      'Convention de Geneve Article 1A'
-    ],
-    delaisStandard: {
-      departVolontaire: 0, // Pas de depart volontaire pendant procedure asile
-      recoursTA: 30, // 1 mois pour recours OFPRA
-      recoursCAA: 1 // 1 mois pour recours CNDA
-    },
+    articles: ['L.511-1 IV', 'L.743-1', 'L.723-2', 'Convention de Geneve Article 1A'],
+    delaisStandard: { departVolontaire: 0, recoursTA: 30, recoursCAA: 1 },
     keywords: [
       'persecutions',
       'pays d\'origine',
@@ -138,39 +122,53 @@ interface DelaiExtrait {
   description: string;
   priorite: 'CRITIQUE' | 'HAUTE' | 'NORMALE';
   joursRestants: number;
-  confidence: number; // 0-100%
+  confidence: number;
   articlesCeseda: string[];
   suggestionsRecours: string[];
   checklistRecommandee: string[];
 }
 
-/**
- * Calcule le score de confiance base sur les patterns detectes
- */
-function calculateConfidence(
-  text: string,
-  template: TemplateJuridique
-): number {
-  let score = 0;
-  const textLower = text.toLowerCase();
+/** Normalise le texte pour rendre la détection robuste aux accents, apostrophes et ponctuation. */
+function normalizeForMatching(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[’']/g, "'")
+    .replace(/[^a-z0-9.\s'-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
-  // Patterns principaux (40 points max)
-  const patternMatches = template.patterns.filter(p => 
-    textLower.includes(p.toLowerCase())
+/**
+ * Calcule le score de confiance base sur les patterns detectes.
+ */
+function calculateConfidence(text: string, template: TemplateJuridique): number {
+  let score = 0;
+  const textNormalized = normalizeForMatching(text);
+
+  const patternMatches = template.patterns.filter(pattern =>
+    textNormalized.includes(normalizeForMatching(pattern))
   );
   score += Math.min(patternMatches.length * 20, 40);
 
-  // Articles CESEDA (30 points max)
-  const articleMatches = template.articles.filter(a => 
-    textLower.includes(a.toLowerCase())
+  const articleMatches = template.articles.filter(article =>
+    textNormalized.includes(normalizeForMatching(article))
   );
   score += Math.min(articleMatches.length * 15, 30);
 
-  // Keywords juridiques (30 points max)
-  const keywordMatches = template.keywords.filter(k => 
-    textLower.includes(k.toLowerCase())
+  const keywordMatches = template.keywords.filter(keyword =>
+    textNormalized.includes(normalizeForMatching(keyword))
   );
   score += Math.min(keywordMatches.length * 3, 30);
+
+  // Une formulation explicite d'une OQTF constitue à elle seule un signal fort.
+  if (
+    template.type === TypeDossierCESEDA.OQTF &&
+    textNormalized.includes('obligation de quitter le territoire francais')
+  ) {
+    score = Math.max(score, 40);
+  }
 
   return Math.min(score, 100);
 }
@@ -193,13 +191,13 @@ export function identifierTypeDossier(
     }
   }
 
-  // Seuil minimum de confiance: 40%
   if (bestMatch.confidence < 40 || !bestMatch.template) {
     return null;
   }
 
+  const normalizedText = normalizeForMatching(texte);
   const articlesDetectes = bestMatch.template.articles.filter(article =>
-    texte.toLowerCase().includes(article.toLowerCase())
+    normalizedText.includes(normalizeForMatching(article))
   );
 
   logger.logAIAction('ANALYSIS', 'system', 'auto', {
@@ -243,11 +241,8 @@ export async function extraireDelaisOQTF(
 
     // 2. Patterns de dates juridiques
     const datePatterns = [
-      // Format francais: "15 janvier 2024", "15/01/2024"
       /(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/gi,
       /(\d{1,2})\/(\d{1,2})\/(\d{4})/g,
-      
-      // Delais relatifs: "dans un delai de 48 heures", "sous 30 jours"
       /dans un delai de (\d+)\s+(heures?|jours?|mois)/gi,
       /sous (\d+)\s+(heures?|jours?|mois)/gi,
       /avant le (\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/gi
@@ -255,7 +250,6 @@ export async function extraireDelaisOQTF(
 
     const texteLower = texteDocument.toLowerCase();
 
-    // 3. Detection delai de depart volontaire (OQTF)
     if (template.type === TypeDossierCESEDA.OQTF) {
       const departVolontaireMatch = texteLower.match(/depart volontaire.*?(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/i);
       
@@ -287,7 +281,6 @@ export async function extraireDelaisOQTF(
       }
     }
 
-    // 4. Detection delai de recours TA
     const recoursMatch = texteLower.match(/recours.*?tribunal administratif.*?(\d{1,2})\s+(heures?|jours?)/i);
     if (recoursMatch) {
       const delaiJours = recoursMatch[1] === '48' ? 2 : parseInt(recoursMatch[1]);
@@ -300,7 +293,7 @@ export async function extraireDelaisOQTF(
         description: `Delai de recours devant le TA (${delaiJours} jours)`,
         priorite: joursRestants <= 2 ? 'CRITIQUE' : 'HAUTE',
         joursRestants,
-        confidence: identification.confidence * 0.9, // Legere reduction si detection indirecte
+        confidence: identification.confidence * 0.9,
         articlesCeseda: identification.articles,
         suggestionsRecours: [
           'Preparer requete en annulation avec conclusions detaillees',
@@ -316,7 +309,6 @@ export async function extraireDelaisOQTF(
       });
     }
 
-    // 5. Log de l'extraction pour audit
     logger.logAIAction('ANALYSIS', 'system', tenantId, {
       dossierId,
       typeDossier: identification.type,
@@ -337,26 +329,16 @@ export async function extraireDelaisOQTF(
   }
 }
 
-/**
- * Parse une date francaise en objet Date
- */
 function parseDate(jour: string, mois: string, annee: string): Date {
   const moisMap: Record<string, number> = {
-    'janvier': 0, 'fevrier': 1, 'mars': 2, 'avril': 3,
-    'mai': 4, 'juin': 5, 'juillet': 6, 'aout': 7,
-    'septembre': 8, 'octobre': 9, 'novembre': 10, 'decembre': 11
+    janvier: 0, fevrier: 1, mars: 2, avril: 3,
+    mai: 4, juin: 5, juillet: 6, aout: 7,
+    septembre: 8, octobre: 9, novembre: 10, decembre: 11
   };
   
-  return new Date(
-    parseInt(annee),
-    moisMap[mois.toLowerCase()],
-    parseInt(jour)
-  );
+  return new Date(parseInt(annee), moisMap[mois.toLowerCase()], parseInt(jour));
 }
 
-/**
- * Genere une checklist automatique basee sur le type de dossier
- */
 export function genererChecklistOQTF(
   typeDossier: TypeDossierCESEDA,
   delaisCritiques: DelaiExtrait[]
@@ -384,9 +366,6 @@ export function genererChecklistOQTF(
   return [...checklistBase, ...delaisCritiques[0]?.checklistRecommandee || []];
 }
 
-/**
- * Export des fonctions utilitaires
- */
 export default {
   identifierTypeDossier,
   extraireDelaisOQTF,
