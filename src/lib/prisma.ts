@@ -130,8 +130,15 @@ function createRealClient() {
 // 4. CLIENT EXPORTÉ
 // ============================================
 
+const useRealDbForTests =
+  process.env.NODE_ENV === 'test' &&
+  (
+    process.env.REAL_DB_TESTS === '1' ||
+    process.env.USE_REAL_DB_FOR_TESTS === '1'
+  );
+
 export const prisma =
-  process.env.NODE_ENV === 'test'
+  process.env.NODE_ENV === 'test' && !useRealDbForTests
     ? createTestStub()
     : createRealClient();
 

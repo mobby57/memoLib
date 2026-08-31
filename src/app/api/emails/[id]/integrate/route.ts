@@ -33,8 +33,8 @@ export async function POST(
     return NextResponse.json({ error: 'Email non trouvé' }, { status: 404 });
   }
 
-  if (email.processingStatus !== 'RECEIVED') {
-    return NextResponse.json({ error: `Email déjà traité (état: ${email.processingStatus})` }, { status: 409 });
+  if (email.isProcessed !== 'RECEIVED') {
+    return NextResponse.json({ error: `Email déjà traité (état: ${email.isProcessed})` }, { status: 409 });
   }
 
   const body = await req.json().catch(() => ({}));
@@ -44,7 +44,7 @@ export async function POST(
     await prisma.email.update({
       where: { id },
       data: {
-        processingStatus: action === 'archive' ? 'ARCHIVED' : 'IGNORED',
+        isProcessed: action === 'archive' ? 'ARCHIVED' : 'IGNORED',
         isArchived: action === 'archive',
         processedAt: new Date(),
       },
@@ -65,8 +65,7 @@ export async function POST(
 
   // Action = integrate
   const updateData: any = {
-    processingStatus: 'INTEGRATED',
-    isProcessed: true,
+    isProcessed: 'INTEGRATED',
     processedAt: new Date(),
   };
 

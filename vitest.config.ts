@@ -31,7 +31,6 @@ export default defineConfig({
             // Tests avec mock @prisma/client constructeur (à migrer vers @/lib/prisma mock)
             'src/__tests__/api/factures.test.ts',
             'src/__tests__/api/legal-deadlines.test.ts',
-            'src/__tests__/api/emails/incoming-route.integration.test.ts',
             'src/__tests__/api/emails/incoming-route.test.ts',
             'src/__tests__/api/auth/auth.test.ts',
             'src/__tests__/api/auth/register.test.ts',

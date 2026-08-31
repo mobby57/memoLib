@@ -1,32 +1,104 @@
 // This file configures the initialization of Sentry on the client.
-// The added config here will be used whenever a users loads a page in their browser.
-// https://docs.sentry.io/platforms/javascript/guides/nextjs/
+// Next.js loads this file as the client instrumentation entry point.
 
 import * as Sentry from '@sentry/nextjs';
 
-Sentry.init({
-  dsn: 'https://baa653130d40ab5ddd88f4a21e6dd1f1@o4510691517464576.ingest.de.sentry.io/4511968475218000',
+const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
-  // Add optional integrations for additional features
-  integrations: [Sentry.replayIntegration()],
+// Only initialize Sentry if a valid DSN is configured.
+if (dsn && !dsn.includes('your-key')) {
+  Sentry.init({
+    dsn,
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+    // Release & Environment for Release Health
+    release: process.env.NEXT_PUBLIC_APP_VERSION || '0.1.0',
+    environment: process.env.NODE_ENV,
 
-  // Define how likely Replay events are sampled.
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 0.1,
+    // Performance & Tracing
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 
-  // Define how likely Replay events are sampled when an error occurs.
-  replaysOnErrorSampleRate: 1.0,
+    // Session Replay
+    replaysOnErrorSampleRate: 1.0,
+    replaysSessionSampleRate:
+      process.env.NODE_ENV === 'production' ? 0.05 : 0.1,
 
-  dataCollection: {
-    // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#dataCollection
-    // userInfo: false,
-    // httpBodies: [],
-  },
-});
+    // Error handling
+    attachStacktrace: true,
+    maxBreadcrumbs: 50,
+    debug: false,
 
+    integrations: [
+      Sentry.replayIntegration({
+        maskAllText: true,
+        blockAllMedia: true,
+        // Never capture form fields / client data.
+        maskAllInputs: true,
+      }) as any,
+    ],
+
+    beforeSend(event) {
+      // Tag release health events
+      if (!event.tags) {
+        event.tags = {};
+      }
+
+      event.tags['release_health'] = 'true';
+
+      // PII scrubbing
+      if (event.exception?.values) {
+        for (const exception of event.exception.values) {
+          if (exception.value) {
+            exception.value = exception.value.replace(
+              /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+              '[EMAIL_REDACTED]',
+            );
+
+            exception.value = exception.value.replace(
+              /(?:\+33|0)\s?[1-9](?:[\s.-]?\d{2}){4}/g,
+              '[TEL_REDACTED]',
+            );
+          }
+        }
+      }
+
+      // Remove sensitive URL parameters.
+      if (event.request?.url) {
+        try {
+          const url = new URL(event.request.url);
+
+          url.searchParams.forEach((_, key) => {
+            if (
+              ['email', 'token', 'code', 'name', 'tel'].some((k) =>
+                key.toLowerCase().includes(k),
+              )
+            ) {
+              url.searchParams.set(key, '[REDACTED]');
+            }
+          });
+
+          event.request.url = url.toString();
+        } catch {
+          // Ignore malformed URLs.
+        }
+      }
+
+      // Log critical errors.
+      if (event.exception) {
+        const level = event.level;
+
+        if (level === 'fatal' || level === 'error') {
+          console.error('[Sentry] Captured error:', {
+            level,
+            message: event.message,
+            tags: event.tags,
+          });
+        }
+      }
+
+      return event;
+    },
+  });
+}
+
+// Hook called by Next.js on client-side navigation.
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

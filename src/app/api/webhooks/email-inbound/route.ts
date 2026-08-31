@@ -90,34 +90,93 @@ export async function POST(req: NextRequest) {
   // Déduplication par checksum
   const checksum = crypto.createHash('sha256').update(`${validatedEmail.messageId || ''}${validatedEmail.from}${validatedEmail.subject || ''}${validatedEmail.body.slice(0, 500)}`).digest('hex');
 
-  const existing = await prisma.email.findFirst({ where: { tenantId, checksum } });
+  // Le schéma Email utilise contentHash comme empreinte d'idempotence.
+  const contentHash = checksum;
+
+  const existing = await prisma.email.findFirst({
+    where: {
+      tenantId,
+      OR: [
+        ...(validatedEmail.messageId
+          ? [{ messageId: validatedEmail.messageId }]
+          : []),
+        { contentHash },
+      ],
+    },
+  });
+
   if (existing) {
-    return NextResponse.json({ success: true, duplicate: true, emailId: existing.id });
+    return NextResponse.json({
+      success: true,
+      duplicate: true,
+      emailId: existing.id,
+    });
   }
 
   // Créer l'email (chiffrement at-rest)
-  const { body: storedBody, bodyEncrypted, htmlBody: storedHtml, htmlBodyEncrypted } = encryptEmailBody(
-    validatedEmail.body,
-    validatedEmail.html || null
-  );
+  const { body: storedBody, bodyEncrypted, htmlBody: storedHtml, htmlBodyEncrypted } =
+    encryptEmailBody(
+      validatedEmail.body,
+      validatedEmail.html || null
+    );
 
-  const email = await prisma.email.create({
-    data: {
-      tenantId,
-      from: validatedEmail.from,
-      to: validatedEmail.to || '',
-      subject: validatedEmail.subject || '(sans objet)',
-      body: storedBody,
-      bodyEncrypted,
-      htmlBody: storedHtml,
-      htmlBodyEncrypted,
-      messageId: validatedEmail.messageId || null,
-      checksum,
-      direction: 'INCOMING',
-      status: 'PENDING',
-      receivedAt: validatedEmail.date ? new Date(validatedEmail.date) : new Date(),
-    },
-  });
+  let email;
+
+  try {
+    email = await prisma.email.create({
+      data: {
+        id: crypto.randomUUID(),
+        tenantId,
+        messageId: validatedEmail.messageId || null,
+        from: validatedEmail.from.toLowerCase(),
+        fromAddress: validatedEmail.from.toLowerCase(),
+        to: validatedEmail.to || '',
+        toAddresses: validatedEmail.to ? JSON.stringify([validatedEmail.to]) : null,
+        subject: validatedEmail.subject || '(sans objet)',
+        body: storedBody,
+        bodyEncrypted,
+        htmlBody: storedHtml,
+        htmlBodyEncrypted,
+        contentHash,
+        sourceChannel: 'email',
+        sourceDirection: 'inbound',
+        sourceProvider: 'webhook',
+        hasAttachments: false,
+        receivedAt: validatedEmail.date ? new Date(validatedEmail.date) : new Date(),
+        receivedDate: validatedEmail.date ? new Date(validatedEmail.date) : new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      (error as { code?: string }).code === 'P2002'
+    ) {
+      const duplicate = await prisma.email.findFirst({
+        where: {
+          tenantId,
+          OR: [
+            ...(validatedEmail.messageId
+              ? [{ messageId: validatedEmail.messageId }]
+              : []),
+            { contentHash },
+          ],
+        },
+      });
+
+      if (duplicate) {
+        return NextResponse.json({
+          success: true,
+          duplicate: true,
+          emailId: duplicate.id,
+        });
+      }
+    }
+
+    throw error;
+  }
 
   // Lancer l'analyse IA en arrière-plan (fire-and-forget)
   analyzeEmailAsync(email.id, validatedEmail.subject || '', validatedEmail.body, validatedEmail.from).catch(() => {});
@@ -160,7 +219,7 @@ async function analyzeEmailAsync(emailId: string, subject: string, body: string,
       const summary = await res.json();
       await prisma.email.update({
         where: { id: emailId },
-        data: { aiSummary: JSON.stringify(summary), aiAnalyzedAt: new Date() },
+        data: { aiAnalysis: JSON.stringify(summary) },
       });
     }
   } catch {}

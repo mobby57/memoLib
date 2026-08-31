@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API Route - Reception Email Entrant (Webhook)
  * POST /api/emails/incoming - Recoit un email et declenche le workflow
  * 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     // Trouver le tenant destinataire base sur l'email "to"
     const tenant = await prisma.tenant.findFirst({
       where: {
-        users: {
+        User: {
           some: {
             email: { in: normalized.tenantLookupRecipients },
             role: { in: ['ADMIN', 'LAWYER', 'USER'] },
@@ -168,6 +168,7 @@ export async function POST(request: NextRequest) {
     try {
       email = await prisma.email.create({
         data: {
+          id: crypto.randomUUID(),
           tenantId: tenant.id,
           messageId,
           providerMessageId: normalized.providerMessageId,
@@ -203,6 +204,8 @@ export async function POST(request: NextRequest) {
           aiAnalysis,
           receivedAt: normalized.receivedAt,
           receivedDate: normalized.receivedDate,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       });
     } catch (error) {
@@ -308,6 +311,7 @@ export async function POST(request: NextRequest) {
       try {
         await prisma.emailAttachment.createMany({
           data: attachments.map(att => ({
+            id: crypto.randomUUID(),
             emailId: email.id,
             filename: att.filename,
             mimeType: att.mimeType,
@@ -338,6 +342,7 @@ export async function POST(request: NextRequest) {
     try {
       const workflow = await prisma.workflowExecution.create({
         data: {
+            id: crypto.randomUUID(),
           tenantId: tenant.id,
           workflowId: `email-${category}`,
           workflowName: getWorkflowName(category),
@@ -352,6 +357,7 @@ export async function POST(request: NextRequest) {
             urgency,
           }),
           startedAt: new Date(),
+          updatedAt: new Date(),
         },
       });
 

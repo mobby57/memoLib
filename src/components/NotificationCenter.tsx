@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 ﻿'use client'
 
 /**
@@ -28,6 +29,14 @@ export default function NotificationCenter() {
   } = useWebSocket({ debug: true })
 
   const [isOpen, setIsOpen] = useState(false)
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [isOpen]);
   const [activeTab, setActiveTab] = useState<'all' | 'emails' | 'dossiers' | 'deadlines' | 'system'>('all')
 
   const getNotificationTimestamp = (notification: any) => {

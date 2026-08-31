@@ -1,5 +1,6 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import crypto from 'node:crypto';
 import { NextRequest } from 'next/server';
 
 const hasRealDb =
@@ -22,6 +23,21 @@ describe('POST /api/emails/incoming (integration db)', () => {
   let planId: string;
   let recipientEmail: string;
   const webhookSecret = 'integration-secret';
+
+  function webhookHeaders(body: string) {
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const signature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(body)
+      .digest('hex');
+
+    return {
+      'x-webhook-signature': signature,
+      'x-webhook-timestamp': timestamp,
+      'content-type': 'application/json',
+    };
+  }
+
 
   beforeAll(async () => {
     process.env.REAL_DB_TESTS = '1';
@@ -125,23 +141,22 @@ describe('POST /api/emails/incoming (integration db)', () => {
   });
 
   it('stores email + attachments + workflow in real database', async () => {
+    const body = JSON.stringify({
+      from: 'client.integration@example.com',
+      to: recipientEmail,
+      subject: 'Envoi de plusieurs documents',
+      body: 'Bonjour, voici mon passeport et mon justificatif de domicile.',
+      messageId: `<int-msg-${Date.now()}@example.com>`,
+      attachments: [
+        { filename: 'passeport.pdf', mimeType: 'application/pdf', size: 22000 },
+        { filename: 'justificatif.pdf', mimeType: 'application/pdf', size: 18000 },
+      ],
+    });
+
     const request = new NextRequest('http://localhost/api/emails/incoming', {
       method: 'POST',
-      headers: {
-        'x-webhook-secret': webhookSecret,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'client.integration@example.com',
-        to: recipientEmail,
-        subject: 'Envoi de plusieurs documents',
-        body: 'Bonjour, voici mon passeport et mon justificatif de domicile.',
-        messageId: `<int-msg-${Date.now()}@example.com>`,
-        attachments: [
-          { filename: 'passeport.pdf', mimeType: 'application/pdf', size: 22000 },
-          { filename: 'justificatif.pdf', mimeType: 'application/pdf', size: 18000 },
-        ],
-      }),
+      headers: webhookHeaders(body),
+      body,
     });
 
     const response = await POST(request);
@@ -155,16 +170,16 @@ describe('POST /api/emails/incoming (integration db)', () => {
     const email = await prisma.email.findUnique({
       where: { id: payload.emailId },
       include: {
-        attachments: true,
-        workflows: true,
+        EmailAttachment: true,
+        WorkflowExecution: true,
       },
     });
 
     expect(email).toBeTruthy();
     expect(email.tenantId).toBe(tenantId);
     expect(email.hasAttachments).toBe(true);
-    expect(email.attachments).toHaveLength(2);
-    expect(email.workflows.length).toBeGreaterThan(0);
+    expect(email.EmailAttachment).toHaveLength(2);
+    expect(email.WorkflowExecution.length).toBeGreaterThan(0);
   });
 
   it('prevents duplicates with same messageId and keeps one email row', async () => {
@@ -172,10 +187,13 @@ describe('POST /api/emails/incoming (integration db)', () => {
 
     const firstRequest = new NextRequest('http://localhost/api/emails/incoming', {
       method: 'POST',
-      headers: {
-        'x-webhook-secret': webhookSecret,
-        'content-type': 'application/json',
-      },
+      headers: webhookHeaders(JSON.stringify({
+        from: 'client.integration@example.com',
+        to: recipientEmail,
+        subject: 'Doublon test',
+        body: 'Premier envoi',
+        messageId: fixedMessageId,
+      })),
       body: JSON.stringify({
         from: 'client.integration@example.com',
         to: recipientEmail,
@@ -187,10 +205,13 @@ describe('POST /api/emails/incoming (integration db)', () => {
 
     const secondRequest = new NextRequest('http://localhost/api/emails/incoming', {
       method: 'POST',
-      headers: {
-        'x-webhook-secret': webhookSecret,
-        'content-type': 'application/json',
-      },
+      headers: webhookHeaders(JSON.stringify({
+        from: 'client.integration@example.com',
+        to: recipientEmail,
+        subject: 'Doublon test',
+        body: 'Deuxieme envoi identique',
+        messageId: fixedMessageId,
+      })),
       body: JSON.stringify({
         from: 'client.integration@example.com',
         to: recipientEmail,
@@ -223,20 +244,20 @@ describe('POST /api/emails/incoming (integration db)', () => {
 
   it('returns 404 for unknown recipient and does not create email', async () => {
     const unknownRecipient = `unknown-${Date.now()}@memolib.space`;
+    const unknownMessageId = `<int-unknown-${Date.now()}@example.com>`;
+
+    const body = JSON.stringify({
+      from: 'client.integration@example.com',
+      to: unknownRecipient,
+      subject: 'Destinataire inconnu',
+      body: 'Ce mail doit etre refuse',
+      messageId: unknownMessageId,
+    });
 
     const request = new NextRequest('http://localhost/api/emails/incoming', {
       method: 'POST',
-      headers: {
-        'x-webhook-secret': webhookSecret,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'client.integration@example.com',
-        to: unknownRecipient,
-        subject: 'Destinataire inconnu',
-        body: 'Ce mail doit etre refuse',
-        messageId: `<int-unknown-${Date.now()}@example.com>`,
-      }),
+      headers: webhookHeaders(body),
+      body,
     });
 
     const response = await POST(request);

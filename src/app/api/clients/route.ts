@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
         prisma.client.findMany({
           where,
           include: {
-            _count: { select: { dossiers: true } },
+            _count: { select: { Dossier: true } },
           },
           orderBy: { createdAt: 'desc' },
           take: limit,
