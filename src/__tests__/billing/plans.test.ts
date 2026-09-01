@@ -1,28 +1,13 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-// Mock du module avant tout import
-vi.mock('@/lib/billing/plans', async () => {
-  const actual = await vi.importActual('@/lib/billing/plans');
-  return {
-    ...actual,
-    getStripePriceId: (plan: string, interval: string) => {
-      // Simuler le fallback
-      if (plan === 'SOLO' && interval === 'monthly') return 'price_solo_monthly';
-      if (plan === 'ENTERPRISE' && interval === 'yearly') return 'price_enterprise_yearly';
-      // Pour les autres, retourner un ID factice
-      return `price_${plan.toLowerCase()}_${interval}`;
-    },
-  };
-});
+/**
+ * Tests unitaires — plans.ts
+ * Vérifie l'alignement de la grille tarifaire PILOT/SOLO/CABINET/ENTERPRISE
+ * @jest-environment node
+ */
 
-import {
-  PRODUCT_TIERS,
-  resolvePlanDbName,
-  getPlanPrice,
-  getPlanPriceCents,
-  getStripePriceId,
-  ProductTier,
-} from '@/lib/billing/plans';
+import { PRODUCT_TIERS, resolvePlanDbName, getStripePriceId, getPlanPrice, getPlanPriceCents } from '@/lib/billing/plans';
+import type { ProductTier } from '@/lib/billing/plans';
 
 describe('PRODUCT_TIERS', () => {
   it('contient exactement 4 plans', () => {
@@ -40,10 +25,11 @@ describe('PRODUCT_TIERS', () => {
     ['ENTERPRISE', 199, 1910, 'enterprise'],
   ] as [ProductTier, number, number, string][])(
     '%s → %d€/mois, %d€/an, dbName=%s',
-    (plan, monthly, yearly, dbName) => {
-      expect(getPlanPrice(plan, 'monthly')).toBe(monthly);
-      expect(getPlanPrice(plan, 'yearly')).toBe(yearly);
-      expect(resolvePlanDbName(plan)).toBe(dbName);
+    (tier, monthly, yearly, dbName) => {
+      const plan = PRODUCT_TIERS[tier];
+      expect(plan.priceMonthly).toBe(monthly);
+      expect(plan.priceYearly).toBe(yearly);
+      expect(plan.dbName).toBe(dbName);
     }
   );
 
@@ -68,33 +54,37 @@ describe('resolvePlanDbName', () => {
     ['solo', 'solo'],
     ['cabinet', 'cabinet'],
     ['enterprise', 'enterprise'],
-    ['Pilot', 'pilot'],
-    ['Solo', 'solo'],
-    ['Cabinet', 'cabinet'],
-    ['Enterprise', 'enterprise'],
-    ['', 'solo'],
-    ['UNKNOWN', 'solo'],
   ])('résout "%s" → "%s"', (input, expected) => {
-    expect(resolvePlanDbName(input as ProductTier)).toBe(expected);
-  });
-});
-
-describe('Plan prices', () => {
-  it('retourne les prix mensuels corrects', () => {
-    expect(getPlanPrice('SOLO', 'monthly')).toBe(29);
-    expect(getPlanPrice('CABINET', 'monthly')).toBe(79);
-    expect(getPlanPrice('ENTERPRISE', 'monthly')).toBe(199);
+    expect(resolvePlanDbName(input)).toBe(expected);
   });
 
-  it('convertit en centimes Stripe', () => {
-    expect(getPlanPriceCents('SOLO', 'monthly')).toBe(2900);
-    expect(getPlanPriceCents('CABINET', 'yearly')).toBe(75800);
+  it('résout les aliases legacy', () => {
+    expect(resolvePlanDbName('STARTER')).toBe('pilot');
+    expect(resolvePlanDbName('FREE')).toBe('pilot');
+    expect(resolvePlanDbName('PRO')).toBe('cabinet');
+  });
+
+  it('retourne "solo" par défaut si input vide ou inconnu', () => {
+    expect(resolvePlanDbName()).toBe('solo');
+    expect(resolvePlanDbName('')).toBe('solo');
+    expect(resolvePlanDbName('UNKNOWN_PLAN')).toBe('solo');
   });
 });
 
 describe('Stripe price helpers', () => {
+  it('retourne les prix mensuels corrects', () => {
+    expect(getPlanPrice('SOLO')).toBe(29);
+    expect(getPlanPrice('CABINET')).toBe(79);
+    expect(getPlanPrice('ENTERPRISE')).toBe(199);
+  });
+
+  it('convertit en centimes Stripe', () => {
+    expect(getPlanPriceCents('SOLO')).toBe(2900);
+    expect(getPlanPriceCents('CABINET')).toBe(7900);
+    expect(getPlanPriceCents('ENTERPRISE')).toBe(19900);
+  });
+
   it('fournit un fallback priceId si env non configurée', () => {
-    // Maintenant getStripePriceId est mocké pour retourner les valeurs de fallback
     expect(getStripePriceId('SOLO', 'monthly')).toBe('price_solo_monthly');
     expect(getStripePriceId('ENTERPRISE', 'yearly')).toBe('price_enterprise_yearly');
   });

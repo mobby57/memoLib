@@ -11,13 +11,6 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     client: {
       findMany: vi.fn(),
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
     },
     dossier: {
       findMany: vi.fn(),

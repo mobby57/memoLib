@@ -181,24 +181,37 @@ function calculateConfidence(
 export function identifierTypeDossier(
   texte: string
 ): { type: TypeDossierCESEDA; confidence: number; articles: string[] } | null {
-  const keywords = [
-    /\boqft\b/i,
-    /\bobligation de quitter\b/i,
-    /\bquitter le territoire\b/i,
-    /\béloignement\b/i,
-    /\bdépart volontaire\b/i
-  ];
-  const lowerText = texte.toLowerCase();
-  let matchCount = 0;
-  for (const kw of keywords) {
-    if (kw.test(lowerText)) matchCount++;
+  let bestMatch = {
+    template: null as TemplateJuridique | null,
+    confidence: 0
+  };
+
+  for (const template of TEMPLATES_OQTF) {
+    const confidence = calculateConfidence(texte, template);
+    if (confidence > bestMatch.confidence) {
+      bestMatch = { template, confidence };
+    }
   }
-  const confidence = Math.min(matchCount / keywords.length, 1) * 100;
-  if (confidence < 30) return null;
+
+  // Seuil minimum de confiance: 40%
+  if (bestMatch.confidence < 40 || !bestMatch.template) {
+    return null;
+  }
+
+  const articlesDetectes = bestMatch.template.articles.filter(article =>
+    texte.toLowerCase().includes(article.toLowerCase())
+  );
+
+  logger.logAIAction('ANALYSIS', 'system', 'auto', {
+    type: bestMatch.template.type,
+    confidence: bestMatch.confidence,
+    articles: articlesDetectes
+  });
+
   return {
-    type: TypeDossierCESEDA.OQTF,
-    confidence: Math.round(confidence),
-    articles: ['L.511-1', 'L.512-1']
+    type: bestMatch.template.type,
+    confidence: bestMatch.confidence,
+    articles: articlesDetectes
   };
 }
 

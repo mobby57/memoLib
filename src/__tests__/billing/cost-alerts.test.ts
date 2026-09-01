@@ -10,13 +10,6 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     tenant: {
       findMany: vi.fn().mockResolvedValue([]),
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
     },
     aiUsage: {
       aggregate: vi.fn().mockResolvedValue({ _sum: { costUSD: 0 } }),
