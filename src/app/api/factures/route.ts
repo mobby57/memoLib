@@ -1,7 +1,10 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { authOptions } from '@/lib/auth/authOptions';
 import { logger } from '@/lib/logger';
 import { NotificationService } from '@/lib/notifications';
 import prisma from '@/lib/prisma';
@@ -34,10 +37,10 @@ const UpdateFactureSchema = z.object({
 });
 
 async function resolveAccess(requestedTenantId: string | null) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return { error: NextResponse.json({ error: 'Non autorisé' }, { status: 401 }) };
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return { error: NextResponse.json({ error: 'Non autorisé' }, { status: 401 }) };
 
-  const user = session.user as { id?: string; tenantId?: string; role?: string };
   const role = user.role?.toUpperCase() ?? '';
   if (!user.id) return { error: NextResponse.json({ error: 'Session invalide' }, { status: 401 }) };
   if (role === 'SUPER_ADMIN' && requestedTenantId) {
@@ -240,3 +243,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

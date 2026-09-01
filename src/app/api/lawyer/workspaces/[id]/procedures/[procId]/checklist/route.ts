@@ -1,12 +1,11 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route - Checklist Items d'une Procédure
  * PATCH /api/lawyer/workspaces/[id]/procedures/[procId]/checklist - Toggle checklist item
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
@@ -14,12 +13,11 @@ export async function PATCH(
   { params }: { params: { id: string; procId: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const user = session.user as any;
     const body = await request.json();
     const { itemId, completed } = body;
 

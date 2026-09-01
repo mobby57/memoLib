@@ -1,14 +1,14 @@
-﻿'use client';
+import { useAuth } from '@/hooks/useAuth';
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { BarChart3, DollarSign, Users, TrendingUp } from 'lucide-react';
 
 export default function SuperAdminDemoDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

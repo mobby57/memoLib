@@ -1,9 +1,9 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { Breadcrumb, Alert } from '@/components/ui';
 import { Card } from '@/components/ui/card';
 import { RefreshCw, TrendingUp, Mail, Bot, Activity } from 'lucide-react';
@@ -62,7 +62,7 @@ function getNumber(value: unknown, fallback = 0): number {
 }
 
 export default function AnalyticsPage() {
-  const { status } = useSession();
+  const { status } = useAuth();
   const [revenue, setRevenue] = useState<ApiState<RevenueSummary>>({ loading: true, error: null, data: null });
   const [emails, setEmails] = useState<ApiState<EmailSummary>>({ loading: true, error: null, data: null });
   const [ai, setAi] = useState<ApiState<AiSummary>>({ loading: true, error: null, data: null });

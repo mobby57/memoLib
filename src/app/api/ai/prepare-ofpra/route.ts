@@ -1,14 +1,15 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 /**
  * POST /api/ai/prepare-ofpra
  * Genere une preparation d'entretien OFPRA (questions probables + points cles).
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { nationalite, typePersecution, recitResume } = await req.json();
 
@@ -56,3 +57,5 @@ export async function POST(req: NextRequest) {
     note: 'Preparation generee par IA. Adaptez selon le cas particulier du client.',
   });
 }
+
+

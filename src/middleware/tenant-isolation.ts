@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthToken } from '@/lib/auth/nextauth-token';
+import { getAuthToken } from '@/lib/auth/clerk-token';
 import { logger } from '@/lib/logger';
 
 interface TenantContext {
@@ -20,7 +20,7 @@ interface TenantContext {
  */
 export async function getTenantContext(req: NextRequest): Promise<TenantContext | null> {
   try {
-    const token = await getAuthToken(req);
+    const token = await getAuthToken();
 
     if (!token) {
       return null;

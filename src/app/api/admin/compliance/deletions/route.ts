@@ -1,6 +1,9 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 interface DeletionRequestRecord {
@@ -17,15 +20,16 @@ interface DeletionRequestRecord {
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
+        const { user } = await auth();
+    const session = user ? { user } : null;
+        if (!user) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
             );
         }
 
-        const userRole = String((session.user as any).role || '');
+        const userRole = String((user as any).role || '');
         if (!['ADMIN', 'SUPER_ADMIN'].includes(userRole)) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
@@ -65,3 +69,7 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+
+
+

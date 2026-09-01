@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
@@ -12,7 +13,6 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { ArrowLeft, Send, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/forms/Button';
@@ -32,7 +32,7 @@ export default function DossierChatPage() {
   const params = useParams();
   const dossierId = params?.id as string;
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const { toast } = useToast();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);

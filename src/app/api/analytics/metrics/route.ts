@@ -1,5 +1,5 @@
-﻿/**
-import { logger } from '@/lib/logger';
+import { auth } from '@/lib/clerk-auth';
+/**
  * API Métriques de Performance
  *
  * Endpoint pour récupérer les métriques de performance du système
@@ -7,16 +7,18 @@ import { logger } from '@/lib/logger';
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 import { getPerformanceStats, collectMetric } from '@/lib/monitoring';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
     // Auth check - admin only
-    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
-    if (!token || !['ADMIN', 'SUPER_ADMIN', 'AVOCAT'].includes(token.role as string)) {
+    const { user } = await auth();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!['ADMIN', 'SUPER_ADMIN', 'AVOCAT'].includes(user.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

@@ -1,19 +1,6 @@
-/**
- * HOC (Higher Order Component) pour les routes API protégées
- * Wrapper simplifié pour l'authentification
- */
-
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+import { auth, type AuthenticatedUser } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-
-export interface AuthenticatedUser {
-  id: string;
-  email: string;
-  name?: string;
-  role: string;
-  tenantId?: string;
-}
 
 export interface AuthenticatedContext {
   user: AuthenticatedUser;
@@ -21,113 +8,42 @@ export interface AuthenticatedContext {
 }
 
 type AuthenticatedHandler = (
-  req: NextRequest,
+  request: NextRequest,
   context: AuthenticatedContext
 ) => Promise<NextResponse>;
 
-/**
- * Wrapper pour protéger les routes API avec authentification
- *
- * @example
- * export const GET = withAuth(async (req, { user }) => {
- *   return NextResponse.json({ user });
- * });
- */
 export function withAuth(handler: AuthenticatedHandler) {
   return async (
-    req: NextRequest,
+    request: NextRequest,
     context?: { params?: Record<string, string> }
   ): Promise<NextResponse> => {
-    try {
-      const session = await getServerSession(authOptions);
-
-      if (!session?.user) {
-        return NextResponse.json(
-          { error: 'Non authentifié', code: 'UNAUTHORIZED' },
-          { status: 401 }
-        );
-      }
-
-      const user: AuthenticatedUser = {
-        id: session.user.id || '',
-        email: session.user.email || '',
-        name: session.user.name || undefined,
-        role: (session.user as { role?: string }).role || 'user',
-        tenantId: (session.user as { tenantId?: string }).tenantId,
-      };
-
-      return handler(req, {
-        user,
-        params: context?.params,
-      });
-    } catch (error) {
-      console.error('Erreur withAuth:', error);
-      return NextResponse.json({ error: 'Erreur serveur', code: 'SERVER_ERROR' }, { status: 500 });
+    const { user } = await auth();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Non authentifié', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      );
     }
+
+    return handler(request, { user, params: context?.params });
   };
 }
 
-/**
- * Wrapper avec vérification de rôle
- *
- * @example
- * export const GET = withRole(['admin', 'manager'])(async (req, { user }) => {
- *   return NextResponse.json({ user });
- * });
- */
-export function withRole(allowedRoles: string[]) {
-  return (handler: AuthenticatedHandler) => {
-    return async (
-      req: NextRequest,
-      context?: { params?: Record<string, string> }
-    ): Promise<NextResponse> => {
-      try {
-        const session = await getServerSession(authOptions);
-
-        if (!session?.user) {
-          return NextResponse.json(
-            { error: 'Non authentifié', code: 'UNAUTHORIZED' },
-            { status: 401 }
-          );
-        }
-
-        const userRole = (session.user as { role?: string }).role || 'user';
-
-        if (!allowedRoles.includes(userRole)) {
-          return NextResponse.json({ error: 'Accès refusé', code: 'FORBIDDEN' }, { status: 403 });
-        }
-
-        const user: AuthenticatedUser = {
-          id: session.user.id || '',
-          email: session.user.email || '',
-          name: session.user.name || undefined,
-          role: userRole,
-          tenantId: (session.user as { tenantId?: string }).tenantId,
-        };
-
-        return handler(req, {
-          user,
-          params: context?.params,
-        });
-      } catch (error) {
-        console.error('Erreur withRole:', error);
+export function withRole(allowedRoles: readonly string[]) {
+  return (handler: AuthenticatedHandler) =>
+    withAuth(async (request, context) => {
+      if (!allowedRoles.includes(context.user.role)) {
         return NextResponse.json(
-          { error: 'Erreur serveur', code: 'SERVER_ERROR' },
-          { status: 500 }
+          { error: 'Accès refusé', code: 'FORBIDDEN' },
+          { status: 403 }
         );
       }
-    };
-  };
+
+      return handler(request, context);
+    });
 }
 
-/**
- * Wrapper pour les routes admin uniquement
- */
-export const withAdmin = withRole(['admin', 'super_admin']);
-
-/**
- * Wrapper pour les routes lawyer (avocat)
- */
-export const withLawyer = withRole(['lawyer', 'admin', 'super_admin']);
+export const withAdmin = withRole(['ADMIN', 'SUPER_ADMIN']);
+export const withLawyer = withRole(['AVOCAT', 'ADMIN', 'SUPER_ADMIN']);
 
 export default withAuth;

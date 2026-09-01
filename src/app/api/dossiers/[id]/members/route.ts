@@ -1,6 +1,5 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
@@ -26,12 +25,19 @@ const removeMemberSchema = z.object({
   userId: z.string().min(1),
 });
 
-function getSessionContext(session: any) {
+function getSessionContext(session: {
+  user?: {
+    id: string;
+    tenantId?: string;
+    role: string;
+    groups?: string[];
+  };
+} | null) {
   return {
-    userId: session?.user?.id as string | undefined,
-    tenantId: session?.user?.tenantId as string | undefined,
-    role: session?.user?.role as string | undefined,
-    groups: session?.user?.groups as string[] | undefined,
+    userId: session?.user?.id,
+    tenantId: session?.user?.tenantId,
+    role: session?.user?.role,
+    groups: session?.user?.groups,
   };
 }
 
@@ -43,8 +49,9 @@ function getSessionContext(session: any) {
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -83,8 +90,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -153,8 +161,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -218,8 +227,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 

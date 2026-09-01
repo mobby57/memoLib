@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 
@@ -9,11 +8,11 @@ import { canAccessDossier } from '@/lib/auth/dossier-access';
  * Retourne la timeline complete d'un dossier (evenements chronologiques)
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { id } = await params;
-  const user = session.user as any;
   const tenantId = user.tenantId as string | undefined;
   if (!tenantId) return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
 

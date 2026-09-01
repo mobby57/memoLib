@@ -1,22 +1,25 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
-import { getServerSession } from 'next-auth';
-
 async function resolveTenantAccess(requestedTenantId: string | null): Promise<
   | { tenantId: string; role: string; userId: string }
   | { error: NextResponse }
 > {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return { error: NextResponse.json({ error: 'Non authentifie' }, { status: 401 }) };
   }
 
-  const role = String((session.user as any).role || '').toUpperCase();
-  const sessionTenantId = (session.user as any).tenantId as string | undefined;
-  const userId = String((session.user as any).id || '');
+  const role = String((user as any).role || '').toUpperCase();
+  const sessionTenantId = (user as any).tenantId as string | undefined;
+  const userId = String((user as any).id || '');
 
   if (role === 'SUPER_ADMIN') {
     if (!requestedTenantId) {
@@ -203,3 +206,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

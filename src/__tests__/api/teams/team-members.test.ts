@@ -11,7 +11,7 @@ let mockSessionUser: Record<string, unknown> | undefined = {
   tenantId: mockTenantId,
 };
 
-vi.mock('next-auth', () => ({
+vi.mock('@/lib/auth', () => ({
   getServerSession: vi.fn(async () => (mockSessionUser ? { user: mockSessionUser } : null)),
 }));
 

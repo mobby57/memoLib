@@ -1,6 +1,11 @@
-﻿'use client';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement import useSession
+'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -45,7 +50,7 @@ interface MenuItem {
 }
 
 export default function Sidebar() {
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const pathname = usePathname();
   const currentPath = pathname ?? '';
   const [expandedItems, setExpandedItems] = useState<string[]>(['Dossiers']);
@@ -66,7 +71,7 @@ export default function Sidebar() {
     );
   };
 
-  const role = (session.user as any)?.role || 'AVOCAT';
+  const role = user?.role || 'AVOCAT';
 
   // Items principaux visibles pour tous les rôles juridiques
   const primaryItems: MenuItem[] = [
@@ -198,21 +203,21 @@ export default function Sidebar() {
           <div className="flex items-center space-x-3">
             <div className="flex-shrink-0">
               <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                {session.user?.name?.charAt(0) || 'U'}
+                {user?.name?.charAt(0) || 'U'}
               </div>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {session.user?.name}
+                {user?.name}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {session.user?.tenantName}
+                {user?.tenantName}
               </p>
             </div>
           </div>
           <div className="mt-2">
             <span className="inline-block px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-xs font-semibold shadow-sm">
-              Plan {session.user?.tenantPlan}
+              Plan {user?.tenantPlan}
             </span>
           </div>
         </div>
@@ -220,3 +225,7 @@ export default function Sidebar() {
     </aside>
   );
 }
+
+
+
+

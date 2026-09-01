@@ -40,7 +40,12 @@ export interface EncryptedDataPayload {
 export function encryptData(plaintext: string): EncryptedDataPayload {
   const key = getMasterKeyOrThrow();
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv) as crypto.CipherGCM;
+  const cipher = crypto.createCipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.CipherGCM;
 
   const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
   const authTag = cipher.getAuthTag();
@@ -59,7 +64,12 @@ export function decryptData(payload: EncryptedDataPayload): string {
   const authTag = Buffer.from(payload.authTag, 'base64');
   const encrypted = Buffer.from(payload.encrypted, 'base64');
 
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv) as crypto.DecipherGCM;
+  const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.DecipherGCM;
   decipher.setAuthTag(authTag);
 
   const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
@@ -85,7 +95,12 @@ export class EncryptionService {
 
     const iv = crypto.randomBytes(16);
     const key = this.getKey();
-    const cipher = crypto.createCipheriv(ALGORITHM, key, iv) as crypto.CipherGCM;
+    const cipher = crypto.createCipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.CipherGCM;
 
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -104,7 +119,12 @@ export class EncryptionService {
       const authTag = Buffer.from(authTagHex, 'hex');
       const key = this.getKey();
 
-      const decipher = crypto.createDecipheriv(ALGORITHM, key, iv) as crypto.DecipherGCM;
+      const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.DecipherGCM;
       decipher.setAuthTag(authTag);
 
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -168,7 +188,12 @@ export class EncryptionService {
 export async function encryptFile(data: Buffer): Promise<Buffer> {
   const iv = crypto.randomBytes(16);
   const key = EncryptionService['getKey']();
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv) as crypto.CipherGCM;
+  const cipher = crypto.createCipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.CipherGCM;
   const encrypted = Buffer.concat([cipher.update(data), cipher.final()]);
   const authTag = cipher.getAuthTag();
 
@@ -185,7 +210,12 @@ export async function decryptFile(data: Buffer): Promise<Buffer> {
   const authTag = data.subarray(16, 32);
   const ciphertext = data.subarray(32);
   const key = EncryptionService['getKey']();
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv) as crypto.DecipherGCM;
+  const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.DecipherGCM;
   decipher.setAuthTag(authTag);
 
   return Buffer.concat([decipher.update(ciphertext), decipher.final()]);

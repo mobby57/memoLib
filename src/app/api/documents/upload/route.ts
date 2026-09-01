@@ -1,4 +1,8 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { getBlobServiceClient } from '@/lib/azure/clients';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
@@ -7,7 +11,6 @@ import { prisma } from '@/lib/prisma';
 import { recordUsage } from '@/lib/billing/usage-billing';
 import { scanDocumentAsync } from '@/lib/security/antivirus';
 import { randomUUID } from 'crypto';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -169,13 +172,13 @@ export const maxDuration = 30;
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const user = session.user as { tenantId?: string; id?: string };
     const tenantId = user.tenantId;
     const userId = user.id;
 
@@ -440,13 +443,13 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const user = session.user as { tenantId?: string; id?: string };
     const tenantId = user.tenantId;
     const userId = user.id;
 
@@ -531,3 +534,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors de la récupération' }, { status: 500 });
   }
 }
+
+
+
+

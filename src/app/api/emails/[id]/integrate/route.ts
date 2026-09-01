@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { createEventLog } from '@/lib/services/event-log.service';
 
@@ -16,14 +15,15 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { id } = await params;
-  const tenantId = (session.user as any).tenantId;
-  const userId = (session.user as any).id;
+  const tenantId = (user as any).tenantId;
+  const userId = (user as any).id;
 
   const email = await prisma.email.findFirst({
     where: { id, tenantId },

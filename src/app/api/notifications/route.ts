@@ -1,17 +1,19 @@
-﻿import { logger } from '@/lib/logger';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import {
   getUnreadCount,
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from '@/lib/notifications';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function getAuthenticatedUserId(): Promise<string | null> {
-  const session = await getServerSession(authOptions);
-  return session?.user?.id ?? null;
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  return user?.id ?? null;
 }
 
 export async function GET(request: NextRequest) {
@@ -117,3 +119,5 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+

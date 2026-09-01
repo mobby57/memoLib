@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route - Workspace Client Unifié
  * GET /api/lawyer/workspaces/[id] - Récupérer workspace complet
@@ -5,8 +6,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -16,13 +15,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
+    const { user } = await auth();
+    const session = user ? { user } : null;
     
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const user = session.user as any;
     const workspaceId = params.id;
 
     // Récupérer workspace avec toutes les relations
@@ -142,13 +140,12 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
+    const { user } = await auth();
+    const session = user ? { user } : null;
     
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const user = session.user as any;
     const workspaceId = params.id;
     const body = await request.json();
 
@@ -229,13 +226,12 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
+    const { user } = await auth();
+    const session = user ? { user } : null;
     
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const user = session.user as any;
     const workspaceId = params.id;
 
     // Vérifier que le workspace existe et appartient au tenant

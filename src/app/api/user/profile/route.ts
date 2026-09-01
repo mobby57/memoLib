@@ -1,12 +1,15 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route: PATCH /api/user/profile
  * 
  * Permet à l'utilisateur connecté de modifier son profil (nom, email, téléphone).
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
@@ -19,12 +22,13 @@ const updateProfileSchema = z.object({
 });
 
 export async function PATCH(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const userId = (session.user as any).id;
+  const userId = (user as any).id;
   if (!userId) {
     return NextResponse.json({ error: 'ID utilisateur manquant' }, { status: 400 });
   }
@@ -71,12 +75,13 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const userId = (session.user as any).id;
+  const userId = (user as any).id;
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true, name: true, email: true, role: true, language: true, timezone: true, createdAt: true },
@@ -88,3 +93,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ user });
 }
+
+
+
+

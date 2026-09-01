@@ -1,3 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route: /api/time-entries
  * 
@@ -8,9 +13,7 @@
  * DELETE: supprimer une entrée
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
@@ -33,10 +36,10 @@ const patchTimeEntrySchema = createTimeEntrySchema.partial().extend({
 });
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
@@ -91,10 +94,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
@@ -133,10 +136,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
@@ -176,10 +179,10 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
@@ -196,3 +199,7 @@ export async function DELETE(req: NextRequest) {
   await prisma.timeEntry.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
+
+
+
+

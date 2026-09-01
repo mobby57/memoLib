@@ -1,9 +1,8 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { getBlobServiceClient } from '@/lib/azure/clients';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -16,13 +15,13 @@ export const maxDuration = 30;
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const user = session.user as { id?: string; tenantId?: string; role?: string; groups?: string[] };
     const tenantId = user.tenantId;
     const { id } = await params;
 
@@ -108,7 +107,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         if (requestedPath.includes('..') || requestedPath.includes('%2e')) {
           logger.warn('[DOWNLOAD] Tentative de Path Traversal détectée', {
             path: document.storageKey,
-            userId: session.user.id,
+            userId: user.id,
           });
           return NextResponse.json({ error: 'Chemin invalide' }, { status: 400 });
         }
@@ -124,7 +123,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           logger.warn("[DOWNLOAD] Tentative d'accès hors du dossier uploads", {
             requestedPath: filePath,
             allowedDir: normalizedUploadsDir,
-            userId: session.user.id,
+            userId: user.id,
           });
           return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
         }

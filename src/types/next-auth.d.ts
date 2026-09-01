@@ -1,6 +1,4 @@
-﻿import { DefaultSession } from 'next-auth';
-
-declare module 'next-auth' {
+declare module '@/lib/auth' {
   interface User {
     id?: string;
     tenantId?: string;
@@ -26,7 +24,7 @@ declare module 'next-auth' {
   }
 }
 
-declare module 'next-auth/jwt' {
+declare module '@/lib/auth/jwt' {
   interface JWT {
     tenantId?: string;
     tenantName?: string;

@@ -1,6 +1,6 @@
-// Auto-set NEXTAUTH_URL for Vercel preview deployments
-if (!process.env.NEXTAUTH_URL && process.env.VERCEL_URL) {
-  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+// Public URL used by application links in Vercel preview deployments.
+if (!process.env.NEXT_PUBLIC_APP_URL && process.env.VERCEL_URL) {
+  process.env.NEXT_PUBLIC_APP_URL = `https://${process.env.VERCEL_URL}`;
 }
 
 /** @type {import('next').NextConfig} */
@@ -30,7 +30,6 @@ const nextConfig = {
       'date-fns',
       '@prisma/client',
       'zod',
-      'next-auth',
       'stripe',
       'react-hook-form',
     ],

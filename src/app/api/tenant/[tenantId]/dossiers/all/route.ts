@@ -1,7 +1,6 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
@@ -9,13 +8,12 @@ export async function GET(
   { params }: { params: { tenantId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
     
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const user = session.user as any;
     const { tenantId } = params;
 
     // Seuls les ADMIN peuvent voir tous les dossiers

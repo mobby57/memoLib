@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
@@ -12,7 +13,6 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { Plus, Pencil, Trash2, Users, FolderKanban, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/forms/Button';
@@ -28,7 +28,7 @@ interface Team {
 
 export default function EquipesPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const { toast } = useToast();
 
   const [teams, setTeams] = useState<Team[]>([]);

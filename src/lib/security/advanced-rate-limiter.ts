@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RATE LIMITER AVANCÉ - Protection API par tier
  * Sliding window avec Redis Upstash
  */
@@ -6,8 +6,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-
+import { auth } from '@/lib/clerk-auth';
 // Configuration par tier
 const TIER_LIMITS = {
   anonymous: { requests: 20, window: '1m' as const },
@@ -105,14 +104,14 @@ export async function advancedRateLimitMiddleware(
 
   let tier: RateLimitTier = 'anonymous';
   const forwardedFor = req.headers.get('x-forwarded-for');
-  const ip = (req as any).ip || (forwardedFor ? forwardedFor.split(',')[0].trim() : undefined);
+  const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : undefined;
   let identifier = ip || 'unknown';
 
   try {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    if (token) {
-      identifier = token.sub || token.email as string || identifier;
-      tier = (token.tier as RateLimitTier) || 'free';
+    const { user } = await auth();
+    if (user) {
+      identifier = user.id;
+      tier = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? 'admin' : 'free';
     }
   } catch {
     // Pas de token
