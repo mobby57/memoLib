@@ -1,6 +1,9 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
@@ -18,9 +21,10 @@ export async function POST(request: NextRequest) {
         { status: 503 }
       );
     }
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
@@ -44,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier que le client a accès à cette facture
-    if (facture.client?.userId !== session.user.id && session.user.role === 'CLIENT') {
+    if (facture.client?.userId !== user.id && user.role === 'CLIENT') {
       return NextResponse.json({ error: 'Accès non autorisé à cette facture' }, { status: 403 });
     }
 
@@ -57,7 +61,7 @@ export async function POST(request: NextRequest) {
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ['card', 'sepa_debit'],
       mode: 'payment',
-      customer_email: facture.client?.email || session.user.email || undefined,
+      customer_email: facture.client?.email || user.email || undefined,
       client_reference_id: factureId,
       metadata: {
         factureId,
@@ -77,15 +81,15 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXTAUTH_URL}/client/paiement/succes?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/client/paiement/annule?facture_id=${factureId}`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/client/paiement/succes?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/client/paiement/annule?facture_id=${factureId}`,
     });
 
     // Logger l'événement de paiement initié
     await prisma.auditLog.create({
       data: {
         action: 'PAYMENT_INITIATED',
-        userId: session.user.id,
+        userId: user.id,
         tenantId: facture.tenantId,
         entityType: 'Facture',
         entityId: factureId,
@@ -117,3 +121,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+
+

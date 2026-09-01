@@ -128,3 +128,40 @@ sftp_host_key.pub
 # MemoLib local document vault
 .vault/
 .vault-test/
+
+scripts/check-resend-domain.js
+scripts/setup-resend-domain.js
+scripts/sync-resend-domains.js
+scripts/test-complete-flow.ts
+
+tsconfig.tsbuildinfo
+
+security-backup-*/
+
+## === Local recovery, audit, and credential artifacts ===
+/audit-*.txt
+/audit-*.json
+/audit-report.txt
+/build-report.txt
+/code-report.txt
+/depcheck-report.txt
+/lint-report.txt
+/security-audit-report.txt
+/test-report.txt
+/type-check-report.txt
+/tsc_output.txt
+/edge-runtime-files.txt
+/migration-backup-*/
+/migration-*.diff
+/migration-*-status.txt
+/package.json.backup.*
+/package-lock.json.backup.*
+/postcss.config.js.backup.*
+/*API KEY*.txt
+/render_cookie*.txt
+/cookie.txt
+/memolib-audit.zip
+/semgrep-*.sarif
+/.agents/
+/.claude/
+/.kiro/

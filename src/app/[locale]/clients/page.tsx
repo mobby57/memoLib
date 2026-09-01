@@ -1,9 +1,9 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -419,7 +419,7 @@ const inputClass =
 
 export default function ClientsPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

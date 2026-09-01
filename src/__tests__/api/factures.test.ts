@@ -17,7 +17,7 @@ const mockPrisma = {
   $transaction: vi.fn(),
 };
 
-vi.mock('next-auth', () => ({
+vi.mock('@/lib/auth', () => ({
   __esModule: true,
   default: vi.fn(() => vi.fn()),
   getServerSession: vi.fn(),
@@ -37,7 +37,7 @@ const { GET, POST } = require('@/app/api/factures/route') as typeof import('@/ap
 describe('/api/factures', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getServerSession } = jest.requireMock('next-auth') as { getServerSession: vi.Mock };
+    const { getServerSession } = jest.requireMock('@/lib/auth') as { getServerSession: vi.Mock };
     getServerSession.mockResolvedValue({
       user: { id: 'user-1', tenantId: 'tenant-a', role: 'LAWYER' },
     });

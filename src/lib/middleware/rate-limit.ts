@@ -1,11 +1,14 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Middleware Rate Limiting pour les API Next.js
  * Wrapper centralisé pour appliquer le rate limiting à toutes les routes
  */
 
-import { authOptions } from '@/lib/auth/authOptions';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/security/rate-limiter';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 type RateLimitType = keyof typeof RATE_LIMITS;
@@ -84,9 +87,10 @@ export function withRateLimit<T>(
 
       // Essayer d'obtenir l'utilisateur authentifié
       try {
-        const session = await getServerSession(authOptions);
-        if (session?.user?.id) {
-          identifier = `user:${session.user.id}`;
+        const { user } = await auth();
+    const session = user ? { user } : null;
+        if (user?.id) {
+          identifier = `user:${user.id}`;
         } else {
           identifier = `ip:${ip}`;
         }
@@ -205,3 +209,7 @@ export async function rateLimitMiddleware(req: NextRequest): Promise<NextRespons
 }
 
 export default withRateLimit;
+
+
+
+

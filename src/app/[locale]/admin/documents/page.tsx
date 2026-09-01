@@ -1,9 +1,9 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -28,7 +28,7 @@ interface Document {
 }
 
 export default function DocumentsAdmin() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
 
   const [documents, setDocuments] = useState<Document[]>([]);

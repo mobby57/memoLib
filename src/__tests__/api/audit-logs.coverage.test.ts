@@ -1,12 +1,15 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Tests pour src/app/api/audit-logs/route.ts
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock next-auth
+// Mock @/lib/auth
 const mockGetServerSession = vi.fn();
-vi.mock('next-auth', () => ({
-  getServerSession: (...args: any[]) => mockGetServerSession(...args),
+vi.mock('@/lib/auth', () => ({
+  getServerSession: (...args: any[]) => mockauth(),
 }));
 
 // Mock authOptions
@@ -244,3 +247,5 @@ describe('audit-logs route — Full Coverage', () => {
     });
   });
 });
+
+

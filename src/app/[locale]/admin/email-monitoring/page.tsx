@@ -1,10 +1,10 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import AdminNavigation from '@/components/AdminNavigation';
 import {
@@ -45,7 +45,7 @@ interface Stats {
 }
 
 export default function EmailMonitoringPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
   const [emails, setEmails] = useState<Email[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);

@@ -1,6 +1,9 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { judilibreClient } from '@/lib/legifrance/judilibre-client';
 import { logger } from '@/lib/logger';
@@ -10,11 +13,12 @@ import { withRateLimit } from '@/lib/middleware/rate-limit';
 
 export const GET = withRateLimit(
   async (req: NextRequest) => {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   // Feature gate : jurisprudence réservée au plan Cabinet+
-  const tenantId = (session.user as any)?.tenantId;
+  const tenantId = (user as any)?.tenantId;
   if (tenantId) {
     const gate = await checkFeatureAccess(tenantId, 'jurisprudence_search');
     if (!gate.allowed) {
@@ -212,3 +216,7 @@ function searchFallback(query: string, type: string) {
     r.themes.some(t => t.toLowerCase().includes(q))
   ).slice(0, 10);
 }
+
+
+
+

@@ -19,7 +19,7 @@ vi.mock('bcryptjs', () => ({
     compare: vi.fn(),
   },
 }));
-vi.mock('next-auth', () => ({
+vi.mock('@/lib/auth', () => ({
   default: vi.fn(() => vi.fn()),
 }));
 
@@ -39,8 +39,6 @@ function credentialsAuthorize() {
     request?: Request
   ) => Promise<unknown>;
 }
-
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 describe('Credentials authentication', () => {
   const originalNodeEnv = process.env.NODE_ENV;

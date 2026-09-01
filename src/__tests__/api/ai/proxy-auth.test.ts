@@ -7,7 +7,7 @@ const { session, canAccessDossier, fetchMock } = vi.hoisted(() => ({
   fetchMock: vi.fn(),
 }));
 
-vi.mock('next-auth', () => ({ getServerSession: vi.fn(() => session.current) }));
+vi.mock('@/lib/auth', () => ({ getServerSession: vi.fn(() => session.current) }));
 vi.mock('@/app/api/auth/[...nextauth]/route', () => ({ authOptions: {} }));
 vi.mock('@/lib/auth/dossier-access', () => ({ canAccessDossier }));
 vi.mock('@/lib/middleware/rate-limit', () => ({ withAIRateLimit: (handler: unknown) => handler }));

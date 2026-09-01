@@ -1,4 +1,10 @@
-﻿'use client'
+import { useAuth } from '@/hooks/useAuth';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement import useSession
+'use client'
 
 /**
  * React Hook for WebSocket Real-Time Notifications
@@ -8,7 +14,7 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 import { io, Socket } from 'socket.io-client'
 import type {
   EmailNotification,
@@ -39,7 +45,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     debug = false,
   } = options
 
-  const { data: session, status } = useSession()
+  const { data: session, status, user } = useAuth()
   const [socket, setSocket] = useState<Socket | null>(null)
   const [state, setState] = useState<WebSocketState>({
     connected: false,
@@ -99,9 +105,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         }))
 
         // Join user's tenant room
-        if (session.user.tenantId) {
-          newSocket.emit('join-tenant', session.user.tenantId)
-          log('Joined tenant:', session.user.tenantId)
+        if (user.tenantId) {
+          newSocket.emit('join-tenant', user.tenantId)
+          log('Joined tenant:', user.tenantId)
         }
       })
 
@@ -294,3 +300,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 }
 
 export type { EmailNotification, DossierNotification, DeadlineAlert, SystemNotification }
+
+
+
+
+

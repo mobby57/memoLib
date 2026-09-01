@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
  */
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { useForm, FormProvider, useFormContext } from 'react-hook-form'
@@ -139,7 +139,7 @@ const ETAPES = [
 ]
 
 export default function NouveauDossierAvance() {
-  const { data: session } = useSession()
+  const { data: session, user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
   const [etapeActive, setEtapeActive] = useState(0)

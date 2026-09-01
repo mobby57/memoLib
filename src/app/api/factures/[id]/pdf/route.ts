@@ -1,11 +1,10 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * GET /api/factures/[id]/pdf — Génère et retourne le PDF d'une facture
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
 import { generateFacturePDF } from '@/lib/services/facture-pdf.service';
 
 export async function GET(
@@ -13,10 +12,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-    const tenantId = (session.user as any).tenantId;
+    const tenantId = (user as any).tenantId;
     if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
     const { id } = await params;

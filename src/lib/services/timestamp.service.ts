@@ -209,7 +209,7 @@ export class TimestampService {
   private localTimestamp(hash: string): TimestampResult {
     const now = new Date().toISOString();
     // Créer un "token" local signé = hash(contenu + date + secret)
-    const localSecret = process.env.NEXTAUTH_SECRET || 'memolib-tsa-local';
+    const localSecret = process.env.CLERK_SECRET_KEY || 'memolib-tsa-local';
     const localToken = createHash('sha256')
       .update(`${hash}|${now}|${localSecret}`)
       .digest('hex');
@@ -235,7 +235,7 @@ export class TimestampService {
    * Pour une vérification complète, il faudrait parser l'ASN.1.
    */
   verifyLocal(hash: string, timestamp: string, token: string): boolean {
-    const localSecret = process.env.NEXTAUTH_SECRET || 'memolib-tsa-local';
+    const localSecret = process.env.CLERK_SECRET_KEY || 'memolib-tsa-local';
     const expected = createHash('sha256')
       .update(`${hash}|${timestamp}|${localSecret}`)
       .digest('hex');

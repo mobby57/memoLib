@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route - Facture by ID
  * GET /api/factures/[id] - Récupère une facture
@@ -6,8 +7,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { cacheGet, cacheSet, cacheDelete, cacheInvalidatePattern, CACHE_TTL } from '@/lib/cache';
 import { logger } from '@/lib/logger';
@@ -23,8 +22,9 @@ export async function GET(
   context: RouteContext
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
@@ -129,8 +129,9 @@ export async function PATCH(
   context: RouteContext
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
@@ -204,9 +205,9 @@ export async function PATCH(
     await cacheInvalidatePattern('dashboard:*');
 
     // Log l'action
-    logger.info(`Facture ${id} mise à jour par ${session.user.id}`, {
+    logger.info(`Facture ${id} mise à jour par ${user.id}`, {
       factureId: id,
-      userId: session.user.id,
+      userId: user.id,
       changes: Object.keys(updateData),
     });
 
@@ -229,8 +230,9 @@ export async function DELETE(
   context: RouteContext
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
@@ -253,7 +255,7 @@ export async function DELETE(
 
     if (hardDelete) {
       // Suppression définitive (admin uniquement)
-      if (session.user.role !== 'admin') {
+      if (user.role !== 'admin') {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
 
@@ -261,7 +263,7 @@ export async function DELETE(
         where: { id },
       });
 
-      logger.warn(`Facture ${id} supprimée définitivement par ${session.user.id}`);
+      logger.warn(`Facture ${id} supprimée définitivement par ${user.id}`);
     } else {
       // Annulation (soft delete)
       await (prisma as any).invoice?.update({
@@ -269,11 +271,11 @@ export async function DELETE(
         data: {
           status: 'CANCELLED',
           cancelledAt: new Date(),
-          cancelledBy: session.user.id,
+          cancelledBy: user.id,
         },
       });
 
-      logger.info(`Facture ${id} annulée par ${session.user.id}`);
+      logger.info(`Facture ${id} annulée par ${user.id}`);
     }
 
     // Invalider le cache

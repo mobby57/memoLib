@@ -1,10 +1,10 @@
-﻿'use client';
+import { useAuth } from '@/hooks/useAuth';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -40,7 +40,7 @@ interface Invoice {
 }
 
 export default function BillingPage() {
-    const { data: session, status } = useSession();
+    const { data: session, status, user } = useAuth();
     const router = useRouter();
     const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);

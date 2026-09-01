@@ -1,6 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { legalProofService } from '@/lib/services/legal-proof.service';
 import { ProofFormat } from '@/types/legal-proof';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -20,8 +22,9 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -85,3 +88,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+

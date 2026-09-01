@@ -77,7 +77,7 @@ describe('PostgreSQL Config - Pure Unit Tests', () => {
       };
 
       expect(createSSLConfig('disable')).toBe(false);
-      expect(createSSLConfig('require')).toEqual({ rejectUnauthorized: false });
+      expect(createSSLConfig('require')).toEqual({ rejectUnauthorized: true });
     });
   });
 
@@ -197,3 +197,4 @@ describe('PostgreSQL Config - Pure Unit Tests', () => {
     });
   });
 });
+

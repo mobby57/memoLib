@@ -1,6 +1,9 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
 import { logger } from '@/lib/logger';
@@ -20,13 +23,14 @@ export const dynamic = 'force-dynamic';
  * Idempotent : ne fait rien si des données existent déjà.
  */
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.tenantId) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user?.tenantId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const tenantId = session.user.tenantId;
-  const userId = session.user.id;
+  const tenantId = user.tenantId;
+  const userId = user.id;
 
   try {
     // Vérifier si le tenant a déjà des données
@@ -198,3 +202,7 @@ Service de l'éloignement`,
     );
   }
 }
+
+
+
+

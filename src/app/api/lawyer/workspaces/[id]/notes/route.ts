@@ -1,7 +1,6 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -10,8 +9,9 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -62,8 +62,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
  */
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -79,8 +80,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         workspaceId: params.id,
         title: title || undefined,
         content,
-        authorId: (session.user as any).id,
-        authorName: session.user.name || 'Utilisateur',
+        authorId: (user as any).id,
+        authorName: user.name || 'Utilisateur',
         isPrivate: isPrivate || false,
         isPinned: isPinned || false,
         tags: tags ? JSON.stringify(tags) : undefined,

@@ -1,6 +1,5 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
@@ -20,12 +19,13 @@ const updateTeamSchema = z.object({
  */
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   const { id: teamId } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const tenantId = (session.user as any).tenantId as string | undefined;
+  const tenantId = (user as any).tenantId as string | undefined;
   if (!tenantId) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
@@ -58,7 +58,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
  */
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { id: teamId } = await params;
-  const session = await getServerSession(authOptions);
+  const { user } = await auth();
+    const session = user ? { user } : null;
   const check = requireApiPermission(session as any, RBAC_PERMISSIONS.USERS_MANAGE);
   if (!check.ok) {
     return check.response;
@@ -116,7 +117,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const { id: teamId } = await params;
-  const session = await getServerSession(authOptions);
+  const { user } = await auth();
+    const session = user ? { user } : null;
   const check = requireApiPermission(session as any, RBAC_PERMISSIONS.USERS_MANAGE);
   if (!check.ok) {
     return check.response;

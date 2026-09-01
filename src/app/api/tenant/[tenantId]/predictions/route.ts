@@ -1,18 +1,17 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
     const { tenantId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-    if ((session.user as any).tenantId !== tenantId) {
+    if ((user as any).tenantId !== tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
     const predictions = await generatePredictions(tenantId);

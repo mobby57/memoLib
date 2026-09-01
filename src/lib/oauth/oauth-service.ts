@@ -296,7 +296,7 @@ export function initializeOAuthService(): OAuthService {
       new GoogleOAuthConnector({
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        redirectUri: `${process.env.NEXTAUTH_URL}/api/auth/callback/google`,
+        redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google`,
       })
     );
   }
@@ -308,7 +308,7 @@ export function initializeOAuthService(): OAuthService {
       new MicrosoftOAuthConnector({
         clientId: process.env.MICROSOFT_CLIENT_ID,
         clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
-        redirectUri: `${process.env.NEXTAUTH_URL}/api/auth/callback/microsoft`,
+        redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/microsoft`,
       })
     );
   }
@@ -320,7 +320,7 @@ export function initializeOAuthService(): OAuthService {
       new GitHubOAuthConnector({
         clientId: process.env.GITHUB_ID,
         clientSecret: process.env.GITHUB_SECRET,
-        redirectUri: `${process.env.NEXTAUTH_URL}/api/auth/callback/github`,
+        redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/github`,
       })
     );
   }

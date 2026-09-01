@@ -1,7 +1,6 @@
+import { auth } from '@/lib/clerk-auth';
 import { Metadata } from 'next';
 import SearchAnalytics from '@/components/SearchAnalytics';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
@@ -10,14 +9,15 @@ export const metadata: Metadata = {
 };
 
 export default async function SearchAnalyticsPage() {
-  const session = await getServerSession(authOptions);
+  const { user } = await auth();
+    const session = user ? { user } : null;
 
-  if (!session) {
+  if (!user) {
     redirect('/login');
   }
 
   // Verifier que l'utilisateur est admin ou super admin
-  if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+  if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
     redirect('/dashboard');
   }
 

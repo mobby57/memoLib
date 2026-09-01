@@ -11,7 +11,7 @@ const { session, prisma } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('next-auth', () => ({
+vi.mock('@/lib/auth', () => ({
   getServerSession: vi.fn(() => session.current),
 }));
 vi.mock('@/app/api/auth/[...nextauth]/route', () => ({ authOptions: {} }));
