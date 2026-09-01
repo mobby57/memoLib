@@ -117,4 +117,8 @@ $null
 
 sftp_host_key
 sftp_host_key.pub
+<<<<<<< HEAD
 .neon
+=======
+create-issues.sh
+>>>>>>> b89762a4fb7246abfb110d2348fe065482b11fd3
