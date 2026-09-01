@@ -1,8 +1,11 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { logger } from '@/lib/logger';
 import { withAIRateLimit } from '@/lib/middleware/rate-limit';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -11,10 +14,10 @@ const serviceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 export const POST = withAIRateLimit(async (request: NextRequest) => {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-    const user = session.user as { id?: string; tenantId?: string; role?: string; groups?: string[] };
-    if (!user.id || !user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    if (!user || !user.id || !user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     const payload = payloadSchema.safeParse(await request.json());
     if (!payload.success) return NextResponse.json({ error: 'Requête IA invalide' }, { status: 400 });
     if (payload.data.dossierId) {
@@ -38,3 +41,7 @@ export const POST = withAIRateLimit(async (request: NextRequest) => {
     return NextResponse.json({ error: 'Failed to connect to AI service' }, { status: 503 });
   }
 });
+
+
+
+

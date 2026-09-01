@@ -1,13 +1,16 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = (user as any).tenantId;
   if (!tenantId) return NextResponse.json({ needsOnboarding: true, steps: getEmptySteps() });
 
   const [dossierCount, emailCount, clientCount] = await Promise.all([
@@ -31,3 +34,7 @@ export async function GET() {
 function getEmptySteps() {
   return { accountCreated: true, firstClient: false, firstEmail: false, firstDossier: false };
 }
+
+
+
+

@@ -1,4 +1,6 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { logger } from '@/lib/logger';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
@@ -6,7 +8,6 @@ import { scanDocumentAsync } from '@/lib/security/antivirus';
 import { createHash, randomUUID } from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -72,8 +73,9 @@ export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user;
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    const user = user;
 
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -241,3 +243,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors du dépôt sécurisé' }, { status: 500 });
   }
 }
+
+

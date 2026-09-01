@@ -1,4 +1,5 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement import useSession
+/**
  * Composant Dashboard Analytique Avance
  * Visualisation des metriques IA et tendances
  * 
@@ -9,7 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import { logger } from '@/lib/logger';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AnalyticsData {
   period: string;
@@ -341,3 +342,4 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
     </div>
   );
 }
+

@@ -5,7 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getAuthToken } from '@/lib/auth/nextauth-token';
+import { getAuthToken } from '@/lib/auth/clerk-token';
 import { checkQuota, ResourceType } from '@/lib/billing/quota-service';
 
 /**
@@ -41,7 +41,7 @@ export async function quotaCheckMiddleware(request: NextRequest) {
   const [, resourceType] = quotaRoute;
 
   // Recuperer le token
-  const token = await getAuthToken(request);
+  const token = await getAuthToken();
 
   if (!token || !token.tenantId) {
     return NextResponse.json(

@@ -1,3 +1,6 @@
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement import useSession
 /**
  * Hook React — Feature Gate Client
  *
@@ -15,7 +18,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 // Types reproduits côté client (pas d'import server)
 export type ProductTier = 'PILOT' | 'SOLO' | 'CABINET' | 'ENTERPRISE';
@@ -155,7 +158,7 @@ function resolveTierFromSession(session: any): ProductTier {
  * Hook principal pour le feature gating côté client
  */
 export function useFeatureGate(): UseFeatureGateResult {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const isLoading = status === 'loading';
 
   const currentTier = useMemo(
@@ -205,3 +208,6 @@ export function useFeatureGate(): UseFeatureGateResult {
     availableFeatures,
   };
 }
+
+
+

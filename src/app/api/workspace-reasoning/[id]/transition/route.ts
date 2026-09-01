@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route: POST /api/workspace-reasoning/[id]/transition
  * Change l'état du workspace avec validation
@@ -5,16 +6,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { WorkspaceReasoningService } from '@/lib/workspace-reasoning-service';
 import { WorkspaceState } from '@/types/workspace-reasoning';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     // Vérifier accès tenant
-    const userTenantId = (session.user as any).tenantId;
+    const userTenantId = (user as any).tenantId;
     if (workspace.tenantId !== userTenantId) {
       return NextResponse.json({ error: 'Accès refusé - Isolation tenant' }, { status: 403 });
     }
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: validation.reason }, { status: 400 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = (user as any).id;
 
     // Calculer nouvelles métriques
     const metrics = WorkspaceReasoningService.updateWorkspaceMetrics(workspace as any);

@@ -1,7 +1,7 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 /**
  * GET /api/appointments/available
  * Retourne les creneaux disponibles pour un RDV.
@@ -30,8 +30,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { slot, clientName, clientEmail, motif, dossierId } = await req.json();
 
@@ -52,3 +53,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true, appointment, message: `RDV confirme le ${new Date(slot).toLocaleDateString('fr-FR')} a ${new Date(slot).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}` });
 }
+
+

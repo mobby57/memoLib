@@ -1,14 +1,18 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userId = (session.user as any).id;
-  const tenantId = (session.user as any).tenantId || '';
+  const userId = (user as any).id;
+  const tenantId = (user as any).tenantId || '';
   const { field, aiValue, userValue, context } = await request.json();
 
   if (!field || !aiValue || !userValue) {
@@ -32,3 +36,7 @@ export async function POST(request: NextRequest) {
     } : null,
   });
 }
+
+
+
+

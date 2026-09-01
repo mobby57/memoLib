@@ -4,13 +4,13 @@ import { enforceProductionSecurity } from '@/lib/security/production-guards';
 const originalNodeEnv = process.env.NODE_ENV;
 const originalDemoMode = process.env.DEMO_MODE;
 const originalEncryptionKey = process.env.ENCRYPTION_MASTER_KEY;
-const originalNextAuthSecret = process.env.NEXTAUTH_SECRET;
+const originalNextAuthSecret = process.env.CLERK_SECRET_KEY;
 
 afterEach(() => {
   process.env.NODE_ENV = originalNodeEnv;
   process.env.DEMO_MODE = originalDemoMode;
   process.env.ENCRYPTION_MASTER_KEY = originalEncryptionKey;
-  process.env.NEXTAUTH_SECRET = originalNextAuthSecret;
+  process.env.CLERK_SECRET_KEY = originalNextAuthSecret;
 });
 
 describe('production security guards', () => {

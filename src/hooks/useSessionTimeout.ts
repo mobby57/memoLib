@@ -1,7 +1,11 @@
-﻿'use client';
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement import useSession
+'use client';
 
 import { useEffect, useRef } from 'react';
-import { signOut, useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
+import { useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -10,7 +14,8 @@ import { useRouter } from 'next/navigation';
  * - Avertissement 5 minutes avant expiration
  */
 export function useSessionTimeout() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
+  const { signOut } = useClerk();
   const router = useRouter();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
@@ -47,10 +52,7 @@ export function useSessionTimeout() {
     };
 
     const handleLogout = async () => {
-      await signOut({ 
-        callbackUrl: '/auth/login?timeout=true',
-        redirect: true 
-      });
+      await signOut({ redirectUrl: '/fr/sign-in?timeout=true' });
     };
 
     // Reinitialiser le timer sur toute activite utilisateur
@@ -75,3 +77,5 @@ export function useSessionTimeout() {
 
   return { session, status };
 }
+
+

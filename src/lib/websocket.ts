@@ -1,3 +1,8 @@
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement import getServerSession
 /**
  * WebSocket Server for Real-Time Notifications
  * - Email arrivals
@@ -9,11 +14,7 @@
 import prisma from '@/lib/prisma';
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
-import { NextApiRequest } from 'next';
-import { getServerSession } from 'next-auth/next';
-import type { Session } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
+import { auth } from '@/lib/clerk-auth';
 // Types for WebSocket events
 export interface SocketEvents {
   // Client [Next] Server
@@ -86,7 +87,7 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
   io = new SocketIOServer(httpServer, {
     path: '/api/socket',
     cors: {
-      origin: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+      origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
       credentials: true,
     },
     transports: ['websocket', 'polling'],
@@ -95,19 +96,17 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
   // Authentication middleware
   io.use(async (socket, next) => {
     try {
-      const req = socket.request as any;
-      const session = (await getServerSession(authOptions as any)) as Session | null;
-
-      if (!session?.user) {
+      const { user } = await auth();
+      if (!user) {
         return next(new Error('Unauthorized'));
       }
 
       // Attach user info to socket
-      socket.data.userId = (session.user as any).id;
-      socket.data.tenantId = (session.user as any).tenantId;
-      socket.data.role = (session.user as any).role;
+      socket.data.userId = user.id;
+      socket.data.tenantId = user.tenantId;
+      socket.data.role = user.role;
 
-      console.log(`[WebSocket] User ${(session.user as any).email} authenticated`);
+      console.log(`[WebSocket] User ${user.email} authenticated`);
       next();
     } catch (error) {
       console.error('[WebSocket] Auth error:', error);
@@ -301,3 +300,7 @@ export default {
   getConnectedClientsCount,
   getTenantClientsCount,
 };
+
+
+
+

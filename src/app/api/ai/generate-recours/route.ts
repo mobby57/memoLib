@@ -1,6 +1,9 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -8,10 +11,10 @@ import { prisma } from '@/lib/prisma';
  * Genere un recours complet base sur les donnees du dossier.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
-  const user = session.user as any;
   const { dossierId, typeRecours, arguments: args } = await req.json();
 
   if (!dossierId || !typeRecours) {
@@ -122,3 +125,7 @@ Fait a [VILLE], le ${date}
 Me. [NOM AVOCAT]
 Avocat au Barreau de [BARREAU]`;
 }
+
+
+
+

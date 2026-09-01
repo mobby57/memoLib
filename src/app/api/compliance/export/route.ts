@@ -1,12 +1,17 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { GDPRCompliance, type DataCategory } from '@/lib/compliance/gdpr';
 
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const { user } = await auth();
+    const session = user ? { user } : null;
 
-        if (!session?.user?.email) {
+        if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -22,7 +27,7 @@ export async function POST(req: NextRequest) {
 
         // Request export
         const requestId = await GDPRCompliance.requestDataExport(
-            session.user.email,
+            user.email,
             format,
             categories as DataCategory[]
         );
@@ -43,9 +48,10 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const { user } = await auth();
+    const session = user ? { user } : null;
 
-        if (!session?.user?.email) {
+        if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -62,3 +68,7 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+
+
+

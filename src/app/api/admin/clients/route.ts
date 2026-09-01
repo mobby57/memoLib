@@ -1,5 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
@@ -9,14 +13,15 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const { user } = await auth();
+    const session = user ? { user } : null;
     
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userRole = (session.user as any).role;
-    const tenantId = (session.user as any).tenantId;
+    const userRole = (user as any).role;
+    const tenantId = (user as any).tenantId;
 
     if (userRole !== 'AVOCAT' && userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Acces reserve aux avocats' }, { status: 403 });
@@ -77,14 +82,15 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const { user } = await auth();
+    const session = user ? { user } : null;
     
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userRole = (session.user as any).role;
-    const tenantId = (session.user as any).tenantId;
+    const userRole = (user as any).role;
+    const tenantId = (user as any).tenantId;
 
     if (userRole !== 'AVOCAT' && userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Acces reserve aux avocats' }, { status: 403 });
@@ -132,3 +138,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+
+

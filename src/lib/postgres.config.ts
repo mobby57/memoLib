@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  CONFIGURATION POSTGRESQL AVANCeE - PRODUCTION READY
  *
  * Features:
@@ -136,7 +136,7 @@ const PROVIDER_OPTIMIZATIONS: Record<DatabaseProvider, Partial<PostgresConfig>> 
   vercel: {
     maxConnections: 10, // Vercel limite
     connectionTimeout: 3000,
-    ssl: { rejectUnauthorized: false }, // Vercel gere le certificat
+    ssl: { rejectUnauthorized: true }, // Vercel gere le certificat
   },
 
   neon: {

@@ -1,13 +1,15 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
     const guard = requireApiPermission(session, RBAC_PERMISSIONS.TENANTS_READ);
     if (!guard.ok) {
       return guard.response;
@@ -59,7 +61,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
     const guard = requireApiPermission(session, RBAC_PERMISSIONS.TENANTS_CREATE);
     if (!guard.ok) {
       return guard.response;
@@ -125,3 +128,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+

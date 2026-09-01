@@ -1,9 +1,7 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { rejectPendingAction } from '@/lib/pending-actions/service';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
@@ -18,12 +16,13 @@ const bodySchema = z.object({
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    const sessionTenantId = (user as any).tenantId as string | undefined;
     if (!sessionTenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }

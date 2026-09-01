@@ -1,5 +1,9 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { stripe } from '@/lib/stripe/config';
 import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
@@ -26,8 +30,9 @@ type SubscriptionPeriods = {
 
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession();
-        if (!session?.user?.email) {
+        const { user } = await auth();
+    const session = user ? { user } : null;
+        if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -52,7 +57,7 @@ export async function POST(req: NextRequest) {
         }
 
         const user = await prisma.user.findUnique({
-            where: { email: session.user.email },
+            where: { email: user.email },
             include: { stripeCustomer: true }
         });
 
@@ -116,3 +121,7 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+
+
+

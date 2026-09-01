@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
@@ -14,7 +15,6 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { ArrowLeft, UserPlus, Trash2, Shield, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/Badge';
@@ -50,7 +50,7 @@ export default function DossierMembresPage() {
   const params = useParams();
   const dossierId = params?.id as string;
   const router = useRouter();
-  const { status } = useSession();
+  const { status } = useAuth();
   const { toast } = useToast();
 
   const [members, setMembers] = useState<DossierMember[]>([]);

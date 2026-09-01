@@ -1,15 +1,15 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Copy, Check, ExternalLink, Globe, Users, Shield } from 'lucide-react';
 import AdminNavigation from '@/components/AdminNavigation';
 
 export default function IntegrationPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
   const [copied, setCopied] = useState<string | null>(null);
 

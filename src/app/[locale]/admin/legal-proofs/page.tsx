@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
@@ -5,7 +6,6 @@ export const dynamic = 'force-dynamic';
 
 import { ProofBadge } from '@/components/legal/ProofBadge';
 import { CheckCircle, Download, FileText, Search, Shield } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 interface Proof {
@@ -24,7 +24,7 @@ interface Proof {
 }
 
 export default function LegalProofsAdminPage() {
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const [proofs, setProofs] = useState<Proof[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');

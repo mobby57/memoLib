@@ -1,4 +1,7 @@
-﻿/**
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * 🛡️ Admin Cost Management API
  *
  * Permet à l'admin de :
@@ -7,20 +10,19 @@
  * - Facturer les surcoûts
  */
 
-import { authOptions } from '@/lib/auth';
 import { MONTHLY_COST_LIMITS } from '@/lib/billing/cost-guard';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Liste tous les tenants avec leurs coûts
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const userRole = (session?.user as { role?: string })?.role;
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    const userRole = (user as { role?: string })?.role;
 
-    if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
+    if (!user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
@@ -142,10 +144,11 @@ export async function GET(request: NextRequest) {
 // POST - Actions admin (ajuster limites, créer facture surcoût)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const userRole = (session?.user as { role?: string })?.role;
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    const userRole = (user as { role?: string })?.role;
 
-    if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
+    if (!user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
@@ -351,3 +354,5 @@ async function toggleAIAccess(tenantId: string, enabled: boolean) {
     aiEnabled: enabled,
   });
 }
+
+

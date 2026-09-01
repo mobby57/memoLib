@@ -1,9 +1,9 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with useSession hook
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -169,7 +169,7 @@ const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 
 
 export default function FacturesPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const [factures, setFactures] = useState<Facture[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

@@ -1,10 +1,10 @@
-﻿'use client';
+import { useAuth } from '@/hooks/useAuth';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { Shield, FileText, Download, AlertTriangle, TrendingUp, Users, Activity, Database } from 'lucide-react';
 
 interface ComplianceStats {
@@ -38,7 +38,7 @@ interface DeletionRequest {
 }
 
 export default function ComplianceDashboard() {
-    const { data: session, status } = useSession();
+    const { data: session, status, user } = useAuth();
     const [stats, setStats] = useState<ComplianceStats | null>(null);
     const [exports, setExports] = useState<ExportRequest[]>([]);
     const [deletions, setDeletions] = useState<DeletionRequest[]>([]);
