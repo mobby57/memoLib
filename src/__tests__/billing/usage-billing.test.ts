@@ -12,13 +12,6 @@ vi.mock('@/lib/prisma', () => ({
     usageRecord: {
       create: (...args: unknown[]) => mockCreate(...args),
       groupBy: (...args: unknown[]) => mockGroupBy(...args),
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
     },
   },
 }));

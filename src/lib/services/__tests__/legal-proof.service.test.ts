@@ -5,13 +5,6 @@
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
     legalProof: { create: jest.fn(), findUnique: jest.fn() },
     tenant: { findUnique: jest.fn() },
   },

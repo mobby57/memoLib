@@ -17,13 +17,6 @@ vi.mock('@/lib/billing/stripe-client', () => ({
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
     subscription: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     facture: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     tenant: { findUnique: vi.fn() },
