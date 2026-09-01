@@ -1,3 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Phase 6 - Production Deployment
  * Final Steps Before Going Live
@@ -13,16 +18,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }
 
-  const role = String((session.user as any).role || '').toUpperCase();
+  const role = String((user as any).role || '').toUpperCase();
   const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
   if (!allowedRoles.has(role)) {
     return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
@@ -360,12 +363,12 @@ function environmentSetupGuide() {
         sensitive: true,
       },
       {
-        name: 'NEXTAUTH_SECRET',
+        name: 'CLERK_SECRET_KEY',
         description: 'NextAuth secret (generate with: openssl rand -base64 32)',
         sensitive: true,
       },
       {
-        name: 'NEXTAUTH_URL',
+        name: 'NEXT_PUBLIC_APP_URL',
         description: 'NextAuth callback URL',
         format: 'https://your-production-domain.com',
         sensitive: false,
@@ -374,8 +377,8 @@ function environmentSetupGuide() {
     setupSteps: [
       '1. Create environment variables file on production platform',
       '2. Copy all REQUIRED variables from .env.example',
-      '3. Generate NEXTAUTH_SECRET: openssl rand -base64 32',
-      '4. Configure NEXTAUTH_URL to match production domain',
+      '3. Generate CLERK_SECRET_KEY: openssl rand -base64 32',
+      '4. Configure NEXT_PUBLIC_APP_URL to match production domain',
       '5. Set DATABASE_URL to production PostgreSQL',
       '6. Create Sentry project and configure DSN',
       '7. Create Upstash Redis instance and configure tokens',
@@ -585,3 +588,7 @@ function postDeploymentGuide() {
     ],
   });
 }
+
+
+
+

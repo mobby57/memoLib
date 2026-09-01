@@ -4,7 +4,7 @@
  */
 
 import { AuditHelpers, logAudit } from '@/lib/audit';
-import { getAuthToken } from '@/lib/auth/nextauth-token';
+import { getAuthToken } from '@/lib/auth/clerk-token';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -121,7 +121,7 @@ export async function zeroTrustMiddleware(req: NextRequest) {
   }
 
   // 1. AUTHENTIFICATION
-  const token = await getAuthToken(req);
+  const token = await getAuthToken();
 
   if (!token) {
     // Log tentative d'acces non authentifie

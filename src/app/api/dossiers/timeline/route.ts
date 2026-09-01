@@ -1,8 +1,10 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 interface TimelineEvent {
   date: string;
   type: 'email_recu' | 'email_envoye' | 'document' | 'deadline' | 'action' | 'creation';
@@ -13,10 +15,11 @@ interface TimelineEvent {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = (user as any).tenantId;
   const dossierId = req.nextUrl.searchParams.get('dossierId');
   if (!dossierId || !tenantId) return NextResponse.json({ error: 'dossierId requis' }, { status: 400 });
 
@@ -107,3 +110,7 @@ export async function GET(req: NextRequest) {
     timeline,
   });
 }
+
+
+
+

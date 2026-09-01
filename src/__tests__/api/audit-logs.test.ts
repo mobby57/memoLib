@@ -1,9 +1,9 @@
-﻿import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH, DELETE } from '@/app/api/audit-logs/route';
 import prisma from '@/lib/prisma';
 
-vi.mock('next-auth', () => ({
+vi.mock('@/lib/auth', () => ({
   getServerSession: vi.fn(async () => ({
     user: {
       id: 'user-123',

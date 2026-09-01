@@ -1,5 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -9,15 +13,16 @@ import { logger } from '@/lib/logger';
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userRole = (session.user as any).role;
-    const clientId = (session.user as any).clientId;
-    const tenantId = (session.user as any).tenantId;
+    const userRole = (user as any).role;
+    const clientId = (user as any).clientId;
+    const tenantId = (user as any).tenantId;
 
     if (userRole !== 'CLIENT') {
       return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
@@ -120,14 +125,15 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userRole = (session.user as any).role;
-    const clientId = (session.user as any).clientId;
+    const userRole = (user as any).role;
+    const clientId = (user as any).clientId;
 
     if (userRole !== 'CLIENT' || !clientId) {
       return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
@@ -158,3 +164,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

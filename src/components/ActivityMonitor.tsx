@@ -1,12 +1,17 @@
-﻿'use client';
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement import useSession
+'use client';
 
 import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/components/NotificationProvider';
 import { logger } from '@/lib/logger';
 
 export function ActivityMonitor() {
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const { addNotification } = useNotifications();
 
   useEffect(() => {
@@ -15,7 +20,7 @@ export function ActivityMonitor() {
     const checkActivities = async () => {
       try {
         // Check for urgent deadlines
-        const response = await fetch(`/api/tenant/${session.user.tenantId}/suggestions`);
+        const response = await fetch(`/api/tenant/${user.tenantId}/suggestions`);
         if (response.ok) {
           const data = await response.json();
           
@@ -49,3 +54,8 @@ export function ActivityMonitor() {
 
   return null; // This is a background component
 }
+
+
+
+
+

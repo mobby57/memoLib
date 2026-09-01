@@ -1,7 +1,10 @@
-﻿import { logger } from '@/lib/logger';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import { withAIRateLimit } from '@/lib/middleware/rate-limit';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -19,11 +22,12 @@ const suggestionSchema = z.object({
 
 export const POST = withAIRateLimit(async (request: NextRequest) => {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 });
     }
-    if (!session.user.tenantId) {
+    if (!user.tenantId) {
       return NextResponse.json({ success: false, error: 'Accès refusé' }, { status: 403 });
     }
     const parsed = suggestionSchema.safeParse(await request.json());
@@ -103,3 +107,7 @@ function getFallbackSuggestion(formId: string, fieldId: string): string {
 
   return fallbacks[fieldId] || 'Aucune suggestion disponible pour ce champ.';
 }
+
+
+
+

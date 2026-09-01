@@ -1,4 +1,6 @@
-﻿/**
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+/**
  * Tests unitaires pour l'authentification NextAuth
  * Couvre les callbacks, la validation des credentials
  */
@@ -229,15 +231,15 @@ describe('NextAuth Configuration', () => {
       };
       
       // Simulation du callback session
-      session.user.id = token.id;
-      session.user.role = token.role;
-      session.user.tenantId = token.tenantId;
-      session.user.tenantName = token.tenantName;
-      session.user.tenantPlan = token.tenantPlan;
+      user.id = token.id;
+      user.role = token.role;
+      user.tenantId = token.tenantId;
+      user.tenantName = token.tenantName;
+      user.tenantPlan = token.tenantPlan;
       
-      expect(session.user.id).toBe('user-123');
-      expect(session.user.role).toBe('ADMIN');
-      expect(session.user.tenantId).toBe('tenant-123');
+      expect(user.id).toBe('user-123');
+      expect(user.role).toBe('ADMIN');
+      expect(user.tenantId).toBe('tenant-123');
     });
   });
 });
@@ -255,3 +257,5 @@ describe('Password Security', () => {
     expect(result).toBe(false);
   });
 });
+
+

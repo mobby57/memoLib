@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 /**
  * Formulaire Complet - Client remplit son dossier
  * Toutes informations + documents + listes deroulantes
@@ -8,7 +9,6 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, FormEvent } from 'react';
 
@@ -89,7 +89,7 @@ const TYPES_DOCUMENTS = [
 ];
 
 export default function NouveauDossierClient() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

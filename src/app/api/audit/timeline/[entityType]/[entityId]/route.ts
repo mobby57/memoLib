@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route - EventLog Timeline
  * GET /api/audit/timeline/[entityType]/[entityId]
@@ -7,7 +8,6 @@
  */
 
 import { eventLogService } from '@/lib/services/event-log.service';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -16,13 +16,14 @@ export async function GET(
 ) {
   try {
     // Auth check
-    const session = await getServerSession();
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const { entityType, entityId } = params;
-    const tenantId = (session.user as any).tenantId;
+    const tenantId = (user as any).tenantId;
 
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 400 });

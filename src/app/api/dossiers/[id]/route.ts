@@ -1,6 +1,5 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete } from '@/lib/cache';
 import { logger } from '@/lib/logger';
@@ -17,21 +16,22 @@ interface RouteParams {
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = (user as any).tenantId as string | undefined;
 
     if (!tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     const access = await canAccessDossier({
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       tenantId,
-      role: (session.user as any).role,
-      groups: (session.user as any).groups,
+      role: (user as any).role,
+      groups: (user as any).groups,
       dossierId,
       action: 'read',
     });
@@ -99,11 +99,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = (user as any).tenantId as string | undefined;
     if (!tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
@@ -121,10 +122,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const access = await canAccessDossier({
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       tenantId,
-      role: (session.user as any).role,
-      groups: (session.user as any).groups,
+      role: (user as any).role,
+      groups: (user as any).groups,
       dossierId,
       action: 'write',
     });
@@ -184,11 +185,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = (user as any).tenantId as string | undefined;
     if (!tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
@@ -196,7 +198,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const { searchParams } = new URL(request.url);
     const hardDelete = searchParams.get('hard') === 'true';
 
-    if (hardDelete && !['ADMIN', 'SUPER_ADMIN'].includes((session.user as any).role)) {
+    if (hardDelete && !['ADMIN', 'SUPER_ADMIN'].includes((user as any).role)) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
@@ -210,10 +212,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     const access = await canAccessDossier({
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       tenantId,
-      role: (session.user as any).role,
-      groups: (session.user as any).groups,
+      role: (user as any).role,
+      groups: (user as any).groups,
       dossierId,
       action: 'manage',
     });

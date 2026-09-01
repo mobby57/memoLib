@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { getChecklistForType, generateDossierInboxEmail } from '@/lib/dossier/checklist-templates';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
@@ -10,12 +9,11 @@ import { canAccessDossier } from '@/lib/auth/dossier-access';
  * Retourne la checklist du dossier avec statut de chaque piece
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { id } = await params;
-  const user = session.user as any;
-
   if (!user.tenantId) return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
   const access = await canAccessDossier({ userId: user.id, tenantId: user.tenantId, role: user.role, groups: user.groups, dossierId: id, action: 'read' });
   if (!access.allowed) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
@@ -46,12 +44,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
  * Initialise la checklist depuis le template (appele a la creation du dossier)
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { id } = await params;
-  const user = session.user as any;
-
   if (!user.tenantId) return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
   const access = await canAccessDossier({ userId: user.id, tenantId: user.tenantId, role: user.role, groups: user.groups, dossierId: id, action: 'write' });
   if (!access.allowed) return NextResponse.json({ error: 'Acces refuse au dossier' }, { status: 403 });
@@ -108,11 +105,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
  * Met a jour le statut d'un item (piece recue/validee)
  */
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { id } = await params;
-  const user = session.user as any;
   const { itemId, status, notes } = await req.json();
 
   if (!itemId || !['missing', 'received', 'validated', 'rejected'].includes(status)) {

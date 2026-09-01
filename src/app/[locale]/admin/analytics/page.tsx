@@ -1,10 +1,10 @@
-﻿'use client';
+import { useAuth } from '@/hooks/useAuth';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { Activity, Cpu, DollarSign, Mail, TrendingDown, TrendingUp, Users } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import {
   Area,
@@ -45,7 +45,7 @@ interface DashboardStats {
 }
 
 export default function AnalyticsDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activeTab, setActiveTab] = useState<'revenue' | 'engagement' | 'emails' | 'ai'>('revenue');

@@ -1,3 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * POST /api/ai/analyze-dossier
  * 
@@ -7,17 +12,15 @@
  * Retourne : faits, moyens, pièces, demandes, parties, dates clés.
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { hybridAI } from '@/lib/ai/hybrid-client';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
 
   let body: any;
@@ -150,3 +153,7 @@ function buildFallbackAnalysis(dossier: any, client: any) {
     ],
   };
 }
+
+
+
+

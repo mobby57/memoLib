@@ -1,9 +1,9 @@
-﻿import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH } from '@/app/api/legal-deadlines/route';
 import prisma from '@/lib/prisma';
 
-vi.mock('next-auth', () => ({
+vi.mock('@/lib/auth', () => ({
   __esModule: true,
   default: vi.fn(() => vi.fn()),
   getServerSession: vi.fn(),
@@ -31,7 +31,7 @@ describe('/api/legal-deadlines', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getServerSession } = jest.requireMock('next-auth') as { getServerSession: vi.Mock };
+    const { getServerSession } = jest.requireMock('@/lib/auth') as { getServerSession: vi.Mock };
     getServerSession.mockResolvedValue({
       user: { id: 'user-1', tenantId: mockTenantId, role: 'LAWYER' },
     });

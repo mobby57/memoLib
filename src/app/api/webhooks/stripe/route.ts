@@ -159,7 +159,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
           <h2>echec de paiement</h2>
           <p>Nous n'avons pas pu traiter votre paiement pour l'abonnement ${tenant.name}.</p>
           <p>Veuillez mettre e jour vos informations de paiement pour eviter une interruption de service.</p>
-          <a href="${process.env.NEXTAUTH_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre e jour le paiement</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre e jour le paiement</a>
         `,
       });
     }

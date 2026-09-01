@@ -1,6 +1,5 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
@@ -26,7 +25,8 @@ const removeTeamMemberSchema = z.object({
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id: teamId } = await params;
-  const session = await getServerSession(authOptions);
+  const { user } = await auth();
+    const session = user ? { user } : null;
   const check = requireApiPermission(session as any, RBAC_PERMISSIONS.USERS_MANAGE);
   if (!check.ok) {
     return check.response;
@@ -95,7 +95,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   const { id: teamId } = await params;
-  const session = await getServerSession(authOptions);
+  const { user } = await auth();
+    const session = user ? { user } : null;
   const check = requireApiPermission(session as any, RBAC_PERMISSIONS.USERS_MANAGE);
   if (!check.ok) {
     return check.response;

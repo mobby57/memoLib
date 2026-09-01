@@ -1,6 +1,6 @@
 ﻿import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getAuthToken } from './lib/auth/nextauth-token';
+import { getAuthToken } from './lib/auth/clerk-token';
 import {
   addSecurityHeaders,
   addApiSecurityHeaders,
@@ -248,7 +248,7 @@ export default async function proxy(request: NextRequest) {
   }
 
   // 4. Recuperer le token JWT
-  const token = await getAuthToken(request);
+  const token = await getAuthToken();
 
   // 5. Non authentifie : rediriger vers login
   if (!token) {

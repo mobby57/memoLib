@@ -1,7 +1,10 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -13,13 +16,14 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const tenantId = session.user.tenantId;
-    const clientId = session.user.clientId;
+    const tenantId = user.tenantId;
+    const clientId = user.clientId;
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 403 });
     }
@@ -33,7 +37,7 @@ export async function GET(request: NextRequest) {
       where: {
         id: documentId,
         tenantId,
-        ...(session.user.role === 'CLIENT'
+        ...(user.role === 'CLIENT'
           ? { OR: [{ clientId }, { Dossier: { clientId } }] }
           : {}),
       },
@@ -54,7 +58,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Document bloqué par l’antivirus' }, { status: 403 });
     }
 
-    if (session.user.role === 'CLIENT' && document.antivirusStatus !== 'CLEAN') {
+    if (user.role === 'CLIENT' && document.antivirusStatus !== 'CLEAN') {
       return NextResponse.json({ error: 'Document en cours de vérification' }, { status: 423 });
     }
 
@@ -93,3 +97,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors du téléchargement' }, { status: 500 });
   }
 }
+
+
+
+

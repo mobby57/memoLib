@@ -1,10 +1,15 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { GDPRCompliance } from '@/lib/compliance/gdpr';
 
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const { user } = await auth();
+    const session = user ? { user } : null;
         const { consents } = await req.json();
 
         if (!consents || !Array.isArray(consents)) {
@@ -15,7 +20,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get user info
-        const userId = session?.user?.email || 'anonymous';
+        const userId = user?.email || 'anonymous';
         const ipAddress = req.headers.get('x-forwarded-for') ||
             req.headers.get('x-real-ip') ||
             'unknown';
@@ -23,7 +28,7 @@ export async function POST(req: NextRequest) {
 
         // Record each consent
         for (const consent of consents) {
-            if (session?.user?.email) {
+            if (user?.email) {
                 await GDPRCompliance.recordConsent(userId, {
                     type: consent.type,
                     granted: consent.granted,
@@ -46,13 +51,14 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession();
+        const { user } = await auth();
+    const session = user ? { user } : null;
 
-        if (!session?.user?.email) {
+        if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const consents = await GDPRCompliance.getUserConsents(session.user.email);
+        const consents = await GDPRCompliance.getUserConsents(user.email);
 
         return NextResponse.json({ consents });
     } catch (error: any) {
@@ -63,3 +69,7 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+
+
+

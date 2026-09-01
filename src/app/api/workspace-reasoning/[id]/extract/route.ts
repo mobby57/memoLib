@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API ENDPOINT: AI EXTRACTION
  *
@@ -15,8 +16,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { workspaceExtractionService } from '@/lib/ai/workspace-extraction-service';
 import { logger } from '@/lib/logger';
@@ -24,8 +23,9 @@ import { logger } from '@/lib/logger';
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // 1. Authentification
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     // 3. Vérification ownership (tenant isolation)
-    if (workspace.tenantId !== (session.user as any).tenantId) {
+    if (workspace.tenantId !== (user as any).tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 

@@ -1,14 +1,18 @@
-﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { logger } from '@/lib/logger';
 import { searchService } from '@/lib/services/searchService';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
@@ -21,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     const suggestions = await searchService.getSuggestions(
       partial,
-      session.user.tenantId || undefined,
+      user.tenantId || undefined,
       5
     );
 
@@ -36,3 +40,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+
+
+

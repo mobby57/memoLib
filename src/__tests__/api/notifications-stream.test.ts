@@ -5,7 +5,7 @@ const { session, registerSSEClient } = vi.hoisted(() => ({
   registerSSEClient: vi.fn(),
 }));
 
-vi.mock('next-auth', () => ({ getServerSession: vi.fn(() => session.current) }));
+vi.mock('@/lib/auth', () => ({ getServerSession: vi.fn(() => session.current) }));
 vi.mock('@/app/api/auth/[...nextauth]/route', () => ({ authOptions: {} }));
 vi.mock('@/lib/notifications', () => ({
   registerSSEClient,

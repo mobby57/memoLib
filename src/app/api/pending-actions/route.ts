@@ -1,9 +1,11 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 const querySchema = z.object({
   tenantId: z.string().min(1),
   limit: z.coerce.number().int().min(1).max(200).default(50),
@@ -12,11 +14,12 @@ const querySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    const sessionTenantId = (user as any).tenantId as string | undefined;
     if (!sessionTenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
@@ -91,3 +94,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

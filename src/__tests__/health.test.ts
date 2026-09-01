@@ -11,8 +11,8 @@ describe('Application Health', () => {
   });
 
   it('should have Next.js environment configured', () => {
-    expect(process.env.NEXTAUTH_SECRET).toBeDefined();
-    expect(process.env.NEXTAUTH_URL).toBeDefined();
+    expect(process.env.CLERK_SECRET_KEY).toBeDefined();
+    expect(process.env.NEXT_PUBLIC_APP_URL).toBeDefined();
   });
 
   it('should perform basic math operations', () => {

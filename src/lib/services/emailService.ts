@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Service de notifications par email
  *
  * Gère la génération et l'envoi des emails :
@@ -69,7 +69,7 @@ export interface ReminderConfig {
 function getAppUrl(): string {
   return (
     process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXTAUTH_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
     'http://localhost:3000'
   ).replace(/\/$/, '');
 }

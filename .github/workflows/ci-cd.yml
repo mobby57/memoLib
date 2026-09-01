@@ -73,7 +73,8 @@ jobs:
         run: npm run test:ci || echo "JEST_EXIT_CODE=1" >> $GITHUB_ENV
         env:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
-          NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_ci'
+          CLERK_SECRET_KEY: 'sk_test_ci'
 
       - name: Verify tests passed
         run: |
@@ -88,8 +89,9 @@ jobs:
         run: npm run build
         env:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
-          NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
-          NEXTAUTH_URL: 'http://localhost:3000'
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_ci'
+          CLERK_SECRET_KEY: 'sk_test_ci'
+          NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
 
       - name: Upload coverage
         if: always()
@@ -114,8 +116,9 @@ jobs:
         env:
           POSTGRES_USER: memolib
           POSTGRES_PASSWORD: ci-test-password
-          NEXTAUTH_URL: https://example.test
-          NEXTAUTH_SECRET: ci-test-secret-not-for-production
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ci
+          CLERK_SECRET_KEY: sk_test_ci
+          NEXT_PUBLIC_APP_URL: https://example.test
           UPSTASH_REDIS_REST_URL: https://example.upstash.io
           UPSTASH_REDIS_REST_TOKEN: ci-test-token
 

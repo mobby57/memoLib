@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route: PATCH /api/dossiers/[id]/confidential
  * 
@@ -5,9 +6,7 @@
  * Quand activé : IA cloud bloquée, seul Ollama (local) ou regex est utilisé.
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { setConfidentialMode, checkConfidentialMode } from '@/lib/security/confidential-mode';
 import { prisma } from '@/lib/prisma';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
@@ -16,13 +15,13 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
   const { id: dossierId } = await params;
-  const user = session.user as any;
   const tenantId = user.tenantId;
 
   if (!tenantId) {
@@ -73,13 +72,13 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
   const { id: dossierId } = await params;
-  const user = session.user as any;
   if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
   const access = await canAccessDossier({ userId: user.id, tenantId: user.tenantId, role: user.role, groups: user.groups, dossierId, action: 'read' });

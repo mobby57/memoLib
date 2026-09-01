@@ -1,3 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route - Plan comptable
  * GET /api/comptabilite/plan-comptable — Liste des comptes
@@ -5,16 +10,14 @@
  * POST /api/comptabilite/plan-comptable/init — Initialiser le plan comptable avocat
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { PlanComptableService } from '@/lib/services/comptabilite';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const user = session.user as any;
   const { searchParams } = new URL(req.url);
 
   try {
@@ -34,10 +37,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-
-  const user = session.user as any;
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
   try {
     const body = await req.json();
@@ -72,3 +74,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

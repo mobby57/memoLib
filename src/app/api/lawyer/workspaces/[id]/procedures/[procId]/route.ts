@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route - Procédure Individuelle
  * GET /api/lawyer/workspaces/[id]/procedures/[procId] - Détails procédure
@@ -5,10 +6,8 @@
  * DELETE /api/lawyer/workspaces/[id]/procedures/[procId] - Supprimer procédure
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -16,8 +15,9 @@ export async function GET(
   { params }: { params: { id: string; procId: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -78,12 +78,11 @@ export async function PATCH(
   { params }: { params: { id: string; procId: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const user = session.user as any;
     const body = await request.json();
 
     // Vérifier que la procédure existe et appartient au workspace
@@ -177,13 +176,11 @@ export async function DELETE(
   { params }: { params: { id: string; procId: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const user = session.user as any;
-
     // Vérifier que la procédure existe et appartient au workspace
     const procedure = await prisma.procedure.findUnique({
       where: { id: params.procId },

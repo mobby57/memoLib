@@ -29,9 +29,9 @@ export function enforceProductionSecurity(): void {
     );
   }
 
-  // 2. NEXTAUTH_SECRET obligatoire (sessions)
-  if (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET.length < 32) {
-    errors.push('❌ NEXTAUTH_SECRET manquant ou trop court (min 32 chars). Les sessions ne sont pas sécurisées.');
+  // 2. CLERK_SECRET_KEY obligatoire (sessions)
+  if (!process.env.CLERK_SECRET_KEY || process.env.CLERK_SECRET_KEY.length < 32) {
+    errors.push('❌ CLERK_SECRET_KEY manquant ou trop court (min 32 chars). Les sessions ne sont pas sécurisées.');
   }
 
   // 3. Pas de credentials en dur
@@ -40,9 +40,9 @@ export function enforceProductionSecurity(): void {
   }
 
   // 4. HTTPS obligatoire en prod
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
   if (appUrl && !appUrl.startsWith('https://')) {
-    errors.push('❌ NEXTAUTH_URL doit utiliser HTTPS en production.');
+    errors.push('❌ NEXT_PUBLIC_APP_URL doit utiliser HTTPS en production.');
   }
 
   // 5. Webhook secret obligatoire

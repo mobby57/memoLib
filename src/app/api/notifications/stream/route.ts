@@ -1,12 +1,13 @@
-﻿import { NextRequest } from 'next/server';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest } from 'next/server';
 import { registerSSEClient, unregisterSSEClient } from '@/lib/notifications';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
-
 // GET - Stream SSE pour les notifications en temps reel
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  const userId = user?.id;
 
   if (!userId) {
     return new Response('Non authentifié', { status: 401 });
@@ -55,3 +56,5 @@ export async function GET(request: NextRequest) {
     },
   });
 }
+
+

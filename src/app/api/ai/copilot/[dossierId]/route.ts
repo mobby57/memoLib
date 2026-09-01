@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { analyzeDossier, type DossierInput } from '@/lib/ai/copilot/copilot-ceseda';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
@@ -10,12 +9,11 @@ import { canAccessDossier } from '@/lib/auth/dossier-access';
  * Copilote CESEDA — Analyse complète d'un dossier
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ dossierId: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
   const { dossierId } = await params;
-  const user = session.user as any;
-
   if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
   const access = await canAccessDossier({

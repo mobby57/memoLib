@@ -150,7 +150,7 @@ async function resolveTenant(toAddress?: string): Promise<string | null> {
 
 async function analyzeEmailAsync(emailId: string, subject: string, body: string, from: string) {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/ai/summarize-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-internal': 'true' },

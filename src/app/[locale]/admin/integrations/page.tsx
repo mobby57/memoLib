@@ -1,10 +1,10 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import {
     Plus,
     Settings,
@@ -79,7 +79,7 @@ interface AuditLogEntry {
 }
 
 export default function IntegrationsPage() {
-    const { data: session } = useSession();
+    const { data: session, user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [intégrations, setIntegrations] = useState<Intégration[]>([]);
     const [auditLog, setAuditLog] = useState<AuditLogEntry[]>([]);

@@ -1,7 +1,9 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 const DEMO_EMAILS = [
   {
     from: 'Fatima Benali <fatima.benali@gmail.com>',
@@ -73,14 +75,15 @@ Préfecture du Bas-Rhin`,
  * Injecte un email démo réaliste dans le système
  */
 export async function POST() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = (user as any).tenantId;
   const email = DEMO_EMAILS[Math.floor(Math.random() * DEMO_EMAILS.length)];
 
   // Call the webhook internally
-  const webhookUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/webhooks/email-inbound`;
+  const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/webhooks/email-inbound`;
   const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: {
@@ -103,3 +106,7 @@ export async function POST() {
     ...result,
   });
 }
+
+
+
+

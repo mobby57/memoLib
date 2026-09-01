@@ -42,7 +42,7 @@ export async function sendVerificationEmail(email: string, name: string): Promis
   });
 
   // Construire l'URL de verification
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const verifyUrl = `${baseUrl}/fr/auth/verify-email?token=${token}`;
 
   // Envoyer l'email

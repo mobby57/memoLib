@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Tests unitaires pour le middleware global
  * Couvre rate limiting, RBAC, headers sécurité
  */
@@ -6,12 +6,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock next-auth/jwt
-vi.mock('next-auth/jwt', () => ({
+// Mock @/lib/auth/jwt
+vi.mock('@/lib/auth/jwt', () => ({
   getToken: vi.fn(),
 }));
-
-import { getToken } from 'next-auth/jwt';
 
 describe('Middleware Global', () => {
   const createMockRequest = (

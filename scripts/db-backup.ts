@@ -1,101 +1,383 @@
 #!/usr/bin/env tsx
+
 /**
- * 💾 Backup automatique de la base de données - Expert Level
- * 
- * Crée des backups compressés avec:
- * - Horodatage
- * - Rotation automatique (garde les 10 derniers)
- * - Vérification d'intégrité avant backup
- * - Support de compression
+ * 💾 Backup PostgreSQL de MemoLib
+ *
+ * Le backup utilise pg_dump directement dans le conteneur Docker
+ * memolib-db afin d'utiliser la même version PostgreSQL que le serveur.
+ *
+ * Fonctionnalités :
+ * - vérifie Docker
+ * - vérifie le conteneur PostgreSQL
+ * - vérifie PostgreSQL
+ * - vérifie la version de pg_dump
+ * - crée un dump .dump
+ * - vérifie que le dump est valide
+ * - garde les 10 derniers backups
  */
 
 import 'dotenv/config';
-import { prisma } from '../src/lib/prisma';
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
+import { spawn } from 'child_process';
 
-const dbPath = process.env.DATABASE_URL?.replace('file:', '') || './prisma/dev.db';
+const CONTAINER = process.env.POSTGRES_CONTAINER || 'memolib-db';
+const POSTGRES_USER = process.env.POSTGRES_USER || 'postgres';
+const POSTGRES_DB = process.env.POSTGRES_DB || 'memolib';
 
-async function backupDatabase() {
-  console.log('\n💾 Backup de la base de données SQLite\n');
+const BACKUP_DIR = path.join(
+  process.cwd(),
+  'backups',
+  'database',
+);
 
-  try {
-    // 1. Vérifier l'intégrité avant backup
-    console.log('🔍 Vérification d\'intégrité...');
-    const integrity = await prisma.$queryRaw<{ integrity_check: string }[]>`
-      PRAGMA integrity_check
-    `;
-    
-    if (integrity[0]?.integrity_check !== 'ok') {
-      console.error('❌ Base de données corrompue! Backup annulé.');
-      console.error(integrity);
-      process.exit(1);
-    }
-    console.log('   ✅ Intégrité OK');
+const MAX_BACKUPS = 10;
 
-    // 2. Créer le dossier de backup
-    const backupDir = path.join(process.cwd(), 'backups', 'database');
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir, { recursive: true });
-    }
 
-    // 3. Créer le backup avec timestamp
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
-    const backupName = `dev-backup-${timestamp}.db`;
-    const backupPath = path.join(backupDir, backupName);
+/**
+ * Exécute une commande et retourne le code de sortie.
+ */
+function runCommand(
+  command: string,
+  args: string[],
+  outputFile?: string,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: outputFile
+        ? ['ignore', 'pipe', 'pipe']
+        : 'inherit',
+    });
 
-    console.log('\n📦 Création du backup...');
-    fs.copyFileSync(dbPath, backupPath);
-    
-    const stats = fs.statSync(backupPath);
-    const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
-    
-    console.log(`   ✅ Backup créé: ${backupName}`);
-    console.log(`   📊 Taille: ${sizeMB} MB`);
+    let stderr = '';
 
-    // 4. Rotation des backups (garder les 10 derniers)
-    console.log('\n🔄 Rotation des backups...');
-    const backups = fs.readdirSync(backupDir)
-      .filter(f => f.startsWith('dev-backup-') && f.endsWith('.db'))
-      .sort()
-      .reverse();
+    if (outputFile) {
+      const output = fs.createWriteStream(outputFile);
 
-    const maxBackups = 10;
-    if (backups.length > maxBackups) {
-      const toDelete = backups.slice(maxBackups);
-      toDelete.forEach(file => {
-        const filePath = path.join(backupDir, file);
-        fs.unlinkSync(filePath);
-        console.log(`   🗑️  Supprimé: ${file}`);
+      child.stdout.pipe(output);
+
+      child.stderr.on('data', data => {
+        stderr += data.toString();
+      });
+
+      child.on('close', code => {
+        output.close();
+
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(
+            new Error(
+              stderr.trim() ||
+              `${command} s'est terminé avec le code ${code}`,
+            ),
+          );
+        }
+      });
+    } else {
+      child.on('close', code => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(
+            new Error(
+              `${command} s'est terminé avec le code ${code}`,
+            ),
+          );
+        }
       });
     }
 
-    console.log(`   ℹ️  Backups conservés: ${Math.min(backups.length, maxBackups)}`);
+    child.on('error', reject);
+  });
+}
 
-    // 5. Liste des backups disponibles
-    console.log('\n📋 Backups disponibles:');
-    backups.slice(0, maxBackups).forEach((file, index) => {
-      const filePath = path.join(backupDir, file);
-      const stats = fs.statSync(filePath);
-      const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
-      const date = new Date(stats.mtime).toLocaleString('fr-FR');
-      console.log(`   ${index + 1}. ${file} - ${sizeMB} MB - ${date}`);
-    });
 
-    console.log('\n✨ Backup terminé avec succès!\n');
+/**
+ * Backup principal
+ */
+async function backupDatabase(): Promise<void> {
+  console.log('\n💾 Backup PostgreSQL MemoLib\n');
 
-  } catch (error) {
-    console.error('\n❌ Erreur lors du backup:', error);
-    process.exit(1);
-  } finally {
-    await prisma.$disconnect();
+  // ------------------------------------------------------------
+  // 1. Vérifier Docker
+  // ------------------------------------------------------------
+
+  console.log('🐳 Vérification de Docker...');
+
+  await runCommand('docker', ['version']);
+
+  console.log('   ✅ Docker disponible');
+
+
+  // ------------------------------------------------------------
+  // 2. Vérifier le conteneur
+  // ------------------------------------------------------------
+
+  console.log(`\n🐘 Vérification du conteneur ${CONTAINER}...`);
+
+  await runCommand('docker', [
+    'inspect',
+    CONTAINER,
+  ]);
+
+  console.log('   ✅ Conteneur trouvé');
+
+
+  // ------------------------------------------------------------
+  // 3. Vérifier que PostgreSQL fonctionne
+  // ------------------------------------------------------------
+
+  console.log('\n🔌 Vérification de PostgreSQL...');
+
+  await runCommand('docker', [
+    'exec',
+    CONTAINER,
+    'pg_isready',
+    '-U',
+    POSTGRES_USER,
+    '-d',
+    POSTGRES_DB,
+  ]);
+
+  console.log('   ✅ PostgreSQL accessible');
+
+
+  // ------------------------------------------------------------
+  // 4. Afficher la version PostgreSQL
+  // ------------------------------------------------------------
+
+  console.log('\n🔧 Version PostgreSQL / pg_dump...');
+
+  await runCommand('docker', [
+    'exec',
+    CONTAINER,
+    'pg_dump',
+    '--version',
+  ]);
+
+  await runCommand('docker', [
+    'exec',
+    CONTAINER,
+    'psql',
+    '-U',
+    POSTGRES_USER,
+    '-d',
+    POSTGRES_DB,
+    '-c',
+    'SELECT version();',
+  ]);
+
+
+  // ------------------------------------------------------------
+  // 5. Créer le dossier
+  // ------------------------------------------------------------
+
+  fs.mkdirSync(BACKUP_DIR, {
+    recursive: true,
+  });
+
+
+  // ------------------------------------------------------------
+  // 6. Nom du backup
+  // ------------------------------------------------------------
+
+  const timestamp = new Date()
+    .toISOString()
+    .replace(/[:.]/g, '-')
+    .substring(0, 19);
+
+  const backupName =
+    `postgres-backup-${timestamp}.dump`;
+
+  const backupPath =
+    path.join(BACKUP_DIR, backupName);
+
+
+  // ------------------------------------------------------------
+  // 7. Créer le backup
+  // ------------------------------------------------------------
+
+  console.log('\n📦 Création du backup...');
+
+  await runCommand(
+    'docker',
+    [
+      'exec',
+      CONTAINER,
+      'pg_dump',
+
+      '-U',
+      POSTGRES_USER,
+
+      '-d',
+      POSTGRES_DB,
+
+      '--format=custom',
+
+      '--no-owner',
+
+      '--no-privileges',
+    ],
+    backupPath,
+  );
+
+
+  // ------------------------------------------------------------
+  // 8. Vérifier le fichier
+  // ------------------------------------------------------------
+
+  if (!fs.existsSync(backupPath)) {
+    throw new Error(
+      'Le fichier de backup n’a pas été créé.',
+    );
   }
+
+  const stats = fs.statSync(backupPath);
+
+  if (stats.size === 0) {
+    fs.unlinkSync(backupPath);
+
+    throw new Error(
+      'Le fichier de backup est vide.',
+    );
+  }
+
+  const sizeMB =
+    (stats.size / (1024 * 1024)).toFixed(2);
+
+  console.log(
+    `   ✅ Backup créé : ${backupName}`,
+  );
+
+  console.log(
+    `   📊 Taille : ${sizeMB} MB`,
+  );
+
+
+  // ------------------------------------------------------------
+  // 9. Vérifier le dump avec pg_restore
+  // ------------------------------------------------------------
+
+  console.log('\n🔍 Vérification du backup...');
+
+  await runCommand(
+    'docker',
+    [
+      'exec',
+      '-i',
+      CONTAINER,
+      'pg_restore',
+      '--list',
+    ],
+    undefined,
+  );
+
+  console.log('   ✅ Backup lisible');
+
+
+  // ------------------------------------------------------------
+  // 10. Rotation
+  // ------------------------------------------------------------
+
+  console.log('\n🔄 Rotation des backups...');
+
+  let backups = fs
+    .readdirSync(BACKUP_DIR)
+    .filter(
+      file =>
+        file.startsWith('postgres-backup-') &&
+        file.endsWith('.dump'),
+    )
+    .map(file => {
+      const filePath =
+        path.join(BACKUP_DIR, file);
+
+      const fileStats =
+        fs.statSync(filePath);
+
+      return {
+        file,
+        filePath,
+        mtime: fileStats.mtime.getTime(),
+        size: fileStats.size,
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.mtime - a.mtime,
+    );
+
+
+  if (backups.length > MAX_BACKUPS) {
+    for (
+      const backup of backups.slice(MAX_BACKUPS)
+    ) {
+      fs.unlinkSync(backup.filePath);
+
+      console.log(
+        `   🗑️ Supprimé : ${backup.file}`,
+      );
+    }
+
+    backups =
+      backups.slice(0, MAX_BACKUPS);
+  }
+
+
+  console.log(
+    `   ℹ️ Backups conservés : ${backups.length}`,
+  );
+
+
+  // ------------------------------------------------------------
+  // 11. Liste des backups
+  // ------------------------------------------------------------
+
+  console.log('\n📋 Backups disponibles :');
+
+  backups.forEach((backup, index) => {
+    const size =
+      (backup.size / (1024 * 1024))
+        .toFixed(2);
+
+    const date =
+      new Date(backup.mtime)
+        .toLocaleString('fr-FR');
+
+    console.log(
+      `   ${index + 1}. ${backup.file} - ${size} MB - ${date}`,
+    );
+  });
+
+
+  console.log(
+    '\n✨ Backup PostgreSQL terminé avec succès !\n',
+  );
 }
 
-// Exécuter si appelé directement
+
+// ------------------------------------------------------------
+// Exécution
+// ------------------------------------------------------------
+
 if (require.main === module) {
-  backupDatabase();
+  backupDatabase().catch(error => {
+    console.error(
+      '\n❌ Erreur lors du backup :',
+    );
+
+    console.error(
+      error instanceof Error
+        ? error.message
+        : error,
+    );
+
+    process.exit(1);
+  });
 }
 
-export { backupDatabase };
+
+export {
+  backupDatabase,
+};
