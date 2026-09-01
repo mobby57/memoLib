@@ -117,3 +117,4 @@ $null
 
 sftp_host_key
 sftp_host_key.pub
+.neon
