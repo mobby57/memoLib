@@ -1,11 +1,11 @@
-﻿'use client';
+import { useAuth } from '@/hooks/useAuth';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import SuperAdminNavigation from '@/components/SuperAdminNavigation';
 import Link from 'next/link';
 
@@ -23,7 +23,7 @@ interface Tenant {
 }
 
 export default function TenantsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);

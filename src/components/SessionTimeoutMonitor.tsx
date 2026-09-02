@@ -1,4 +1,7 @@
-﻿'use client';
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement import useSession
+'use client';
 
 /**
  * SessionTimeoutMonitor - Composant de securite pour gerer l'expiration de session
@@ -11,7 +14,8 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useClerk } from '@clerk/nextjs';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { Clock, AlertTriangle, LogOut, RefreshCw } from 'lucide-react';
 
@@ -26,7 +30,8 @@ interface SessionTimeoutMonitorProps {
 }
 
 export function SessionTimeoutMonitor({ onTimeout }: SessionTimeoutMonitorProps) {
-  const { data: session, status } = useSession();
+  const { status } = useAuth();
+  const { signOut } = useClerk();
   const router = useRouter();
   
   const [showWarning, setShowWarning] = useState(false);
@@ -64,8 +69,8 @@ export function SessionTimeoutMonitor({ onTimeout }: SessionTimeoutMonitorProps)
       onTimeout();
     }
     
-    await signOut({ redirect: false });
-    router.push('/auth/login?timeout=true');
+    await signOut({ redirectUrl: '/fr/sign-in?timeout=true' });
+    router.push('/fr/sign-in?timeout=true');
   }, [onTimeout, router]);
 
   // Detecter les evenements d'activite
@@ -199,3 +204,5 @@ export function SessionTimeoutMonitor({ onTimeout }: SessionTimeoutMonitorProps)
 }
 
 export default SessionTimeoutMonitor;
+
+

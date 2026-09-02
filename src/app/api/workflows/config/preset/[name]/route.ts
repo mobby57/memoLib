@@ -1,6 +1,6 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
 import { PRESET_CONFIGS } from '@/lib/workflows/workflow-config';
 
 /**
@@ -12,8 +12,9 @@ export async function GET(
   { params }: { params: { name: string } }
 ) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user?.email) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 

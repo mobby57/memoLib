@@ -1,11 +1,10 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Recherche Sémantique - Recherche par Sens avec IA
  * Endpoint: /api/tenant/[tenantId]/semantic-search
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -124,11 +123,12 @@ export async function GET(
 ) {
   try {
     const { tenantId } = params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-    if ((session.user as any).tenantId !== tenantId) {
+    if ((user as any).tenantId !== tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
     const { searchParams } = new URL(request.url);
@@ -243,11 +243,12 @@ export async function POST(
 ) {
   try {
     const { tenantId } = params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-    if ((session.user as any).tenantId !== tenantId) {
+    if ((user as any).tenantId !== tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
     const body = await request.json();

@@ -10,7 +10,10 @@ const SENSITIVE_PATTERNS = {
   ssn: /\b\d{3}-\d{2}-\d{4}\b/g,
   phone: /\b(\d{1,3}[-.\s]?)?\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/g,
   creditCard: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,
+  databaseUrl: /(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis):\/\/[^/\s"'\\]+/gi,
 };
+const SENSITIVE_KEY_PATTERN =
+  /password|token|secret|key|credential|api.?key|bearer|authorization|email|phone|telephone|address|adresse|passport|birth|naissance|nationalit|ssn|credit.?card|nom|prenom|first.?name|last.?name|name|domicile|mobile|body|content|payload|response|raw/i;
 
 export interface RedactionOptions {
   maskEmail?: boolean;
@@ -75,6 +78,7 @@ function maskValue(value: string, pattern: string = '***'): string {
     if (opts.maskCreditCard) {
       redacted = redacted.replace(SENSITIVE_PATTERNS.creditCard, '****-****-****-****');
     }
+    redacted = redacted.replace(SENSITIVE_PATTERNS.databaseUrl, '[CONNECTION_URL_REDACTED]');
     
     // Apply custom patterns
     if (opts.custom) {
@@ -100,7 +104,7 @@ function maskValue(value: string, pattern: string = '***'): string {
     for (const [key, value] of Object.entries(data)) {
       // Redact known sensitive fields
       if (
-        /password|token|secret|key|credential|api.?key|bearer|authorization/i.test(key)
+        SENSITIVE_KEY_PATTERN.test(key)
       ) {
         redacted[key] = '***REDACTED***';
       } else {

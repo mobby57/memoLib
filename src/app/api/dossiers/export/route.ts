@@ -1,3 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route : GET /api/dossiers/export?dossierId=xxx
  * 
@@ -5,17 +10,15 @@
  * Inclut : page de garde, chronologie, pièces, audit trail.
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { generateDossierPDF, type DossierExportData } from '@/lib/documents/dossier-pdf-export';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase();
 
@@ -153,3 +156,7 @@ export async function GET(req: NextRequest) {
     },
   });
 }
+
+
+
+

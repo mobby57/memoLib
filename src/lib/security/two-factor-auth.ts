@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * Two-Factor Authentication (2FA) System
  * - TOTP (Time-based One-Time Password)
@@ -10,6 +10,7 @@
 import crypto from 'crypto';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
+import prisma from '@/lib/prisma';
 
 /**
  * Generate 2FA secret for user
@@ -131,13 +132,10 @@ export async function validate2FALogin(
 
     // Update user's backup codes in database
     try {
-      const { PrismaClient } = await import('@prisma/client');
-      const prisma = new PrismaClient();
       await prisma.user.update({
         where: { id: userId },
         data: { backupCodes: updatedCodes },
       });
-      await prisma.$disconnect();
     } catch (error) {
       console.error('[2FA] Failed to update backup codes:', error);
     }
@@ -168,5 +166,3 @@ export function require2FA(userRole: string) {
     return descriptor;
   };
 }
-
-

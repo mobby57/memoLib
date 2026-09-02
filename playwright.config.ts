@@ -1,7 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const shouldStartWebServer = process.env.PLAYWRIGHT_SKIP_WEBSERVER !== 'true';
+
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: './tests',
   timeout: 30 * 1000,
   expect: {
     timeout: 5000,
@@ -44,10 +46,13 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    cwd: '.',
-  },
+  webServer: shouldStartWebServer
+    ? {
+        command: 'npm run dev',
+        url: 'http://localhost:3000',
+        timeout: 120 * 1000,
+        reuseExistingServer: !process.env.CI,
+        cwd: '.',
+      }
+    : undefined,
 });

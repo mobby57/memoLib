@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
  */
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -83,7 +83,7 @@ const TYPES_DEMANDE = [
 ]
 
 export default function NouvelleDemandePage() {
-  const { data: session, status } = useSession()
+  const { data: session, status, user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
   

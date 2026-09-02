@@ -8,17 +8,19 @@ const hasRealDb =
   /postgres/i.test(process.env.DATABASE_URL) &&
   !/test:test@localhost:5432\/test/i.test(process.env.DATABASE_URL);
 
-const describeIfRealDb = hasRealDb ? describe : describe.skip;
+if (!hasRealDb) {
+  throw new Error(
+    'A PostgreSQL DATABASE_URL is required to run the email database integration test.',
+  );
+}
 
-describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
+describe('POST /api/emails/incoming (integration db)', () => {
   let POST: (request: NextRequest) => Promise<Response>;
   let prisma: any;
 
   let tenantId: string;
   let planId: string;
   let recipientEmail: string;
-  let dbReady = false;
-
   const webhookSecret = 'integration-secret';
 
   beforeAll(async () => {
@@ -28,29 +30,34 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
 
     jest.resetModules();
 
+<<<<<<< HEAD
     jest.doMock('@/lib/workflows/email-intelligence', () => ({
       analyzeEmail: jest.fn(async () => ({
+=======
+    vi.doMock('@/lib/workflows/email-intelligence', () => ({
+      analyzeEmail: vi.fn(async () => ({
+>>>>>>> save/clerk-wip-20260901
         category: 'document-request',
         urgency: 'high',
         sentiment: 'neutral',
       })),
     }));
 
-    jest.doMock('@/frontend/lib/services/filter-rule.service', () => ({
+    vi.doMock('@/frontend/lib/services/filter-rule.service', () => ({
       filterRuleService: {
         evaluateAllRules: jest.fn(async () => []),
         applyActions: jest.fn(async () => undefined),
       },
     }));
 
-    jest.doMock('@/lib/services/smart-inbox.service', () => ({
+    vi.doMock('@/lib/services/smart-inbox.service', () => ({
       smartInboxService: {
         calculateScore: jest.fn(async () => ({ score: 77, reasons: ['integration-test'] })),
         saveScore: jest.fn(async () => undefined),
       },
     }));
 
-    jest.doMock('@/lib/services/event-log.service', () => ({
+    vi.doMock('@/lib/services/event-log.service', () => ({
       eventLogService: {
         createEventLog: jest.fn(async () => ({ id: 'event-int' })),
       },
@@ -59,19 +66,10 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
     ({ prisma } = await import('../../../lib/prisma'));
     ({ POST } = await import('../../../app/api/emails/incoming/route'));
 
-    try {
-      await prisma.$queryRaw`SELECT 1`;
-      dbReady = true;
-    } catch {
-      dbReady = false;
-    }
+    await prisma.$queryRaw`SELECT 1`;
   });
 
   beforeEach(async () => {
-    if (!dbReady) {
-      return;
-    }
-
     const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     const plan = await prisma.plan.create({
@@ -112,7 +110,7 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
   });
 
   afterAll(async () => {
-    if (dbReady && prisma?.tenant && prisma?.plan) {
+    if (prisma?.tenant && prisma?.plan) {
       await prisma.tenant.deleteMany({
         where: {
           subdomain: { startsWith: 'int-' },
@@ -132,11 +130,6 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
   });
 
   it('stores email + attachments + workflow in real database', async () => {
-    if (!dbReady) {
-      expect(true).toBe(true);
-      return;
-    }
-
     const request = new NextRequest('http://localhost/api/emails/incoming', {
       method: 'POST',
       headers: {
@@ -180,11 +173,6 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
   });
 
   it('prevents duplicates with same messageId and keeps one email row', async () => {
-    if (!dbReady) {
-      expect(true).toBe(true);
-      return;
-    }
-
     const fixedMessageId = `<int-dup-${Date.now()}@example.com>`;
 
     const firstRequest = new NextRequest('http://localhost/api/emails/incoming', {
@@ -239,11 +227,6 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
   });
 
   it('returns 404 for unknown recipient and does not create email', async () => {
-    if (!dbReady) {
-      expect(true).toBe(true);
-      return;
-    }
-
     const unknownRecipient = `unknown-${Date.now()}@memolib.space`;
 
     const request = new NextRequest('http://localhost/api/emails/incoming', {

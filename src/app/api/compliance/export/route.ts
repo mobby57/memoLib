@@ -1,64 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { GDPRCompliance, type DataCategory } from '@/lib/compliance/gdpr';
+import { z } from 'zod';
+import { auth } from '@/lib/clerk-auth';
+import { DATA_CATEGORIES, GDPRCompliance } from '@/lib/compliance/gdpr';
+import { logger } from '@/lib/logger';
 
-export async function POST(req: NextRequest) {
-    try {
-        const session = await getServerSession();
+const exportRequestSchema = z
+  .object({
+    format: z.literal('json').default('json'),
+    categories: z.array(z.enum(DATA_CATEGORIES)).min(1).max(DATA_CATEGORIES.length).optional(),
+  })
+  .strict();
 
-        if (!session?.user?.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+export async function POST(request: NextRequest) {
+  const { user } = await auth();
+  if (!user?.tenantId) {
+    return NextResponse.json({ error: user ? 'Accès refusé' : 'Non authentifié' }, { status: user ? 403 : 401 });
+  }
 
-        const { format = 'json', categories } = await req.json();
+  const parsed = exportRequestSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Demande d’export invalide' }, { status: 400 });
+  }
 
-        // Validate format
-        if (!['json', 'csv', 'pdf'].includes(format)) {
-            return NextResponse.json(
-                { error: 'Invalid format. Must be json, csv, or pdf' },
-                { status: 400 }
-            );
-        }
-
-        // Request export
-        const requestId = await GDPRCompliance.requestDataExport(
-            session.user.email,
-            format,
-            categories as DataCategory[]
-        );
-
-        return NextResponse.json({
-            message: 'Export request received. You will be notified when ready.',
-            requestId,
-            estimatedTime: '5-10 minutes'
-        });
-    } catch (error: any) {
-        console.error('Error requesting export:', error);
-        return NextResponse.json(
-            { error: error.message || 'Internal server error' },
-            { status: 500 }
-        );
-    }
-}
-
-export async function GET(req: NextRequest) {
-    try {
-        const session = await getServerSession();
-
-        if (!session?.user?.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        // Get user's export requests
-        // This would query the database for DataExportRequest records
-        // For now, return empty array
-
-        return NextResponse.json({ exports: [] });
-    } catch (error: any) {
-        console.error('Error fetching exports:', error);
-        return NextResponse.json(
-            { error: error.message || 'Internal server error' },
-            { status: 500 }
-        );
-    }
+  try {
+    const data = await GDPRCompliance.exportUserData(user.id, parsed.data.categories);
+    return NextResponse.json(data, {
+      headers: {
+        'Content-Disposition': 'attachment; filename="memolib-personal-data.json"',
+        'Cache-Control': 'no-store, private',
+      },
+    });
+  } catch (error) {
+    logger.error('Personal data export failed', error, { userId: user.id, tenantId: user.tenantId });
+    return NextResponse.json({ error: 'Impossible de préparer l’export' }, { status: 500 });
+  }
 }

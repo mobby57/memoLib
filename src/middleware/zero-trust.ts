@@ -4,7 +4,7 @@
  */
 
 import { AuditHelpers, logAudit } from '@/lib/audit';
-import { getAuthToken } from '@/lib/auth/nextauth-token';
+import { getAuthToken } from '@/lib/auth/clerk-token';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -102,7 +102,8 @@ async function checkAuthorization(
 /**
  * Routes publiques (pas de verification)
  */
-const PUBLIC_ROUTES = ['/api/auth/', '/_next/', '/favicon.ico', '/manifest.json', '/sw.js'];
+
+const PUBLIC_ROUTES = ['/api/auth/', '/_next/', '/favicon.ico', '/manifest.webmanifest', '/sw.js'];
 
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some(route => pathname.startsWith(route));
@@ -120,7 +121,7 @@ export async function zeroTrustMiddleware(req: NextRequest) {
   }
 
   // 1. AUTHENTIFICATION
-  const token = await getAuthToken(req);
+  const token = await getAuthToken();
 
   if (!token) {
     // Log tentative d'acces non authentifie
@@ -151,7 +152,7 @@ export async function zeroTrustMiddleware(req: NextRequest) {
   if (!authCheck.authorized) {
     // Log acces non autorise
     await AuditHelpers.logUnauthorizedAccess(
-      (token.id as string) || 'anonymous',
+      (token.sub as string) || 'anonymous',
       context.tenantId as string | null,
       (context.resourceType as any) || 'Unknown',
       'route',
@@ -166,7 +167,7 @@ export async function zeroTrustMiddleware(req: NextRequest) {
   if (context.method !== 'GET' || context.resourceType === 'Document') {
     await logAudit({
       tenantId: context.tenantId as string | undefined,
-      userId: token.id as string,
+      userId: token.sub as string,
       userRole: token.role as string,
       action: context.method as any,
       objectType: (context.resourceType as any) || 'Unknown',

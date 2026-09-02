@@ -1,18 +1,23 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const { user } = await auth();
+    const session = user ? { user } : null;
     
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
-    const userRole = (session.user as any).role;
+    const userId = (user as any).id;
+    const userRole = (user as any).role;
 
     if (userRole !== 'CLIENT') {
       return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
@@ -45,3 +50,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+
+
+

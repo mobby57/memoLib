@@ -1,48 +1,55 @@
 import crypto from 'crypto';
 import { z } from 'zod';
 
-const AddressInputSchema = z.union([z.string(), z.array(z.string())]);
+const MAX_EMAIL_BODY_LENGTH = 1_000_000;
+const MAX_RAW_EMAIL_LENGTH = 1_100_000;
+const MAX_ATTACHMENTS = 20;
+
+const AddressInputSchema = z.union([
+  z.string().trim().min(1).max(4_000),
+  z.array(z.string().trim().min(1).max(320)).max(50),
+]);
 
 const IncomingEmailAttachmentSchema = z
   .object({
-    filename: z.string().min(1),
-    mimeType: z.string().optional(),
-    size: z.number().int().nonnegative().optional(),
-    storageKey: z.string().optional(),
-    contentId: z.string().optional(),
-    disposition: z.string().optional(),
+    filename: z.string().trim().min(1).max(255),
+    mimeType: z.string().trim().max(255).optional(),
+    size: z.number().int().nonnegative().max(25 * 1024 * 1024).optional(),
+    storageKey: z.string().trim().max(1_024).optional(),
+    contentId: z.string().trim().max(1_024).optional(),
+    disposition: z.string().trim().max(100).optional(),
     checksum: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
   })
-  .passthrough();
+  .strict();
 
 export const IncomingEmailPayloadSchema = z
   .object({
-    from: z.string().min(1),
+    from: z.string().trim().min(1).max(4_000),
     to: AddressInputSchema,
-    subject: z.string().min(1),
-    body: z.string().optional().default(''),
-    htmlBody: z.string().nullable().optional(),
-    messageId: z.string().nullable().optional(),
-    providerMessageId: z.string().nullable().optional(),
-    threadId: z.string().nullable().optional(),
-    provider: z.string().nullable().optional(),
-    sourceChannel: z.string().nullable().optional(),
+    subject: z.string().trim().min(1).max(998),
+    body: z.string().max(MAX_EMAIL_BODY_LENGTH).optional().default(''),
+    htmlBody: z.string().max(MAX_EMAIL_BODY_LENGTH).nullable().optional(),
+    messageId: z.string().trim().max(998).nullable().optional(),
+    providerMessageId: z.string().trim().max(998).nullable().optional(),
+    threadId: z.string().trim().max(998).nullable().optional(),
+    provider: z.string().trim().max(100).nullable().optional(),
+    sourceChannel: z.string().trim().max(100).nullable().optional(),
     sourceDirection: z.enum(['inbound', 'outbound']).optional().default('inbound'),
-    rawFormat: z.string().nullable().optional(),
-    rawContent: z.string().nullable().optional(),
-    rawMessage: z.string().nullable().optional(),
-    msgBase64: z.string().nullable().optional(),
+    rawFormat: z.string().trim().max(100).nullable().optional(),
+    rawContent: z.string().max(MAX_RAW_EMAIL_LENGTH).nullable().optional(),
+    rawMessage: z.string().max(MAX_RAW_EMAIL_LENGTH).nullable().optional(),
+    msgBase64: z.string().max(MAX_RAW_EMAIL_LENGTH * 2).nullable().optional(),
     headers: z.record(z.string(), z.unknown()).optional(),
     cc: AddressInputSchema.optional(),
     bcc: AddressInputSchema.optional(),
     replyTo: AddressInputSchema.optional(),
-    inReplyTo: z.string().nullable().optional(),
-    references: z.union([z.string(), z.array(z.string())]).optional(),
+    inReplyTo: z.string().trim().max(998).nullable().optional(),
+    references: z.union([z.string().max(8_000), z.array(z.string().max(998)).max(50)]).optional(),
     receivedAt: z.union([z.string(), z.date()]).optional(),
-    attachments: z.array(IncomingEmailAttachmentSchema).optional().default([]),
+    attachments: z.array(IncomingEmailAttachmentSchema).max(MAX_ATTACHMENTS).optional().default([]),
   })
-  .passthrough();
+  .strict();
 
 export type IncomingEmailPayload = z.infer<typeof IncomingEmailPayloadSchema>;
 

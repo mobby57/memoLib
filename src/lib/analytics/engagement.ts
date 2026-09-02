@@ -1,3 +1,5 @@
+// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
 /**
  * User Engagement Analytics for MemoLib
  * 
@@ -381,3 +383,5 @@ export class EngagementAnalytics {
         return `${value.toFixed(2)}%`;
     }
 }
+
+

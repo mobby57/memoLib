@@ -1,13 +1,12 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route - Emails Workspace
  * GET /api/lawyer/workspaces/[id]/emails - Liste emails avec filtres
  * PATCH /api/lawyer/workspaces/[id]/emails - Actions (marquer lu, favoris, archiver)
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -15,8 +14,9 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session: any = await getServerSession(authOptions as any);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -75,8 +75,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
  */
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session: any = await getServerSession(authOptions as any);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -125,8 +126,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session: any = await getServerSession(authOptions as any);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 

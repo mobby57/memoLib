@@ -23,8 +23,7 @@ export function verifyWebhookSignature(
       Buffer.from(signature),
       Buffer.from(expectedSignature)
     );
-  } catch (error) {
-    console.error('[WEBHOOK] Signature verification error:', error);
+  } catch {
     return false;
   }
 }

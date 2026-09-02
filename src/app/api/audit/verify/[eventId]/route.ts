@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route - Audit Integrity Check
  * GET /api/audit/verify/{eventId}
@@ -8,7 +9,6 @@
  */
 
 import { eventLogService } from '@/lib/services/event-log.service';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 type RouteParams = {
@@ -20,12 +20,13 @@ type RouteParams = {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     // Auth check
-    const session = await getServerSession();
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const userRole = (session.user as any).role;
+    const userRole = (user as any).role;
     if (userRole !== 'ADMIN') {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 });
     }

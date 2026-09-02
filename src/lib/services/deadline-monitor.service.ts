@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * DeadlineMonitorService - Phase 6
  * Monitoring et notifications délais critiques
@@ -185,8 +185,12 @@ export class DeadlineMonitorService {
       daysAhead?: number;
     } = {}
   ) {
-    const { status = ['APPROACHING', 'URGENT', 'CRITICAL', 'OVERDUE'], dossierId, limit = 50, daysAhead = 30 } =
-      options;
+    const {
+      status = ['APPROACHING', 'URGENT', 'CRITICAL', 'OVERDUE'],
+      dossierId,
+      limit = 50,
+      daysAhead = 30,
+    } = options;
 
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + daysAhead);
@@ -226,7 +230,7 @@ export class DeadlineMonitorService {
     });
 
     // Enrichir avec jours restants
-    const enriched = deadlines.map((d) => ({
+    const enriched = deadlines.map(d => ({
       ...d,
       daysRemaining: this.calculateDaysRemaining(d.dueDate),
     }));
@@ -235,10 +239,10 @@ export class DeadlineMonitorService {
       deadlines: enriched,
       total: enriched.length,
       byStatus: {
-        critical: enriched.filter((d) => d.status === 'CRITICAL').length,
-        urgent: enriched.filter((d) => d.status === 'URGENT').length,
-        approaching: enriched.filter((d) => d.status === 'APPROACHING').length,
-        overdue: enriched.filter((d) => d.status === 'OVERDUE').length,
+        critical: enriched.filter(d => d.status === 'CRITICAL').length,
+        urgent: enriched.filter(d => d.status === 'URGENT').length,
+        approaching: enriched.filter(d => d.status === 'APPROACHING').length,
+        overdue: enriched.filter(d => d.status === 'OVERDUE').length,
       },
     };
   }
@@ -324,5 +328,3 @@ export class DeadlineMonitorService {
     };
   }
 }
-
-
