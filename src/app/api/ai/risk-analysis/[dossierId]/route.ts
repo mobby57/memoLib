@@ -2,17 +2,31 @@ import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
+import { z } from 'zod';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+
+const paramsSchema = z.object({ dossierId: z.string().trim().min(1).max(128) }).strict();
+type Risk = {
+  level: 'low' | 'medium' | 'high' | 'critical';
+  category: 'pieces' | 'deadline' | 'procedure' | 'incomplete';
+  message: string;
+  items?: string[];
+};
 
 /**
  * GET /api/ai/risk-analysis/[dossierId]
  * Analyse les risques d'un dossier et identifie les points faibles.
  */
-export async function GET(req: NextRequest, { params }: { params: Promise<{ dossierId: string }> }) {
+export const GET = withAIRateLimit(async (
+  req: NextRequest,
+  context?: { params: Promise<{ dossierId: string }> }
+) => {
   const { user } = await auth();
-    const session = user ? { user } : null;
   if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
-  const { dossierId } = await params;
+  const parsedParams = paramsSchema.safeParse(await context?.params);
+  if (!parsedParams.success) return NextResponse.json({ error: 'Dossier invalide' }, { status: 400 });
+  const { dossierId } = parsedParams.data;
   if (!user.tenantId) return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
 
   const access = await canAccessDossier({
@@ -27,16 +41,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ doss
 
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId: user.tenantId },
-    include: {
-      client: true,
+    select: {
       checklistItems: true,
       legalDeadlines: true,
+      typeDossier: true,
+      juridiction: true,
+      description: true,
     },
   });
 
   if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
 
-  const risks: any[] = [];
+  const risks: Risk[] = [];
   let score = 100;
 
   // Pieces manquantes
@@ -79,4 +95,4 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ doss
     risks,
     recommendation: score < 50 ? 'ACTION URGENTE REQUISE' : score < 80 ? 'Points a ameliorer' : 'Dossier en bonne voie',
   });
-}
+});

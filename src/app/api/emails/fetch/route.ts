@@ -6,6 +6,8 @@ import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
+import { randomUUID } from 'node:crypto';
+import { generateWebhookHeaders } from '@/lib/security/webhook-verification';
 
 /**
  * POST /api/emails/fetch
@@ -67,14 +69,22 @@ export async function POST(req: NextRequest) {
 
     // Inject into MemoLib webhook
     const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/webhooks/email-inbound`;
-    const secret = process.env.INCOMING_EMAIL_WEBHOOK_SECRET || process.env.EMAIL_WEBHOOK_SECRET || 'demo';
+    const secret = process.env.EMAIL_WEBHOOK_SECRET;
+    if (!secret) {
+      return NextResponse.json({ error: 'Service email indisponible' }, { status: 503 });
+    }
     let imported = 0;
 
     for (const email of emails) {
+      const payload = JSON.stringify({ ...email, tenantId });
       const res = await fetch(webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-webhook-secret': secret },
-        body: JSON.stringify({ ...email, tenantId }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-webhook-id': randomUUID(),
+          ...generateWebhookHeaders(payload, secret),
+        },
+        body: payload,
       });
       const r = await res.json();
       if (r.success || r.duplicate) imported++;
@@ -90,6 +100,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Gmail: ${e.message}` }, { status: 500 });
   }
 }
-
 
 

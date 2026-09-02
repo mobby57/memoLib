@@ -105,7 +105,7 @@ describe('Logger - Systeme de logging professionnel', () => {
       const lastLog = newLogs[newLogs.length - 1];
 
       // L'email doit etre anonymise
-      expect(lastLog.context?.email).toMatch(/\*\*\*@example\.com/);
+      expect(lastLog.context?.email).toBe('***REDACTED***');
       expect(lastLog.context?.email).not.toContain('john.doe');
     });
 
@@ -118,8 +118,8 @@ describe('Logger - Systeme de logging professionnel', () => {
       const logs = logger.getBufferedLogs();
       const lastLog = logs[logs.length - 1];
 
-      expect(lastLog.context?.password).toBe('[REDACTED]');
-      expect(lastLog.context?.token).toBe('[REDACTED]');
+      expect(lastLog.context?.password).toBe('***REDACTED***');
+      expect(lastLog.context?.token).toBe('***REDACTED***');
     });
 
     test('Protege les donnees personnelles si non-RGPD compliant', () => {
@@ -133,9 +133,9 @@ describe('Logger - Systeme de logging professionnel', () => {
       const logs = logger.getBufferedLogs();
       const lastLog = logs[logs.length - 1];
 
-      expect(lastLog.context?.nom).toBe('[DONNeES PERSONNELLES]');
-      expect(lastLog.context?.prenom).toBe('[DONNeES PERSONNELLES]');
-      expect(lastLog.context?.telephone).toBe('[DONNeES PERSONNELLES]');
+      expect(lastLog.context?.nom).toBe('***REDACTED***');
+      expect(lastLog.context?.prenom).toBe('***REDACTED***');
+      expect(lastLog.context?.telephone).toBe('***REDACTED***');
     });
 
     test('Conserve les donnees si RGPD compliant', () => {
@@ -150,6 +150,20 @@ describe('Logger - Systeme de logging professionnel', () => {
 
       expect(lastLog.context?.dossierId).toBe('DOSSIER-123');
       expect(lastLog.context?.actionType).toBe('CREATE');
+    });
+
+    test('redacte les données personnelles même si le contexte déclare être conforme', () => {
+      logger.info('Test RGPD strict', {
+        rgpdCompliant: true,
+        phone: '0612345678',
+        nested: { email: 'john.doe@example.com' },
+      });
+
+      const logs = logger.getBufferedLogs();
+      const lastLog = logs[logs.length - 1];
+
+      expect(lastLog.context?.phone).toBe('***REDACTED***');
+      expect((lastLog.context?.nested as Record<string, unknown>).email).toBe('***REDACTED***');
     });
   });
 

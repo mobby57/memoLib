@@ -1,136 +1,91 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { hybridAI } from '@/lib/ai/hybrid-client';
 import { checkFeatureAccess } from '@/lib/billing/features';
-import { checkConfidentialMode } from '@/lib/security/confidential-mode';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
-export async function POST(req: NextRequest) {
+const draftRequestSchema = z.object({
+  emailId: z.string().trim().min(1).max(128).optional(),
+  subject: z.string().trim().max(500).default(''),
+  body: z.string().trim().min(1).max(8_000),
+  from: z.string().trim().max(320).default(''),
+  dossierId: z.string().trim().min(1).max(128).optional(),
+}).strict();
+const draftSchema = z.object({
+  subject: z.string().trim().min(1).max(600),
+  body: z.string().trim().min(1).max(5_000),
+  tone: z.enum(['formel', 'empathique', 'urgent']),
+  suggestedActions: z.array(z.string().trim().min(1).max(300)).max(5),
+}).strict();
+
+export const POST = withAIRateLimit(async (req: NextRequest) => {
   const { user } = await auth();
-    const session = user ? { user } : null;
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
-  const tenantId = user.tenantId;
-
-  // Feature gate : brouillon IA réservé au plan Cabinet+
-  if (tenantId) {
-    const gate = await checkFeatureAccess(tenantId, 'ai_draft_reply');
-    if (!gate.allowed) {
-      return NextResponse.json({
-        error: 'FEATURE_GATED',
-        ...gate,
-        upgradeUrl: '/settings/billing?upgrade=true',
-      }, { status: 403 });
-    }
+  const gate = await checkFeatureAccess(user.tenantId, 'ai_draft_reply');
+  if (!gate.allowed) {
+    return NextResponse.json({ error: 'FEATURE_GATED', ...gate, upgradeUrl: '/settings/billing?upgrade=true' }, { status: 403 });
   }
 
-  let requestBody: Record<string, unknown>;
-  try {
-    requestBody = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
-  }
+  const parsed = draftRequestSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Requête de brouillon invalide' }, { status: 400 });
+  const { subject, body, from, dossierId } = parsed.data;
 
-  const { emailId, subject, body, from, dossierId } = requestBody as {
-    emailId?: string; subject?: string; body?: string; from?: string; dossierId?: string;
-  };
-  if (!body) return NextResponse.json({ error: 'body requis' }, { status: 400 });
-
-  // Récupérer le contexte du dossier si disponible
   let context = '';
-  if (dossierId && tenantId) {
-    const dossier = await prisma.dossier.findFirst({
-      where: { id: dossierId, tenantId },
-      include: { Client: true },
+  if (dossierId) {
+    const access = await canAccessDossier({
+      userId: user.id, tenantId: user.tenantId, role: user.role, groups: user.groups,
+      dossierId, action: 'read',
     });
-    if (dossier) {
-      context = `\nContexte dossier: ${dossier.numero} — ${dossier.typeDossier} — Client: ${dossier.Client ? `${dossier.Client.firstName} ${dossier.Client.lastName}` : 'N/A'} — Statut: ${dossier.statut}`;
-      if (dossier.description) context += `\nDescription: ${dossier.description}`;
-    }
+    if (!access.allowed) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+    const dossier = await prisma.dossier.findFirst({
+      where: { id: dossierId, tenantId: user.tenantId },
+      select: { numero: true, typeDossier: true, statut: true, description: true },
+    });
+    if (!dossier) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+    context = `\nContexte du dossier : ${dossier.numero} — ${dossier.typeDossier} — statut ${dossier.statut}.
+Description : ${dossier.description || 'non précisée'}`;
   }
 
   try {
-    // 🔒 Mode confidentiel : si le dossier est confidentiel, forcer local/regex
-    if (dossierId) {
-      const confidentialCheck = await checkConfidentialMode(dossierId);
-      if (confidentialCheck.isConfidential) {
-        hybridAI.setPreferredProvider('ollama');
-      }
-    }
-    const draft = await generateWithAI(subject || '', body, from || '', context, user.name || 'Maître');
-    return NextResponse.json(draft);
-  } catch {
-    const draft = generateFallback(subject || '', body, from || '', user.name || 'Maître');
-    return NextResponse.json({ ...draft, _fallback: true });
-  }
-}
+    const result = await hybridAI.generateWithCostControl(
+      `Tu es un assistant de rédaction juridique. Rédige un brouillon de réponse professionnelle.
 
-async function generateWithAI(subject: string, body: string, from: string, context: string, lawyerName: string) {
-  const prompt = `Tu es un avocat français. Rédige un brouillon de réponse professionnelle à cet email.
-
-Email reçu:
-De: ${from}
-Objet: ${subject}
-Corps: ${body.slice(0, 1500)}
+Email reçu :
+De : ${from}
+Objet : ${subject}
+Corps : ${body}
 ${context}
 
-Règles:
-- Ton professionnel et courtois
-- Commence par "Madame/Monsieur" ou le nom si connu
-- Accuse réception de la demande
-- Indique les prochaines étapes concrètes
-- Termine par une formule de politesse
-- Signe "${lawyerName}"
-- Maximum 150 mots
+Règles :
+- N'ajoute aucun fait non fourni et ne formule aucun conseil juridique définitif.
+- Accuse réception, indique les prochaines étapes et demande les précisions nécessaires.
+- Ne reproduis pas d'identifiants personnels ou coordonnées.
+- Maximum 150 mots et signe « Votre conseil ».
 
-Retourne UNIQUEMENT un JSON:
-{
-  "subject": "Re: objet adapté",
-  "body": "le texte de la réponse",
-  "tone": "formel|empathique|urgent",
-  "suggestedActions": ["action1", "action2"]
-}`;
+Retourne uniquement ce JSON : {"subject":"Re: objet","body":"texte","tone":"formel|empathique|urgent","suggestedActions":["action"]}`,
+      user.tenantId
+    );
+    const jsonMatch = result.response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Réponse IA non structurée');
+    const draft = draftSchema.safeParse(JSON.parse(jsonMatch[0]));
+    if (!draft.success) throw new Error('Réponse IA invalide');
+    return NextResponse.json({ ...draft.data, requiresHumanReview: true });
+  } catch {
+    return NextResponse.json({ ...generateFallback(subject, body), _fallback: true, requiresHumanReview: true });
+  }
+});
 
-  const { user } = await auth();
-    const session = user ? { user } : null;
-  const tenantId = (user as any)?.tenantId || 'demo';
-
-  const aiResult = await hybridAI.generateWithCostControl(prompt, tenantId);
-  const jsonMatch = aiResult.response.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('No JSON in AI response');
-  return JSON.parse(jsonMatch[0]);
-}
-
-function generateFallback(subject: string, body: string, from: string, lawyerName: string) {
-  const clientName = from.match(/^([^<@]+)/)?.[1]?.trim() || 'Madame, Monsieur';
+function generateFallback(subject: string, body: string) {
   const isUrgent = /urgent|imm[eé]diat|oqtf/i.test(body);
-
   return {
-    subject: `Re: ${subject}`,
-    body: `${clientName},
-
-J'accuse bonne réception de votre ${isUrgent ? 'demande urgente' : 'message'} concernant "${subject}".
-
-${isUrgent ? 'Compte tenu de l\'urgence de votre situation, je traite votre dossier en priorité.' : 'Votre demande a bien été enregistrée et sera traitée dans les meilleurs délais.'}
-
-Je reviens vers vous rapidement avec les éléments nécessaires pour la suite de la procédure.
-
-Je reste à votre disposition pour toute question.
-
-Bien cordialement,
-${lawyerName}`,
-    tone: isUrgent ? 'urgent' : 'formel',
-    suggestedActions: [
-      'Vérifier les pièces jointes',
-      isUrgent ? 'Traiter en priorité' : 'Planifier un rendez-vous',
-    ],
+    subject: `Re: ${subject || 'votre message'}`,
+    body: `Madame, Monsieur,\n\nNous accusons réception de votre ${isUrgent ? 'demande urgente' : 'message'} concernant « ${subject || 'votre dossier'} ».\n\nVotre demande va être examinée. Nous reviendrons vers vous avec les prochaines étapes ou les précisions nécessaires.\n\nBien cordialement,\nVotre conseil`,
+    tone: isUrgent ? 'urgent' as const : 'formel' as const,
+    suggestedActions: [isUrgent ? 'Vérifier le délai applicable' : 'Examiner la demande'],
   };
 }
-
-
-
-

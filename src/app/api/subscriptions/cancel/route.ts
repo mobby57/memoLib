@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/config';
 import { prisma } from '@/lib/prisma';
@@ -10,12 +6,11 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: NextRequest) {
     try {
         const { user } = await auth();
-    const session = user ? { user } : null;
         if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const user = await prisma.user.findUnique({
+        const dbUser = await prisma.user.findUnique({
             where: { email: user.email },
             include: {
                 subscriptions: {
@@ -32,11 +27,11 @@ export async function POST(req: NextRequest) {
             }
         });
 
-        if (!user) {
+        if (!dbUser) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const subscription = user.subscriptions[0];
+        const subscription = dbUser.subscriptions[0];
 
         if (!subscription) {
             return NextResponse.json(

@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
@@ -11,14 +7,13 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const { user } = await auth();
-    const session = user ? { user } : null;
-    
+
     if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userId = (user as any).id;
-    const userRole = (user as any).role;
+    const userId = user.id;
+    const userRole = user.role;
 
     if (userRole !== 'CLIENT') {
       return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
@@ -69,14 +64,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { user } = await auth();
-    const session = user ? { user } : null;
-    
+
     if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userId = (user as any).id;
-    const userRole = (user as any).role;
+    const userId = user.id;
+    const userRole = user.role;
 
     if (userRole !== 'CLIENT') {
       return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
@@ -90,18 +84,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Trouver l'avocat du client (premier ADMIN du tenant)
-    const user = await prisma.user.findUnique({
+    const dbUser = await prisma.user.findUnique({
       where: { id: userId },
       select: { tenantId: true },
     });
 
-    if (!user?.tenantId) {
+    if (!dbUser?.tenantId) {
       return NextResponse.json({ error: 'Client non associe a un tenant' }, { status: 400 });
     }
 
     const avocat = await prisma.user.findFirst({
       where: {
-        tenantId: user.tenantId,
+        tenantId: dbUser.tenantId,
         role: 'ADMIN',
       },
     });
@@ -117,7 +111,7 @@ export async function POST(request: NextRequest) {
         content: content.trim(),
         senderId: userId,
         recipientId: avocat.id,
-        tenantId: user.tenantId,
+        tenantId: dbUser.tenantId,
         isRead: false,
       },
       include: {
@@ -152,7 +146,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-
-
-

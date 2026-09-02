@@ -1,3 +1,5 @@
+import { isEncryptionMasterKeyUsable } from './encryption';
+
 /**
  * 🔒 Security Hardening — Production Guards
  * 
@@ -22,9 +24,9 @@ export function enforceProductionSecurity(): void {
   const errors: string[] = [];
 
   // 1. ENCRYPTION_MASTER_KEY obligatoire (données au repos)
-  if (!process.env.ENCRYPTION_MASTER_KEY) {
+  if (!isEncryptionMasterKeyUsable(process.env.ENCRYPTION_MASTER_KEY)) {
     errors.push(
-      '❌ ENCRYPTION_MASTER_KEY manquante. Les emails et données sensibles ne seront pas chiffrés. ' +
+      '❌ ENCRYPTION_MASTER_KEY manquante ou trop courte (minimum 32 caractères). Les emails et données sensibles ne seront pas chiffrés. ' +
       'Générez avec: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"'
     );
   }
@@ -64,7 +66,7 @@ export function enforceProductionSecurity(): void {
     console.error('='.repeat(60) + '\n');
 
     // Bloquer le démarrage si ENCRYPTION_MASTER_KEY est absente
-    if (!process.env.ENCRYPTION_MASTER_KEY) {
+    if (!isEncryptionMasterKeyUsable(process.env.ENCRYPTION_MASTER_KEY)) {
       throw new Error(
         'FATAL: Cannot start in production without ENCRYPTION_MASTER_KEY. ' +
         'Client data would be stored unencrypted.'

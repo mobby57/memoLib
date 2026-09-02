@@ -1,12 +1,28 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/clerk-auth';
 import { traceAsync, collectMetric } from '@/lib/monitoring';
 import { checkAICostLimit, recordAIUsage } from '@/lib/billing/cost-guard';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+import { z } from 'zod';
 
-export async function POST(request: NextRequest) {
+const chatSchema = z.object({
+  message: z.string().trim().min(1).max(4_000),
+}).strict();
+
+export const POST = withAIRateLimit(async (request: NextRequest) => {
   const startTime = performance.now();
   
   try {
-    const { message, tenantId, context } = await request.json();
+    const { user } = await auth();
+    if (!user) return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 });
+    if (!user.tenantId) return NextResponse.json({ success: false, error: 'Accès refusé' }, { status: 403 });
+
+    const parsed = chatSchema.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) {
+      return NextResponse.json({ success: false, error: 'Requête IA invalide' }, { status: 400 });
+    }
+    const { message } = parsed.data;
+    const tenantId = user.tenantId;
     
     // Vérifier la limite de coûts IA
     if (tenantId) {
@@ -21,7 +37,7 @@ export async function POST(request: NextRequest) {
     
     const response = await traceAsync(
       'ai.chat.process',
-      () => processAIChat(message, tenantId, context),
+      () => processAIChat(message),
       { operation: 'ai.inference', tags: { model: 'local' } }
     );
     
@@ -43,7 +59,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       content: response.content,
-      suggestedActions: response.actions
+      suggestedActions: response.actions,
+      requiresHumanReview: true,
     });
   } catch (error) {
     collectMetric('api.ai.chat.error', performance.now() - startTime);
@@ -52,9 +69,9 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
-async function processAIChat(message: string, tenantId: string, context: string) {
+async function processAIChat(message: string) {
   const lowerMessage = message.toLowerCase();
   
   if (lowerMessage.includes('dossier')) {

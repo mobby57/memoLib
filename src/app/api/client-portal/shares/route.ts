@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Routes — Portail Client : Partages de documents
  * 
@@ -19,8 +15,8 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   const { user } = await auth();
-    const session = user ? { user } : null;
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase();
@@ -77,8 +73,8 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const { user } = await auth();
-    const session = user ? { user } : null;
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase();
@@ -108,8 +104,8 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const { user } = await auth();
-    const session = user ? { user } : null;
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
   const role = user.role?.toUpperCase();
   const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';

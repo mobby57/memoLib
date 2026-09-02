@@ -148,7 +148,7 @@ export class EngagementAnalytics {
         // Bounce rate (users with only 1 session today)
         const userSessionCounts = new Map<string, number>();
         for (const session of sessions) {
-            const userId = userId || 'anonymous';
+            const userId = session.userId || 'anonymous';
             userSessionCounts.set(userId, (userSessionCounts.get(userId) || 0) + 1);
         }
         const singleSessionUsers = Array.from(userSessionCounts.values()).filter(count => count === 1).length;
