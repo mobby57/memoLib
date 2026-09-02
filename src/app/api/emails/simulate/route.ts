@@ -1,7 +1,11 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
+import { generateWebhookHeaders } from '@/lib/security/webhook-verification';
+import { randomUUID } from 'node:crypto';
 const DEMO_EMAILS = [
   {
     from: 'Fatima Benali <fatima.benali@gmail.com>',
@@ -73,26 +77,31 @@ Préfecture du Bas-Rhin`,
  * Injecte un email démo réaliste dans le système
  */
 export async function POST() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = (user as any).tenantId;
   const email = DEMO_EMAILS[Math.floor(Math.random() * DEMO_EMAILS.length)];
 
   // Call the webhook internally
-  const webhookUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/webhooks/email-inbound`;
+  const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/webhooks/email-inbound`;
+  const secret = process.env.EMAIL_WEBHOOK_SECRET;
+  if (!secret) return NextResponse.json({ error: 'Service email indisponible' }, { status: 503 });
+  const payload = JSON.stringify({
+    ...email,
+    tenantId,
+    date: new Date().toISOString(),
+    messageId: `demo-${Date.now()}@memolib.local`,
+  });
   const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-webhook-secret': process.env.INCOMING_EMAIL_WEBHOOK_SECRET || process.env.EMAIL_WEBHOOK_SECRET || 'demo',
+      'x-webhook-id': randomUUID(),
+      ...generateWebhookHeaders(payload, secret),
     },
-    body: JSON.stringify({
-      ...email,
-      tenantId,
-      date: new Date().toISOString(),
-      messageId: `demo-${Date.now()}@memolib.local`,
-    }),
+    body: payload,
   });
 
   const result = await res.json();
@@ -103,3 +112,6 @@ export async function POST() {
     ...result,
   });
 }
+
+
+

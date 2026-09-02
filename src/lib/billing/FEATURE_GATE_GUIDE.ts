@@ -1,3 +1,6 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Feature Gate — Guide d'intégration
  *
@@ -24,8 +27,9 @@
  * import { checkFeatureAccess } from '@/lib/billing/features';
  *
  * export async function POST(req: NextRequest) {
- *   const session = await getServerSession(authOptions);
- *   const tenantId = (session?.user as any)?.tenantId;
+ *   const { user } = await auth();
+    const session = user ? { user } : null;
+ *   const tenantId = (user as any)?.tenantId;
  *
  *   // Ajouter cette vérification au début de la route
  *   const featureCheck = await checkFeatureAccess(tenantId, 'ai_draft_reply');
@@ -107,3 +111,5 @@
 //
 
 export {};
+
+

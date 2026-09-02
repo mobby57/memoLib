@@ -1,4 +1,7 @@
-﻿import { logger } from '@/lib/logger';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { logger } from '@/lib/logger';
 import {
   getUnreadCount,
   markAllNotificationsAsRead,
@@ -7,18 +10,23 @@ import {
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-// GET - Recuperer les notifications d'un utilisateur
+async function getAuthenticatedUserId(): Promise<string | null> {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  return user?.id ?? null;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const unreadOnly = searchParams.get('unreadOnly') === 'true';
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
-
+    const userId = await getAuthenticatedUserId();
     if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+
+    const { searchParams } = new URL(request.url);
+    const unreadOnly = searchParams.get('unreadOnly') === 'true';
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50', 10) || 50, 1), 100);
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0', 10) || 0, 0);
 
     const [notifications, unreadCount] = await Promise.all([
       prisma.notification.findMany({
@@ -49,12 +57,13 @@ export async function GET(request: NextRequest) {
 // PATCH - Marquer notification(s) comme lue(s)
 export async function PATCH(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { userId, notificationId, markAll } = body;
-
+    const userId = await getAuthenticatedUserId();
     if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+
+    const body = await request.json();
+    const { notificationId, markAll } = body;
 
     if (markAll) {
       await markAllNotificationsAsRead(userId);
@@ -79,12 +88,16 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Supprimer une notification
 export async function DELETE(request: NextRequest) {
   try {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const notificationId = searchParams.get('id');
-    const userId = searchParams.get('userId');
 
-    if (!notificationId || !userId) {
-      return NextResponse.json({ error: 'id et userId requis' }, { status: 400 });
+    if (!notificationId) {
+      return NextResponse.json({ error: 'id requis' }, { status: 400 });
     }
 
     const existing = await prisma.notification.findFirst({
@@ -106,3 +119,5 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+

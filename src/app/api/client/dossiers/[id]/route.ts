@@ -1,5 +1,5 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
@@ -8,14 +8,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const { user } = await auth();
+    const session = user ? { user } : null;
     
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
-    const userRole = (session.user as any).role;
+    const userId = (user as any).id;
+    const userRole = (user as any).role;
 
     if (userRole !== 'CLIENT') {
       return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
@@ -27,7 +28,7 @@ export async function GET(
     const dossier = await prisma.dossier.findFirst({
       where: {
         id: dossierId,
-        clientId: userId, // Securite: le client ne peut voir que ses propres dossiers
+        clientId: (user as any).clientId, // Securite: le client ne peut voir que ses propres dossiers
       },
       include: {
         documents: {

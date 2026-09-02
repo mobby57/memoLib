@@ -1,4 +1,4 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
 import { logger } from '@/lib/logger';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
@@ -6,7 +6,6 @@ import { scanDocumentAsync } from '@/lib/security/antivirus';
 import { createHash, randomUUID } from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -54,15 +53,16 @@ function rateLimitHeaders(
 
 function getQuarantineDirectory(tenantId: string): string | null {
   const storageRoot = process.env.VAULT_STORAGE_ROOT;
+
   if (storageRoot) {
-    return join(storageRoot, tenantId);
+    return join(/* turbopackIgnore: true */ storageRoot, tenantId);
   }
 
   if (process.env.NODE_ENV === 'production') {
     return null;
   }
 
-  return join(process.cwd(), 'uploads', 'client-quarantine', tenantId);
+  return join(/* turbopackIgnore: true */ process.cwd(), 'uploads', 'client-quarantine', tenantId);
 }
 
 export const dynamic = 'force-dynamic';
@@ -71,8 +71,7 @@ export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user;
+    const { user } = await auth();
 
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -163,8 +162,12 @@ export async function POST(request: NextRequest) {
     }
 
     const storageKey = `client-quarantine/${tenantId}/${documentId}`;
+
     await mkdir(directory, { recursive: true });
-    await writeFile(join(directory, documentId), buffer, { flag: 'wx' });
+
+    const filePath = join(/* turbopackIgnore: true */ directory, documentId);
+
+    await writeFile(filePath, buffer, { flag: 'wx' });
 
     await prisma.$transaction([
       prisma.document.create({
@@ -236,3 +239,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors du dépôt sécurisé' }, { status: 500 });
   }
 }
+
+

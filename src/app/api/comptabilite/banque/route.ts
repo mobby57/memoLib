@@ -1,19 +1,17 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route - Rapprochement bancaire
  * GET /api/comptabilite/banque — Stats + suggestions de rapprochement
  * POST /api/comptabilite/banque — Import de mouvements bancaires (CSV)
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { RapprochementService } from '@/lib/services/comptabilite';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-
-  const user = session.user as any;
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
   try {
     const [suggestions, stats] = await Promise.all([
@@ -31,10 +29,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-
-  const user = session.user as any;
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
   try {
     const body = await req.json();
@@ -72,3 +69,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

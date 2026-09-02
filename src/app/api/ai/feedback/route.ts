@@ -1,34 +1,46 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+import { sanitizePromptForAI, sanitizeStructuredDataForAI } from '@/lib/ai/prompt-sanitizer';
+import { z } from 'zod';
 
-export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+const feedbackSchema = z.object({
+  field: z.string().trim().min(1).max(100),
+  aiValue: z.string().trim().min(1).max(2_000),
+  userValue: z.string().trim().min(1).max(2_000),
+  context: z.record(z.unknown()).optional(),
+}).strict();
 
-  const userId = (session.user as any).id;
-  const tenantId = (session.user as any).tenantId || '';
-  const { field, aiValue, userValue, context } = await request.json();
+export const POST = withAIRateLimit(async (request: NextRequest) => {
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
-  if (!field || !aiValue || !userValue) {
-    return NextResponse.json({ error: 'field, aiValue, userValue required' }, { status: 400 });
-  }
+  const parsed = feedbackSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Retour IA invalide' }, { status: 400 });
+  const { field, aiValue, userValue, context } = parsed.data;
+  const safeAiValue = sanitizePromptForAI(aiValue).sanitizedText;
+  const safeUserValue = sanitizePromptForAI(userValue).sanitizedText;
+  const safeContext = context ? sanitizeStructuredDataForAI(context) : undefined;
 
-  const feedback = await prisma.aIFeedback.create({
-    data: { userId, tenantId, field, aiValue, userValue, context },
+  await prisma.aIFeedback.create({
+    data: { userId: user.id, tenantId: user.tenantId, field, aiValue: safeAiValue, userValue: safeUserValue, context: safeContext },
   });
 
   // Check if user corrects the same pattern 3+ times → suggest preference
   const count = await prisma.aIFeedback.count({
-    where: { userId, field, aiValue, userValue },
+    where: { userId: user.id, tenantId: user.tenantId, field, aiValue: safeAiValue, userValue: safeUserValue },
   });
 
   return NextResponse.json({
     saved: true,
-    suggestion: count >= 3 ? {
-      message: `Vous corrigez souvent "${aiValue}" → "${userValue}" pour ${field}. Appliquer automatiquement ?`,
-      field, fromValue: aiValue, toValue: userValue, occurrences: count,
-    } : null,
+    suggestionAvailable: count >= 3,
+    occurrences: count,
   });
-}
+});
+

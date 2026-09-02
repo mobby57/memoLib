@@ -1,28 +1,32 @@
-﻿/**
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API Route: Synchroniser un dossier avec GitHub
  * POST /api/github/sync-dossier
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { syncDossierToGitHub } from '@/lib/github/user-actions';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userId = (session.user as any).id;
-    const tenantId = (session.user as any).tenantId;
+    const userId = (user as any).id;
+    const tenantId = (user as any).tenantId;
 
     const { dossierId, repo } = await req.json();
 
@@ -111,3 +115,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

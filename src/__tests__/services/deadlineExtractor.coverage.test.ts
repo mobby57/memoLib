@@ -14,6 +14,40 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
+vi.mock('pdf2json', () => ({
+  default: class PDFParser {
+    private handlers = new Map<string, (error: Error) => void>();
+
+    on(event: string, handler: (error: Error) => void) {
+      this.handlers.set(event, handler);
+    }
+
+    parseBuffer() {
+      this.handlers.get('pdfParser_dataError')?.(new Error('PDF fixture is invalid'));
+    }
+  },
+}));
+
+function createMinimalPdf(): Buffer {
+  const objects = [
+    '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+    '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
+    '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n',
+    '4 0 obj\n<< /Length 37 >>\nstream\nBT /F1 12 Tf 72 720 Td (OQTF 30 jours) Tj ET\nendstream\nendobj\n',
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = objects.map(object => {
+    const offset = Buffer.byteLength(pdf, 'utf8');
+    pdf += object;
+    return offset;
+  });
+  const xrefOffset = Buffer.byteLength(pdf, 'utf8');
+  pdf += `xref\n0 5\n0000000000 65535 f \n${offsets
+    .map(offset => `${String(offset).padStart(10, '0')} 00000 n `)
+    .join('\n')}\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return Buffer.from(pdf, 'utf8');
+}
+
 import {
   calculateDeadlineStatus,
   calculateDeadlinePriority,
@@ -155,9 +189,9 @@ describe('deadlineExtractor.ts — Full Coverage', () => {
     });
 
     it('should attempt PDF extraction', async () => {
-      const buffer = Buffer.from('fake pdf content');
+      const buffer = createMinimalPdf();
       const result = await extractDeadlinesFromFile(buffer, 'oqtf_decision.pdf', 'application/pdf');
-      // Will fail but should attempt extraction
+      // A syntactically valid fixture exercises the real PDF parser.
       expect(result.success).toBe(false);
     });
 

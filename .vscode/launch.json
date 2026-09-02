@@ -98,19 +98,6 @@
       "console": "integratedTerminal"
     },
 
-    // ===== DOCKER =====
-    {
-      "name": "Docker: Node.js Backend",
-      "type": "docker",
-      "request": "launch",
-      "preLaunchTask": "docker-run: debug",
-      "platform": "node",
-      "node": {
-        "package": "${workspaceFolder}/src/backend/package.json",
-        "localRoot": "${workspaceFolder}/src/backend"
-      }
-    },
-
     // ===== CHROME / BROWSER =====
     {
       "name": "Chrome: Attach",

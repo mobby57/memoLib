@@ -13,7 +13,7 @@ const mockPrisma = {
   },
 };
 
-vi.mock('next-auth', () => ({
+vi.mock('@/lib/auth', () => ({
   getServerSession: mockGetServerSession,
 }));
 

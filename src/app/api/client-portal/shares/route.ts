@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Routes — Portail Client : Partages de documents
  * 
@@ -6,18 +7,17 @@
  * PATCH /api/client-portal/shares        — Client: acknowledge/sign | Avocat: revoke
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { clientShareService } from '@/lib/services/client-share.service';
+import { prisma } from '@/lib/prisma';
 
 // ─── POST : Partager un document ────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase();
 
@@ -40,6 +40,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const dossier = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
+    if (!dossier) {
+      return NextResponse.json({ error: 'Dossier non trouve dans ce cabinet' }, { status: 404 });
+    }
+    const targetClient = await prisma.user.findFirst({ where: { id: clientUserId, tenantId } });
+    if (!targetClient) {
+      return NextResponse.json({ error: 'Client non trouve dans ce cabinet' }, { status: 404 });
+    }
+
     const share = await clientShareService.shareDocument({
       tenantId,
       documentId,
@@ -63,10 +72,10 @@ export async function POST(req: NextRequest) {
 // ─── GET : Lister les partages ──────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase();
 
@@ -94,10 +103,10 @@ export async function GET(req: NextRequest) {
 // ─── PATCH : Actions sur un partage ─────────────────────────────────────────────
 
 export async function PATCH(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
-  const user = session.user as any;
   const role = user.role?.toUpperCase();
   const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
   const userAgent = req.headers.get('user-agent') || 'unknown';
@@ -185,3 +194,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
 }
+
+
+
+

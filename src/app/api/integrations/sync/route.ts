@@ -1,7 +1,11 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { ExternalCalendarBridge } from '@/lib/oauth/calendar-bridge';
 import type { OAuthProvider } from '@/lib/oauth/oauth-service';
 import { oauthTokenService } from '@/lib/oauth/token-service';
-import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -12,8 +16,9 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.id) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user?.id) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
 
@@ -26,15 +31,15 @@ export async function POST(req: Request) {
     }
 
     // Get valid token
-    const accessToken = await oauthTokenService.ensureValidToken(session.user.id, provider);
+    const accessToken = await oauthTokenService.ensureValidToken(user.id, provider);
 
     let result: any = {};
 
     if (type === 'calendar') {
       if (provider === 'google') {
-        result = await ExternalCalendarBridge.syncGoogleCalendar(accessToken, session.user.id);
+        result = await ExternalCalendarBridge.syncGoogleCalendar(accessToken, user.id);
       } else if (provider === 'microsoft') {
-        result = await ExternalCalendarBridge.syncMicrosoftCalendar(accessToken, session.user.id);
+        result = await ExternalCalendarBridge.syncMicrosoftCalendar(accessToken, user.id);
       }
     } else if (type === 'contacts') {
       if (provider === 'google') {
@@ -52,3 +57,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'sync_failed', detail: e?.message }, { status: 400 });
   }
 }
+
+
+
+

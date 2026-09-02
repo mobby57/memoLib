@@ -1,18 +1,16 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest, { params }: { params: { clientId: string } }) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-
-    const user = session.user as any;
     const { clientId } = params;
 
     // Verifications d'acces - Seul le client peut acceder a ses donnees

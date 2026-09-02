@@ -106,7 +106,7 @@ export class CesedaService {
         statut: { in: ['EN_COURS', 'URGENT'] satisfies StatutDossier[] },
         priorite: { in: ['CRITIQUE', 'HAUTE'] satisfies Priorite[] }
       },
-      include: { client: true },
+      include: { Client: true },
       orderBy: [
         { priorite: 'desc' },
         { dateEcheance: 'asc' }

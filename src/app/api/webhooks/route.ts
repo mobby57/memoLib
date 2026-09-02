@@ -34,7 +34,9 @@ function verifyGitHubSignature(body: string, signature: string, secret: string):
   const expectedSignature =
     'sha256=' + crypto.createHmac('sha256', secret).update(body, 'utf8').digest('hex');
 
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
+  const provided = Buffer.from(signature);
+  const expected = Buffer.from(expectedSignature);
+  return provided.length === expected.length && crypto.timingSafeEqual(provided, expected);
 }
 
 async function processWebhookEvent(event: string, data: any) {

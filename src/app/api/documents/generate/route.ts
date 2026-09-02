@@ -1,8 +1,10 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 type TemplateType = 'accuse_reception' | 'mise_en_demeure' | 'recours_gracieux' | 'recours_contentieux' | 'convocation' | 'attestation';
 
 const TEMPLATES: Record<TemplateType, { title: string; generate: (vars: Record<string, string>) => string }> = {
@@ -148,10 +150,10 @@ ${v.avocat}`,
 };
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
   const { templateType, dossierId, variables } = await req.json();
 
@@ -198,3 +200,7 @@ export async function GET() {
   }));
   return NextResponse.json({ templates });
 }
+
+
+
+

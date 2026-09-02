@@ -42,7 +42,6 @@ export default defineConfig({
             'src/__tests__/services/dossier.service.test.ts',
             'src/__tests__/lib/services/dossier.service.test.ts',
             'src/__tests__/security/audit-trail.test.ts',
-            'src/__tests__/security/encryption.test.ts',
             'src/__tests__/services/suggestionService.test.ts',
             'src/__tests__/stripe/webhook-idempotency.test.ts',
             'src/__tests__/domain/e2e-encryption.test.ts',

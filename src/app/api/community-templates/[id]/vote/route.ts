@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -8,13 +7,13 @@ import { prisma } from '@/lib/prisma';
  * Vote +1 ou -1 sur un template. Un seul vote par utilisateur.
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
   const { id } = await params;
-  const user = session.user as any;
   const { vote } = await req.json();
 
   if (vote !== 1 && vote !== -1) {

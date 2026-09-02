@@ -1,3 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * GET  /api/drafts — Liste les drafts du tenant
  * POST /api/drafts — Crée un draft depuis un email
@@ -5,16 +10,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
 import { extractDraft } from '@/lib/adapters/email.adapter';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-    const tenantId = (session.user as any).tenantId;
+    const tenantId = (user as any).tenantId;
     if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
     const status = new URL(request.url).searchParams.get('status') || 'PENDING';
@@ -43,10 +47,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-    const tenantId = (session.user as any).tenantId;
+    const tenantId = (user as any).tenantId;
     if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
 
     const { emailId, from, subject, bodyText } = await request.json();
@@ -75,3 +80,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

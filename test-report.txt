@@ -1,0 +1,445 @@
+
+> memolib@0.1.0 test:ci
+> vitest run --exclude='**/integration/**' --exclude='**/e2e/**' --exclude='**/saas-db*' --exclude='**/legifrance*'
+
+[dotenv@17.2.3] injecting env (16) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/moros/Desktop/memolib[39m
+
+ [32m✓[39m src/__tests__/services/aiService.coverage.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/prisma/prisma.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 555[2mms[22m[39m
+       [33m[2m✓[22m[39m should export prisma client [33m 422[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/formatters/formatters.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 816[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/validators/validators.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 742[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/api/api.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 779[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/security/security.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 616[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/config/config.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 739[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/constants/constants.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 1030[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/notifications.extended.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+[90mstderr[2m | src/__tests__/security/encryption.coverage.test.ts[2m > [22m[2mencryption.ts — Full Coverage[2m > [22m[2mEncryptionService.encrypt / decrypt[2m > [22m[2mshould handle invalid encrypted text gracefully
+[22m[39mDecryption failed: TypeError: Invalid authentication tag length: 1
+[90m    at Decipheriv.setAuthTag (node:internal/crypto/cipher:220:22)[39m
+    at Function.decrypt (C:/Users/moros/Desktop/memolib/src/lib/security/encryption.ts:108:16)
+    at C:/Users/moros/Desktop/memolib/src/__tests__/security/encryption.coverage.test.ts:124:40
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:302:11
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:26
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>) {
+  code: [32m'ERR_CRYPTO_INVALID_AUTH_TAG'[39m
+}
+
+ [32m✓[39m src/__tests__/health.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/mappers/dossier.mapper.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 528[2mms[22m[39m
+       [33m[2m✓[22m[39m should generate first dossier number [33m 395[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/logger.coverage.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+[90mstderr[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mcheckAllTenantsForAlerts[2m > [22m[2mshould handle DB errors gracefully
+[22m[39m[Cost Alerts] Erreur lors de la vérification: Error: DB down
+    at C:/Users/moros/Desktop/memolib/src/__tests__/billing/cost-alerts.coverage.test.ts:164:52
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:302:11
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:26
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2955:64
+
+ [32m✓[39m src/__tests__/lib/templates/templateEngine.real.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 239[2mms[22m[39m
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2msendAlertEmail[2m > [22m[2mshould send email successfully
+[22m[39m[Cost Alerts] Email envoyé à admin@a.com pour Cabinet A
+
+[90mstderr[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2msendAlertEmail[2m > [22m[2mshould return false on fetch failure
+[22m[39m[Cost Alerts] Échec envoi email: Error
+
+[90mstderr[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2msendAlertEmail[2m > [22m[2mshould return false on network error
+[22m[39m[Cost Alerts] Erreur envoi email: Error: Network error
+    at C:/Users/moros/Desktop/memolib/src/__tests__/billing/cost-alerts.coverage.test.ts:244:35
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:302:11
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:26
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2955:64
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2msendAlertEmail[2m > [22m[2mshould generate correct subject for each alert level
+[22m[39m[Cost Alerts] Email envoyé à a@b.com pour Test
+
+[90mstdout[2m | src/__tests__/compliance/gdpr-right-to-erasure.test.ts[2m > [22m[2mRGPD — Droit à l'oubli (Article 17) — E2E[2m > [22m[2mrequestDeletion[2m > [22m[2mplanifie la suppression à J+30 si pas d'abonnement actif
+[22m[39mDeletion scheduled for user user-test-rgpd on Sat Sep 26 2026 00:00:51 GMT+0200 (heure d’été d’Europe centrale)
+
+[90mstdout[2m | src/__tests__/compliance/gdpr-right-to-erasure.test.ts[2m > [22m[2mRGPD — Droit à l'oubli (Article 17) — E2E[2m > [22m[2mcancelDeletion[2m > [22m[2mannule la demande de suppression planifiée
+[22m[39mDeletion cancelled for user user-test-rgpd
+
+[90mstdout[2m | src/__tests__/compliance/gdpr-right-to-erasure.test.ts[2m > [22m[2mRGPD — Droit à l'oubli (Article 17) — E2E[2m > [22m[2mrunRightToErasureE2E[2m > [22m[2mexécute le flux complet de bout en bout
+[22m[39mDeletion scheduled for user user-test-rgpd on Sat Sep 26 2026 00:00:51 GMT+0200 (heure d’été d’Europe centrale)
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2msendSuperAdminAlert[2m > [22m[2mshould send report to super admin
+[22m[39m[Cost Alerts] Rapport super admin envoyé à admin@memoLib.com
+
+[90mstderr[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2msendSuperAdminAlert[2m > [22m[2mshould handle fetch error gracefully
+[22m[39m[Cost Alerts] Erreur envoi rapport super admin: Error: fail
+    at C:/Users/moros/Desktop/memolib/src/__tests__/billing/cost-alerts.coverage.test.ts:320:35
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:302:11
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:26
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2955:64
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould run complete check and return stats
+[22m[39m[Cost Alerts] Démarrage du check...
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould run complete check and return stats
+[22m[39m[Cost Alerts] Email envoyé à admin@a.com pour Cabinet A
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould run complete check and return stats
+[22m[39m[Cost Alerts] Rapport super admin envoyé à admin@memoLib.com
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould run complete check and return stats
+[22m[39m[Cost Alerts] Check terminé: 1 alertes, 1 emails envoyés
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould skip sending when no admin email
+[22m[39m[Cost Alerts] Démarrage du check...
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould skip sending when no admin email
+[22m[39m[Cost Alerts] Rapport super admin envoyé à admin@memoLib.com
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould skip sending when no admin email
+[22m[39m[Cost Alerts] Check terminé: 1 alertes, 0 emails envoyés
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould not send super admin alert for warning-only alerts
+[22m[39m[Cost Alerts] Démarrage du check...
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould not send super admin alert for warning-only alerts
+[22m[39m[Cost Alerts] Email envoyé à admin@a.com pour Cabinet A
+
+[90mstdout[2m | src/__tests__/billing/cost-alerts.coverage.test.ts[2m > [22m[2mcost-alerts.ts — Full Coverage[2m > [22m[2mrunCostAlertCheck[2m > [22m[2mshould not send super admin alert for warning-only alerts
+[22m[39m[Cost Alerts] Check terminé: 1 alertes, 1 emails envoyés
+
+ [32m✓[39m src/__tests__/compliance/gdpr-right-to-erasure.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 154[2mms[22m[39m
+ [32m✓[39m src/__tests__/billing/cost-alerts.coverage.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m tests/unit/facture-pdf.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 175[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/billing/cost-guard.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 85[2mms[22m[39m
+[90mstderr[2m | src/__tests__/lib/planLimits.test.ts[2m > [22m[2mplanLimits.ts — Full Coverage[2m > [22m[2mlogAIAction[2m > [22m[2mshould not throw when logger fails
+[22m[39m[AI Audit] Failed to log AI action: Error: Logger failure
+    at Object.<anonymous> (C:/Users/moros/Desktop/memolib/src/__tests__/lib/planLimits.test.ts:1048:15)
+    at Object.Mock [as audit] [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:332:34[90m)[39m
+    at Module.logAIAction (C:/Users/moros/Desktop/memolib/src/lib/planLimits.ts:406:12)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at C:/Users/moros/Desktop/memolib/src/__tests__/lib/planLimits.test.ts:1051:7
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:20
+
+ [32m✓[39m src/__tests__/lib/planLimits.test.ts [2m([22m[2m74 tests[22m[2m)[22m[32m 153[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/deadlineExtractor.coverage.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 3405[2mms[22m[39m
+       [33m[2m✓[22m[39m should attempt PDF extraction [33m 1607[2mms[22m[39m
+       [33m[2m✓[22m[39m should attempt DOCX extraction [33m 1731[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/deadlineExtractor.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/templates/documents.coverage.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m src/__tests__/types/dossier.types.real.test.ts [2m([22m[2m80 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m src/__tests__/security/two-factor-auth.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m tests/unit/rbac-cross-role.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m tests/unit/time-tracking.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/integrations.test.ts [2m([22m[2m46 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m tests/unit/saas-auth-email.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/security/production-guards.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/billing/cost-guard.real.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/mappers/dossier.mapper.real.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+[90mstderr[2m | src/__tests__/security/two-factor-auth.coverage.test.ts[2m > [22m[2mtwo-factor-auth.ts — Full Coverage[2m > [22m[2mgenerateQRCode[2m > [22m[2mshould throw on error
+[22m[39m[2FA] QR code generation failed: Error: QR fail
+    at C:/Users/moros/Desktop/memolib/src/__tests__/security/two-factor-auth.coverage.test.ts:58:65
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:20
+
+[90mstderr[2m | src/__tests__/security/two-factor-auth.coverage.test.ts[2m > [22m[2mtwo-factor-auth.ts — Full Coverage[2m > [22m[2mverify2FAToken[2m > [22m[2mshould return false on error
+[22m[39m[2FA] Token verification failed: Error: fail
+    at Object.<anonymous> (C:/Users/moros/Desktop/memolib/src/__tests__/security/two-factor-auth.coverage.test.ts:74:82)
+    at Object.Mock [as check] [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:332:34[90m)[39m
+    at Module.verify2FAToken (C:/Users/moros/Desktop/memolib/src/lib/security/two-factor-auth.ts:49:26)
+    at C:/Users/moros/Desktop/memolib/src/__tests__/security/two-factor-auth.coverage.test.ts:75:14
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:20
+
+[90mstderr[2m | src/__tests__/security/two-factor-auth.coverage.test.ts[2m > [22m[2mtwo-factor-auth.ts — Full Coverage[2m > [22m[2mvalidate2FALogin[2m > [22m[2mshould succeed with valid backup code
+[22m[39m[2FA] Failed to update backup codes: TypeError: Cannot read properties of undefined (reading 'update')
+    at Module.validate2FALogin (C:/Users/moros/Desktop/memolib/src/lib/security/two-factor-auth.ts:135:25)
+    at C:/Users/moros/Desktop/memolib/src/__tests__/security/two-factor-auth.coverage.test.ts:164:28
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:302:11
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:26
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2272:10[90m)[39m
+
+ [32m✓[39m src/__tests__/security/two-factor-auth.coverage.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+[90mstdout[2m | src/__tests__/compliance/gdpr.coverage.test.ts[2m > [22m[2mgdpr.ts — Full Coverage[2m > [22m[2mGDPRCompliance.requestDeletion[2m > [22m[2mshould schedule deletion 30 days from now
+[22m[39mDeletion scheduled for user u1 on Sat Sep 26 2026 00:00:54 GMT+0200 (heure d’été d’Europe centrale)
+
+[90mstdout[2m | src/__tests__/compliance/gdpr.coverage.test.ts[2m > [22m[2mgdpr.ts — Full Coverage[2m > [22m[2mGDPRCompliance.cancelDeletion[2m > [22m[2mshould update deletion request to cancelled
+[22m[39mDeletion cancelled for user u1
+
+[90mstdout[2m | src/__tests__/compliance/gdpr.coverage.test.ts[2m > [22m[2mgdpr.ts — Full Coverage[2m > [22m[2mGDPRCompliance.reportDataBreach[2m > [22m[2mshould create breach record and notify for critical
+[22m[39mBreach breach1 reported to supervisory authority
+
+[90mstdout[2m | src/__tests__/compliance/gdpr.coverage.test.ts[2m > [22m[2mgdpr.ts — Full Coverage[2m > [22m[2mGDPRCompliance.reportDataBreach[2m > [22m[2mshould create breach record and notify for critical
+[22m[39mUser u1 notified of breach breach1
+
+[90mstdout[2m | src/__tests__/compliance/gdpr.coverage.test.ts[2m > [22m[2mgdpr.ts — Full Coverage[2m > [22m[2mGDPRCompliance.reportDataBreach[2m > [22m[2mshould create breach record and notify for critical
+[22m[39mUser u2 notified of breach breach1
+
+[90mstdout[2m | src/__tests__/compliance/gdpr.coverage.test.ts[2m > [22m[2mgdpr.ts — Full Coverage[2m > [22m[2mGDPRCompliance.reportDataBreach[2m > [22m[2mshould handle low severity without authority notification
+[22m[39mUser u1 notified of breach breach2
+
+ [32m✓[39m src/__tests__/security/encryption.coverage.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 5615[2mms[22m[39m
+       [33m[2m✓[22m[39m should encrypt all sensitive fields [33m 1160[2mms[22m[39m
+       [33m[2m✓[22m[39m should roundtrip encrypt/decrypt sensitive fields [33m 514[2mms[22m[39m
+       [33m[2m✓[22m[39m should handle large files [33m 766[2mms[22m[39m
+ [32m✓[39m src/__tests__/compliance/gdpr.coverage.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/lawyer/workspace-emails-route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 115[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/notifications-stream.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/hooks/hooks.logic.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 245[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/aiService.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 6416[2mms[22m[39m
+       [33m[2m✓[22m[39m génère un contrat [33m 1751[2mms[22m[39m
+       [33m[2m✓[22m[39m génère une mise en demeure [33m 1511[2mms[22m[39m
+       [33m[2m✓[22m[39m génère une assignation [33m 1514[2mms[22m[39m
+       [33m[2m✓[22m[39m gère les contextes partiels [33m 1539[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/array-utils.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 162[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/services/information-unit.service.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/__tests__/types/workspace-reasoning.real.test.ts [2m([22m[2m102 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/constants/dossier.constants.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 207[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/error-handler.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m tests/unit/document-security.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/payments/webhook-route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 279[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/utils-extended.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/action-proposals-route.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+[90mstdout[2m | src/__tests__/lib/workflows/workflow-config.coverage.test.ts[2m > [22m[2mworkflow-config.ts — Full Coverage[2m > [22m[2msaveWorkflowConfig[2m > [22m[2mshould attempt to save with tenantId
+[22m[39m[WorkflowConfig] Configuration sauvegardée pour tenant: tenant-1
+
+ [32m✓[39m src/__tests__/lib/workflows/workflow-config.coverage.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+[90mstderr[2m | src/__tests__/lib/planLimits.coverage.test.ts[2m > [22m[2mplanLimits.ts — Full Coverage[2m > [22m[2mlogAIAction[2m > [22m[2mshould handle errors gracefully
+[22m[39m[AI Audit] Failed to log AI action: Error: Test error
+    at C:/Users/moros/Desktop/memolib/src/__tests__/lib/planLimits.coverage.test.ts:455:25
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:302:11
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:26
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2955:64
+
+ [32m✓[39m src/__tests__/lib/planLimits.coverage.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m tests/unit/crons.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/validations/dossier.validation.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/event-utils.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/error-handler.real.test.ts [2m([22m[2m53 tests[22m[2m)[22m[32m 104[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/dossiers/dossier-members.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/string-utils.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 88[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/services/deadlineExtractor.real.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/services/aiService.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/utils/rgpd-helpers.real.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/calendar.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 105[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/reports.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+[90mstderr[2m | src/__tests__/security/rate-limiter.test.ts[2m > [22m[2mrate-limiter[2m > [22m[2mcheckRateLimit[2m > [22m[2mdevrait bloquer après max requêtes
+[22m[39m[RATE LIMIT] Blocked: user_blocked until [35m2026-08-26T22:01:03.201Z[39m
+
+[90mstderr[2m | src/__tests__/security/rate-limiter.test.ts[2m > [22m[2mrate-limiter[2m > [22m[2mcheckRateLimit[2m > [22m[2mdevrait appliquer le blocage après dépassement
+[22m[39m[RATE LIMIT] Blocked: blocked_user until [35m2026-08-26T22:01:08.224Z[39m
+
+ [32m✓[39m src/__tests__/security/rate-limiter.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/object-utils.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/currency-utils.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 95[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/search.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/client.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 110[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/prisma.coverage.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+[90mstderr[2m | src/__tests__/lib/security/rate-limiter.real.test.ts[2m > [22m[2mrate-limiter - REAL TESTS[2m > [22m[2mcheckRateLimit[2m > [22m[2mshould block user when blockDuration is set
+[22m[39m[RATE LIMIT] Blocked: user-block-1787781658744 until [35m2026-08-26T22:01:28.744Z[39m
+
+[90mstderr[2m | src/__tests__/lib/security/rate-limiter.real.test.ts[2m > [22m[2mrate-limiter - REAL TESTS[2m > [22m[2mrateLimitMiddleware[2m > [22m[2mshould throw with 429 status when rate limited
+[22m[39m[RATE LIMIT] Blocked: rate-limited-ip-1787781658807 until [35m2026-08-26T23:00:58.807Z[39m
+
+[90mstderr[2m | src/__tests__/lib/security/rate-limiter.real.test.ts[2m > [22m[2mrate-limiter - REAL TESTS[2m > [22m[2mRate limit scenarios[2m > [22m[2mshould handle login brute force protection
+[22m[39m[RATE LIMIT] Blocked: attacker-1787781658829 until [35m2026-08-26T23:00:58.829Z[39m
+
+ [32m✓[39m src/__tests__/lib/security/rate-limiter.real.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 144[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/prisma.extended.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/emailService.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/statistics.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/date-formatting.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/workflowService.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/smart-inbox.coverage.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/cache-utils.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/forms/smart-forms.real.test.ts [2m([22m[2m64 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m src/__tests__/billing/cost-guard.coverage.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/emailService.coverage.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/information-units.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m src/__tests__/middleware.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/templates/documents.real.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/templates.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/cesda/deadlineEngine.real.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/search.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m src/__tests__/rgpd-compliance.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/audit-logs.coverage.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/emails.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/utils.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/workflowService.coverage.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/forms/formConfigs.real.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/facturation.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/analyticsService.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/validations/zod-schemas.real.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/services/storageService.real.test.ts [2m([22m[2m54 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/reasoning/prompts.real.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m tests/unit/billing/features.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m tests/unit/ai-resilience.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/collaborationService.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/webhooks/inbox-route.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/logger.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/ai/proxy-auth.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/utils/rgpd-helpers.coverage.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/ceseda/dossier-service.coverage.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/teams/team-detail.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/cache/smart-cache.real.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/workflows/workflow-config.real.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/documentAnalysisService.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/metadata.real.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/audit.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 96[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/ai/predictive.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/__tests__/types/cesda.real.test.ts [2m([22m[2m73 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/services/analyticsService.real.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/sanitization-utils.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m src/__tests__/billing/usage-billing.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m src/__tests__/types/types.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/services/oqtfDeadlineService.real.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/dossier-status.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+[90mstderr[2m | src/__tests__/lib/audit.test.ts[2m > [22m[2mAudit Middleware[2m > [22m[2mcreateAuditLog[2m > [22m[2mshould handle errors gracefully
+[22m[39mErreur création audit log: Error: DB Error
+    at C:/Users/moros/Desktop/memolib/src/__tests__/lib/audit.test.ts:39:60
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:302:11
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:1903:26
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///C:/Users/moros/Desktop/memolib/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-artifact.js:2955:64
+
+ [32m✓[39m src/__tests__/lib/audit.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m tests/unit/email-adapter.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/url-utils.test.ts [2m([22m[2m39 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/__tests__/types/index.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/validations/dossier.validation.real.test.ts [2m([22m[2m39 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/crypto.real.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/phone-utils.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/teams/teams.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m tests/unit/rbac.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/email/ingestion-metrics.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/searchService.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/workflows.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/multichannel/multichannel.real.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m src/__tests__/billing/stripe-client.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/api-rest.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/logger.extended.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/legal-compliance.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/forms/formConfigs.coverage.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/constants/dossier.constants.real.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/websocket.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/utils-cn.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/ai-isolation.real.test.ts [2m([22m[2m39 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/teams/team-members.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/__tests__/hooks/common-hooks.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/semanticSearchService.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/searchAnalytics.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/client-services.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/analyticsService.coverage.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/crypto.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 101[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/password-utils.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/email-utils.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/file-utils.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/notifications.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/forms/formConfigs.onSubmit.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/documents.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/proofs.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/notifications.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/auth/dossier-access.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/webhooks/github.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/exportService.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/upstash.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/siren-siret-utils.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/oqtfDeadlineService.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/reasoning/prompts.coverage.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m src/__tests__/security/security.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/postgres.config.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/email/ingestion.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m src/__tests__/ai-assistant.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/audit-logs.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/ai-isolation.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/auth-system.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m src/__tests__/components/component-logic.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/__tests__/smart-inbox.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/ceseda/dossier-service.real.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/localStorage.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/permissions.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/services/searchService.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/preferences.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m src/__tests__/hooks/hooks-logic-extended.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m tests/unit/deadline-engine.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+[90mstderr[2m | src/__tests__/api/auth/credentials-authorize.test.ts[2m > [22m[2mCredentials authentication[2m > [22m[2mrejects all credential logins when demo mode is enabled in production
+[22m[39m[SECURITY] DEMO_MODE enabled in production - rejecting login
+
+ [32m✓[39m src/__tests__/api/auth/credentials-authorize.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m tests/unit/copilot-ceseda.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m src/__tests__/models/models.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m src/__tests__/adapters/email.adapter.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/ai-cache.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m src/__tests__/domain/email-classifier.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/dashboard-stats.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m src/__tests__/billing/plans.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/storageService.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m tests/unit/cloud-ai-confidential.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/metadata.extended.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/learningService.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/__tests__/middleware/middleware.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/workspace-reasoning.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/localStorage.real.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m src/__tests__/utils/date-utils.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/api-routes.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m src/__tests__/billing/quota-service.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/utils/rgpd-helpers.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/utils/dedup.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/__tests__/api-audit.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m src/__tests__/payments.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/__tests__/deadline-monitoring.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m src/__tests__/email-filtering.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m src/__tests__/constants/constants-extended.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/__tests__/services/event-log.service.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/__tests__/billing/cost-alerts.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/__tests__/api/payments/stripe-webhook-fix.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/__tests__/document-ocr.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/planLimits.real.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m src/__tests__/event-log.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/__tests__/gmail-integration.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/__tests__/collaboration.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/__tests__/lib/cache/smart-cache.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/sanity.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 12[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m210 passed[39m[22m[90m (210)[39m
+[2m      Tests [22m [1m[32m4555 passed[39m[22m[90m (4555)[39m
+[2m   Start at [22m 00:00:46
+[2m   Duration [22m 32.83s[2m (transform 48.07s, setup 0ms, import 79.79s, tests 33.59s, environment 99ms)[22m
+

@@ -9,7 +9,7 @@ import { logger } from '@/lib/logger';
  * Échange le code contre des tokens, stocke en base.
  */
 export async function GET(request: NextRequest) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://memolib.space';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.space';
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get('code');
   const state = searchParams.get('state');

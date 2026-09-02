@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Security Middleware - OWASP ZAP Compliant
  * memoLib - Securite niveau Enterprise
  *
@@ -162,7 +162,7 @@ export function validateCSRF(request: NextRequest): boolean {
   const allowedOrigins = [
     `http://localhost:3000`,
     `https://${host}`,
-    process.env.NEXTAUTH_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
   ].filter(Boolean);
 
   return allowedOrigins.some(allowed => origin === allowed || referer?.startsWith(allowed + '/'));

@@ -1,17 +1,21 @@
-﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { logger } from '@/lib/logger';
 import { logSearch } from '@/lib/services/searchAnalytics';
 import { SearchResultType, searchService } from '@/lib/services/searchService';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const startTime = performance.now();
 
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
@@ -27,13 +31,13 @@ export async function GET(request: NextRequest) {
 
     // Recherche avec le service
     const results = await searchService.search(query, {
-      tenantId: session.user.tenantId || undefined,
+      tenantId: user.tenantId || undefined,
       types,
       limit,
       includeArchived,
     });
 
-    const userId = session.user.id;
+    const userId = user.id;
     if (!userId) {
       return NextResponse.json({ error: 'Utilisateur invalide' }, { status: 401 });
     }
@@ -47,7 +51,7 @@ export async function GET(request: NextRequest) {
       executionTime,
       types,
       userId,
-      tenantId: session.user.tenantId || undefined,
+      tenantId: user.tenantId || undefined,
     }).catch(err =>
       logger.error('Erreur logging recherche', err instanceof Error ? err : undefined, {
         route: '/api/search',
@@ -68,3 +72,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors de la recherche' }, { status: 500 });
   }
 }
+
+
+
+

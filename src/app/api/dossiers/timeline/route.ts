@@ -1,8 +1,10 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 interface TimelineEvent {
   date: string;
   type: 'email_recu' | 'email_envoye' | 'document' | 'deadline' | 'action' | 'creation';
@@ -13,17 +15,18 @@ interface TimelineEvent {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const tenantId = (session.user as any).tenantId;
+  const tenantId = (user as any).tenantId;
   const dossierId = req.nextUrl.searchParams.get('dossierId');
   if (!dossierId || !tenantId) return NextResponse.json({ error: 'dossierId requis' }, { status: 400 });
 
   // Vérifier accès au dossier
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId },
-    include: { client: true },
+    include: { Client: true },
   });
   if (!dossier) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
 
@@ -54,7 +57,7 @@ export async function GET(req: NextRequest) {
     date: (dossier.createdAt as Date).toISOString(),
     type: 'creation',
     title: `Dossier ${dossier.numero} ouvert`,
-    description: `Type: ${dossier.type} — Client: ${(dossier.client as any)?.nom || 'N/A'}`,
+    description: `Type: ${dossier.typeDossier} — Client: ${dossier.Client ? `${dossier.Client.firstName} ${dossier.Client.lastName}` : 'N/A'}`,
     source: 'system',
     importance: 'haute',
   });
@@ -102,8 +105,12 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     dossierId,
     numero: dossier.numero,
-    client: (dossier.client as any)?.nom,
+    client: dossier.Client ? `${dossier.Client.firstName} ${dossier.Client.lastName}` : undefined,
     totalEvents: timeline.length,
     timeline,
   });
 }
+
+
+
+

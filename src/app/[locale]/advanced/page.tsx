@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 /**
  * Page de demonstration des fonctionnalités avancees
  * Recherche semantique, Suggestions, Analytics
@@ -11,11 +12,10 @@ export const dynamic = 'force-dynamic';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { SemanticSearch } from '@/components/SemanticSearch';
 import { SmartSuggestions } from '@/components/SmartSuggestions';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 export default function AdvancedFeaturesPage() {
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const [activeTab, setActiveTab] = useState<'analytics' | 'suggestions' | 'search'>('analytics');
 
   const tenantId = session?.user?.tenantId || 'cabinet-dupont';
