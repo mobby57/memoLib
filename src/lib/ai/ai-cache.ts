@@ -23,32 +23,29 @@ const CACHE_CONFIG = {
   similarityThreshold: 0.95,
   // TTL par type de requête
   ttlByType: {
-    'email-classification': 30 * 60 * 1000,      // 30 min
-    'email-analysis': 60 * 60 * 1000,            // 1 heure
-    'document-summary': 24 * 60 * 60 * 1000,     // 24 heures
-    'legal-analysis': 4 * 60 * 60 * 1000,        // 4 heures
-    'translation': 24 * 60 * 60 * 1000,          // 24 heures
-    'default': 60 * 60 * 1000,                   // 1 heure
-  }
+    'email-classification': 30 * 60 * 1000, // 30 min
+    'email-analysis': 60 * 60 * 1000, // 1 heure
+    'document-summary': 24 * 60 * 60 * 1000, // 24 heures
+    'legal-analysis': 4 * 60 * 60 * 1000, // 4 heures
+    translation: 24 * 60 * 60 * 1000, // 24 heures
+    default: 60 * 60 * 1000, // 1 heure
+  },
 };
 
 /**
  * Génère une clé de cache à partir du prompt
  */
-function generateCacheKey(prompt: string, model: string): string {
+function generateCacheKey(prompt: string, model: string, tenantId: string): string {
   // Normaliser le prompt (minuscules, sans espaces multiples)
-  const normalized = prompt
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .trim();
-  
+  const normalized = prompt.toLowerCase().replace(/\s+/g, ' ').trim();
+
   // Hash SHA-256 du prompt normalisé + modèle
   const hash = crypto
     .createHash('sha256')
-    .update(`${model}:${normalized}`)
+    .update(`${tenantId}:${model}:${normalized}`)
     .digest('hex')
     .substring(0, 32);
-  
+
   return `ai:cache:${hash}`;
 }
 
@@ -57,7 +54,7 @@ function generateCacheKey(prompt: string, model: string): string {
  */
 function detectRequestType(prompt: string): keyof typeof CACHE_CONFIG.ttlByType {
   const promptLower = prompt.toLowerCase();
-  
+
   if (promptLower.includes('classif') || promptLower.includes('catégor')) {
     return 'email-classification';
   }
@@ -67,13 +64,17 @@ function detectRequestType(prompt: string): keyof typeof CACHE_CONFIG.ttlByType 
   if (promptLower.includes('résumé') || promptLower.includes('summary')) {
     return 'document-summary';
   }
-  if (promptLower.includes('juridique') || promptLower.includes('legal') || promptLower.includes('droit')) {
+  if (
+    promptLower.includes('juridique') ||
+    promptLower.includes('legal') ||
+    promptLower.includes('droit')
+  ) {
     return 'legal-analysis';
   }
   if (promptLower.includes('tradui') || promptLower.includes('translat')) {
     return 'translation';
   }
-  
+
   return 'default';
 }
 
@@ -82,33 +83,36 @@ function detectRequestType(prompt: string): keyof typeof CACHE_CONFIG.ttlByType 
  */
 export async function getCachedResponse(
   prompt: string,
-  model: string
+  model: string,
+  tenantId: string
 ): Promise<{ hit: boolean; response?: string; savedCost?: number }> {
-  const cacheKey = generateCacheKey(prompt, model);
+  const cacheKey = generateCacheKey(prompt, model, tenantId);
   const entry = memoryCache.get(cacheKey);
-  
+
   if (!entry) {
     return { hit: false };
   }
-  
+
   // Vérifier le TTL
   const requestType = detectRequestType(prompt);
   const ttl = CACHE_CONFIG.ttlByType[requestType];
   const age = Date.now() - entry.createdAt.getTime();
-  
+
   if (age > ttl) {
     memoryCache.delete(cacheKey);
     return { hit: false };
   }
-  
+
   // Cache hit!
   entry.hitCount++;
-  
+
   // Calculer le coût économisé (~0.01€ / 1000 tokens)
   const savedCost = (entry.tokens / 1000) * 0.01;
-  
-  console.log(`[AI Cache] HIT pour ${cacheKey.substring(0, 20)}... (${entry.hitCount} hits, ${savedCost.toFixed(4)}€ économisés)`);
-  
+
+  console.log(
+    `[AI Cache] HIT pour ${cacheKey.substring(0, 20)}... (${entry.hitCount} hits, ${savedCost.toFixed(4)}€ économisés)`
+  );
+
   return {
     hit: true,
     response: entry.response,
@@ -123,15 +127,16 @@ export async function setCachedResponse(
   prompt: string,
   model: string,
   response: string,
-  tokens: number
+  tokens: number,
+  tenantId: string
 ): Promise<void> {
-  const cacheKey = generateCacheKey(prompt, model);
-  
+  const cacheKey = generateCacheKey(prompt, model, tenantId);
+
   // Nettoyer le cache si trop plein
   if (memoryCache.size >= CACHE_CONFIG.maxEntries) {
     cleanupCache();
   }
-  
+
   memoryCache.set(cacheKey, {
     response,
     model,
@@ -139,7 +144,7 @@ export async function setCachedResponse(
     createdAt: new Date(),
     hitCount: 0,
   });
-  
+
   console.log(`[AI Cache] STORED ${cacheKey.substring(0, 20)}... (${tokens} tokens)`);
 }
 
@@ -149,7 +154,7 @@ export async function setCachedResponse(
 function cleanupCache(): void {
   const now = Date.now();
   const entriesToDelete: string[] = [];
-  
+
   // Supprimer les entrées expirées
   for (const [key, entry] of memoryCache.entries()) {
     const age = now - entry.createdAt.getTime();
@@ -157,22 +162,22 @@ function cleanupCache(): void {
       entriesToDelete.push(key);
     }
   }
-  
+
   // Si toujours trop plein, supprimer les moins utilisées
   if (memoryCache.size - entriesToDelete.length >= CACHE_CONFIG.maxEntries * 0.9) {
     const sortedEntries = [...memoryCache.entries()]
       .sort((a, b) => a[1].hitCount - b[1].hitCount)
       .slice(0, Math.floor(CACHE_CONFIG.maxEntries * 0.2));
-    
+
     for (const [key] of sortedEntries) {
       entriesToDelete.push(key);
     }
   }
-  
+
   for (const key of entriesToDelete) {
     memoryCache.delete(key);
   }
-  
+
   console.log(`[AI Cache] Cleanup: ${entriesToDelete.length} entrées supprimées`);
 }
 
@@ -186,12 +191,12 @@ export function getCacheStats(): {
 } {
   let totalHits = 0;
   let totalTokensSaved = 0;
-  
+
   for (const entry of memoryCache.values()) {
     totalHits += entry.hitCount;
     totalTokensSaved += entry.tokens * entry.hitCount;
   }
-  
+
   return {
     entries: memoryCache.size,
     totalHits,
@@ -206,7 +211,3 @@ export function clearCache(): void {
   memoryCache.clear();
   console.log('[AI Cache] Cache vidé');
 }
-
-
-
-

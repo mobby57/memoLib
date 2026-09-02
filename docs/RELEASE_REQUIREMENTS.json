@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-01",
+  "requirements": [
+    {
+      "id": "FLOW-001",
+      "title": "Validation humaine avant toute mutation métier",
+      "area": "workflow",
+      "priority": "critical",
+      "status": "to_audit",
+      "owner": "product-and-legal",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Une entrée libre ne produit qu'un brouillon ou une proposition structurée; la création ou modification d'un client, dossier, délai ou message exige une décision humaine authentifiée et autorisée.",
+      "evidence": []
+    },
+    {
+      "id": "AUTH-001",
+      "title": "Authentification, rôles et isolation des tenants",
+      "area": "security",
+      "priority": "critical",
+      "status": "to_audit",
+      "owner": "engineering",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Chaque route protégée vérifie la session, le rôle et le tenant côté serveur; les accès inter-tenant retournent 403 et sont couverts par des tests.",
+      "evidence": []
+    },
+    {
+      "id": "AUTH-002",
+      "title": "Passkeys gérées par le fournisseur d'identité",
+      "area": "security",
+      "priority": "high",
+      "status": "to_audit",
+      "owner": "engineering-and-operations",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Les passkeys sont activées dans l'instance de production Clerk, l'écran de connexion les propose et les utilisateurs peuvent gérer leurs méthodes de connexion et leur récupération de compte.",
+      "evidence": []
+    },
+    {
+      "id": "API-001",
+      "title": "Validation des entrées structurées",
+      "area": "api",
+      "priority": "high",
+      "status": "to_audit",
+      "owner": "engineering",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Chaque route métier valide son payload avec Zod et retourne un code HTTP approprié pour les données invalides.",
+      "evidence": []
+    },
+    {
+      "id": "WEBHOOK-001",
+      "title": "Sécurisation et idempotence des webhooks",
+      "area": "security",
+      "priority": "critical",
+      "status": "to_audit",
+      "owner": "engineering",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Chaque webhook vérifie sa signature et sa fenêtre temporelle, applique un rate limit, déduplique les événements et ne crée aucun effet métier en double.",
+      "evidence": []
+    },
+    {
+      "id": "SESSION-001",
+      "title": "Durée et révocation des sessions",
+      "area": "security",
+      "priority": "high",
+      "status": "to_audit",
+      "owner": "engineering",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "La durée de session, son renouvellement et sa révocation sont explicitement configurés et couverts par des tests.",
+      "evidence": []
+    },
+    {
+      "id": "UPLOAD-001",
+      "title": "Traitement sûr des fichiers téléversés",
+      "area": "security",
+      "priority": "critical",
+      "status": "to_audit",
+      "owner": "engineering",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Les uploads contrôlent autorisation, type, taille et chemin; les fichiers non fiables sont mis en quarantaine ou analysés avant mise à disposition.",
+      "evidence": []
+    },
+    {
+      "id": "DATA-001",
+      "title": "Sauvegarde et restauration des données",
+      "area": "resilience",
+      "priority": "critical",
+      "status": "to_audit",
+      "owner": "operations",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "La rétention des sauvegardes, le PITR, le RPO/RTO et un exercice de restauration sont documentés et vérifiés sur l'environnement de production.",
+      "evidence": []
+    },
+    {
+      "id": "RGPD-001",
+      "title": "Gouvernance RGPD et secret professionnel",
+      "area": "compliance",
+      "priority": "critical",
+      "status": "to_audit",
+      "owner": "legal",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Les traitements, sous-traitants, régions, rétentions, droits d'accès et procédures d'export/effacement sont documentés et validés.",
+      "evidence": []
+    },
+    {
+      "id": "AI-001",
+      "title": "Minimisation des données envoyées aux modèles IA",
+      "area": "ai",
+      "priority": "critical",
+      "status": "to_audit",
+      "owner": "engineering-and-legal",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Les prompts excluent secrets et données inutiles; toute pseudonymisation préserve le sens métier; fournisseur, DPA, rétention et usage des données sont vérifiés.",
+      "evidence": []
+    },
+    {
+      "id": "AUDIT-001",
+      "title": "Traçabilité des décisions sensibles",
+      "area": "audit",
+      "priority": "high",
+      "status": "to_audit",
+      "owner": "engineering",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Les actions sensibles conservent acteur, tenant, horodatage, ressource et corrélation sans enregistrer de contenu personnel superflu dans les logs.",
+      "evidence": []
+    },
+    {
+      "id": "TEST-001",
+      "title": "Matrice routes, services et tests",
+      "area": "quality",
+      "priority": "high",
+      "status": "in_progress",
+      "owner": "engineering",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Chaque route sensible est reliée à des tests d'authentification, autorisation, isolation tenant, validation et audit; les écarts sont explicitement suivis.",
+      "evidence": []
+    },
+    {
+      "id": "OBS-001",
+      "title": "Observabilité minimisée et alertes",
+      "area": "operations",
+      "priority": "high",
+      "status": "to_audit",
+      "owner": "operations",
+      "releaseBlocker": true,
+      "acceptanceCriteria": "Les erreurs, latences, taux d'échec et coûts IA sont observables par métriques agrégées; les alertes et la procédure d'incident sont testées.",
+      "evidence": []
+    },
+    {
+      "id": "PERF-001",
+      "title": "Capacité mesurée pour le pilote",
+      "area": "performance",
+      "priority": "medium",
+      "status": "not_started",
+      "owner": "engineering",
+      "releaseBlocker": false,
+      "acceptanceCriteria": "Un scénario représentatif de cinq utilisateurs simultanés mesure latence p95, taux d'erreur et saturation des dépendances.",
+      "evidence": []
+    },
+    {
+      "id": "PRODUCT-001",
+      "title": "Feedback pilote sur les propositions IA",
+      "area": "product",
+      "priority": "medium",
+      "status": "not_started",
+      "owner": "product-and-legal",
+      "releaseBlocker": false,
+      "acceptanceCriteria": "Les pilotes peuvent accepter, modifier ou rejeter une proposition et fournir un motif exploitable sans exposer de données personnelles dans les métriques.",
+      "evidence": []
+    }
+  ]
+}

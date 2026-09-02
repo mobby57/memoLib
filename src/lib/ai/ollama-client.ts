@@ -1,4 +1,5 @@
 ﻿// @ts-nocheck
+import { sanitizePromptForAI } from './prompt-sanitizer';
 
 interface OllamaResponse {
   response: string;
@@ -48,7 +49,7 @@ Format attendu:
     try {
       return await this.generateJSON<EmailAnalysis>(prompt);
     } catch (error) {
-      console.error('Ollama error:', error);
+      console.error('Ollama request failed');
       return {
         typeDossier: 'GENERAL',
         urgency: 'medium',
@@ -59,7 +60,11 @@ Format attendu:
   }
 
   async generate(prompt: string, systemPrompt?: string): Promise<string> {
-    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
+    const safePrompt = sanitizePromptForAI(prompt).sanitizedText;
+    const safeSystemPrompt = systemPrompt
+      ? sanitizePromptForAI(systemPrompt).sanitizedText
+      : undefined;
+    const fullPrompt = safeSystemPrompt ? `${safeSystemPrompt}\n\n${safePrompt}` : safePrompt;
     const response = await fetch(`${this.baseUrl}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -91,12 +96,16 @@ Format attendu:
   async chat(
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
   ): Promise<string> {
+    const safeMessages = messages.map(message => ({
+      ...message,
+      content: sanitizePromptForAI(message.content).sanitizedText,
+    }));
     const response = await fetch(`${this.baseUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: this.model,
-        messages,
+        messages: safeMessages,
         stream: false,
         options: { temperature: 0.1 },
       }),
@@ -124,6 +133,5 @@ Format attendu:
 }
 
 export const ollama = new OllamaClient();
-
 
 

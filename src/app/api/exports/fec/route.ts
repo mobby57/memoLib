@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { ReportingService } from '@/lib/services/comptabilite';
 import prisma from '@/lib/prisma';
@@ -17,8 +13,8 @@ import prisma from '@/lib/prisma';
  */
 export async function GET(req: NextRequest) {
   const { user } = await auth();
-    const session = user ? { user } : null;
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
   const year = parseInt(req.nextUrl.searchParams.get('year') || new Date().getFullYear().toString());
 

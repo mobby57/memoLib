@@ -1,20 +1,15 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
     try {
         const { user } = await auth();
-    const session = user ? { user } : null;
         if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const user = await prisma.user.findUnique({
+        const dbUser = await prisma.user.findUnique({
             where: { email: user.email },
             include: {
                 stripeCustomer: {
@@ -30,12 +25,12 @@ export async function GET(req: NextRequest) {
             }
         });
 
-        if (!user?.stripeCustomer) {
+        if (!dbUser?.stripeCustomer) {
             return NextResponse.json({ invoices: [] });
         }
 
         return NextResponse.json({
-            invoices: user.stripeCustomer.invoices.map((inv: any) => ({
+            invoices: dbUser.stripeCustomer.invoices.map((inv: any) => ({
                 id: inv.id,
                 amount: inv.amountDue,
                 currency: inv.currency,

@@ -3,7 +3,10 @@ import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 import { encryptEmailBody } from '@/lib/security/email-encryption';
 import { getClientIP, checkRateLimit } from '@/lib/rate-limit';
+import { verifyWebhookRequest } from '@/lib/security/webhook-verification';
 import { z } from 'zod';
+
+const MAX_WEBHOOK_BODY_BYTES = 2_100_000;
 
 const inboundEmailSchema = z.object({
   from: z.string().min(1).max(320),
@@ -14,7 +17,9 @@ const inboundEmailSchema = z.object({
   date: z.string().datetime().optional(),
   messageId: z.string().max(998).optional(),
   tenantId: z.string().min(1).max(128).optional(),
-});
+}).strict();
+
+const eventIdSchema = z.string().trim().min(1).max(255).regex(/^[A-Za-z0-9._:-]+$/);
 
 /**
  * Webhook pour recevoir des emails forwardés.
@@ -26,19 +31,19 @@ const inboundEmailSchema = z.object({
  * - Forward direct (POST JSON)
  */
 export async function POST(req: NextRequest) {
-  // Auth par webhook secret
-  const secret = req.headers.get('x-webhook-secret') || req.nextUrl.searchParams.get('secret');
   const expectedSecret = process.env.EMAIL_WEBHOOK_SECRET;
   if (!expectedSecret) {
     return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
   }
 
-  const validSecret =
-    !!secret &&
-    secret.length === expectedSecret.length &&
-    crypto.timingSafeEqual(Buffer.from(secret), Buffer.from(expectedSecret));
-  if (!validSecret) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const eventIdResult = eventIdSchema.safeParse(req.headers.get('x-webhook-id'));
+  if (!eventIdResult.success) {
+    return NextResponse.json({ error: 'Identifiant d’événement invalide' }, { status: 400 });
+  }
+
+  const declaredContentLength = Number(req.headers.get('content-length'));
+  if (Number.isFinite(declaredContentLength) && declaredContentLength > MAX_WEBHOOK_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload trop volumineux' }, { status: 413 });
   }
 
   const rateLimit = await checkRateLimit(getClientIP(req), 'webhook');
@@ -50,6 +55,16 @@ export async function POST(req: NextRequest) {
   }
 
   const contentType = req.headers.get('content-type') || '';
+  const rawRequestBody = await req.clone().text();
+  if (Buffer.byteLength(rawRequestBody, 'utf8') > MAX_WEBHOOK_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload trop volumineux' }, { status: 413 });
+  }
+
+  const verification = verifyWebhookRequest(req, rawRequestBody, expectedSecret);
+  if (!verification.valid) {
+    return verification.response;
+  }
+
   let emailData: unknown;
 
   if (contentType.includes('multipart/form-data')) {
@@ -66,7 +81,7 @@ export async function POST(req: NextRequest) {
   } else {
     // JSON format (Gmail Apps Script, Power Automate, direct)
     try {
-      emailData = await req.json();
+      emailData = JSON.parse(rawRequestBody);
     } catch {
       return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
     }
@@ -90,7 +105,12 @@ export async function POST(req: NextRequest) {
   // Déduplication par checksum
   const checksum = crypto.createHash('sha256').update(`${validatedEmail.messageId || ''}${validatedEmail.from}${validatedEmail.subject || ''}${validatedEmail.body.slice(0, 500)}`).digest('hex');
 
-  const existing = await prisma.email.findFirst({ where: { tenantId, checksum } });
+  const existing = await prisma.email.findFirst({
+    where: {
+      tenantId,
+      OR: [{ checksum }, { providerMessageId: eventIdResult.data }],
+    },
+  });
   if (existing) {
     return NextResponse.json({ success: true, duplicate: true, emailId: existing.id });
   }
@@ -112,6 +132,7 @@ export async function POST(req: NextRequest) {
       htmlBody: storedHtml,
       htmlBodyEncrypted,
       messageId: validatedEmail.messageId || null,
+      providerMessageId: eventIdResult.data,
       checksum,
       direction: 'INCOMING',
       status: 'PENDING',

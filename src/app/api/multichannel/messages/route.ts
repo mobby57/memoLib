@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Messages Multi-Canal
  * Récupération et gestion des messages de tous les canaux
@@ -21,7 +17,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     const { user } = await auth();
-    const session = user ? { user } : null;
     if (!user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
@@ -48,7 +43,7 @@ export async function GET(request: NextRequest) {
       limit: parseInt(url.searchParams.get('limit') || '50'),
     };
 
-    const result = await multiChannelService.getMessages(tenantId, options);
+    const result = await multiChannelService.getMessages(tenantId ?? '', options);
 
     return NextResponse.json({
       success: true,
@@ -72,7 +67,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { user } = await auth();
-    const session = user ? { user } : null;
     if (!user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }

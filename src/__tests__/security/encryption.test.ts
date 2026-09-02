@@ -70,6 +70,15 @@ describe('encryption', () => {
       expect(() => encryptData('test')).toThrow(/ENCRYPTION_MASTER_KEY/);
 
     });
+
+    it('devrait lever une erreur si ENCRYPTION_MASTER_KEY est trop courte', async () => {
+      process.env.ENCRYPTION_MASTER_KEY = 'trop-courte';
+      vi.resetModules();
+
+      const { encryptData } = await import('@/lib/security/encryption');
+
+      expect(() => encryptData('test')).toThrow(/at least 32 characters/);
+    });
   });
 
   describe('decryptData', () => {
@@ -119,6 +128,14 @@ describe('encryption', () => {
       encrypted.iv = 'invalid_iv_base64!';
 
       expect(() => decryptData(encrypted)).toThrow();
+    });
+
+    it('devrait rejeter les payloads de version ou Base64 invalides', async () => {
+      const { decryptData, encryptData } = await import('@/lib/security/encryption');
+      const encrypted = encryptData('data');
+
+      expect(() => decryptData({ ...encrypted, version: '2.0' as '1.0' })).toThrow(/version/);
+      expect(() => decryptData({ ...encrypted, iv: 'not-base64!' })).toThrow(/base64/);
     });
   });
 

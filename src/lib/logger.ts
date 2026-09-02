@@ -1,4 +1,6 @@
-﻿/**
+﻿import { redactSensitiveData } from '@/lib/security/sensitive-data-redaction';
+
+/**
  * memoLib - Systeme de Logging Juridique Professionnel
  *
  * Logging specialise pour cabinet d'avocats CESEDA avec:
@@ -77,7 +79,7 @@ class Logger {
     if (!this.isDevelopment) return;
 
     const entry = this.createLogEntry('debug', message, context);
-    console.log(` [DEBUG] ${message}`, context || '');
+    console.log(` [DEBUG] ${entry.message}`, entry.context || '');
     this.bufferLog(entry);
   }
 
@@ -88,7 +90,7 @@ class Logger {
     const entry = this.createLogEntry('info', message, context);
 
     if (this.isDevelopment) {
-      console.info(`ℹ️ [INFO] ${message}`, context || '');
+      console.info(`ℹ️ [INFO] ${entry.message}`, entry.context || '');
     } else {
       this.sendToMonitoring(entry);
     }
@@ -103,7 +105,7 @@ class Logger {
     const entry = this.createLogEntry('warn', message, context);
 
     if (this.isDevelopment) {
-      console.warn(`️ [WARN] ${message}`, context || '');
+      console.warn(`️ [WARN] ${entry.message}`, entry.context || '');
     } else {
       this.sendToMonitoring(entry);
     }
@@ -124,11 +126,11 @@ class Logger {
     });
 
     if (this.isDevelopment) {
-      console.error(` [ERROR] ${message}`, {
+      console.error(` [ERROR] ${message}`, this.sanitizeContext({
         error: errorMessage,
         context,
         stack: stackTrace,
-      });
+      }));
     } else {
       this.sendToMonitoring(entry);
     }
@@ -149,11 +151,11 @@ class Logger {
       severity: 'CRITICAL',
     });
 
-    console.error(` [CRITICAL] ${message}`, {
+    console.error(` [CRITICAL] ${message}`, this.sanitizeContext({
       error: errorMessage,
       context,
       stack: stackTrace,
-    });
+    }));
 
     this.sendToMonitoring(entry);
     this.bufferLog(entry);
@@ -195,7 +197,10 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(`️ [AUDIT JURIDIQUE] ${action}`, { userId, tenantId, details });
+      console.log(
+        `️ [AUDIT JURIDIQUE] ${action}`,
+        this.sanitizeContext({ userId, tenantId, details })
+      );
     }
   }
 
@@ -234,12 +239,12 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(` [DOSSIER ${action}]`, {
+      console.log(` [DOSSIER ${action}]`, this.sanitizeContext({
         dossierId,
         type: details?.typeDossier,
         client: details?.clientId,
         user: userId,
-      });
+      }));
     }
   }
 
@@ -378,7 +383,7 @@ class Logger {
     return {
       timestamp: new Date().toISOString(),
       level,
-      message,
+      message: redactSensitiveData(message) as string,
       context: this.sanitizeContext(context),
     };
   }
@@ -389,52 +394,7 @@ class Logger {
   private sanitizeContext(context?: Record<string, any>): Record<string, any> | undefined {
     if (!context) return undefined;
 
-    const technicalSensitive = ['password', 'token', 'apiKey', 'secret', 'creditCard', 'sessionId'];
-    const personalData = [
-      'nom',
-      'prenom',
-      'nomNaissance',
-      'firstname',
-      'lastname',
-      'telephone',
-      'phone',
-      'mobile',
-      'adresse',
-      'address',
-      'domicile',
-      'numeroSecuriteSociale',
-      'ssn',
-      'numeroPasseport',
-      'passport',
-      'dateNaissance',
-      'birthdate',
-      'lieuNaissance',
-      'birthplace',
-      'nationalite',
-      'nationality',
-    ];
-
-    const sanitized = { ...context };
-
-    Object.keys(sanitized).forEach(key => {
-      const lowerKey = key.toLowerCase();
-
-      if (technicalSensitive.some(sensitive => lowerKey.includes(sensitive))) {
-        sanitized[key] = '[REDACTED]';
-      }
-
-      if (!context.rgpdCompliant && personalData.some(personal => lowerKey.includes(personal))) {
-        sanitized[key] = '[DONNeES PERSONNELLES]';
-      }
-
-      if (lowerKey.includes('email') && typeof sanitized[key] === 'string') {
-        const email = sanitized[key] as string;
-        const [, domain] = email.split('@');
-        sanitized[key] = `***@${domain || 'anonymized.com'}`;
-      }
-    });
-
-    return sanitized;
+    return redactSensitiveData(context) as Record<string, any>;
   }
 
   /**

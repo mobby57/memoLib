@@ -1,8 +1,3 @@
-// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement import useSession
 'use client';
 
 import { useEffect } from 'react';
@@ -11,11 +6,11 @@ import { useNotifications } from '@/components/NotificationProvider';
 import { logger } from '@/lib/logger';
 
 export function ActivityMonitor() {
-  const { data: session, user } = useAuth();
+  const { user } = useAuth();
   const { addNotification } = useNotifications();
 
   useEffect(() => {
-    if (!session?.user?.tenantId) return;
+    if (!user?.tenantId) return;
 
     const checkActivities = async () => {
       try {
@@ -41,7 +36,7 @@ export function ActivityMonitor() {
           });
         }
       } catch (error) {
-        logger.error('Erreur verification activites', { error, tenantId: session?.user?.tenantId });
+        logger.error('Erreur verification activites', { error, tenantId: user?.tenantId });
       }
     };
 
@@ -50,7 +45,7 @@ export function ActivityMonitor() {
     const interval = setInterval(checkActivities, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [session?.user?.tenantId, addNotification]);
+  }, [user?.tenantId, addNotification]);
 
   return null; // This is a background component
 }

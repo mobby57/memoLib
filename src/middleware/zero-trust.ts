@@ -152,7 +152,7 @@ export async function zeroTrustMiddleware(req: NextRequest) {
   if (!authCheck.authorized) {
     // Log acces non autorise
     await AuditHelpers.logUnauthorizedAccess(
-      (token.id as string) || 'anonymous',
+      (token.sub as string) || 'anonymous',
       context.tenantId as string | null,
       (context.resourceType as any) || 'Unknown',
       'route',
@@ -167,7 +167,7 @@ export async function zeroTrustMiddleware(req: NextRequest) {
   if (context.method !== 'GET' || context.resourceType === 'Document') {
     await logAudit({
       tenantId: context.tenantId as string | undefined,
-      userId: token.id as string,
+      userId: token.sub as string,
       userRole: token.role as string,
       action: context.method as any,
       objectType: (context.resourceType as any) || 'Unknown',

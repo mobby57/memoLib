@@ -114,6 +114,14 @@ export function sanitizeStructuredDataForAI(data: Record<string, unknown>): Reco
       result[key] = '[REDACTED]';
     } else if (typeof value === 'string') {
       result[key] = sanitizePromptForAI(value).sanitizedText;
+    } else if (Array.isArray(value)) {
+      result[key] = value.map(item => {
+        if (typeof item === 'string') return sanitizePromptForAI(item).sanitizedText;
+        if (typeof item === 'object' && item !== null) {
+          return sanitizeStructuredDataForAI(item as Record<string, unknown>);
+        }
+        return item;
+      });
     } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       result[key] = sanitizeStructuredDataForAI(value as Record<string, unknown>);
     } else {

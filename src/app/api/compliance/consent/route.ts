@@ -1,75 +1,73 @@
-import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { GDPRCompliance } from '@/lib/compliance/gdpr';
+import { z } from 'zod';
+import { auth } from '@/lib/clerk-auth';
+import {
+  CONSENT_TYPES,
+  CURRENT_PRIVACY_POLICY_VERSION,
+  GDPRCompliance,
+} from '@/lib/compliance/gdpr';
+import { logger } from '@/lib/logger';
 
-export async function POST(req: NextRequest) {
-    try {
-        const { user } = await auth();
-    const session = user ? { user } : null;
-        const { consents } = await req.json();
+const consentRequestSchema = z
+  .object({
+    consents: z
+      .array(
+        z
+          .object({
+            type: z.enum(CONSENT_TYPES),
+            granted: z.boolean(),
+            policyVersion: z.literal(CURRENT_PRIVACY_POLICY_VERSION),
+          })
+          .strict()
+      )
+      .min(1)
+      .max(CONSENT_TYPES.length),
+  })
+  .strict();
 
-        if (!consents || !Array.isArray(consents)) {
-            return NextResponse.json(
-                { error: 'Invalid consent data' },
-                { status: 400 }
-            );
-        }
+export async function POST(request: NextRequest) {
+  const { user } = await auth();
+  if (!user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  }
 
-        // Get user info
-        const userId = user?.email || 'anonymous';
-        const ipAddress = req.headers.get('x-forwarded-for') ||
-            req.headers.get('x-real-ip') ||
-            'unknown';
-        const userAgent = req.headers.get('user-agent') || 'unknown';
+  const parsed = consentRequestSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Données de consentement invalides' }, { status: 400 });
+  }
+  if (parsed.data.consents.some(({ type, granted }) => type === 'essential' && !granted)) {
+    return NextResponse.json(
+      { error: 'Le consentement essentiel ne peut pas être retiré depuis cette interface.' },
+      { status: 400 }
+    );
+  }
 
-        // Record each consent
-        for (const consent of consents) {
-            if (user?.email) {
-                await GDPRCompliance.recordConsent(userId, {
-                    type: consent.type,
-                    granted: consent.granted,
-                    ipAddress,
-                    userAgent,
-                    version: '1.0.0' // Privacy policy version
-                });
-            }
-        }
-
-        return NextResponse.json({ success: true });
-    } catch (error: any) {
-        console.error('Error recording consent:', error);
-        return NextResponse.json(
-            { error: error.message || 'Internal server error' },
-            { status: 500 }
-        );
-    }
+  try {
+    await GDPRCompliance.recordConsents(
+      user.id,
+      parsed.data.consents.map(({ type, granted, policyVersion }) => ({
+        type,
+        granted,
+        version: policyVersion,
+      }))
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logger.error('Consent update failed', error, { userId: user.id });
+    return NextResponse.json({ error: 'Impossible d’enregistrer le consentement' }, { status: 500 });
+  }
 }
 
-export async function GET(req: NextRequest) {
-    try {
-        const { user } = await auth();
-    const session = user ? { user } : null;
+export async function GET() {
+  const { user } = await auth();
+  if (!user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  }
 
-        if (!user?.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const consents = await GDPRCompliance.getUserConsents(user.email);
-
-        return NextResponse.json({ consents });
-    } catch (error: any) {
-        console.error('Error fetching consents:', error);
-        return NextResponse.json(
-            { error: error.message || 'Internal server error' },
-            { status: 500 }
-        );
-    }
+  try {
+    return NextResponse.json({ consents: await GDPRCompliance.getUserConsents(user.id) });
+  } catch (error) {
+    logger.error('Consent lookup failed', error, { userId: user.id });
+    return NextResponse.json({ error: 'Impossible de récupérer les consentements' }, { status: 500 });
+  }
 }
-
-
-
-

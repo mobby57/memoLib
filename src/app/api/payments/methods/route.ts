@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/config';
 import { prisma } from '@/lib/prisma';
@@ -10,23 +6,22 @@ import { prisma } from '@/lib/prisma';
 export async function GET(req: NextRequest) {
     try {
         const { user } = await auth();
-    const session = user ? { user } : null;
         if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const user = await prisma.user.findUnique({
+        const dbUser = await prisma.user.findUnique({
             where: { email: user.email },
             include: { stripeCustomer: true }
         });
 
-        if (!user?.stripeCustomer) {
+        if (!dbUser?.stripeCustomer) {
             return NextResponse.json({ paymentMethods: [] });
         }
 
         // Get payment methods from Stripe
         const paymentMethods = await stripe.paymentMethods.list({
-            customer: user.stripeCustomer.stripeCustomerId,
+            customer: dbUser.stripeCustomer.stripeCustomerId,
             type: 'card'
         });
 
@@ -51,7 +46,6 @@ export async function GET(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
     try {
         const { user } = await auth();
-    const session = user ? { user } : null;
         if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }

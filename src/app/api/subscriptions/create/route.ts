@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/config';
 import { prisma } from '@/lib/prisma';
@@ -31,7 +27,6 @@ type SubscriptionPeriods = {
 export async function POST(req: NextRequest) {
     try {
         const { user } = await auth();
-    const session = user ? { user } : null;
         if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -56,29 +51,29 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Invalid price key' }, { status: 400 });
         }
 
-        const user = await prisma.user.findUnique({
+        const dbUser = await prisma.user.findUnique({
             where: { email: user.email },
             include: { stripeCustomer: true }
         });
 
-        if (!user) {
+        if (!dbUser) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        let stripeCustomerId = user.stripeCustomer?.stripeCustomerId;
+        let stripeCustomerId = dbUser.stripeCustomer?.stripeCustomerId;
 
         if (!stripeCustomerId) {
             const customer = await stripe.customers.create({
-                email: user.email,
-                name: user.name || undefined,
-                metadata: { userId: user.id }
+                email: dbUser.email,
+                name: dbUser.name || undefined,
+                metadata: { userId: dbUser.id }
             });
 
             await prisma.stripeCustomer.create({
                 data: {
-                    userId: user.id,
+                    userId: dbUser.id,
                     stripeCustomerId: customer.id,
-                    email: user.email
+                    email: dbUser.email
                 }
             });
 
@@ -91,14 +86,14 @@ export async function POST(req: NextRequest) {
             payment_behavior: 'default_incomplete',
             payment_settings: { save_default_payment_method: 'on_subscription' },
             expand: ['latest_invoice.payment_intent'],
-            metadata: { userId: user.id, tier }
+            metadata: { userId: dbUser.id, tier }
         }) as ExpandedSubscription;
 
         const subscriptionPeriods = subscription as unknown as SubscriptionPeriods;
 
         await prisma.subscription.create({
             data: {
-                userId: user.id,
+                userId: dbUser.id,
                 stripeSubscriptionId: subscription.id,
                 stripeCustomerId,
                 tier: tier as AllowedTier,

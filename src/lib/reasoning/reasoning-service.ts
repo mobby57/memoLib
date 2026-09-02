@@ -6,6 +6,7 @@
  */
 
 import { ollama } from '@/lib/ai/ollama-client';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import {
   getPromptForTransition,
@@ -76,12 +77,12 @@ export async function executeReasoning(
       };
     }
 
-    console.log(` Executing reasoning: ${fromState} [Next] ${toState}`);
-    console.log(` Prompt length: ${prompt.length} chars`);
+    logger.info('Executing reasoning transition', { fromState, toState, workspaceId });
+    logger.debug('Reasoning prompt generated', { promptLength: prompt.length, workspaceId });
 
     const aiResponse = await ollama.generateJSON(prompt);
 
-    console.log(` AI Response received:`, aiResponse);
+    logger.info('Reasoning AI response received', { workspaceId, toState });
 
     // 5. Valider la structure de la reponse
     if (!aiResponse || typeof aiResponse !== 'object') {
@@ -91,30 +92,33 @@ export async function executeReasoning(
       };
     }
 
-    // 6. Appliquer les resultats selon l'etat cible
-    await applyReasoningResults(workspaceId, toState, aiResponse);
+    // Applying generated entities, the state, and the transition must be atomic.
+    await prisma.$transaction(async tx => {
+      const stateUpdate = await tx.workspaceReasoning.updateMany({
+        where: { id: workspaceId, currentState: fromState, locked: false },
+        data: {
+          currentState: toState,
+          uncertaintyLevel: aiResponse.uncertaintyLevel || workspace.uncertaintyLevel,
+          stateChangedAt: new Date(),
+          stateChangedBy: 'AI',
+        },
+      });
 
-    // 7. Mettre a jour l'etat du workspace
-    await prisma.workspaceReasoning.update({
-      where: { id: workspaceId },
-      data: {
-        currentState: toState,
-        uncertaintyLevel: aiResponse.uncertaintyLevel || workspace.uncertaintyLevel,
-        stateChangedAt: new Date(),
-        stateChangedBy: 'AI',
-      },
-    });
+      if (stateUpdate.count !== 1) {
+        throw new Error('Workspace state changed concurrently');
+      }
 
-    // 8. Creer la transition
-    await prisma.reasoningTransition.create({
-      data: {
-        workspaceId,
-        fromState,
-        toState,
-        triggeredBy: 'AI',
-        reason: aiResponse.traces?.[0]?.explanation || 'AI reasoning executed',
-        autoApproved: true,
-      },
+      await applyReasoningResults(workspaceId, toState, aiResponse, tx);
+      await tx.reasoningTransition.create({
+        data: {
+          workspaceId,
+          fromState,
+          toState,
+          triggeredBy: 'AI',
+          reason: aiResponse.traces?.[0]?.explanation || 'AI reasoning executed',
+          autoApproved: true,
+        },
+      });
     });
 
     return {
@@ -125,7 +129,7 @@ export async function executeReasoning(
       traces: aiResponse.traces,
     };
   } catch (error) {
-    console.error(' Reasoning execution error:', error);
+    logger.error('Reasoning execution failed', error, { workspaceId, toState });
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -139,12 +143,13 @@ export async function executeReasoning(
 async function applyReasoningResults(
   workspaceId: string,
   state: WorkspaceState,
-  aiResponse: any
+  aiResponse: any,
+  db = prisma
 ): Promise<void> {
   switch (state) {
     case 'FACTS_EXTRACTED':
       if (aiResponse.facts && Array.isArray(aiResponse.facts)) {
-        await prisma.fact.createMany({
+        await db.fact.createMany({
           data: aiResponse.facts.map((fact: any) => ({
             workspaceId,
             label: fact.label,
@@ -160,7 +165,7 @@ async function applyReasoningResults(
 
     case 'CONTEXT_IDENTIFIED':
       if (aiResponse.contexts && Array.isArray(aiResponse.contexts)) {
-        await prisma.contextHypothesis.createMany({
+        await db.contextHypothesis.createMany({
           data: aiResponse.contexts.map((ctx: any) => ({
             workspaceId,
             type: ctx.type,
@@ -176,13 +181,13 @@ async function applyReasoningResults(
     case 'OBLIGATIONS_DEDUCED':
       if (aiResponse.obligations && Array.isArray(aiResponse.obligations)) {
         // Recuperer les contextes pour le mapping
-        const contexts = await prisma.contextHypothesis.findMany({
+        const contexts = await db.contextHypothesis.findMany({
           where: { workspaceId },
           select: { id: true },
         });
 
         if (contexts.length > 0) {
-          await prisma.obligation.createMany({
+          await db.obligation.createMany({
             data: aiResponse.obligations.map((obl: any, idx: number) => ({
               workspaceId,
               contextId: contexts[idx % contexts.length].id, // Simple mapping
@@ -200,7 +205,7 @@ async function applyReasoningResults(
 
     case 'MISSING_IDENTIFIED':
       if (aiResponse.missingElements && Array.isArray(aiResponse.missingElements)) {
-        await prisma.missingElement.createMany({
+        await db.missingElement.createMany({
           data: aiResponse.missingElements.map((missing: any) => ({
             workspaceId,
             type: missing.type,
@@ -215,7 +220,7 @@ async function applyReasoningResults(
 
     case 'RISK_EVALUATED':
       if (aiResponse.risks && Array.isArray(aiResponse.risks)) {
-        await prisma.risk.createMany({
+        await db.risk.createMany({
           data: aiResponse.risks.map((risk: any) => {
             const impactMap: Record<string, number> = { LOW: 3, MEDIUM: 6, HIGH: 9 };
             const probabilityMap: Record<string, number> = { LOW: 3, MEDIUM: 6, HIGH: 9 };
@@ -238,7 +243,7 @@ async function applyReasoningResults(
 
     case 'ACTION_PROPOSED':
       if (aiResponse.proposedActions && Array.isArray(aiResponse.proposedActions)) {
-        await prisma.proposedAction.createMany({
+        await db.proposedAction.createMany({
           data: aiResponse.proposedActions.map((action: any) => ({
             workspaceId,
             type: action.type,
@@ -260,7 +265,7 @@ async function applyReasoningResults(
 
   // Creer les traces de raisonnement
   if (aiResponse.traces && Array.isArray(aiResponse.traces)) {
-    await prisma.reasoningTrace.createMany({
+    await db.reasoningTrace.createMany({
       data: aiResponse.traces.map((trace: any) => ({
         workspaceId,
         step: trace.step,
