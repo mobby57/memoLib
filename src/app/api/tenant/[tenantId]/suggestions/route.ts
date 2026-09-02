@@ -262,8 +262,9 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
       totalSuggestions: suggestions.length,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);`n  logger.error(`Erreur suggestions: ${errorMessage}`, { error });
-  Sentry.captureException(error);;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Erreur suggestions: ${errorMessage}`, { error });
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: 'Erreur lors de la génération des suggestions' },
       { status: 500 }
