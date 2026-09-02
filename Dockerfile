@@ -1,4 +1,5 @@
 FROM node:22-bookworm-slim AS builder
+RUN apt-get update && apt-get install -y openssl python3 python3-pip && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package*.json ./
