@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,13 +6,12 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     const { user } = await auth();
-    const session = user ? { user } : null;
 
     if (!user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
     }
 
-    const user = await prisma.user.findUnique({
+    const dbUser = await prisma.user.findUnique({
       where: { id: user.id },
       select: {
         id: true,
@@ -28,11 +23,11 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    if (!user) {
+    if (!dbUser) {
       return NextResponse.json({ error: 'Utilisateur non trouve' }, { status: 404 });
     }
 
-    return NextResponse.json({ profil: user });
+    return NextResponse.json({ profil: dbUser });
   } catch (error) {
     logger.error('Error fetching admin profile:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
@@ -43,7 +38,6 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { user } = await auth();
-    const session = user ? { user } : null;
 
     if (!user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
@@ -75,7 +69,3 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
-
-
-
-

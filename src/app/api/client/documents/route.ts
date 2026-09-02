@@ -1,6 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
@@ -8,8 +6,6 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const { user } = await auth();
-    const session = user ? { user } : null;
-    const user = user;
 
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });

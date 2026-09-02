@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route - Rapprochement bancaire : confirmer
  * POST /api/comptabilite/banque/rapprocher — Confirme un rapprochement
@@ -13,8 +9,8 @@ import { RapprochementService } from '@/lib/services/comptabilite';
 
 export async function POST(req: NextRequest) {
   const { user } = await auth();
-    const session = user ? { user } : null;
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
   try {
     const { mouvementId, ecritureId } = await req.json();

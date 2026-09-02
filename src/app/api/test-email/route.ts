@@ -42,11 +42,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       ...result,
-      message: result.action === 'created'
-        ? `✅ Nouveau dossier ${result.dossierId} créé`
-        : result.action === 'linked'
-        ? `✅ Email lié au dossier ${result.dossierId}`
-        : '⚠️ Email enregistré, action manuelle requise'
+      message: `✅ Email enregistré (${result.emailId}) — en attente de décision dans l'inbox`
     });
 
   } catch (error) {

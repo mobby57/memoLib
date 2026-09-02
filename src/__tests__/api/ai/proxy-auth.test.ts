@@ -7,8 +7,9 @@ const { session, canAccessDossier, fetchMock } = vi.hoisted(() => ({
   fetchMock: vi.fn(),
 }));
 
-vi.mock('@/lib/auth', () => ({ getServerSession: vi.fn(() => session.current) }));
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({ authOptions: {} }));
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(() => ({ user: session.current?.user ?? null })),
+}));
 vi.mock('@/lib/auth/dossier-access', () => ({ canAccessDossier }));
 vi.mock('@/lib/middleware/rate-limit', () => ({ withAIRateLimit: (handler: unknown) => handler }));
 vi.mock('@/lib/logger', () => ({ logger: { error: vi.fn() } }));
@@ -61,5 +62,29 @@ describe.each([
       expect.objectContaining({ userId: 'user-1', tenantId: 'tenant-1', dossierId: 'dossier-1' })
     );
     expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it('rejects unstructured payloads before contacting the AI service', async () => {
+    const response = await handler(request({ prompt: 'Résumé', tenantId: 'tenant-other' }));
+
+    expect(response.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('redacts prompt PII and derives the downstream tenant from the session', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ draft: 'proposition' }),
+    });
+
+    const response = await handler(request({ prompt: 'Contactez jean.dupont@example.com' }));
+
+    expect(response.status).toBe(200);
+    const forwardedPayload = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(forwardedPayload).toMatchObject({
+      tenantId: 'tenant-1',
+      prompt: expect.stringContaining('[EMAIL_REDACTED]'),
+    });
+    expect(forwardedPayload.prompt).not.toContain('jean.dupont@example.com');
   });
 });

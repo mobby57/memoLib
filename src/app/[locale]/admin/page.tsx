@@ -22,6 +22,25 @@ type DashboardUser = {
   tenantName?: string;
 };
 
+type DashboardDossier = {
+  id: string;
+  statut?: string;
+  numéro?: string;
+  typeDossier?: string;
+  objet?: string;
+  client?: { nom?: string; prenom?: string } | null;
+};
+
+type DashboardClient = {
+  id: string;
+  nom?: string;
+  prenom?: string;
+  email?: string;
+  téléphone?: string;
+  _count?: { dossiers?: number };
+  user?: unknown;
+};
+
 export default function AdminDashboard() {
   const { data: session, status, user } = useAuth();
   const router = useRouter();
@@ -35,8 +54,8 @@ export default function AdminDashboard() {
     planName: '',
     aiLevel: 1,
   });
-  const [dossiers, setDossiers] = useState<unknown[]>([]);
-  const [clients, setClients] = useState<unknown[]>([]);
+  const [dossiers, setDossiers] = useState<DashboardDossier[]>([]);
+  const [clients, setClients] = useState<DashboardClient[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

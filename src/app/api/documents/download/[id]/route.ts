@@ -3,11 +3,37 @@ import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { getBlobServiceClient } from '@/lib/azure/clients';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
+import path from 'node:path';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 export const maxDuration = 30;
+
+const documentIdSchema = z.string().trim().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/);
+const ALLOWED_DOWNLOAD_TYPES = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/plain',
+]);
+
+function rateLimitedResponse(reset: Date): NextResponse {
+  return NextResponse.json(
+    { error: 'Trop de requêtes. Réessayez plus tard.' },
+    {
+      status: 429,
+      headers: { 'Retry-After': String(Math.max(1, Math.ceil((reset.getTime() - Date.now()) / 1000))) },
+    }
+  );
+}
 
 /**
  * GET /api/documents/download/[id]
@@ -23,14 +49,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const tenantId = user.tenantId;
-    const { id } = await params;
-
-    if (!id) {
-      return NextResponse.json({ error: 'ID document requis' }, { status: 400 });
+    const idResult = documentIdSchema.safeParse((await params).id);
+    if (!idResult.success) {
+      return NextResponse.json({ error: 'ID document invalide' }, { status: 400 });
     }
+    const id = idResult.data;
 
     if (!user.id || !tenantId) {
       return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+    }
+
+    const rateLimit = await checkRateLimit(`document-download:${user.id}:${getClientIP(request)}`, 'default');
+    if (!rateLimit.success) {
+      return rateLimitedResponse(rateLimit.reset);
     }
 
     // Chercher le document en base de données
@@ -75,7 +106,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const azureStorage = parseAzureStorageKey(document.storageKey);
     if (azureStorage) {
-      if (azureStorage.container !== process.env.AZURE_STORAGE_CONTAINER) {
+      if (
+        azureStorage.container !== process.env.AZURE_STORAGE_CONTAINER ||
+        !azureStorage.blobName.startsWith(`documents/${tenantId}/`)
+      ) {
         return NextResponse.json({ error: 'Stockage document indisponible' }, { status: 503 });
       }
 
@@ -97,34 +131,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (document.storageKey.startsWith('/uploads/')) {
       try {
         const fs = await import('fs/promises');
-        const path = await import('path');
 
-        // 🛡️ SÉCURITÉ: Protection contre Path Traversal
-        const uploadsDir = path.join(process.cwd(), 'uploads');
-        const requestedPath = path.normalize(document.storageKey);
-
-        // Vérifier que le chemin ne contient pas de séquences dangereuses
-        if (requestedPath.includes('..') || requestedPath.includes('%2e')) {
-          logger.warn('[DOWNLOAD] Tentative de Path Traversal détectée', {
-            path: document.storageKey,
-            userId: user.id,
-          });
-          return NextResponse.json({ error: 'Chemin invalide' }, { status: 400 });
-        }
-
-        // Construire le chemin absolu et vérifier qu'il reste dans uploads
-        // Note: Pour la production, les fichiers doivent être stockés dans le service cloud
-        // En développement uniquement: les fichiers sont dans le dossier uploads
-        const baseDir = process.env.NODE_ENV === 'production' ? '/tmp' : process.cwd();
-        const filePath = path.resolve(baseDir, requestedPath.replace(/^\//, ''));
-        const normalizedUploadsDir = path.resolve(baseDir, uploadsDir);
-
-        if (!filePath.startsWith(normalizedUploadsDir)) {
-          logger.warn("[DOWNLOAD] Tentative d'accès hors du dossier uploads", {
-            requestedPath: filePath,
-            allowedDir: normalizedUploadsDir,
-            userId: user.id,
-          });
+        const filePath = resolveLocalUploadPath(document.storageKey);
+        if (!filePath) {
           return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
         }
 
@@ -138,8 +147,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const fileBuffer = await fs.readFile(filePath);
 
         return createDownloadResponse(fileBuffer, document.originalName, document.mimeType);
-      } catch (fsError) {
-        logger.warn('[DOWNLOAD] Fichier local non trouvé', { path: document.storageKey, error: fsError });
+      } catch {
+        logger.warn('[DOWNLOAD] Fichier local non trouvé');
         return NextResponse.json({ error: 'Fichier non trouvé sur le serveur' }, { status: 404 });
       }
     }
@@ -155,8 +164,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
       suggestion: 'Configurez un fournisseur de stockage privé',
     });
-  } catch (error) {
-    logger.error('[DOWNLOAD] Erreur:', { error });
+  } catch {
+    logger.error('[DOWNLOAD] Erreur');
     return NextResponse.json({ error: 'Erreur lors du téléchargement' }, { status: 500 });
   }
 }
@@ -168,11 +177,22 @@ function parseAzureStorageKey(storageKey: string): { container: string; blobName
 
   const [container, ...blobParts] = storageKey.slice('azure://'.length).split('/');
   const blobName = blobParts.join('/');
-  if (!container || !blobName || blobName.includes('..')) {
+  if (!container || !blobName || blobName.includes('..') || blobName.includes('\\')) {
     return null;
   }
 
   return { container, blobName };
+}
+
+function resolveLocalUploadPath(storageKey: string): string | null {
+  const match = /^\/uploads\/([A-Za-z0-9_-]{1,128})\/([A-Za-z0-9._() -]{1,255})$/.exec(storageKey);
+  if (!match) {
+    return null;
+  }
+
+  const uploadsDir = path.resolve(process.cwd(), 'uploads');
+  const filePath = path.resolve(uploadsDir, match[1], match[2]);
+  return filePath.startsWith(uploadsDir + path.sep) ? filePath : null;
 }
 
 function createDownloadResponse(
@@ -185,9 +205,15 @@ function createDownloadResponse(
     .replace(/\s+/g, '_')
     .slice(0, 255);
 
+  const contentType = ALLOWED_DOWNLOAD_TYPES.has(mimeType)
+    ? mimeType
+    : getContentType(originalName);
+
   return new NextResponse(new Uint8Array(fileBuffer), {
     headers: {
-      'Content-Type': mimeType || getContentType(originalName),
+      'Content-Type': ALLOWED_DOWNLOAD_TYPES.has(contentType)
+        ? contentType
+        : 'application/octet-stream',
       'Content-Disposition': `attachment; filename="${safeFilename}"`,
       'Content-Length': String(fileBuffer.length),
       'X-Content-Type-Options': 'nosniff',

@@ -1,4 +1,3 @@
-import { auth } from '@/lib/clerk-auth';
 import { auth, type AuthenticatedUser } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 

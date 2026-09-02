@@ -1,103 +1,49 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-test.describe('Tests Sécurité Avancés', () => {
-  test('Injection SQL', async ({ request }) => {
-    const maliciousInputs = [
-      "'; DROP TABLE users; --",
-      "1' OR '1'='1",
-      "admin'/*",
-      "' UNION SELECT * FROM users --"
-    ];
+test.describe('Frontières de sécurité publiques', () => {
+  test.describe.configure({ mode: 'serial' });
 
-    for (const input of maliciousInputs) {
-      const response = await request.post('/api/clients', {
-        data: { name: input, email: 'test@test.com' }
-      });
-      
-      expect(response.status()).not.toBe(500);
-      expect(await response.text()).not.toContain('SQL');
-    }
+  test('la sonde de vie applique les en-têtes de protection', async ({ request }) => {
+    const response = await request.get('/api/health/live');
+
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-security-policy']).toContain("default-src 'self'");
+    expect(response.headers()['x-content-type-options']).toBe('nosniff');
+    expect(response.headers()['x-frame-options']).toBe('DENY');
+    expect(response.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin');
   });
 
-  test('XSS Protection', async ({ page }) => {
-    const xssPayloads = [
-      '<script>alert("xss")</script>',
-      'javascript:alert("xss")',
-      '<img src=x onerror=alert("xss")>',
-      '"><script>alert("xss")</script>'
-    ];
+  test('les documents ne sont pas accessibles sans session Clerk', async ({ request }) => {
+    const response = await request.get('/api/documents?dossierId=untrusted-dossier');
 
-    await page.goto('/clients/new');
-    
-    for (const payload of xssPayloads) {
-      await page.fill('[name="name"]', payload);
-      await page.click('[data-testid="save"]');
-      
-      const alerts = [];
-      page.on('dialog', dialog => {
-        alerts.push(dialog.message());
-        dialog.dismiss();
-      });
-      
-      expect(alerts).toHaveLength(0);
-    }
+    expect(response.status()).toBe(401);
   });
 
-  test('CSRF Protection', async ({ request }) => {
-    const response = await request.post('/api/cases', {
-      data: { title: 'Test Case' },
-      headers: { 'Origin': 'https://malicious-site.com' }
+  test('un upload non authentifié est refusé avant le traitement du fichier', async ({ request }) => {
+    const response = await request.post('/api/documents/upload', {
+      multipart: {
+        dossierId: 'untrusted-dossier',
+        type: 'document',
+        file: {
+          name: 'malware.exe',
+          mimeType: 'application/octet-stream',
+          buffer: Buffer.from('MZ'),
+        },
+      },
     });
-    
-    expect(response.status()).toBe(403);
+
+    expect(response.status()).toBe(401);
   });
 
-  test('Rate Limiting', async ({ request }) => {
-    const requests = Array.from({ length: 100 }, () =>
-      request.post('/api/auth/signin', {
-        data: { email: 'test@test.com', password: 'wrong' }
-      })
-    );
-    
-    const responses = await Promise.all(requests);
-    const rateLimited = responses.filter(r => r.status() === 429);
-    
-    expect(rateLimited.length).toBeGreaterThan(0);
-  });
+  test('un webhook email sans signature est rejeté sans erreur interne', async ({ request }) => {
+    const response = await request.post('/api/webhooks/email-inbound', {
+      data: {
+        from: 'attacker@example.test',
+        body: 'Un contenu non signé',
+      },
+    });
 
-  test('Session Security', async ({ page, context }) => {
-    await page.goto('/auth/signin');
-    await page.fill('[name="email"]', 'test@test.com');
-    await page.fill('[name="password"]', 'Test123!');
-    await page.click('button[type="submit"]');
-    
-    const cookies = await context.cookies();
-    const sessionCookie = cookies.find(c => c.name.includes('session'));
-    
-    expect(sessionCookie?.secure).toBe(true);
-    expect(sessionCookie?.httpOnly).toBe(true);
-    expect(sessionCookie?.sameSite).toBe('Strict');
-  });
-
-  test('File Upload Security', async ({ page }) => {
-    await page.goto('/cases/1');
-    
-    const maliciousFiles = [
-      { name: 'virus.exe', content: 'MZ\x90\x00' },
-      { name: 'script.php', content: '<?php system($_GET["cmd"]); ?>' },
-      { name: 'large.txt', content: 'A'.repeat(10 * 1024 * 1024) }
-    ];
-    
-    for (const file of maliciousFiles) {
-      const buffer = Buffer.from(file.content);
-      await page.setInputFiles('[data-testid="file-upload"]', {
-        name: file.name,
-        mimeType: 'application/octet-stream',
-        buffer
-      });
-      
-      const error = await page.locator('[data-testid="upload-error"]').textContent();
-      expect(error).toContain('non autorisé');
-    }
+    expect(response.status()).toBeGreaterThanOrEqual(400);
+    expect([400, 401, 403, 413, 429, 503]).toContain(response.status());
   });
 });

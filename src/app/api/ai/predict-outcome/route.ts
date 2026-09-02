@@ -3,23 +3,30 @@ import { auth } from '@/lib/clerk-auth';
 // CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+import { z } from 'zod';
 
 /**
  * POST /api/ai/predict-outcome
  * Estime les chances de succes basees sur les stats tribunal anonymisees.
  */
-export async function POST(req: NextRequest) {
-  const { user } = await auth();
-    const session = user ? { user } : null;
-  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+const predictionSchema = z.object({
+  typeDossier: z.string().trim().min(1).max(100).optional(),
+  juridiction: z.string().trim().min(1).max(200).optional(),
+  typeRecours: z.string().trim().min(1).max(100).optional(),
+}).strict();
 
-  const { typeDossier, juridiction, typeRecours } = await req.json();
+export const POST = withAIRateLimit(async (req: NextRequest) => {
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+
+  const parsed = predictionSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Requête de prédiction invalide' }, { status: 400 });
+  const { typeDossier, juridiction, typeRecours } = parsed.data;
 
   // Recuperer les stats anonymisees
-  const where: any = { outcome: { not: null } };
-  if (typeDossier) where.typeDossier = typeDossier;
-  if (juridiction) where.juridiction = juridiction;
-  if (typeRecours) where.typeRecours = typeRecours;
+  const where = { tenantId: user.tenantId, outcome: { not: null }, typeDossier, juridiction, typeRecours };
 
   const results = await prisma.dossier.groupBy({
     by: ['outcome'],
@@ -50,6 +57,4 @@ export async function POST(req: NextRequest) {
     filters: { typeDossier, juridiction, typeRecours },
     note: 'Estimation basee sur des dossiers similaires anonymises. Ne constitue pas une garantie.',
   });
-}
-
-
+});

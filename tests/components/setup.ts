@@ -29,7 +29,8 @@ vi.mock('next/link', () => ({
 
 // Mock lucide-react — liste explicite des icônes utilisées par les composants testés
 const createIconMock = (name: string) => {
-  const Icon = (props: any) => React.createElement('span', { 'data-testid': `icon-${name}`, ...props });
+  const Icon = (props: any) =>
+    React.createElement('span', { 'data-testid': `icon-${name}`, ...props });
   Icon.displayName = name;
   return Icon;
 };
@@ -39,11 +40,17 @@ vi.mock('lucide-react', () => ({
   AlertTriangle: createIconMock('AlertTriangle'),
   Clock: createIconMock('Clock'),
   User: createIconMock('User'),
+  UserPlus: createIconMock('UserPlus'),
   FolderPlus: createIconMock('FolderPlus'),
+  Mail: createIconMock('Mail'),
   Loader2: createIconMock('Loader2'),
   ChevronDown: createIconMock('ChevronDown'),
   ChevronUp: createIconMock('ChevronUp'),
   CheckCircle: createIconMock('CheckCircle'),
+  Circle: createIconMock('Circle'),
+  HelpCircle: createIconMock('HelpCircle'),
+  ShieldCheck: createIconMock('ShieldCheck'),
+  Sparkles: createIconMock('Sparkles'),
   ExternalLink: createIconMock('ExternalLink'),
   ArrowRight: createIconMock('ArrowRight'),
   Download: createIconMock('Download'),

@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { withRateLimit } from '@/lib/middleware/rate-limit';
@@ -18,7 +14,7 @@ const smsSchema = z.object({
 
 export const POST = withRateLimit(async (request: NextRequest) => {
   const { user } = await auth();
-    const session = user ? { user } : null;
+  const session = user ? { user } : null;
   if (!user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
@@ -28,7 +24,6 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     return permission.response;
   }
 
-  const user = user;
   if (!user || !user.id || !user.tenantId) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
