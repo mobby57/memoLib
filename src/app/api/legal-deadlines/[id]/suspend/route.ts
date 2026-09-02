@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * PUT /api/legal-deadlines/[id]/suspend
  * Suspend une deadline (bloquée par un tiers).
@@ -6,8 +7,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
 import { z } from 'zod';
 
 const SuspendSchema = z.object({
@@ -18,10 +17,10 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as { tenantId?: string; id?: string; role?: string };
   const tenantId = user.tenantId;
   const userId = user.id;
   const role = user.role?.toUpperCase() ?? '';
@@ -67,10 +66,10 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const user = session.user as { tenantId?: string; role?: string };
   const tenantId = user.tenantId;
   const role = user.role?.toUpperCase() ?? '';
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });

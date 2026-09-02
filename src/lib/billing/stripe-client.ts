@@ -5,12 +5,12 @@
 
 import Stripe from 'stripe';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('? STRIPE_SECRET_KEY non definie - Paiements desactives');
+if (process.env.NEXT_PHASE !== 'phase-production-build' && !process.env.STRIPE_SECRET_KEY) {
+  console.warn('STRIPE_SECRET_KEY non définie : paiements désactivés.');
 }
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_dummy', {
-  apiVersion: '2026-01-28.clover',
+  apiVersion: '2026-02-25.clover',
   typescript: true,
 });
 

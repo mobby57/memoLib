@@ -1,7 +1,24 @@
-﻿import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH } from '@/app/api/proofs/route';
 import prisma from '@/lib/prisma';
+
+const mockTenantId = 'tenant-123';
+
+vi.mock('@/lib/auth', () => ({
+  getServerSession: vi.fn(async () => ({
+    user: {
+      id: 'user-123',
+      role: 'ADMIN',
+      tenantId: mockTenantId,
+      email: 'user@test.com',
+    },
+  })),
+}));
+
+vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
+  authOptions: {},
+}));
 
 vi.mock('@/lib/prisma', () => ({
   __esModule: true,
@@ -18,8 +35,6 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 describe('/api/proofs', () => {
-  const mockTenantId = 'tenant-123';
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -30,7 +45,7 @@ describe('/api/proofs', () => {
       (prisma.proof.findMany as any).mockResolvedValue(mockProofs);
       (prisma.proof.count as any).mockResolvedValue(1);
 
-      const request = new NextRequest(`http://localhost/api/proofs?tenantId=${mockTenantId}`);
+      const request = new NextRequest(`http://localhost/api/proofs`);
       const response = await GET(request);
       const data = await response.json();
 
@@ -48,7 +63,6 @@ describe('/api/proofs', () => {
       const request = new NextRequest('http://localhost/api/proofs', {
         method: 'POST',
         body: JSON.stringify({
-          tenantId: mockTenantId,
           type: 'DOCUMENT_RECEPTION',
           title: 'Test Proof',
           proofDate: '2024-01-15',
@@ -63,7 +77,7 @@ describe('/api/proofs', () => {
 
   describe('PATCH', () => {
     it('should validate proof', async () => {
-      (prisma.proof.findUnique as any).mockResolvedValue({ id: '1' });
+      (prisma.proof.findFirst as any).mockResolvedValue({ id: '1' });
       (prisma.proof.update as any).mockResolvedValue({ id: '1', status: 'VALIDATED' });
 
       const request = new NextRequest('http://localhost/api/proofs', {

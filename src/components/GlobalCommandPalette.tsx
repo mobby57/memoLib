@@ -1,8 +1,11 @@
-﻿'use client';
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement import useSession
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { CommandPalette } from '@/components/CommandPalette';
 import { logger } from '@/lib/logger';
 import { 
@@ -35,7 +38,7 @@ interface SearchableItem {
  */
 export function GlobalCommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const [searchItems, setSearchItems] = useState<SearchableItem[]>([]);
 
   // Charger les items disponibles
@@ -214,3 +217,6 @@ export function SearchShortcut() {
     </button>
   );
 }
+
+
+

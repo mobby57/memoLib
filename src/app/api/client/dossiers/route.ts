@@ -1,18 +1,18 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    
-    if (!session?.user) {
+    const { user } = await auth();
+
+    if (!user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
-    const userRole = (session.user as any).role;
+    const userId = user.id;
+    const userRole = user.role;
 
     if (userRole !== 'CLIENT') {
       return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
@@ -36,12 +36,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Recuperer le client et son tenant
-    const user = await prisma.user.findUnique({
+    const dbUser = await prisma.user.findUnique({
       where: { id: userId },
       select: { tenantId: true, clientId: true },
     });
 
-    if (!user?.tenantId || !user.clientId) {
+    if (!dbUser?.tenantId || !dbUser.clientId) {
       return NextResponse.json(
         { error: 'Client non associe correctement' },
         { status: 400 }
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     // Generer un numero de dossier
     const year = new Date().getFullYear();
     const count = await prisma.dossier.count({
-      where: { tenantId: user.tenantId },
+      where: { tenantId: dbUser.tenantId },
     });
     const numero = `D-${year}-${String(count + 1).padStart(4, '0')}`;
 
@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
         statut: 'en_cours',
         dateEcheance: dateEcheance ? new Date(dateEcheance) : undefined,
         articleCeseda: articleCeseda || undefined,
-        tenantId: user.tenantId,
-        clientId: user.clientId,
+        tenantId: dbUser.tenantId,
+        clientId: dbUser.clientId,
       },
     });
 

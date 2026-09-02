@@ -39,6 +39,12 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     category: 'général',
+    question: 'Comment créer un compte pilote ou me connecter ?',
+    answer:
+      'Utilisez le lien d’inscription ou d’invitation communiqué par MemoLib. La connexion est assurée par Clerk : suivez les étapes affichées pour la vérification et la méthode de connexion. Après connexion, les méthodes de sécurité et les sessions sont accessibles dans Paramètres > Sécurité.',
+  },
+  {
+    category: 'général',
     question: 'Le système peut-il remplacer un avocat ou prendre des décisions juridiques ?',
     answer:
       'NON, absolument pas. Le système est un ASSISTANT, jamais un décideur. Conformément à notre charte éthique et aux règles du Barreau, toute action importante (envoi de courrier, dépôt de recours, conseil au client) nécessite une validation humaine obligatoire. Le système suggère, vous décidez.',
@@ -61,7 +67,7 @@ const FAQ_DATA: FAQItem[] = [
     category: 'sécurité',
     question: 'Mes données clients sont-elles sécurisées ?',
     answer:
-      'Absolument. Nous appliquons une isolation stricte par cabinet (architecture multi-tenant), un chiffrement AES-256 des données sensibles, une authentification 2FA, et des sauvegardes quotidiennes. Vos données ne sont jamais partagées entre cabinets et restent sur des serveurs européens conformes RGPD.',
+      'Les mesures et le périmètre réellement activés doivent être vérifiés avant le pilote. N’utilisez des données de client que dans les flux approuvés par votre cabinet et consultez la documentation de confidentialité applicable ; elle doit faire l’objet de la revue du responsable de traitement et du conseil compétent.',
   },
   {
     category: 'sécurité',
@@ -79,13 +85,13 @@ const FAQ_DATA: FAQItem[] = [
     category: 'sécurité',
     question: 'Comment puis-je supprimer toutes mes données ?',
     answer:
-      'Vous pouvez demander la suppression complète de votre compte et de toutes vos données à tout moment en contactant support@memoLib.com. La suppression est effective sous 30 jours conformément au RGPD, avec un export préalable de vos données si souhaité.',
+      'Utilisez la procédure de demande indiquée dans la politique de confidentialité applicable. La demande doit être vérifiée par une personne habilitée, notamment au regard de votre identité, du périmètre partagé et des obligations de conservation ; aucun délai ou effacement automatique n’est garanti par cette FAQ.',
   },
   {
     category: 'sécurité',
     question: 'Êtes-vous conforme aux règles du Barreau ?',
     answer:
-      "Oui, nous avons conçu memoLib en collaboration avec des avocats pour respecter : le secret professionnel, l'indépendance de l'avocat, la validation humaine obligatoire, et la traçabilité des actions. Le système assiste mais ne décide jamais.",
+      'MemoLib ne revendique pas, par cette FAQ, une approbation du Barreau ou une validation juridique. Avant le pilote, les documents, les pratiques et les paramètres de sécurité doivent être revus par les responsables compétents. L’utilisateur conserve la responsabilité de ses décisions professionnelles.',
   },
 
   // ===== TARIFICATION & PAIEMENT =====
@@ -213,13 +219,13 @@ const FAQ_DATA: FAQItem[] = [
     category: 'support',
     question: 'Comment contacter le support technique ?',
     answer:
-      'Plusieurs canaux selon votre plan : Email (tous les plans, réponse 48h), Chat en ligne (Cabinet+, réponse 24h), Téléphone (Enterprise, réponse 4h), Support dédié (Enterprise+). Email : support@memoLib.com',
+      'Utilisez le canal de support communiqué avec votre invitation au pilote. Les horaires, modalités d’escalade et délais de réponse doivent être confirmés dans l’accord pilote ; cette FAQ ne constitue pas un engagement de niveau de service.',
   },
   {
     category: 'support',
     question: 'Y a-t-il une documentation ou des tutoriels ?',
     answer:
-      "Oui, vous avez accès à : un guide de démarrage interactif, une base de connaissances complète, des tutoriels vidéo, et des webinaires mensuels. Accessible depuis l'application via l'icône d'aide.",
+      'Le tableau de bord propose un parcours de démarrage vers les écrans disponibles (clients, emails, dossiers et sécurité du compte). Consultez également cette FAQ et le guide communiqué avec votre invitation. Les ressources, tutoriels et sessions d’accompagnement disponibles doivent être confirmés pour le pilote.',
   },
   {
     category: 'support',
@@ -251,7 +257,7 @@ const FAQ_DATA: FAQItem[] = [
     category: 'légal',
     question: 'Comment gérez-vous le RGPD ?',
     answer:
-      "Nous sommes pleinement conformes RGPD : consentement explicite, droit d'accès/rectification/suppression, portabilité des données, notification en cas de violation, DPO désigné. Notre politique de confidentialité détaille tous ces points.",
+      'Les modalités de traitement, les droits des personnes, les sous-traitants et les durées de conservation doivent être décrits dans la documentation applicable et validés par le responsable de traitement et le conseil compétent avant le pilote. Cette FAQ ne constitue pas une attestation de conformité RGPD.',
   },
   {
     category: 'légal',

@@ -1,10 +1,9 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-
 interface DashboardCompta {
   caMois: number;
   caAnnuel: number;
@@ -35,7 +34,7 @@ interface Ecriture {
 }
 
 export default function ComptabilitePage() {
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const [dashboard, setDashboard] = useState<DashboardCompta | null>(null);
   const [ecritures, setEcritures] = useState<Ecriture[]>([]);
   const [loading, setLoading] = useState(true);

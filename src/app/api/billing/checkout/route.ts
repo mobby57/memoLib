@@ -1,23 +1,26 @@
-﻿/**
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API Checkout Stripe
  * Cree une session de paiement pour s'abonner a un plan
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { createCheckoutSession } from '@/lib/billing/stripe-client';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const user = session.user as any;
     const tenantId = user.tenantId;
 
     if (!tenantId) {
@@ -55,8 +58,8 @@ export async function POST(request: NextRequest) {
       priceId,
       customerEmail: tenant.billingEmail || user.email,
       tenantId,
-      successUrl: `${process.env.NEXTAUTH_URL}/admin/billing?success=true`,
-      cancelUrl: `${process.env.NEXTAUTH_URL}/admin/billing?canceled=true`,
+      successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/admin/billing?success=true`,
+      cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL}/admin/billing?canceled=true`,
       trialDays,
     });
 
@@ -73,3 +76,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+
+

@@ -1,19 +1,23 @@
-﻿/**
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API Route: Creer une issue GitHub pour le compte de l'utilisateur
  * POST /api/github/issues/create
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createIssueAsUser } from '@/lib/github/user-actions';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -34,7 +38,7 @@ export async function POST(req: NextRequest) {
     const issue = await createIssueAsUser(repo, title, body, labels, assignees);
 
     logger.info('GitHub issue created via API', {
-      userId: (session.user as any).id,
+      userId: (user as any).id,
       issueNumber: issue.number,
       repo,
     });
@@ -68,3 +72,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

@@ -1,44 +1,42 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+import { hybridAI } from '@/lib/ai/hybrid-client';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { z } from 'zod';
 
-/**
- * POST /api/ai/translate
- * Traduit un texte ou document vers le francais.
- */
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+const languageSchema = z.string().trim().min(2).max(60).regex(/^[\p{L}\s-]+$/u);
+const translateSchema = z.object({
+  text: z.string().trim().min(1).max(8_000),
+  sourceLang: languageSchema.optional(),
+  targetLang: languageSchema.default('français'),
+}).strict();
 
-  const { text, sourceLang, targetLang } = await req.json();
+export const POST = withAIRateLimit(async (req: NextRequest) => {
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
-  if (!text) return NextResponse.json({ error: 'text requis' }, { status: 400 });
+  const parsed = translateSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Requête de traduction invalide' }, { status: 400 });
 
-  const ollamaUrl = process.env.OLLAMA_URL;
-  const target = targetLang || 'francais';
-  const source = sourceLang || 'auto-detect';
-
-  if (ollamaUrl) {
-    try {
-      const prompt = `Traduis ce texte en ${target}. Retourne uniquement la traduction, sans commentaire.\n\nTexte: "${text}"`;
-      const res = await fetch(`${ollamaUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: process.env.OLLAMA_MODEL || 'llama3.2:latest', prompt, stream: false }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return NextResponse.json({ success: true, translation: data.response, source, target, provider: 'ollama' });
-      }
-    } catch { /* fallback */ }
+  const { text, sourceLang = 'détection automatique', targetLang } = parsed.data;
+  try {
+    const result = await hybridAI.generateWithCostControl(
+      `Traduis le texte suivant de ${sourceLang} vers ${targetLang}. Retourne uniquement la traduction, sans commentaire.\n\n${text}`,
+      user.tenantId
+    );
+    return NextResponse.json({
+      success: true,
+      translation: result.response,
+      source: sourceLang,
+      target: targetLang,
+      requiresHumanReview: true,
+    });
+  } catch {
+    return NextResponse.json({
+      success: false,
+      error: 'Service de traduction indisponible',
+      requiresHumanReview: true,
+    }, { status: 503 });
   }
-
-  return NextResponse.json({
-    success: true,
-    translation: `[TRADUCTION ${target.toUpperCase()}] ${text.substring(0, 200)}...`,
-    source,
-    target,
-    provider: 'fallback',
-    note: 'Configurez OLLAMA_URL pour la traduction reelle',
-  });
-}
+});

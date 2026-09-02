@@ -4,10 +4,16 @@
  * Returns health status of ALL AI providers (Ollama + Cloud)
  */
 
+import { auth } from '@/lib/clerk-auth';
 import { NextResponse } from 'next/server';
 import { hybridAI } from '@/lib/ai/hybrid-client';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
 
-export async function GET() {
+export const GET = withAIRateLimit(async () => {
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+
   try {
     const availability = await hybridAI.checkAvailability();
     
@@ -24,7 +30,6 @@ export async function GET() {
         },
         cloud: {
           available: availability.cloud,
-          provider: availability.cloudProvider,
           type: 'cloud',
           cost: 'payant (budget contrôlé)',
         },
@@ -33,19 +38,17 @@ export async function GET() {
           type: 'legacy',
         },
       },
-      recommended: availability.recommended,
-      preferred: hybridAI.getPreferredProvider(),
       fallbackMode: !hasAnyProvider ? 'regex' : null,
       note: !hasAnyProvider 
         ? 'Aucun provider IA actif. Les fonctions IA utilisent le mode regex (dégradé). Configurez MISTRAL_API_KEY ou OPENAI_API_KEY pour activer l\'IA.'
         : undefined,
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({
       status: 'error',
-      error: error instanceof Error ? error.message : 'Health check failed',
+      error: 'Health check failed',
       timestamp: new Date().toISOString(),
     }, { status: 500 });
   }
-}
+});

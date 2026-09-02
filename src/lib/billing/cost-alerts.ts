@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Système d'alertes pour les dépassements de budget IA
  */
 
@@ -171,7 +171,7 @@ export async function sendAlertEmail(alert: CostAlert): Promise<boolean> {
   try {
     // Utiliser l'API email existante ou Resend
     const response = await fetch(
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/email/send`,
+      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/email/send`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -269,13 +269,13 @@ export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
     <li>Vérifier si abus ou usage anormal</li>
   </ul>
 
-  <p><a href="${process.env.NEXTAUTH_URL}/admin/costs">👉 Voir le dashboard des coûts</a></p>
+  <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/costs">👉 Voir le dashboard des coûts</a></p>
 </body>
 </html>
   `;
 
   try {
-    await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/email/send`, {
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/email/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -367,7 +367,7 @@ function getAlertBody(alert: CostAlert): string {
   </ul>
 
   <p style="text-align: center; margin-top: 30px;">
-    <a href="${process.env.NEXTAUTH_URL}/admin/parametres" class="btn">Voir mes paramètres</a>
+    <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/parametres" class="btn">Voir mes paramètres</a>
   </p>
 
   <hr style="margin-top: 40px; border: none; border-top: 1px solid #E5E7EB;">

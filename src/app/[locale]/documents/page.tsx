@@ -1,59 +1,198 @@
-"use client";
+﻿"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import FileUploader from '@/components/FileUploader'
 import { DocxDocumentGenerator } from '@/components/documents/DocxDocumentGenerator'
-import { getStoredFiles, getFileVersions, deleteFile, downloadFile, formatFileSize, getFileIcon, getStorageStats, type StoredFile } from '@/lib/services/storageService'
+import { formatFileSize, getFileIcon, type StoredFile } from '@/lib/services/storageService'
 import { Download, Trash2, History, Tag, Filter } from 'lucide-react'
 import { Button } from '@/components/forms/Button'
 import { useToast } from '@/hooks'
 import { Modal } from '@/components/forms/Modal'
 
 export default function DocumentsPage() {
-  const [files, setFiles] = useState<StoredFile[]>(getStoredFiles())
+  const [files, setFiles] = useState<StoredFile[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedFile, setSelectedFile] = useState<StoredFile | null>(null)
+  const [selectedFileVersions, setSelectedFileVersions] = useState<StoredFile[]>([])
   const [showVersions, setShowVersions] = useState(false)
+  const [loading, setLoading] = useState(true)
   const { showToast } = useToast()
 
+  const getDossierId = (): string | null => {
+    if (typeof window === 'undefined') return null
+    return new URLSearchParams(window.location.search).get('dossierId')
+  }
+
+  const loadFiles = async () => {
+    const dossierId = getDossierId()
+
+    if (!dossierId) {
+      setFiles([])
+      setLoading(false)
+      return
+    }
+
+    try {
+      setLoading(true)
+
+      const response = await fetch(
+        `/api/documents/upload?dossierId=${encodeURIComponent(dossierId)}&limit=100`,
+        {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Impossible de rÃƒÆ’Ã‚Â©cupÃƒÆ’Ã‚Â©rer les documents')
+      }
+
+      const data = await response.json()
+
+      const documents: StoredFile[] = (data.documents || []).map((document: any) => ({
+        id: document.id,
+        name: document.filename,
+        originalName: document.originalName || document.filename,
+        size: document.size,
+        mimeType: document.mimeType,
+        url: `/api/documents/download?id=${encodeURIComponent(document.id)}`,
+        uploadedAt: new Date(document.createdAt),
+        uploadedBy: '',
+        version: 1,
+        tags: [],
+        metadata: {
+          dossierId: document.dossierId,
+          category: document.category || 'autre',
+          description: document.description || undefined,
+        },
+      }))
+
+      setFiles(documents)
+    } catch (error) {
+      console.error('Erreur lors du chargement des documents:', error)
+      showToast('Impossible de charger les documents', 'error')
+      setFiles([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void loadFiles()
+  }, [])
+
   const refreshFiles = () => {
-    setFiles(getStoredFiles())
+    void loadFiles()
   }
 
   const handleDelete = async (fileId: string) => {
-    if (!confirm('etes-vous sur de vouloir supprimer ce fichier ?')) return
-    
+    if (!confirm('ÃƒÆ’Ã…Â tes-vous sÃƒÆ’Ã‚Â»r de vouloir supprimer ce fichier ?')) return
+
     try {
-      await deleteFile(fileId)
-      refreshFiles()
-      showToast('Fichier supprime avec succès', 'success')
+      const response = await fetch(
+        `/api/documents/${encodeURIComponent(fileId)}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression')
+      }
+
+      await loadFiles()
+      showToast('Fichier supprimÃƒÆ’Ã‚Â© avec succÃƒÆ’Ã‚Â¨s', 'success')
     } catch (error) {
+      console.error('Erreur suppression:', error)
       showToast('Erreur lors de la suppression', 'error')
     }
   }
 
-  const handleDownload = (file: StoredFile) => {
-    downloadFile(file)
-    showToast('Téléchargement démarré', 'info')
+  const handleDownload = async (file: StoredFile) => {
+    try {
+      const response = await fetch(
+        `/api/documents/download/${encodeURIComponent(file.id)}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+        }
+      )
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.error || 'Erreur lors du tÃƒÆ’Ã‚Â©lÃƒÆ’Ã‚Â©chargement')
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+
+      const link = document.createElement('a')
+      link.href = url
+      link.download = file.originalName
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+
+      URL.revokeObjectURL(url)
+
+      showToast('TÃƒÆ’Ã‚Â©lÃƒÆ’Ã‚Â©chargement dÃƒÆ’Ã‚Â©marrÃƒÆ’Ã‚Â©', 'info')
+    } catch (error) {
+      console.error('Erreur tÃƒÆ’Ã‚Â©lÃƒÆ’Ã‚Â©chargement:', error)
+      showToast(
+        error instanceof Error ? error.message : 'Erreur lors du tÃƒÆ’Ã‚Â©lÃƒÆ’Ã‚Â©chargement',
+        'error'
+      )
+    }
   }
 
-  const handleViewVersions = (file: StoredFile) => {
+  const handleViewVersions = async (file: StoredFile) => {
     setSelectedFile(file)
+
+    try {
+      /*
+       * Le modÃƒÆ’Ã‚Â¨le Document actuel ne possÃƒÆ’Ã‚Â¨de pas encore de vÃƒÆ’Ã‚Â©ritable
+       * endpoint de versioning. On affiche donc au minimum le document
+       * courant comme version 1.
+       */
+      setSelectedFileVersions([file])
+    } catch (error) {
+      console.error('Erreur chargement versions:', error)
+      setSelectedFileVersions([])
+    }
+
     setShowVersions(true)
   }
 
-  const stats = getStorageStats()
-  
-  const filteredFiles = selectedCategory === 'all' 
-    ? files 
-    : files.filter(f => f.metadata.category === selectedCategory)
+  const stats = {
+    totalFiles: files.length,
+    totalSize: files.reduce((sum, file) => sum + file.size, 0),
+    byCategory: files.reduce((result, file) => {
+      const category = file.metadata.category
+      result[category] = (result[category] || 0) + 1
+      return result
+    }, {} as Record<string, number>),
+    byType: files.reduce((result, file) => {
+      const type = file.mimeType.split('/')[0]
+      result[type] = (result[type] || 0) + 1
+      return result
+    }, {} as Record<string, number>),
+  }
 
-  const catégories = [
+  const filteredFiles =
+    selectedCategory === 'all'
+      ? files
+      : files.filter(
+          file => file.metadata.category === selectedCategory
+        )
+
+  const categories = [
     { value: 'all', label: 'Tous', count: files.length },
     { value: 'piece_jointe', label: 'Pieces jointes', count: stats.byCategory['piece_jointe'] || 0 },
     { value: 'document_genere', label: 'Documents generes', count: stats.byCategory['document_genere'] || 0 },
@@ -116,27 +255,28 @@ export default function DocumentsPage() {
         </h2>
         <FileUploader
           options={{
-            category: 'piece_jointe',
+            dossierId: getDossierId() || undefined,
             description: 'Document uploade via l\'interface',
+            category: 'piece_jointe',
           }}
           onUploadComplete={() => refreshFiles()}
         />
       </Card>
 
-      {/* Génération DOCX juridique */}
+      {/* GÃƒÆ’Ã‚Â©nÃƒÆ’Ã‚Â©ration DOCX juridique */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Générer un document juridique
+          GÃƒÆ’Ã‚Â©nÃƒÆ’Ã‚Â©rer un document juridique
         </h2>
         <p className="text-sm text-gray-500 mb-4">
-          Mémoires, conclusions, requêtes — format Word (.docx) prêt à imprimer.
+          MÃƒÆ’Ã‚Â©moires, conclusions, requÃƒÆ’Ã‚Âªtes ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â format Word (.docx) prÃƒÆ’Ã‚Âªt ÃƒÆ’Ã‚Â imprimer.
         </p>
         <DocxDocumentGenerator />
       </Card>
 
       {/* Filtres */}
       <div className="flex gap-2 flex-wrap">
-        {catégories.map(cat => (
+        {categories.map(cat => (
           <button
             key={cat.value}
             onClick={() => setSelectedCategory(cat.value)}
@@ -238,7 +378,7 @@ export default function DocumentsPage() {
             </h3>
             
             <div className="space-y-3">
-              {getFileVersions(selectedFile.id).map((version) => (
+              {selectedFileVersions.map((version) => (
                 <div
                   key={version.id}
                   className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
@@ -274,3 +414,11 @@ export default function DocumentsPage() {
     </div>
   )
 }
+
+
+
+
+
+
+
+

@@ -1,13 +1,11 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user;
+    const { user } = await auth();
 
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -39,3 +37,5 @@ export async function GET() {
     );
   }
 }
+
+

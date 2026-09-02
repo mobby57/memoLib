@@ -1,7 +1,6 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -12,9 +11,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
     }
 
@@ -26,7 +26,7 @@ export async function GET(
         id: documentId,
         dossier: {
           client: {
-            tenantId: session.user.tenantId,
+            tenantId: user.tenantId,
           },
         },
       },

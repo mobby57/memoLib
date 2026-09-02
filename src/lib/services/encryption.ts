@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import crypto from 'crypto';
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || crypto.randomBytes(32);
@@ -18,7 +18,7 @@ export class EncryptionService {
 
     const iv = crypto.randomBytes(16);
     const key = getKey();
-    const cipher = crypto.createCipheriv(ALGORITHM, key, iv) as crypto.CipherGCM;
+    const cipher = crypto.createCipheriv(ALGORITHM, key, iv, { authTagLength: 16 }) as crypto.CipherGCM;
     cipher.setAAD(Buffer.from('memolib-sensitive-data'));
 
     let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -39,7 +39,7 @@ export class EncryptionService {
       const authTag = Buffer.from(authTagHex, 'hex');
 
       const key = getKey();
-      const decipher = crypto.createDecipheriv(ALGORITHM, key, iv) as crypto.DecipherGCM;
+      const decipher = crypto.createDecipheriv(ALGORITHM, key, iv, { authTagLength: 16 }) as crypto.DecipherGCM;
       decipher.setAAD(Buffer.from('memolib-sensitive-data'));
       decipher.setAuthTag(authTag);
 

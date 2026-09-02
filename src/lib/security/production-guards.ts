@@ -1,3 +1,5 @@
+import { isEncryptionMasterKeyUsable } from './encryption';
+
 /**
  * 🔒 Security Hardening — Production Guards
  * 
@@ -9,25 +11,29 @@
 
 export function enforceProductionSecurity(): void {
   const isProduction = process.env.NODE_ENV === 'production';
-  const isDemoMode = process.env.DEMO_MODE === 'true';
+  const isDemoMode = process.env.DEMO_MODE === 'true' || process.env.DEMO_MODE === '1';
 
-  if (!isProduction || isDemoMode) {
-    return; // Skip en dev/demo
+  if (!isProduction) {
+    return;
+  }
+
+  if (isDemoMode) {
+    throw new Error('FATAL: DEMO_MODE cannot be enabled in production.');
   }
 
   const errors: string[] = [];
 
   // 1. ENCRYPTION_MASTER_KEY obligatoire (données au repos)
-  if (!process.env.ENCRYPTION_MASTER_KEY) {
+  if (!isEncryptionMasterKeyUsable(process.env.ENCRYPTION_MASTER_KEY)) {
     errors.push(
-      '❌ ENCRYPTION_MASTER_KEY manquante. Les emails et données sensibles ne seront pas chiffrés. ' +
+      '❌ ENCRYPTION_MASTER_KEY manquante ou trop courte (minimum 32 caractères). Les emails et données sensibles ne seront pas chiffrés. ' +
       'Générez avec: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"'
     );
   }
 
-  // 2. NEXTAUTH_SECRET obligatoire (sessions)
-  if (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET.length < 32) {
-    errors.push('❌ NEXTAUTH_SECRET manquant ou trop court (min 32 chars). Les sessions ne sont pas sécurisées.');
+  // 2. CLERK_SECRET_KEY obligatoire (sessions)
+  if (!process.env.CLERK_SECRET_KEY || process.env.CLERK_SECRET_KEY.length < 32) {
+    errors.push('❌ CLERK_SECRET_KEY manquant ou trop court (min 32 chars). Les sessions ne sont pas sécurisées.');
   }
 
   // 3. Pas de credentials en dur
@@ -36,9 +42,9 @@ export function enforceProductionSecurity(): void {
   }
 
   // 4. HTTPS obligatoire en prod
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
   if (appUrl && !appUrl.startsWith('https://')) {
-    errors.push('❌ NEXTAUTH_URL doit utiliser HTTPS en production.');
+    errors.push('❌ NEXT_PUBLIC_APP_URL doit utiliser HTTPS en production.');
   }
 
   // 5. Webhook secret obligatoire
@@ -60,7 +66,7 @@ export function enforceProductionSecurity(): void {
     console.error('='.repeat(60) + '\n');
 
     // Bloquer le démarrage si ENCRYPTION_MASTER_KEY est absente
-    if (!process.env.ENCRYPTION_MASTER_KEY) {
+    if (!isEncryptionMasterKeyUsable(process.env.ENCRYPTION_MASTER_KEY)) {
       throw new Error(
         'FATAL: Cannot start in production without ENCRYPTION_MASTER_KEY. ' +
         'Client data would be stored unencrypted.'

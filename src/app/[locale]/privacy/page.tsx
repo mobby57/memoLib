@@ -1,14 +1,14 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { Download, Trash2, Shield, FileText, AlertTriangle } from 'lucide-react';
 
 export default function PrivacyPage() {
-    const { data: session } = useSession();
+    const { data: session, user } = useAuth();
     const [exportFormat, setExportFormat] = useState<'json' | 'csv' | 'pdf'>('json');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleteReason, setDeleteReason] = useState('');

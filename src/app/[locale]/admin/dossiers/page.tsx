@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
  */
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation'
 import { 
   FileText, Plus, Search, Filter, Download, 
@@ -68,7 +68,7 @@ const TYPES_LABELS: Record<string, string> = {
 }
 
 export default function DossiersAvocatPage() {
-  const { data: session, status } = useSession()
+  const { data: session, status, user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
   

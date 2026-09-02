@@ -7,13 +7,13 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
   } else {
     res.writeHead(404);
-    res.end();
+    res.end('Not found');
   }
 });
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (ws, req) => {
+wss.on('connection', (ws) => {
   console.log('🔌 Nouvelle connexion WebSocket');
   ws.send(JSON.stringify({ type: 'welcome', message: 'Connecté au serveur WebSocket MemoLib' }));
 

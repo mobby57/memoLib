@@ -1,6 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
 import {
   loadWorkflowConfig,
   saveWorkflowConfig,
@@ -15,8 +17,9 @@ import {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user?.email) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
@@ -38,8 +41,9 @@ export async function GET(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user?.email) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
@@ -69,3 +73,5 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+
+

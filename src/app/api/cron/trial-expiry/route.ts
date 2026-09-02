@@ -16,7 +16,7 @@ const CRON_SECRET = process.env.CRON_SECRET;
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
       const currentMeta = sub.metadata ? JSON.parse(sub.metadata) : {};
       if (currentMeta[metaKey]) continue;
 
-      const appUrl = process.env.NEXTAUTH_URL || 'https://memolib.space';
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.space';
 
       const templates = {
         j3: {

@@ -1,19 +1,18 @@
 /**
  * Client API Judilibre (Cour de cassation)
  *
- * Alternative/complément à l'API Légifrance via PISTE.
- * L'API Judilibre donne accès aux décisions pseudonymisées de la Cour de cassation
- * et des cours d'appel (jurisprudence judiciaire).
+ * Accès à l'API Judilibre via PISTE.
  *
- * Authentification : KeyId dans le header (obtenu via PISTE)
- * Documentation : https://github.com/Cour-de-cassation/judilibre-search
+ * Authentification :
+ * - Production : OAuth2 Client Credentials prioritaire
+ * - Sandbox : OAuth2 prioritaire, API Key en fallback
  *
  * Endpoints :
- * - GET /search       — Recherche plein texte avec filtres
- * - GET /decision     — Récupération d'une décision complète
- * - GET /taxonomy     — Listes de termes (chambres, formations, solutions...)
- * - GET /stats        — Statistiques sur la base
- * - GET /export       — Export par lots
+ * - GET /search
+ * - GET /decision
+ * - GET /taxonomy
+ * - GET /stats
+ * - GET /export
  */
 
 import { logger } from '@/lib/logger';
@@ -34,12 +33,12 @@ export interface JudilibreSearchParams {
   location?: string[];
   publication?: string[];
   solution?: string[];
-  date_start?: string; // YYYY-MM-DD
-  date_end?: string;   // YYYY-MM-DD
+  date_start?: string;
+  date_end?: string;
   sort?: 'score' | 'scorepub' | 'date';
   order?: 'asc' | 'desc';
-  page_size?: number;  // max 50
-  page?: number;       // starts at 0
+  page_size?: number;
+  page?: number;
   resolve_references?: boolean;
 }
 
@@ -58,7 +57,13 @@ export interface JudilibreDecision {
   summary?: string;
   themes?: string[];
   text?: string;
-  zones?: Record<string, Array<{ start: number; end: number }>>;
+  zones?: Record<
+    string,
+    Array<{
+      start: number;
+      end: number;
+    }>
+  >;
   score?: number;
   highlights?: Record<string, string[]>;
 }
@@ -77,16 +82,34 @@ export interface JudilibreSearchResult {
 
 export interface JudilibreTaxonomy {
   id: string;
-  result: Array<{ key: string; value: string }> | { value: string };
+  result:
+    | Array<{
+        key: string;
+        value: string;
+      }>
+    | {
+        value: string;
+      };
 }
 
 export interface JudilibreStats {
-  requestPerDay: number;
-  oldestDecision: string;
-  newestDecision: string;
-  indexedTotal: number;
-  indexedByJurisdiction: Array<{ value: number; label: string }>;
-  indexedByYear: Array<{ value: number; label: string }>;
+  query: {
+    jurisdiction: string[];
+    location: string[];
+    keys: string[];
+  };
+
+  results: {
+    min_decision_date: string;
+    max_decision_date: string;
+    total_decisions: number;
+  };
+}
+
+// ============================================
+interface OAuthToken {
+  access_token: string;
+  expires_at: number;
 }
 
 // ============================================
@@ -99,53 +122,104 @@ export class JudilibreClient {
   private oauthUrl: string;
   private clientId: string;
   private clientSecret: string;
+
   private isConfigured: boolean;
   private authMode: 'apikey' | 'oauth';
-  private oauthToken: { access_token: string; expires_at: number } | null = null;
+
+  private oauthToken: OAuthToken | null = null;
 
   constructor() {
-    const environment = process.env.JUDILIBRE_ENVIRONMENT || 'sandbox';
+    const environment =
+      process.env.JUDILIBRE_ENVIRONMENT ||
+      process.env.PISTE_ENVIRONMENT ||
+      'sandbox';
+
     const isSandbox = environment === 'sandbox';
 
+    // --------------------------------------------
+    // URLs
+    // --------------------------------------------
+
     this.baseUrl = isSandbox
-      ? 'https://sandbox-api.piste.gouv.fr/cassation/judilibre/v1.0'
-      : 'https://api.piste.gouv.fr/cassation/judilibre/v1.0';
+      ? process.env.PISTE_SANDBOX_API_URL ||
+        'https://sandbox-api.piste.gouv.fr/cassation/judilibre/v1.0'
+      : process.env.PISTE_PROD_API_URL ||
+        'https://api.piste.gouv.fr/cassation/judilibre/v1.0';
 
     this.oauthUrl = isSandbox
-      ? 'https://sandbox-oauth.piste.gouv.fr/api/oauth/token'
-      : 'https://oauth.piste.gouv.fr/api/oauth/token';
+      ? process.env.PISTE_SANDBOX_OAUTH_URL ||
+        'https://sandbox-oauth.piste.gouv.fr/api/oauth/token'
+      : process.env.PISTE_PROD_OAUTH_URL ||
+        'https://oauth.piste.gouv.fr/api/oauth/token';
 
-    // Auth mode 1: API Key (header KeyId)
-    this.keyId = process.env.JUDILIBRE_KEY_ID || process.env.PISTE_SANDBOX_KEY_ID || '';
+    // --------------------------------------------
+    // API Key
+    // --------------------------------------------
 
-    // Auth mode 2: OAuth2 Client Credentials
+    this.keyId =
+      process.env.JUDILIBRE_KEY_ID ||
+      process.env.PISTE_SANDBOX_KEY_ID ||
+      '';
+
+    // --------------------------------------------
+    // OAuth2
+    // --------------------------------------------
+
     this.clientId = isSandbox
-      ? (process.env.PISTE_SANDBOX_CLIENT_ID || '')
-      : (process.env.PISTE_PROD_CLIENT_ID || '');
-    this.clientSecret = isSandbox
-      ? (process.env.PISTE_SANDBOX_CLIENT_SECRET || '')
-      : (process.env.PISTE_PROD_CLIENT_SECRET || '');
+      ? process.env.PISTE_SANDBOX_CLIENT_ID || ''
+      : process.env.PISTE_PROD_CLIENT_ID || '';
 
-    // Determine auth mode
-    if (this.keyId) {
-      this.authMode = 'apikey';
-      this.isConfigured = true;
-    } else if (this.clientId && this.clientSecret) {
+    this.clientSecret = isSandbox
+      ? process.env.PISTE_SANDBOX_CLIENT_SECRET || ''
+      : process.env.PISTE_PROD_CLIENT_SECRET || '';
+
+    // --------------------------------------------
+    // Sélection authentification
+    //
+    // OAuth est prioritaire.
+    // --------------------------------------------
+
+    if (this.clientId && this.clientSecret) {
       this.authMode = 'oauth';
       this.isConfigured = true;
-    } else {
+    } else if (this.keyId) {
       this.authMode = 'apikey';
+      this.isConfigured = true;
+    } else {
+      this.authMode = 'oauth';
       this.isConfigured = false;
-      logger.debug('[Judilibre] Aucune authentification configurée — fallback local activé');
+
+      logger.debug(
+        '[Judilibre] Aucune authentification configurée — fallback local activé'
+      );
     }
+
+    // Ne jamais logger les secrets.
+    logger.debug('[Judilibre] Configuration', {
+      environment,
+      authMode: this.authMode,
+      hasClientId: Boolean(this.clientId),
+      hasClientSecret: Boolean(this.clientSecret),
+      hasKeyId: Boolean(this.keyId),
+      baseUrl: this.baseUrl,
+      oauthUrl: this.oauthUrl,
+    });
   }
 
+  // ============================================
+  // OAUTH
+  // ============================================
+
   /**
-   * Obtenir un token OAuth2 valide
+   * Obtient un token OAuth2 valide.
+   *
+   * Utilise un cache local avec une marge de sécurité de 5 minutes.
    */
   private async getOAuthToken(): Promise<string> {
-    // Token encore valide (marge 5 min)
-    if (this.oauthToken && this.oauthToken.expires_at > Date.now() + 5 * 60 * 1000) {
+    if (
+      this.oauthToken &&
+      this.oauthToken.expires_at > Date.now() + 5 * 60 * 1000
+    ) {
       return this.oauthToken.access_token;
     }
 
@@ -156,90 +230,219 @@ export class JudilibreClient {
       scope: 'openid',
     });
 
-    const response = await fetch(this.oauthUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString(),
-    });
+    let response: Response;
 
-    if (!response.ok) {
-      throw new Error(`OAuth Judilibre failed (${response.status}): ${await response.text()}`);
+    try {
+      response = await fetch(this.oauthUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+        body: params.toString(),
+      });
+    } catch (error) {
+      logger.error('[Judilibre] Erreur réseau OAuth', error);
+      throw new Error(
+        'Impossible de contacter le serveur OAuth PISTE'
+      );
     }
 
-    const data = await response.json();
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      logger.error('[Judilibre] Échec OAuth', {
+        status: response.status,
+        body: responseText,
+      });
+
+      throw new Error(
+        `OAuth Judilibre failed (${response.status}): ${
+          responseText || '(réponse vide)'
+        }`
+      );
+    }
+
+    let data: {
+      access_token?: string;
+      expires_in?: number;
+    };
+
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      throw new Error(
+        'Réponse OAuth PISTE invalide : JSON attendu'
+      );
+    }
+
+    if (!data.access_token) {
+      throw new Error(
+        'Réponse OAuth PISTE invalide : access_token manquant'
+      );
+    }
+
+    const expiresIn =
+      typeof data.expires_in === 'number'
+        ? data.expires_in
+        : 3600;
+
     this.oauthToken = {
       access_token: data.access_token,
-      expires_at: Date.now() + data.expires_in * 1000,
+      expires_at: Date.now() + expiresIn * 1000,
     };
+
+    logger.debug('[Judilibre] Token OAuth obtenu', {
+      expiresIn,
+    });
 
     return this.oauthToken.access_token;
   }
 
-  /**
-   * Vérifie si le client est configuré et disponible
-   */
+  // ============================================
+  // STATUS
+  // ============================================
+
   isAvailable(): boolean {
     return this.isConfigured;
   }
 
-  /**
-   * Requête générique à l'API Judilibre
-   */
-  private async request<T>(endpoint: string, params: Record<string, unknown> = {}): Promise<T> {
+  // ============================================
+  // REQUEST
+  // ============================================
+
+  private async request<T>(
+    endpoint: string,
+    params: Record<string, unknown> = {}
+  ): Promise<T> {
     if (!this.isConfigured) {
-      throw new Error('Judilibre non configuré (JUDILIBRE_KEY_ID ou PISTE_SANDBOX_CLIENT_ID/SECRET requis)');
+      throw new Error(
+        'Judilibre non configuré. ' +
+          'Configurez PISTE_PROD_CLIENT_ID/SECRET ' +
+          'ou JUDILIBRE_KEY_ID.'
+      );
     }
 
-    // Construire l'URL avec query params
+    // --------------------------------------------
+    // URL
+    // --------------------------------------------
+
     const url = new URL(`${this.baseUrl}${endpoint}`);
+
     for (const [key, value] of Object.entries(params)) {
-      if (value === undefined || value === null || value === '') continue;
+      if (
+        value === undefined ||
+        value === null ||
+        value === ''
+      ) {
+        continue;
+      }
+
       if (Array.isArray(value)) {
-        value.forEach(v => url.searchParams.append(key, String(v)));
+        for (const item of value) {
+          url.searchParams.append(key, String(item));
+        }
       } else {
         url.searchParams.set(key, String(value));
       }
     }
 
-    // Build headers based on auth mode
-    const headers: Record<string, string> = { 'Accept': 'application/json' };
+    // --------------------------------------------
+    // Headers
+    // --------------------------------------------
 
-    if (this.authMode === 'apikey') {
-      headers['KeyId'] = this.keyId;
-    } else {
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+    };
+
+    if (this.authMode === 'oauth') {
       const token = await this.getOAuthToken();
-      headers['Authorization'] = `Bearer ${token}`;
+
+      headers.Authorization = `Bearer ${token}`;
+    } else {
+      headers.KeyId = this.keyId;
     }
 
+    // --------------------------------------------
+    // Request
+    // --------------------------------------------
+
     try {
-      const response = await fetch(url.toString(), {
+      let response = await fetch(url.toString(), {
         method: 'GET',
         headers,
       });
 
-      if (response.status === 401 && this.authMode === 'oauth') {
-        // Token expiré, retry une fois
+      // ------------------------------------------
+      // OAuth : token expiré
+      // ------------------------------------------
+
+      if (
+        response.status === 401 &&
+        this.authMode === 'oauth'
+      ) {
+        logger.debug(
+          '[Judilibre] Token OAuth probablement expiré — renouvellement'
+        );
+
         this.oauthToken = null;
+
         const newToken = await this.getOAuthToken();
-        headers['Authorization'] = `Bearer ${newToken}`;
-        
-        const retryResponse = await fetch(url.toString(), { method: 'GET', headers });
-        if (!retryResponse.ok) {
-          throw new Error(`Erreur API Judilibre (${retryResponse.status}): ${await retryResponse.text()}`);
-        }
-        return await retryResponse.json() as T;
+
+        headers.Authorization = `Bearer ${newToken}`;
+
+        response = await fetch(url.toString(), {
+          method: 'GET',
+          headers,
+        });
       }
+
+      // ------------------------------------------
+      // Erreur API
+      // ------------------------------------------
 
       if (!response.ok) {
         const errorText = await response.text();
+
+        logger.error('[Judilibre] Erreur API', {
+          endpoint,
+          status: response.status,
+          authMode: this.authMode,
+          body: errorText || '(réponse vide)',
+        });
+
         throw new Error(
-          `Erreur API Judilibre (${response.status}): ${errorText}`
+          `Erreur API Judilibre (${response.status}): ${
+            errorText || '(réponse vide)'
+          }`
         );
       }
 
-      return await response.json() as T;
+      // ------------------------------------------
+      // JSON
+      // ------------------------------------------
+
+      const text = await response.text();
+
+      if (!text) {
+        throw new Error(
+          `API Judilibre (${endpoint}) : réponse vide`
+        );
+      }
+
+      try {
+        return JSON.parse(text) as T;
+      } catch {
+        throw new Error(
+          `API Judilibre (${endpoint}) : réponse JSON invalide`
+        );
+      }
     } catch (error) {
-      logger.error(`[Judilibre] Erreur requête ${endpoint}`, error);
+      logger.error(
+        `[Judilibre] Erreur requête ${endpoint}`,
+        error
+      );
+
       throw error;
     }
   }
@@ -249,40 +452,38 @@ export class JudilibreClient {
   // ============================================
 
   /**
-   * Recherche plein texte dans Judilibre
-   *
-   * @example
-   * // Recherche OQTF dans les arrêts de la Cour de cassation
-   * await client.search({ query: 'OQTF obligation quitter territoire' })
-   *
-   * // Recherche dans les motivations uniquement
-   * await client.search({ query: 'CESEDA L511-1', field: ['motivations'] })
-   *
-   * // Filtrer par solution (cassation)
-   * await client.search({ query: 'titre séjour', solution: ['cassation'] })
+   * Recherche plein texte dans Judilibre.
    */
-  async search(params: JudilibreSearchParams): Promise<JudilibreSearchResult> {
-    return this.request<JudilibreSearchResult>('/search', params as unknown as Record<string, unknown>);
+  async search(
+    params: JudilibreSearchParams
+  ): Promise<JudilibreSearchResult> {
+    return this.request<JudilibreSearchResult>(
+      '/search',
+      params as unknown as Record<string, unknown>
+    );
   }
 
   // ============================================
-  // DÉCISION COMPLÈTE
+  // DÉCISION
   // ============================================
 
   /**
-   * Récupérer une décision complète par son ID
-   *
-   * @example
-   * await client.getDecision('5fca7d162a251e6bf9c78514')
+   * Récupère une décision complète.
    */
-  async getDecision(id: string, options?: {
-    resolve_references?: boolean;
-    query?: string;
-  }): Promise<JudilibreDecision> {
-    return this.request<JudilibreDecision>('/decision', {
-      id,
-      ...options,
-    });
+  async getDecision(
+    id: string,
+    options?: {
+      resolve_references?: boolean;
+      query?: string;
+    }
+  ): Promise<JudilibreDecision> {
+    return this.request<JudilibreDecision>(
+      '/decision',
+      {
+        id,
+        ...options,
+      }
+    );
   }
 
   // ============================================
@@ -290,27 +491,23 @@ export class JudilibreClient {
   // ============================================
 
   /**
-   * Récupérer les termes de taxonomie
-   *
-   * @example
-   * // Toutes les entrées disponibles
-   * await client.getTaxonomy()
-   *
-   * // Les chambres de la Cour de cassation
-   * await client.getTaxonomy('chamber', { context_value: 'cc' })
-   *
-   * // Le label d'une solution
-   * await client.getTaxonomy('solution', { key: 'cassation' })
+   * Récupère les valeurs de taxonomie.
    */
-  async getTaxonomy(id?: string, options?: {
-    key?: string;
-    value?: string;
-    context_value?: string;
-  }): Promise<JudilibreTaxonomy> {
-    return this.request<JudilibreTaxonomy>('/taxonomy', {
-      id,
-      ...options,
-    });
+  async getTaxonomy(
+    id?: string,
+    options?: {
+      key?: string;
+      value?: string;
+      context_value?: string;
+    }
+  ): Promise<JudilibreTaxonomy> {
+    return this.request<JudilibreTaxonomy>(
+      '/taxonomy',
+      {
+        ...(id ? { id } : {}),
+        ...options,
+      }
+    );
   }
 
   // ============================================
@@ -318,26 +515,28 @@ export class JudilibreClient {
   // ============================================
 
   /**
-   * Statistiques sur la base Judilibre
+   * Statistiques sur la base Judilibre.
    */
-  async getStats(options?: {
-    jurisdiction?: string;
-    date_start?: string;
-    date_end?: string;
-  }): Promise<JudilibreStats> {
-    return this.request<JudilibreStats>('/stats', options || {});
+  async getStats(
+    options?: {
+      jurisdiction?: string;
+      date_start?: string;
+      date_end?: string;
+    }
+  ): Promise<JudilibreStats> {
+    return this.request<JudilibreStats>(
+      '/stats',
+      options || {}
+    );
   }
 
   // ============================================
-  // MÉTHODES SPÉCIALISÉES CESEDA
+  // CESEDA
   // ============================================
 
   /**
-   * Rechercher jurisprudence CESEDA récente
-   * Optimisé pour les besoins des avocats en droit des étrangers
-   *
-   * @example
-   * await client.searchCesedaCaseLaw('OQTF', { months: 12 })
+   * Recherche de jurisprudence récente
+   * relative au droit des étrangers / CESEDA.
    */
   async searchCesedaCaseLaw(
     keywords: string,
@@ -348,30 +547,57 @@ export class JudilibreClient {
       jurisdiction?: ('cc' | 'ca')[];
     } = {}
   ): Promise<JudilibreSearchResult> {
-    const { months = 6, pageSize = 20, solution, jurisdiction } = options;
+    const {
+      months = 6,
+      pageSize = 20,
+      solution,
+      jurisdiction,
+    } = options;
 
     const endDate = new Date();
     const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - months);
+
+    startDate.setMonth(
+      startDate.getMonth() - months
+    );
 
     return this.search({
       query: keywords,
       operator: 'and',
-      date_start: startDate.toISOString().split('T')[0],
-      date_end: endDate.toISOString().split('T')[0],
-      page_size: Math.min(pageSize, 50),
+
+      date_start: startDate
+        .toISOString()
+        .split('T')[0],
+
+      date_end: endDate
+        .toISOString()
+        .split('T')[0],
+
+      page_size: Math.min(
+        Math.max(pageSize, 1),
+        50
+      ),
+
       sort: 'date',
       order: 'desc',
+
       resolve_references: true,
-      ...(solution && { solution }),
-      ...(jurisdiction && { jurisdiction }),
+
+      ...(solution ? { solution } : {}),
+      ...(jurisdiction ? { jurisdiction } : {}),
     });
   }
 
+  // ============================================
+  // POURVOI
+  // ============================================
+
   /**
-   * Rechercher par numéro de pourvoi
+   * Recherche par numéro de pourvoi.
    */
-  async searchByNumber(number: string): Promise<JudilibreSearchResult> {
+  async searchByNumber(
+    number: string
+  ): Promise<JudilibreSearchResult> {
     return this.search({
       query: number,
       operator: 'exact',
@@ -381,8 +607,11 @@ export class JudilibreClient {
 }
 
 // ============================================
-// INSTANCE SINGLETON
+// SINGLETON
 // ============================================
 
-export const judilibreClient = new JudilibreClient();
-export const createJudilibreClient = () => new JudilibreClient();
+export const judilibreClient =
+  new JudilibreClient();
+
+export const createJudilibreClient =
+  () => new JudilibreClient();

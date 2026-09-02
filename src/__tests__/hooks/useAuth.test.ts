@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Tests pour le hook useAuth
  * Couverture: authentication, roles, permissions
  */
@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 
-// Mock next-auth/react
+// Mock @/lib/auth/react
 const mockSession = {
   user: {
     id: 'user-1',
@@ -27,7 +27,7 @@ const mockSession = {
   },
 };
 
-vi.mock('next-auth/react', () => ({
+vi.mock('@/lib/auth/react', () => ({
   useSession: () => ({
     data: mockSession,
     status: 'authenticated',

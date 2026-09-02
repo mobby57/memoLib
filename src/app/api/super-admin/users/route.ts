@@ -1,13 +1,15 @@
-﻿import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
     const guard = requireApiPermission(session, RBAC_PERMISSIONS.USERS_READ);
     if (!guard.ok) {
       return guard.response;
@@ -43,3 +45,5 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+

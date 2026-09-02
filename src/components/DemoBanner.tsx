@@ -1,11 +1,14 @@
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
+// CLERK-MIGRATION: Remplacement import useSession
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { Info, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export function DemoBanner() {
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const isDemo = (session?.user as any)?.tenantId === 'demo-tenant-1';
 
   if (!isDemo) return null;
@@ -24,3 +27,6 @@ export function DemoBanner() {
     </div>
   );
 }
+
+
+

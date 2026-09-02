@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 /**
  * Dashboard Client - Vue personnelle
  * Niveau 3 : Accès uniquement aux propres dossiers du client
@@ -8,13 +9,12 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function ClientDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
   const [dossiers, setDossiers] = useState<any[]>([]);
   const [factures, setFactures] = useState<any[]>([]);

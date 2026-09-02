@@ -131,18 +131,41 @@ export default function DashboardPage() {
     firstDossier: boolean;
   } | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
+  const [onboardingStatus, setOnboardingStatus] = useState<'loading' | 'ready' | 'unavailable'>(
+    'loading'
+  );
 
   // Charger le statut d'onboarding
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
-      fetch('/api/onboarding/status')
-        .then(r => r.json())
-        .then(data => {
-          if (data.needsOnboarding) setOnboardingSteps(data.steps);
-          else setShowOnboarding(false);
-        })
-        .catch(() => {});
-    }
+    if (!isAuthenticated || isLoading) return;
+
+    let cancelled = false;
+    setOnboardingStatus('loading');
+    fetch('/api/onboarding/status')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Unable to load onboarding status');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (cancelled) return;
+        if (data.needsOnboarding) {
+          setOnboardingSteps(data.steps);
+        } else {
+          setShowOnboarding(false);
+        }
+        setOnboardingStatus('ready');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setOnboardingStatus('unavailable');
+        setShowOnboarding(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [isAuthenticated, isLoading]);
 
   // Détecter connect-email=true (venant d'une démo)
@@ -362,16 +385,27 @@ export default function DashboardPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <main
+        aria-busy="true"
+        aria-live="polite"
+        className="flex min-h-screen flex-col items-center justify-center gap-3"
+        role="status"
+      >
+        <div
+          aria-hidden="true"
+          className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"
+        />
+        <p className="text-gray-600 dark:text-gray-400">Chargement de votre tableau de bord…</p>
+      </main>
     );
   }
 
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-600 dark:text-gray-400">Veuillez vous connecter</p>
+        <p aria-live="polite" className="text-gray-600 dark:text-gray-400">
+          Redirection vers la connexion sécurisée…
+        </p>
       </div>
     );
   }
@@ -435,7 +469,8 @@ export default function DashboardPage() {
               </div>
               <h2 className="text-xl font-bold text-gray-900">Connectez votre boîte mail</h2>
               <p className="text-sm text-gray-500 mt-2">
-                L&apos;IA analysera automatiquement vos emails entrants et détectera les urgences, deadlines et types de dossiers.
+                L&apos;IA analysera automatiquement vos emails entrants et détectera les urgences,
+                deadlines et types de dossiers.
               </p>
             </div>
             <ConnectEmailPanel />
@@ -453,11 +488,24 @@ export default function DashboardPage() {
       <AIDisclaimer variant="banner" />
 
       {/* === SECTION 1: ONBOARDING (si pas terminé) === */}
-      {showOnboarding && onboardingSteps && (
+      {onboardingStatus === 'unavailable' && (
+        <section
+          aria-live="polite"
+          className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900"
+          role="status"
+        >
+          <p className="font-medium">Le parcours de démarrage est momentanément indisponible.</p>
+          <p className="mt-1 text-sm">
+            Vous pouvez continuer à utiliser le tableau de bord. Si le problème persiste, contactez
+            le support pilote.
+          </p>
+        </section>
+      )}
+
+      {onboardingStatus === 'ready' && showOnboarding && onboardingSteps && (
         <OnboardingFlow
           steps={onboardingSteps}
           userName={user?.name?.split(' ')[0]}
-          tenantId={user?.tenantId}
           onComplete={() => setShowOnboarding(false)}
           onDismiss={() => setShowOnboarding(false)}
         />
@@ -495,8 +543,13 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3">
           <div>
             <p className="text-sm text-gray-500">
-              {getGreeting()}, <span className="font-semibold text-gray-900">{user?.name?.split(' ')[0]}</span> —{' '}
-              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              {getGreeting()},{' '}
+              <span className="font-semibold text-gray-900">{user?.name?.split(' ')[0]}</span> —{' '}
+              {new Date().toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              })}
             </p>
           </div>
           <Badge variant="info">{user?.role}</Badge>

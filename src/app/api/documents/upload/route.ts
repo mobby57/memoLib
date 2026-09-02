@@ -1,16 +1,22 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { canAccessDossier } from '@/lib/auth/dossier-access';
+import { getBlobServiceClient } from '@/lib/azure/clients';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { recordUsage } from '@/lib/billing/usage-billing';
 import { scanDocumentAsync } from '@/lib/security/antivirus';
 import { randomUUID } from 'crypto';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 // Configuration
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_REQUEST_SIZE = MAX_FILE_SIZE + 1024 * 1024;
 const ALLOWED_TYPES = [
   'application/pdf',
   'image/jpeg',
@@ -134,6 +140,24 @@ function detectMimeTypeFromBuffer(buffer: Buffer): string | null {
     return 'image/webp';
   }
 
+  if (
+    buffer.length >= 8 &&
+    buffer[0] === 0xd0 &&
+    buffer[1] === 0xcf &&
+    buffer[2] === 0x11 &&
+    buffer[3] === 0xe0 &&
+    buffer[4] === 0xa1 &&
+    buffer[5] === 0xb1 &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0xe1
+  ) {
+    return 'application/x-ole-storage';
+  }
+
+  if (buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4b && buffer[2] === 0x03 && buffer[3] === 0x04) {
+    return 'application/zip';
+  }
+
   return null;
 }
 
@@ -167,13 +191,13 @@ export const maxDuration = 30;
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const user = session.user as { tenantId?: string; id?: string };
     const tenantId = user.tenantId;
     const userId = user.id;
 
@@ -185,6 +209,14 @@ export async function POST(request: NextRequest) {
     if (!rateInfo.success) {
       return withRateLimitHeaders(
         NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 }),
+        rateInfo
+      );
+    }
+
+    const declaredContentLength = Number(request.headers.get('content-length'));
+    if (Number.isFinite(declaredContentLength) && declaredContentLength > MAX_REQUEST_SIZE) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Requête trop volumineuse' }, { status: 413 }),
         rateInfo
       );
     }
@@ -217,9 +249,15 @@ export async function POST(request: NextRequest) {
     const file = fileEntry;
 
     const safeFileName = sanitizeFileName(file.name);
+    if (!safeFileName || safeFileName.length > 255) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Nom de fichier invalide' }, { status: 400 }),
+        rateInfo
+      );
+    }
 
     // Validation taille
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size === 0 || file.size > MAX_FILE_SIZE) {
       return withRateLimitHeaders(
         NextResponse.json(
           { error: `Fichier trop volumineux (max ${MAX_FILE_SIZE / 1024 / 1024}MB)` },
@@ -245,12 +283,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier que le dossier appartient au tenant
-    const dossier = await prisma.dossier.findFirst({
-      where: { id: dossierId, tenantId },
+    if (!userId) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Accès interdit' }, { status: 403 }),
+        rateInfo
+      );
+    }
+
+    const access = await canAccessDossier({
+      userId,
+      tenantId,
+      role: (user as { role?: string }).role,
+      groups: (user as { groups?: string[] }).groups,
+      dossierId,
+      action: 'write',
     });
 
-    if (!dossier) {
+    if (!access.allowed) {
       return withRateLimitHeaders(
         NextResponse.json({ error: 'Dossier non trouvé ou accès interdit' }, { status: 404 }),
         rateInfo
@@ -265,7 +314,15 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     const detectedMime = detectMimeTypeFromBuffer(buffer);
-    if (detectedMime && detectedMime !== file.type) {
+    const isCompatibleBinaryType =
+      detectedMime === file.type ||
+      (detectedMime === 'application/x-ole-storage' && file.type === 'application/msword') ||
+      (detectedMime === 'application/zip' &&
+        [
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ].includes(file.type));
+    if (file.type !== 'text/plain' && !isCompatibleBinaryType) {
       return withRateLimitHeaders(
         NextResponse.json(
           { error: 'Le contenu du fichier ne correspond pas au type MIME déclaré' },
@@ -288,25 +345,34 @@ export async function POST(request: NextRequest) {
     // Sauvegarder le fichier localement si pas de Vercel Blob configuré
     let fileUrl: string | null = null;
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      // Vercel Blob configuré - utiliser pour stockage cloud
+    const containerName = process.env.AZURE_STORAGE_CONTAINER;
+    if (containerName) {
       try {
-        const { put } = await import('@vercel/blob');
-        const blob = await put(`documents/${uniqueId}/${safeFileName}`, buffer, {
-          access: 'public',
-          addRandomSuffix: true,
-          cacheControlMaxAge: 0,
+        const blobName = `documents/${tenantId}/${uniqueId}/${safeFileName}`;
+        const container = getBlobServiceClient().getContainerClient(containerName);
+        const blob = container.getBlockBlobClient(blobName);
+        await blob.uploadData(buffer, {
+          blobHTTPHeaders: { blobContentType: file.type },
         });
-        // NOTE: Pour une sécurité optimale en prod, migrer vers un signed URL pattern
-        // avec @vercel/blob getDownloadUrl() au lieu d'un accès public
-        fileUrl = blob.url;
-        logger.info('[UPLOAD] Fichier stocké sur Vercel Blob', { url: fileUrl });
-      } catch (blobError) {
-        logger.warn('[UPLOAD] Erreur Vercel Blob, fallback local', { error: blobError });
+        fileUrl = `azure://${containerName}/${blobName}`;
+        logger.info('[UPLOAD] Fichier stocké sur Azure Blob');
+      } catch {
+        logger.error('[UPLOAD] Échec du stockage Azure');
       }
     }
 
-    // Fallback: stockage local (si pas de Vercel Blob configuré)
+    if (!fileUrl && process.env.NODE_ENV === 'production') {
+      return withRateLimitHeaders(
+        NextResponse.json(
+          { error: 'Le stockage privé des documents n’est pas configuré' },
+          { status: 503 }
+        ),
+        rateInfo
+      );
+    }
+
+    // Local storage is development-only and is served exclusively by the
+    // authenticated download endpoint.
     if (!fileUrl) {
       try {
         const fs = await import('fs/promises');
@@ -316,9 +382,9 @@ export async function POST(request: NextRequest) {
         const filePath = path.join(uploadDir, safeFileName);
         await fs.writeFile(filePath, buffer);
         fileUrl = `/uploads/${uniqueId}/${safeFileName}`;
-        logger.info('[UPLOAD] Fichier stocké localement', { path: filePath });
-      } catch (fsError) {
-        logger.warn('[UPLOAD] Impossible de sauvegarder localement', { error: fsError });
+        logger.info('[UPLOAD] Fichier stocké localement');
+      } catch {
+        logger.warn('[UPLOAD] Impossible de sauvegarder localement');
       }
     }
 
@@ -329,22 +395,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sauvegarder les métadonnées en base
-    const document = await prisma.document.create({
-      data: {
-        id: uniqueId,
-        tenantId,
-        filename: safeFileName,
-        originalName: file.name,
-        mimeType: file.type,
-        size: file.size,
-        storageKey: fileUrl,
-        category: type,
-        description: description || null,
-        dossierId,
-        uploadedBy: userId!,
-        antivirusStatus: 'PENDING',
-      },
+    // Persist metadata and its audit trail atomically. The audit record only
+    // contains operational metadata, never document names or content.
+    const document = await prisma.$transaction(async tx => {
+      const created = await tx.document.create({
+        data: {
+          id: uniqueId,
+          tenantId,
+          filename: safeFileName,
+          originalName: file.name,
+          mimeType: file.type,
+          size: file.size,
+          storageKey: fileUrl,
+          category: type,
+          description: description || null,
+          dossierId,
+          uploadedBy: userId!,
+          antivirusStatus: 'PENDING',
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          id: randomUUID(),
+          tenantId,
+          userId,
+          userEmail: user.email ?? '',
+          userRole: user.role ?? 'UNKNOWN',
+          action: 'CREATE',
+          entityType: 'DOCUMENT',
+          entityId: uniqueId,
+          newValue: JSON.stringify({ mimeType: file.type, size: file.size }),
+          ipAddress: getClientIP(request),
+          userAgent: request.headers.get('user-agent') ?? undefined,
+        },
+      });
+
+      return created;
     });
 
     void scanDocumentAsync({
@@ -362,16 +449,10 @@ export async function POST(request: NextRequest) {
         type: 'ocr',
         quantity: estimatedPages,
         metadata: { documentId: uniqueId, dossierId },
-      }).catch(e => logger.warn('[UPLOAD] Erreur enregistrement usage OCR', { error: e }));
+      }).catch(() => logger.warn('[UPLOAD] Erreur enregistrement usage OCR'));
     }
 
-    logger.info('[UPLOAD] Document enregistré:', {
-      id: uniqueId,
-      name: safeFileName,
-      hash,
-      description,
-      stored: !!fileUrl,
-    });
+    logger.info('[UPLOAD] Document enregistré');
 
     // Horodatage certifié RFC 3161 (preuve tierce de la date de dépôt)
     try {
@@ -382,10 +463,10 @@ export async function POST(request: NextRequest) {
         documentId: uniqueId,
         documentHash: hash,
       });
-      logger.info('[UPLOAD] Horodatage TSA certifié', { documentId: uniqueId });
-    } catch (tsaError) {
+      logger.info('[UPLOAD] Horodatage TSA certifié');
+    } catch {
       // Non bloquant : le document est uploadé même si le TSA échoue
-      logger.warn('[UPLOAD] TSA certification failed (non-blocking)', { error: tsaError });
+      logger.warn('[UPLOAD] TSA certification failed (non-blocking)');
     }
 
     return withRateLimitHeaders(
@@ -403,8 +484,8 @@ export async function POST(request: NextRequest) {
       }),
       rateInfo
     );
-  } catch (error) {
-    logger.error('[UPLOAD] Erreur:', { error });
+  } catch {
+    logger.error('[UPLOAD] Erreur');
     return NextResponse.json({ error: "Erreur lors de l'upload" }, { status: 500 });
   }
 }
@@ -415,13 +496,13 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const user = session.user as { tenantId?: string; id?: string };
     const tenantId = user.tenantId;
     const userId = user.id;
 
@@ -452,12 +533,23 @@ export async function GET(request: NextRequest) {
 
     const { dossierId, limit } = queryResult.data;
 
-    const dossier = await prisma.dossier.findFirst({
-      where: { id: dossierId, tenantId },
-      select: { id: true },
+    if (!userId) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Accès interdit' }, { status: 403 }),
+        rateInfo
+      );
+    }
+
+    const access = await canAccessDossier({
+      userId,
+      tenantId,
+      role: (user as { role?: string }).role,
+      groups: (user as { groups?: string[] }).groups,
+      dossierId,
+      action: 'read',
     });
 
-    if (!dossier) {
+    if (!access.allowed) {
       return withRateLimitHeaders(
         NextResponse.json({ error: 'Dossier non trouvé ou accès interdit' }, { status: 404 }),
         rateInfo
@@ -490,8 +582,8 @@ export async function GET(request: NextRequest) {
       }),
       rateInfo
     );
-  } catch (error) {
-    logger.error('[DOCUMENTS] Erreur:', { error });
+  } catch {
+    logger.error('[DOCUMENTS] Erreur');
     return NextResponse.json({ error: 'Erreur lors de la récupération' }, { status: 500 });
   }
 }
