@@ -73,7 +73,7 @@ Certaines fonctionnalités sont facturées à l'usage (OCR, signatures électron
 ### 5.4 Résiliation
 - Résiliation possible à tout moment depuis l'interface
 - Pas de remboursement au prorata pour les plans annuels
-- Export des données disponible pendant 30 jours après résiliation
+- Les demandes d’export suivent la procédure et le périmètre décrits dans la politique de confidentialité
 
 ---
 
@@ -85,10 +85,10 @@ Certaines fonctionnalités sont facturées à l'usage (OCR, signatures électron
 - Le chiffrement E2E garantit que MemoLib ne peut pas accéder au contenu des dossiers
 
 ### 6.2 Portabilité
-L'Utilisateur peut à tout moment exporter l'intégralité de ses données dans un format standard (JSON, CSV).
+L’Utilisateur peut demander un export de ses données de compte dans le périmètre décrit par la politique de confidentialité. Les données partagées du Cabinet nécessitent une procédure distincte.
 
 ### 6.3 Suppression
-À la résiliation, les données sont supprimées conformément au DPA (Article 5).
+À la résiliation, toute demande d’effacement est examinée selon la procédure documentée, les obligations de conservation applicables et les éventuels gels légaux.
 
 ---
 

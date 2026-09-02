@@ -1,139 +1,83 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-import { NextRequest, NextResponse } from 'next/server';
 import { hybridAI } from '@/lib/ai/hybrid-client';
 import { checkFeatureAccess } from '@/lib/billing/features';
-import { checkEmailConfidential } from '@/lib/security/confidential-mode';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
-interface EmailSummary {
-  client: string | null;
-  objet: string;
-  urgence: 'basse' | 'moyenne' | 'haute' | 'critique';
-  actionRequise: string;
-  deadlineDetectee: string | null;
-  typeDossier: string;
-  resumeCourt: string;
-}
+const emailSummaryRequestSchema = z.object({
+  emailId: z.string().trim().min(1).max(128).optional(),
+  subject: z.string().trim().max(500).default(''),
+  body: z.string().trim().min(1).max(8_000),
+  from: z.string().trim().max(320).default(''),
+}).strict();
+const emailSummarySchema = z.object({
+  objet: z.string().trim().min(1).max(300),
+  urgence: z.enum(['basse', 'moyenne', 'haute', 'critique']),
+  actionRequise: z.string().trim().min(1).max(500),
+  deadlineDetectee: z.string().trim().max(100).nullable(),
+  typeDossier: z.enum(['TITRE_SEJOUR', 'NATURALISATION', 'OQTF', 'ASILE', 'REGROUPEMENT_FAMILIAL', 'CONTENTIEUX', 'GENERAL']),
+  resumeCourt: z.string().trim().min(1).max(1_000),
+}).strict();
 
-export async function POST(req: NextRequest) {
+export const POST = withAIRateLimit(async (req: NextRequest) => {
   const { user } = await auth();
-    const session = user ? { user } : null;
-  const isDemoRequest = !session && req.headers.get('referer')?.includes('/demo');
-  if (!user && !isDemoRequest) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
-  // Feature gate : résumé IA réservé au plan Solo+
-  const tenantId = (user as any)?.tenantId;
-  if (tenantId && !isDemoRequest) {
-    const gate = await checkFeatureAccess(tenantId, 'ai_email_summary');
-    if (!gate.allowed) {
-      return NextResponse.json({
-        error: 'FEATURE_GATED',
-        ...gate,
-        upgradeUrl: '/settings/billing?upgrade=true',
-      }, { status: 403 });
-    }
-  }
-  let body_data: Record<string, unknown>;
-  try {
-    body_data = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+  const gate = await checkFeatureAccess(user.tenantId, 'ai_email_summary');
+  if (!gate.allowed) {
+    return NextResponse.json({ error: 'FEATURE_GATED', ...gate, upgradeUrl: '/settings/billing?upgrade=true' }, { status: 403 });
   }
 
-  const { subject, body, from } = body_data as { subject?: string; body?: string; from?: string };
-  if (!body) return NextResponse.json({ error: 'body requis' }, { status: 400 });
-
-  // 🔒 Mode confidentiel : si l'email est lié à un dossier confidentiel, forcer local/regex
-  const emailId = body_data.emailId as string | undefined;
-  const confidentialCheck = await checkEmailConfidential(emailId || '');
+  const parsed = emailSummaryRequestSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Requête de résumé invalide' }, { status: 400 });
+  const { subject, body, from } = parsed.data;
 
   try {
-    if (confidentialCheck.isConfidential) {
-      // Mode confidentiel : essayer Ollama uniquement, sinon regex
-      hybridAI.setPreferredProvider('ollama');
-    }
-    const summary = await summarizeWithAI(subject || '', body, from || '');
-    return NextResponse.json({ 
-      ...summary, 
-      confidence: { client: 0.85, urgence: 0.8, typeDossier: 0.8, deadline: 0.7 },
-      _confidentialMode: confidentialCheck.isConfidential || undefined,
-      _disclaimer: "⚠️ Les délais détectés sont indicatifs. Vérifiez TOUJOURS la date de notification sur l'acte original. MemoLib assiste mais ne remplace pas la vérification humaine.",
+    const result = await hybridAI.generateWithCostControl(
+      `Tu es un assistant juridique. Analyse cet email. Ne retourne aucun nom, email, adresse ou autre identifiant personnel.
+
+Objet : ${subject}
+Corps : ${body}
+Expéditeur : ${from}
+
+Retourne uniquement ce JSON :
+{"objet":"résumé en 10 mots maximum","urgence":"basse|moyenne|haute|critique","actionRequise":"action concrète","deadlineDetectee":"date ou null","typeDossier":"TITRE_SEJOUR|NATURALISATION|OQTF|ASILE|REGROUPEMENT_FAMILIAL|CONTENTIEUX|GENERAL","resumeCourt":"résumé en deux phrases maximum"}`,
+      user.tenantId
+    );
+    const jsonMatch = result.response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Réponse IA non structurée');
+    const summary = emailSummarySchema.safeParse(JSON.parse(jsonMatch[0]));
+    if (!summary.success) throw new Error('Réponse IA invalide');
+    return NextResponse.json({
+      ...summary.data,
+      confidence: { urgence: 0.8, typeDossier: 0.8, deadline: 0.7 },
+      requiresHumanReview: true,
     });
   } catch {
-    // Fallback regex si Ollama indisponible
-    const summary = summarizeWithRegex(subject || '', body, from || '');
-    return NextResponse.json({ 
-      ...summary, 
-      _fallback: true, 
-      _confidentialMode: confidentialCheck.isConfidential || undefined,
-      confidence: { client: 0.5, urgence: 0.6, typeDossier: 0.6, deadline: 0.4 },
-      _disclaimer: "⚠️ Analyse par mots-clés (IA indisponible). Les délais détectés sont indicatifs. Vérifiez TOUJOURS la date de notification sur l'acte original.",
+    return NextResponse.json({
+      ...summarizeWithRules(subject, body),
+      _fallback: true,
+      confidence: { urgence: 0.6, typeDossier: 0.6, deadline: 0.4 },
+      requiresHumanReview: true,
     });
   }
-}
+});
 
-async function summarizeWithAI(subject: string, body: string, from: string): Promise<EmailSummary> {
-  const prompt = `Tu es un assistant juridique. Analyse cet email et retourne UNIQUEMENT un JSON valide (pas de texte avant/après).
-
-De: ${from}
-Objet: ${subject}
-Corps: ${body.slice(0, 2000)}
-
-Retourne ce JSON:
-{
-  "client": "nom du client ou null",
-  "objet": "résumé de la demande en 10 mots max",
-  "urgence": "basse|moyenne|haute|critique",
-  "actionRequise": "action concrète à faire en 1 phrase",
-  "deadlineDetectee": "date si mentionnée ou null",
-  "typeDossier": "TITRE_SEJOUR|NATURALISATION|OQTF|ASILE|REGROUPEMENT_FAMILIAL|CONTENTIEUX|GENERAL",
-  "resumeCourt": "résumé complet en 2 phrases max"
-}`;
-
-  const user = await auth();
-  const tenantId = (user?.user as any)?.tenantId || 'demo';
-
-  const aiResult = await hybridAI.generateWithCostControl(prompt, tenantId);
-  const jsonMatch = aiResult.response.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('No JSON in AI response');
-
-  return JSON.parse(jsonMatch[0]);
-}
-
-function summarizeWithRegex(subject: string, body: string, from: string): EmailSummary {
+function summarizeWithRules(subject: string, body: string) {
   const text = `${subject} ${body}`.toLowerCase();
-
-  // Détection urgence
-  let urgence: EmailSummary['urgence'] = 'basse';
-  if (text.match(/urgent|imm[eé]diat|48h|24h|oqtf sans d[eé]lai/)) urgence = 'critique';
-  else if (text.match(/d[eé]lai|[eé]ch[eé]ance|rapidement|au plus vite/)) urgence = 'haute';
-  else if (text.match(/merci de|pourriez-vous|demande/)) urgence = 'moyenne';
-
-  // Détection type dossier (ordre = priorité, OQTF d'abord car plus urgent)
-  let typeDossier = 'GENERAL';
-  if (text.match(/oqtf|obligation de quitter/)) typeDossier = 'OQTF';
-  else if (text.match(/asile|r[eé]fugi[eé]|ofpra|cnda/)) typeDossier = 'ASILE';
-  else if (text.match(/regroupement familial/)) typeDossier = 'REGROUPEMENT_FAMILIAL';
-  else if (text.match(/naturalisation|nationalit[eé]/)) typeDossier = 'NATURALISATION';
-  else if (text.match(/titre de s[eé]jour|carte de s[eé]jour|r[eé]c[eé]piss[eé]/)) typeDossier = 'TITRE_SEJOUR';
-
-  // Extraction client depuis "from"
-  const client = from.match(/^([^<@]+)/)?.[1]?.trim() || null;
-
-  // Détection deadline
-  const deadlineMatch = text.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})|(\d{1,2}\s+(?:janvier|f[eé]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[eé]cembre)\s+\d{4})/);
-  const deadlineDetectee = deadlineMatch?.[0] || null;
-
+  const urgence = /urgent|imm[eé]diat|48h|24h|oqtf sans d[eé]lai/.test(text) ? 'critique'
+    : /d[eé]lai|[eé]ch[eé]ance|rapidement|au plus vite/.test(text) ? 'haute'
+    : /merci de|pourriez-vous|demande/.test(text) ? 'moyenne' : 'basse';
+  const typeDossier = /oqtf|obligation de quitter/.test(text) ? 'OQTF'
+    : /asile|r[eé]fugi[eé]|ofpra|cnda/.test(text) ? 'ASILE'
+    : /regroupement familial/.test(text) ? 'REGROUPEMENT_FAMILIAL'
+    : /naturalisation|nationalit[eé]/.test(text) ? 'NATURALISATION'
+    : /titre de s[eé]jour|carte de s[eé]jour|r[eé]c[eé]piss[eé]/.test(text) ? 'TITRE_SEJOUR' : 'GENERAL';
+  const deadline = text.match(/(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})|(\d{1,2}\s+(?:janvier|f[eé]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[eé]cembre)\s+\d{4})/)?.[0] || null;
   return {
-    client,
-    objet: subject || 'Sans objet',
-    urgence,
-    actionRequise: urgence === 'critique' ? 'Traiter immédiatement' : 'À analyser et répondre',
-    deadlineDetectee,
-    typeDossier,
-    resumeCourt: `Email de ${client || 'expéditeur inconnu'} concernant ${typeDossier.toLowerCase().replace('_', ' ')}. ${urgence === 'critique' ? 'Action urgente requise.' : 'À traiter.'}`,
+    objet: subject || 'Sans objet', urgence, actionRequise: urgence === 'critique' ? 'Vérifier et traiter immédiatement' : 'Examiner et répondre',
+    deadlineDetectee: deadline, typeDossier, resumeCourt: `Message relatif à un dossier ${typeDossier.toLowerCase().replace('_', ' ')}. Vérification humaine requise.`,
   };
 }
-
-

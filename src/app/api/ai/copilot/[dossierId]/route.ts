@@ -3,17 +3,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { analyzeDossier, type DossierInput } from '@/lib/ai/copilot/copilot-ceseda';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
+import { sanitizePromptForAI } from '@/lib/ai/prompt-sanitizer';
+import { z } from 'zod';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+
+const paramsSchema = z.object({ dossierId: z.string().trim().min(1).max(128) }).strict();
 
 /**
  * GET /api/ai/copilot/[dossierId]
  * Copilote CESEDA — Analyse complète d'un dossier
  */
-export async function GET(req: NextRequest, { params }: { params: Promise<{ dossierId: string }> }) {
+export const GET = withAIRateLimit(async (
+  req: NextRequest,
+  context?: { params: Promise<{ dossierId: string }> }
+) => {
   const { user } = await auth();
-    const session = user ? { user } : null;
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const { dossierId } = await params;
+  const parsedParams = paramsSchema.safeParse(await context?.params);
+  if (!parsedParams.success) return NextResponse.json({ error: 'Dossier invalide' }, { status: 400 });
+  const { dossierId } = parsedParams.data;
   if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
   const access = await canAccessDossier({
@@ -29,10 +38,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ doss
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId: user.tenantId },
     include: {
-      client: { select: { firstName: true, lastName: true, email: true } },
       checklistItems: { select: { label: true, status: true, required: true } },
       legalDeadlines: { select: { label: true, dueDate: true, status: true } },
-      emails: { select: { subject: true, bodyText: true, from: true, receivedDate: true }, orderBy: { receivedDate: 'desc' }, take: 10 },
+      emails: { select: { subject: true, bodyText: true, receivedDate: true }, orderBy: { receivedDate: 'desc' }, take: 10 },
       documents: { select: { name: true, type: true } },
     },
   });
@@ -42,19 +50,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ doss
   const input: DossierInput = {
     id: dossier.id,
     typeDossier: dossier.typeDossier,
-    description: dossier.description || undefined,
-    notes: dossier.notes || undefined,
+    description: dossier.description ? sanitizePromptForAI(dossier.description).sanitizedText : undefined,
+    notes: dossier.notes ? sanitizePromptForAI(dossier.notes).sanitizedText : undefined,
     statut: dossier.statut,
     dateCreation: dossier.dateCreation.toISOString(),
     dateEcheance: dossier.dateEcheance?.toISOString(),
-    client: dossier.client || { firstName: undefined, lastName: undefined, email: undefined },
+    client: {},
     checklistItems: dossier.checklistItems,
     legalDeadlines: dossier.legalDeadlines.map(d => ({ ...d, dueDate: d.dueDate.toISOString() })),
-    emails: dossier.emails.map(e => ({ subject: e.subject || '', body: e.bodyText || '', from: e.from || '', receivedDate: e.receivedDate.toISOString() })),
+    emails: dossier.emails.map(e => ({
+      subject: sanitizePromptForAI(e.subject || '').sanitizedText,
+      body: sanitizePromptForAI(e.bodyText || '').sanitizedText,
+      from: '',
+      receivedDate: e.receivedDate.toISOString(),
+    })),
     documents: dossier.documents.map(d => ({ name: d.name || '', type: d.type || '' })),
   };
 
   const analysis = analyzeDossier(input);
 
   return NextResponse.json(analysis);
-}
+});

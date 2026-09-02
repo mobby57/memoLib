@@ -81,7 +81,7 @@ export class EmailMonitorService {
     };
   }
 
-  async processEmail(tenantId: string, rawEmail: string) {
+  async processEmail(tenantId: string, rawEmail: string, deliveryId?: string) {
     const parsed = await simpleParser(rawEmail);
     const normalized = normalizeIncomingEmailPayload(
       {
@@ -120,7 +120,7 @@ export class EmailMonitorService {
       data: {
         tenantId,
         messageId: normalized.messageId,
-        providerMessageId: normalized.providerMessageId,
+        providerMessageId: deliveryId || normalized.providerMessageId,
         threadId: normalized.threadId,
         internetMessageId: normalized.internetMessageId,
         sourceChannel: normalized.sourceChannel,
@@ -184,5 +184,4 @@ export class EmailMonitorService {
 }
 
 export const emailMonitor = new EmailMonitorService();
-
 

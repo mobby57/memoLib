@@ -29,4 +29,15 @@ describe('production security guards', () => {
       'FATAL: DEMO_MODE cannot be enabled in production.'
     );
   });
+
+  it('rejects a production encryption key shorter than 32 characters', () => {
+    process.env.NODE_ENV = 'production';
+    process.env.DEMO_MODE = 'false';
+    process.env.ENCRYPTION_MASTER_KEY = 'too-short';
+    process.env.CLERK_SECRET_KEY = 'a-valid-clerk-secret-with-at-least-32-characters';
+
+    expect(enforceProductionSecurity).toThrow(
+      'FATAL: Cannot start in production without ENCRYPTION_MASTER_KEY.'
+    );
+  });
 });

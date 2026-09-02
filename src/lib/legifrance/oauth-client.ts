@@ -47,10 +47,10 @@ export class LegifranceOAuthClient {
 
     // Validation configuration - juste un warning, pas d'erreur
     this.configured = !!(this.config.clientId && this.config.clientSecret);
-    if (!this.configured) {
+    if (!this.configured && process.env.NEXT_PHASE !== 'phase-production-build') {
       console.warn(
-        `? Configuration PISTE manquante pour l'environnement ${environment}. ` +
-        `L'API Legifrance sera desactivee.`
+        `Configuration PISTE manquante pour l'environnement ${environment}. ` +
+        `L'API Légifrance sera désactivée.`
       );
     }
   }

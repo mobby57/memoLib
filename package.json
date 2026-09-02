@@ -24,7 +24,7 @@
     "test:ci": "vitest run --exclude='**/integration/**' --exclude='**/e2e/**' --exclude='**/saas-db*' --exclude='**/legifrance*'",
     "test:integration": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest __testPathPatterns=integration --coverage --passWithNoTests --maxWorkers=2",
     "test:unit": "vitest run tests/unit src/__tests__/lib src/__tests__/domain src/__tests__/utils src/__tests__/types src/__tests__/constants",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test tests/e2e",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
@@ -33,8 +33,8 @@
     "test:vitest:watch": "vitest --ui",
     "test:components": "vitest run --config vitest.components.config.ts",
     "test:scenarios": "npx playwright test tests/e2e/advanced-scenarios.spec.ts",
-    "test:performance": "npx playwright test tests/performance/load-testing.spec.ts",
-    "test:security": "npx playwright test tests/security/security-advanced.spec.ts",
+    "test:performance": "npx playwright test tests/performance/load-testing.spec.ts --project=chromium",
+    "test:security": "npx playwright test tests/security/security-advanced.spec.ts --project=chromium",
     "coverage:check": "jest --coverage --coverageThreshold='{\"global\":{\"lines\":30,\"branches\":30,\"functions\":30,\"statements\":30}}'",
     "coverage:report": "jest --coverage --coverageReporters=html && start coverage/lcov-report/index.html",
     "test:smoke": "node scripts/smoke-tests.js",
@@ -135,7 +135,9 @@
     "demo:client:sarrab:run": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab.ps1",
     "demo:client:sarrab:monitor": "npm run demo:client:sarrab:check && npm run email:monitor:integrated",
     "demo:client:sarrab:full": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab-full.ps1",
-    "test:storage": "vitest run src/lib/storage/storageService.smoke.test.ts"
+    "test:storage": "vitest run src/lib/storage/storageService.smoke.test.ts",
+    "requirements:check": "node scripts/check-release-requirements.js",
+    "requirements:release": "node scripts/check-release-requirements.js --release"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -176,6 +178,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "docx": "^9.5.1",
+    "exceljs": "^4.4.0",
     "googleapis": "^169.0.0",
     "handlebars": "^4.7.8",
     "imapflow": "^1.0.171",

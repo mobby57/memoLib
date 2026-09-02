@@ -17,8 +17,11 @@
 import { encryptData, decryptData, EncryptedDataPayload } from '@/lib/security/encryption';
 import { logger } from '@/lib/logger';
 
-const ENCRYPTION_ENABLED = !!process.env.ENCRYPTION_MASTER_KEY;
 const ENCRYPTED_PLACEHOLDER = '[ENCRYPTED]';
+
+function isEncryptionEnabled(): boolean {
+  return Boolean(process.env.ENCRYPTION_MASTER_KEY);
+}
 
 /**
  * Chiffre le contenu d'un email avant stockage en BDD.
@@ -30,7 +33,7 @@ export function encryptEmailBody(body: string, htmlBody?: string | null): {
   htmlBody: string | null;
   htmlBodyEncrypted: string | null;
 } {
-  if (!ENCRYPTION_ENABLED) {
+  if (!isEncryptionEnabled()) {
     // Mode dev sans clé — stockage en clair
     return { body, bodyEncrypted: null, htmlBody: htmlBody || null, htmlBodyEncrypted: null };
   }
@@ -46,8 +49,12 @@ export function encryptEmailBody(body: string, htmlBody?: string | null): {
       htmlBodyEncrypted: encryptedHtml ? JSON.stringify(encryptedHtml) : null,
     };
   } catch (error) {
-    // Fallback: stocker en clair si le chiffrement échoue (ne pas perdre l'email)
-    logger.error('[EMAIL_ENCRYPTION] Encryption failed, storing in cleartext', error);
+    logger.error('[EMAIL_ENCRYPTION] Encryption failed', error);
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Email encryption failed; refusing cleartext storage in production');
+    }
+
+    // Le mode dégradé n'est accepté qu'en dehors de la production.
     return { body, bodyEncrypted: null, htmlBody: htmlBody || null, htmlBodyEncrypted: null };
   }
 }
@@ -68,7 +75,7 @@ export function decryptEmailBody(email: {
   }
 
   // Cas 2: Email chiffré — déchiffrer
-  if (!ENCRYPTION_ENABLED) {
+  if (!isEncryptionEnabled()) {
     logger.warn('[EMAIL_ENCRYPTION] Cannot decrypt: ENCRYPTION_MASTER_KEY not set');
     return { body: '[Contenu chiffré — clé non disponible]', htmlBody: null };
   }

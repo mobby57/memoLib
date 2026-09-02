@@ -3,13 +3,46 @@ import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { getBlobServiceClient } from '@/lib/azure/clients';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'node:crypto';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+const documentIdSchema = z.string().trim().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/);
+
+function rateLimitedResponse(reset: Date): NextResponse {
+  return NextResponse.json(
+    { error: 'Trop de requêtes. Réessayez plus tard.' },
+    {
+      status: 429,
+      headers: { 'Retry-After': String(Math.max(1, Math.ceil((reset.getTime() - Date.now()) / 1000))) },
+    }
+  );
+}
+
+function canManageTenantDocuments(role?: string): boolean {
+  return role === 'ADMIN' || role === 'SUPER_ADMIN';
+}
+
+function parseAzureStorageKey(storageKey: string): { container: string; blobName: string } | null {
+  if (!storageKey.startsWith('azure://')) {
+    return null;
+  }
+
+  const [container, ...blobParts] = storageKey.slice('azure://'.length).split('/');
+  const blobName = blobParts.join('/');
+  if (!container || !blobName || blobName.includes('..') || blobName.includes('\\')) {
+    return null;
+  }
+
+  return { container, blobName };
+}
+
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -29,13 +62,18 @@ export async function DELETE(
       );
     }
 
-    const { id } = await params;
-
-    if (!id) {
+    const idResult = documentIdSchema.safeParse((await params).id);
+    if (!idResult.success) {
       return NextResponse.json(
-        { error: 'ID document requis' },
+        { error: 'ID document invalide' },
         { status: 400 }
       );
+    }
+    const id = idResult.data;
+
+    const rateLimit = await checkRateLimit(`document-delete:${user.id}:${getClientIP(request)}`, 'default');
+    if (!rateLimit.success) {
+      return rateLimitedResponse(rateLimit.reset);
     }
 
     const document = await prisma.document.findFirst({
@@ -47,6 +85,7 @@ export async function DELETE(
         id: true,
         dossierId: true,
         storageKey: true,
+        uploadedBy: true,
       },
     });
 
@@ -64,7 +103,7 @@ export async function DELETE(
         role: user.role,
         groups: user.groups,
         dossierId: document.dossierId,
-        action: 'read',
+        action: 'manage',
       });
 
       if (!access.allowed) {
@@ -73,25 +112,28 @@ export async function DELETE(
           { status: 404 }
         );
       }
-    } else if (user.role === 'CLIENT') {
+    } else if (document.uploadedBy !== user.id && !canManageTenantDocuments(user.role)) {
       return NextResponse.json(
-        { error: 'Acces interdit' },
-        { status: 403 }
+        { error: 'Document non trouve' },
+        { status: 404 }
       );
     }
 
     try {
       if (document.storageKey.startsWith('azure://')) {
-        const storagePath = document.storageKey.slice('azure://'.length);
-        const [container, ...blobParts] = storagePath.split('/');
-        const blobName = blobParts.join('/');
-
-        if (container && blobName) {
-          await getBlobServiceClient()
-            .getContainerClient(container)
-            .getBlockBlobClient(blobName)
-            .deleteIfExists();
+        const azureStorage = parseAzureStorageKey(document.storageKey);
+        if (
+          !azureStorage ||
+          azureStorage.container !== process.env.AZURE_STORAGE_CONTAINER ||
+          !azureStorage.blobName.startsWith(`documents/${user.tenantId}/`)
+        ) {
+          return NextResponse.json({ error: 'Stockage document indisponible' }, { status: 503 });
         }
+
+        await getBlobServiceClient()
+          .getContainerClient(azureStorage.container)
+          .getBlockBlobClient(azureStorage.blobName)
+          .deleteIfExists();
       } else if (document.storageKey.startsWith('/uploads/')) {
         const fs = await import('fs/promises');
         const path = await import('path');
@@ -118,32 +160,52 @@ export async function DELETE(
           );
         }
 
-        await fs.unlink(filePath).catch(() => {});
+        try {
+          await fs.unlink(filePath);
+        } catch (error) {
+          if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) {
+            throw error;
+          }
+        }
+      } else {
+        return NextResponse.json({ error: 'Stockage document indisponible' }, { status: 503 });
       }
-    } catch (storageError) {
-      logger.warn('[DOCUMENT DELETE] Erreur suppression stockage', {
-        documentId: id,
-        error: storageError,
-      });
+    } catch {
+      logger.warn('[DOCUMENT DELETE] Erreur suppression stockage');
+      return NextResponse.json({ error: 'Suppression du stockage impossible' }, { status: 503 });
     }
 
-    await prisma.document.delete({
-      where: {
-        id: document.id,
-      },
+    await prisma.$transaction(async tx => {
+      await tx.document.delete({
+        where: {
+          id: document.id,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          id: randomUUID(),
+          tenantId: user.tenantId!,
+          userId: user.id,
+          userEmail: user.email ?? '',
+          userRole: user.role ?? 'UNKNOWN',
+          action: 'DELETE',
+          entityType: 'DOCUMENT',
+          entityId: document.id,
+          oldValue: JSON.stringify({ storage: 'deleted' }),
+          ipAddress: getClientIP(request),
+          userAgent: request.headers.get('user-agent') ?? undefined,
+        },
+      });
     });
 
-    logger.info('[DOCUMENT DELETE] Document supprime', {
-      documentId: document.id,
-      userId: user.id,
-    });
+    logger.info('[DOCUMENT DELETE] Document supprime');
 
     return NextResponse.json({
       success: true,
       id: document.id,
     });
-  } catch (error) {
-    logger.error('[DOCUMENT DELETE] Erreur:', { error });
+  } catch {
+    logger.error('[DOCUMENT DELETE] Erreur');
 
     return NextResponse.json(
       { error: 'Erreur lors de la suppression du document' },

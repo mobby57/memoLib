@@ -4,6 +4,8 @@ import { auth } from '@/lib/clerk-auth';
 // CLERK-MIGRATION: Remplacement user -> user (vérifier)
 // CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
+import { generateWebhookHeaders } from '@/lib/security/webhook-verification';
+import { randomUUID } from 'node:crypto';
 /**
  * POST /api/emails/paste
  * Body: { from?, subject?, body }
@@ -21,27 +23,29 @@ export async function POST(req: NextRequest) {
 
   const tenantId = (user as any).tenantId;
   const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/webhooks/email-inbound`;
+  const secret = process.env.EMAIL_WEBHOOK_SECRET;
+  if (!secret) return NextResponse.json({ error: 'Service email indisponible' }, { status: 503 });
+  const payload = JSON.stringify({
+    from: from || 'Client <client@email.com>',
+    subject: subject || '(sans objet)',
+    body,
+    tenantId,
+    date: new Date().toISOString(),
+    messageId: `paste-${Date.now()}@memolib.local`,
+  });
 
   const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-webhook-secret': process.env.INCOMING_EMAIL_WEBHOOK_SECRET || process.env.EMAIL_WEBHOOK_SECRET || 'demo',
+      'x-webhook-id': randomUUID(),
+      ...generateWebhookHeaders(payload, secret),
     },
-    body: JSON.stringify({
-      from: from || 'Client <client@email.com>',
-      subject: subject || '(sans objet)',
-      body,
-      tenantId,
-      date: new Date().toISOString(),
-      messageId: `paste-${Date.now()}@memolib.local`,
-    }),
+    body: payload,
   });
 
   const result = await res.json();
   return NextResponse.json({ success: true, ...result });
 }
-
-
 
 

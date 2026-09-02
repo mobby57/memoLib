@@ -1012,6 +1012,7 @@ model Tenant {
   ChannelMessage    ChannelMessage[]
   CompteComptable   CompteComptable[]
   DeclarationTVA    DeclarationTVA[]
+  DataSubjectRequest DataSubjectRequest[]
   Document          Document[]
   Dossier           Dossier[]
   Draft             Draft[]
@@ -1104,6 +1105,7 @@ model User {
   DossierMember    DossierMember[]
   TeamMember       TeamMember[]
   UserConsent      UserConsent[]
+  DataSubjectRequest DataSubjectRequest[]
 
   @@index([role])
   @@index([status])
@@ -1129,6 +1131,27 @@ model UserConsent {
   @@index([userId])
   @@index([type])
   @@index([userId, type])
+}
+
+/// Demande d'exercice d'un droit par la personne concernée. La résolution est
+/// manuelle afin de vérifier les obligations de conservation et le périmètre.
+model DataSubjectRequest {
+  id           String   @id @default(cuid())
+  tenantId     String
+  userId       String
+  requestType  String
+  status       String   @default("PENDING_REVIEW")
+  requestedAt  DateTime @default(now())
+  scheduledFor DateTime?
+  cancelledAt  DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  Tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  User         User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, userId, requestType, status])
+  @@index([status, scheduledFor])
 }
 
 /// Contrôle d'accès granulaire par dossier ("qui, en plus du RBAC global,
