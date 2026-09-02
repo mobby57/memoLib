@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Suggestions Intelligentes - IA Proactive
  * Endpoint: /api/tenant/[tenantId]/suggestions
@@ -6,9 +7,6 @@
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 interface SuggestionsParams {
   params: Promise<{ tenantId: string }>;
 }
@@ -16,11 +14,12 @@ interface SuggestionsParams {
 export async function GET(request: NextRequest, { params }: SuggestionsParams) {
   try {
     const { tenantId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-    if ((session.user as any).tenantId !== tenantId) {
+    if ((user as any).tenantId !== tenantId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
     const now = new Date();
@@ -46,7 +45,7 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         },
       },
       include: {
-        client: {
+        Client: {
           select: { firstName: true, lastName: true },
         },
       },
@@ -64,7 +63,7 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         actionSuggested: 'Relance client recommandée',
         details: inactiveDossiers.map(d => ({
           dossierId: d.id,
-          clientName: `${d.client.firstName} ${d.client.lastName}`,
+          clientName: `${d.Client.firstName} ${d.Client.lastName}`,
           daysSinceActivity: Math.floor(
             (now.getTime() - new Date(d.updatedAt).getTime()) / (24 * 60 * 60 * 1000)
           ),
@@ -80,14 +79,14 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         statut: { in: ['en_cours', 'en_attente'] },
       },
       include: {
-        documents: true,
-        client: {
+        Document: true,
+        Client: {
           select: { firstName: true, lastName: true },
         },
       },
     });
 
-    const dossiersAvecPeuDocuments = documentsManquants.filter(d => d.documents.length < 3);
+    const dossiersAvecPeuDocuments = documentsManquants.filter(d => d.Document.length < 3);
 
     if (dossiersAvecPeuDocuments.length >= 3) {
       suggestions.push({
@@ -100,8 +99,8 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         actionSuggested: 'Créer un formulaire de collecte automatique',
         details: dossiersAvecPeuDocuments.slice(0, 5).map(d => ({
           dossierId: d.id,
-          clientName: `${d.client.firstName} ${d.client.lastName}`,
-          documentCount: d.documents.length,
+          clientName: `${d.Client.firstName} ${d.Client.lastName}`,
+          documentCount: d.Document.length,
         })),
         estimatedTimeGain: '2 heures/semaine',
       });
@@ -110,7 +109,7 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
     // 3. Échéances proches (< 14 jours) - utilise LegalDeadline
     const echeancesProches = await prisma.legalDeadline.findMany({
       where: {
-        dossier: {
+        Dossier: {
           tenantId,
         },
         dueDate: {
@@ -120,9 +119,9 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         status: 'PENDING',
       },
       include: {
-        dossier: {
+        Dossier: {
           include: {
-            client: {
+            Client: {
               select: { firstName: true, lastName: true },
             },
           },
@@ -151,7 +150,7 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         details: echeancesProches.map(e => ({
           echeanceId: e.id,
           type: e.type,
-          clientName: `${e.dossier.client.firstName} ${e.dossier.client.lastName}`,
+          clientName: `${e.Dossier.Client.firstName} ${e.Dossier.Client.lastName}`,
           daysUntilDeadline: Math.ceil(
             (new Date(e.dueDate).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
           ),

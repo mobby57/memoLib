@@ -1,14 +1,14 @@
-﻿'use client';
+import { useAuth } from '@/hooks/useAuth';
+'use client';
 
 export const dynamic = 'force-dynamic';
 
 import { Calendar, DollarSign, FileText, MessageSquare } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function ClientDemoDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

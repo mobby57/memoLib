@@ -58,7 +58,7 @@ export const DeploymentGuide = {
       },
       {
         check: 'API keys secured',
-        env: 'UPSTASH_REDIS_REST_TOKEN, NEXTAUTH_SECRET',
+        env: 'UPSTASH_REDIS_REST_TOKEN, CLERK_SECRET_KEY',
         required: true,
       },
       {
@@ -224,13 +224,13 @@ export const DeploymentGuide = {
         sensitive: true,
       },
       {
-        name: 'NEXTAUTH_URL',
+        name: 'NEXT_PUBLIC_APP_URL',
         description: 'NextAuth callback URL',
         example: 'https://your-production-domain.com',
         sensitive: false,
       },
       {
-        name: 'NEXTAUTH_SECRET',
+        name: 'CLERK_SECRET_KEY',
         description: 'NextAuth encryption secret',
         generate: 'openssl rand -base64 32',
         sensitive: true,

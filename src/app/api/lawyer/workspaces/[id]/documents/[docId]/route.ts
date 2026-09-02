@@ -1,9 +1,8 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { existsSync } from 'fs';
 import { unlink } from 'fs/promises';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
 
@@ -16,8 +15,9 @@ export async function PATCH(
   { params }: { params: { id: string; docId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -30,7 +30,7 @@ export async function PATCH(
       updateData.verified = verified;
       if (verified) {
         updateData.verifiedAt = new Date();
-        updateData.verifiedBy = (session.user as any).id;
+        updateData.verifiedBy = (user as any).id;
       }
     }
 
@@ -63,8 +63,9 @@ export async function DELETE(
   { params }: { params: { id: string; docId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 

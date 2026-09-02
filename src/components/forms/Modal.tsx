@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useId, useRef } from 'react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -17,19 +17,51 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   size = 'md',
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (e.key !== 'Tab') return;
+
+      const focusableElements = modalRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusableElements?.length) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
     };
 
     if (isOpen) {
+      previousActiveElement.current =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
+      closeButtonRef.current?.focus();
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
+      if (previousActiveElement.current?.isConnected) {
+        previousActiveElement.current.focus();
+      }
     };
   }, [isOpen, onClose]);
 
@@ -53,6 +85,10 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
           className={`
             relative bg-white rounded-lg shadow-xl w-full ${sizeStyles[size]}
             transform transition-all
@@ -61,8 +97,10 @@ export const Modal: React.FC<ModalProps> = ({
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+            <h3 id={titleId} className="text-xl font-semibold text-gray-900">{title}</h3>
             <button
+              ref={closeButtonRef}
+              type="button"
               onClick={onClose}
               aria-label="Close"
               className="text-gray-400 hover:text-gray-600 transition-colors"

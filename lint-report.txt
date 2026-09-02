@@ -1,0 +1,10 @@
+
+> memolib@0.1.0 lint:strict
+> eslint src --max-warnings 0
+
+
+C:\Users\moros\Desktop\memolib\src\app\[locale]\documents\page.tsx
+  272:115  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 1 problem (1 error, 0 warnings)
+

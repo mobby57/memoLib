@@ -1,7 +1,7 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import {
   Inbox,
@@ -28,7 +28,7 @@ interface RawEmail {
 }
 
 export default function InboxPage() {
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const [emails, setEmails] = useState<RawEmail[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);

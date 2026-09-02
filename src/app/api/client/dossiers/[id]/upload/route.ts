@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -9,11 +8,14 @@ import { prisma } from '@/lib/prisma';
  * Met a jour la checklist automatiquement.
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { id } = await params;
-  const user = session.user as any;
+  if (!user.clientId) {
+    return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
+  }
 
   const formData = await req.formData();
   const file = formData.get('file') as File;
@@ -25,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // Verifier que le dossier appartient au client
   const dossier = await prisma.dossier.findFirst({
-    where: { id, clientId: user.clientId || undefined },
+    where: { id, clientId: user.clientId },
   });
 
   if (!dossier) {
@@ -34,6 +36,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // Si un item de checklist est specifie, le marquer comme recu
   if (checklistItemId) {
+    // Verifier que l'item de checklist appartient bien a ce dossier (anti-IDOR)
+    const checklistItem = await prisma.dossierChecklistItem.findFirst({
+      where: { id: checklistItemId, dossierId: id },
+    });
+    if (!checklistItem) {
+      return NextResponse.json({ error: 'Piece de checklist non trouvee pour ce dossier' }, { status: 404 });
+    }
+
     await prisma.dossierChecklistItem.update({
       where: { id: checklistItemId },
       data: {

@@ -1,3 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Webhook Route - Phase 4: Full Validation & Enhancement
  * + Phase 5: Optimisations
@@ -24,8 +29,6 @@ import { checkWebhookRateLimit } from '@/lib/webhook-rate-limit';
 import { validateWebhookPayloadSafe } from '@/lib/webhook-schemas';
 import { checkPayloadSize } from '@/lib/webhook-size-limits';
 import * as Sentry from '@sentry/nextjs';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
@@ -42,12 +45,13 @@ const retryPrismaOperation = async (fn: () => any, name: string, retries: number
 };
 
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }
 
-  const role = String((session.user as any).role || '').toUpperCase();
+  const role = String((user as any).role || '').toUpperCase();
   const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
   if (!allowedRoles.has(role)) {
     return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
@@ -269,3 +273,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+
+

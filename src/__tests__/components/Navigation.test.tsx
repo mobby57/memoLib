@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 ﻿import { render, screen } from '@testing-library/react'
-import { SessionProvider } from 'next-auth/react'
 import { Navigation } from '@/components/Navigation'
 
-// Mock next-auth
+// Mock @/lib/auth
 const mockSession = {
   user: {
     name: 'Test User',

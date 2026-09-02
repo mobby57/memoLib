@@ -1,3 +1,4 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Route: POST /api/workspace-reasoning/[id]/validate
  * Validation finale par l'humain (verrouille le workspace)
@@ -5,15 +6,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { WorkspaceReasoningService } from '@/lib/workspace-reasoning-service';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    const session = user ? { user } : null;
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
 
-    const userTenantId = (session.user as any).tenantId;
+    const userTenantId = (user as any).tenantId;
     if (workspace.tenantId !== userTenantId) {
       return NextResponse.json({ error: 'Accès refusé - Isolation tenant' }, { status: 403 });
     }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'Workspace déjà verrouillé' }, { status: 400 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = (user as any).id;
 
     // Verrouiller le workspace
     const updatedWorkspace = await prisma.workspaceReasoning.update({

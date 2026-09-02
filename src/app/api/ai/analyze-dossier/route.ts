@@ -1,152 +1,115 @@
-/**
- * POST /api/ai/analyze-dossier
- * 
- * Analyse un dossier complet (emails + documents + timeline) via IA
- * et retourne les éléments structurés pour pré-remplir un mémoire.
- * 
- * Retourne : faits, moyens, pièces, demandes, parties, dates clés.
- */
-
-import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/clerk-auth';
 import { hybridAI } from '@/lib/ai/hybrid-client';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
+import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+const requestSchema = z.object({ dossierId: z.string().trim().min(1).max(128) }).strict();
+const analysisSchema = z.object({
+  adverseParty: z.string().trim().max(500).nullable(),
+  juridiction: z.string().trim().max(300).nullable(),
+  objet: z.string().trim().max(1_000),
+  dateDecision: z.string().trim().max(100).nullable(),
+  dateNotification: z.string().trim().max(100).nullable(),
+  delaiLegal: z.string().trim().max(300).nullable(),
+  baseLegale: z.string().trim().max(2_000).nullable(),
+  faits: z.array(z.object({ titre: z.string().trim().max(300), contenu: z.string().trim().max(2_000) }).strict()).max(20),
+  moyens: z.array(z.object({ titre: z.string().trim().max(300), contenu: z.string().trim().max(2_000) }).strict()).max(20),
+  pointsContestes: z.array(z.object({
+    titre: z.string().trim().max(300),
+    citationDecision: z.string().trim().max(1_000).nullable(),
+    observations: z.array(z.string().trim().max(1_000)).max(10),
+  }).strict()).max(20),
+  pieces: z.array(z.object({ numero: z.number().int().positive(), designation: z.string().trim().max(500) }).strict()).max(30),
+  demandes: z.array(z.string().trim().max(1_000)).max(20),
+}).strict();
 
-  const user = session.user as any;
-  const tenantId = user.tenantId;
+export const POST = withAIRateLimit(async (req: NextRequest) => {
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
-  let body: any;
-  try { body = await req.json(); } catch { return NextResponse.json({ error: 'JSON invalide' }, { status: 400 }); }
+  const parsed = requestSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Requête d’analyse invalide' }, { status: 400 });
+  const { dossierId } = parsed.data;
+  const access = await canAccessDossier({
+    userId: user.id, tenantId: user.tenantId, role: user.role, groups: user.groups,
+    dossierId, action: 'read',
+  });
+  if (!access.allowed) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
 
-  const { dossierId } = body;
-  if (!dossierId) return NextResponse.json({ error: 'dossierId requis' }, { status: 400 });
-
-  // Charger le dossier avec contexte
   const dossier = await prisma.dossier.findFirst({
-    where: { id: dossierId, tenantId },
-    include: {
-      client: true,
-      Email: { orderBy: { createdAt: 'desc' }, take: 10 },
-      Document: { take: 20 },
-      LegalDeadline: true,
+    where: { id: dossierId, tenantId: user.tenantId },
+    select: {
+      numero: true, typeDossier: true, objet: true, description: true, juridiction: true, createdAt: true,
+      Email: { select: { createdAt: true, subject: true, body: true }, orderBy: { createdAt: 'desc' }, take: 10 },
+      Document: { select: { originalName: true, filename: true, category: true }, take: 20 },
+      LegalDeadline: { select: { title: true, type: true, dueDate: true } },
     },
   });
+  if (!dossier) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
 
-  if (!dossier) return NextResponse.json({ error: 'Dossier introuvable' }, { status: 404 });
-
-  const client = dossier.client as any;
-
-  // Construire le contexte pour l'IA
-  const emailsContext = (dossier.Email || [])
-    .map((e: any) => `[${new Date(e.createdAt).toLocaleDateString('fr-FR')}] De: ${e.from} | Objet: ${e.subject} | ${(e.body || '').slice(0, 300)}`)
-    .join('\n');
-
-  const documentsContext = (dossier.Document || [])
-    .map((d: any, i: number) => `Pièce ${i + 1}: ${d.originalName || d.filename} (${d.category || 'non classé'})`)
-    .join('\n');
-
-  const deadlinesContext = (dossier.LegalDeadline || [])
-    .map((dl: any) => `Échéance: ${dl.title || dl.type} — ${new Date(dl.dueDate).toLocaleDateString('fr-FR')}`)
-    .join('\n');
-
-  const prompt = `Tu es un assistant juridique expert. Analyse ce dossier et extrais les éléments pour un mémoire de recours.
-
-DOSSIER:
-- Numéro: ${dossier.numero}
-- Type: ${dossier.typeDossier}
-- Client: ${client?.firstName} ${client?.lastName}
-- Objet: ${dossier.objet || dossier.description || 'Non précisé'}
-- Juridiction: ${dossier.juridiction || 'Non précisée'}
-- Date ouverture: ${dossier.dateOuverture || dossier.createdAt}
-
-EMAILS DU DOSSIER:
-${emailsContext || 'Aucun email'}
-
-DOCUMENTS:
-${documentsContext || 'Aucun document'}
-
-ÉCHÉANCES:
-${deadlinesContext || 'Aucune'}
-
-Retourne UNIQUEMENT un JSON valide (pas de texte avant/après) avec cette structure:
-{
-  "adverseParty": "nom de la partie adverse",
-  "juridiction": "nom de la juridiction compétente",
-  "objet": "objet du recours en 1-2 phrases",
-  "dateDecision": "date de la décision attaquée si trouvée",
-  "dateNotification": "date de notification si trouvée",
-  "delaiLegal": "délai en toutes lettres",
-  "baseLegale": "articles de loi applicables",
-  "lieu": "ville du requérant",
-  "clientAddress": "adresse du client si trouvée",
-  "faits": [
-    {"titre": "titre du fait", "contenu": "description factuelle"}
-  ],
-  "moyens": [
-    {"titre": "titre du moyen juridique", "contenu": "argumentation"}
-  ],
-  "pointsContestes": [
-    {"titre": "point contesté", "citationDecision": "citation si disponible", "observations": ["observation 1", "observation 2"]}
-  ],
-  "pieces": [
-    {"numero": 1, "designation": "description de la pièce"}
-  ],
-  "demandes": ["demande 1", "demande 2"]
-}`;
+  const emails = dossier.Email.map(email =>
+    `[${email.createdAt.toLocaleDateString('fr-FR')}] Objet : ${email.subject || 'Sans objet'}\n${(email.body || '').slice(0, 300)}`
+  ).join('\n');
+  const documents = dossier.Document.map((document, index) =>
+    `Pièce ${index + 1} : ${document.originalName || document.filename} (${document.category || 'non classé'})`
+  ).join('\n');
+  const deadlines = dossier.LegalDeadline.map(deadline =>
+    `Échéance : ${deadline.title || deadline.type} — ${deadline.dueDate.toLocaleDateString('fr-FR')}`
+  ).join('\n');
 
   try {
-    const aiResult = await hybridAI.generateWithCostControl(prompt, tenantId);
-    const jsonMatch = aiResult.response.match(/\{[\s\S]*\}/);
+    const result = await hybridAI.generateWithCostControl(
+      `Tu es un assistant juridique. Analyse ce dossier et fournis une aide préparatoire pour un mémoire.
+N'inclus aucune adresse, coordonnée, identité de personne ni élément non vérifié.
 
-    if (jsonMatch) {
-      const analysis = JSON.parse(jsonMatch[0]);
-      return NextResponse.json({
-        ...analysis,
-        _provider: aiResult.provider,
-        _model: aiResult.model,
-        _latency: aiResult.latency,
-      });
-    }
+DOSSIER :
+- Numéro : ${dossier.numero}
+- Type : ${dossier.typeDossier}
+- Objet : ${dossier.objet || 'Non précisé'}
+- Juridiction : ${dossier.juridiction || 'Non précisée'}
+- Date d'ouverture : ${dossier.createdAt.toLocaleDateString('fr-FR')}
 
-    // Fallback : données minimales extraites sans IA
-    return NextResponse.json(buildFallbackAnalysis(dossier, client));
+EMAILS :
+${emails || 'Aucun email'}
+
+DOCUMENTS :
+${documents || 'Aucun document'}
+
+ÉCHÉANCES :
+${deadlines || 'Aucune'}
+
+Retourne uniquement ce JSON :
+{"adverseParty":"partie adverse ou null","juridiction":"juridiction ou null","objet":"objet","dateDecision":"date ou null","dateNotification":"date ou null","delaiLegal":"délai ou null","baseLegale":"textes ou null","faits":[{"titre":"titre","contenu":"contenu"}],"moyens":[{"titre":"titre","contenu":"contenu"}],"pointsContestes":[{"titre":"titre","citationDecision":"citation ou null","observations":["observation"]}],"pieces":[{"numero":1,"designation":"désignation"}],"demandes":["demande"]}`,
+      user.tenantId
+    );
+    const jsonMatch = result.response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Réponse IA non structurée');
+    const analysis = analysisSchema.safeParse(JSON.parse(jsonMatch[0]));
+    if (!analysis.success) throw new Error('Réponse IA invalide');
+    return NextResponse.json({ ...analysis.data, requiresHumanReview: true });
   } catch {
-    // Fallback complet si IA indisponible
-    return NextResponse.json(buildFallbackAnalysis(dossier, client));
+    return NextResponse.json(buildFallbackAnalysis(dossier));
   }
-}
+});
 
-function buildFallbackAnalysis(dossier: any, client: any) {
+function buildFallbackAnalysis(dossier: {
+  numero: string; typeDossier: string; objet: string | null; description: string | null;
+  juridiction: string | null; createdAt: Date;
+  Document: Array<{ originalName: string; filename: string }>;
+}) {
   return {
-    _fallback: true,
-    adverseParty: '[Partie adverse à compléter]',
-    juridiction: dossier.juridiction || 'Tribunal administratif',
+    _fallback: true, adverseParty: null, juridiction: dossier.juridiction || 'Tribunal administratif',
     objet: dossier.objet || dossier.description || `Recours — dossier ${dossier.numero}`,
-    dateDecision: '[Date à compléter]',
-    dateNotification: '[Date à compléter]',
-    delaiLegal: 'deux (2) mois',
-    baseLegale: '[Articles à compléter]',
-    lieu: client?.ville || 'Paris',
-    clientAddress: client?.address || '[Adresse à compléter]',
-    faits: [
-      { titre: 'Contexte', contenu: `Dossier ${dossier.typeDossier} ouvert le ${new Date(dossier.createdAt).toLocaleDateString('fr-FR')} pour ${client?.firstName || ''} ${client?.lastName || ''}.` },
-    ],
-    moyens: [
-      { titre: 'À compléter', contenu: 'L\'IA n\'était pas disponible. Rédigez les moyens manuellement.' },
-    ],
+    dateDecision: null, dateNotification: null, delaiLegal: null, baseLegale: null,
+    faits: [{ titre: 'Contexte', contenu: `Dossier ${dossier.typeDossier} ouvert le ${dossier.createdAt.toLocaleDateString('fr-FR')}.` }],
+    moyens: [{ titre: 'À compléter', contenu: 'L’analyse automatisée est indisponible. Rédigez les moyens après vérification.' }],
     pointsContestes: [],
-    pieces: (dossier.Document || []).map((d: any, i: number) => ({
-      numero: i + 1,
-      designation: d.originalName || d.filename,
-    })),
-    demandes: [
-      'Déclarer le recours recevable ;',
-      'Annuler la décision attaquée ;',
-    ],
+    pieces: dossier.Document.map((document, index) => ({ numero: index + 1, designation: document.originalName || document.filename })),
+    demandes: ['Déterminer les demandes après vérification du dossier.'],
+    requiresHumanReview: true,
   };
 }

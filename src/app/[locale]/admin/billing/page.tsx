@@ -1,10 +1,10 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 interface Plan {
@@ -41,7 +41,7 @@ interface QuotaStatus {
 }
 
 export default function BillingPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);

@@ -1,10 +1,10 @@
-﻿'use client';
+import { useAuth } from '@/hooks/useAuth';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import { 
   Mail, MessageSquare, Phone, Video, 
   Slack, Users, Linkedin, Twitter,
@@ -86,7 +86,7 @@ const urgencyColors: Record<string, string> = {
 };
 
 export default function MultiChannelDashboard() {
-  const { data: session } = useSession();
+  const { data: session, user } = useAuth();
   const [messages, setMessages] = useState<ChannelMessage[]>([]);
   const [stats, setStats] = useState<ChannelStats | null>(null);
   const [loading, setLoading] = useState(true);

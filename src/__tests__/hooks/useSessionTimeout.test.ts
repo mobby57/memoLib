@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Tests pour le hook useSessionTimeout
  * Couverture: timeout, warning, events
  */
@@ -6,9 +6,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-// Mock next-auth/react
+// Mock @/lib/auth/react
 const mockSignOut = vi.fn();
-vi.mock('next-auth/react', () => ({
+vi.mock('@/lib/auth/react', () => ({
   useSession: () => ({
     data: { user: { id: 'user-1' } },
     status: 'authenticated',

@@ -1,21 +1,21 @@
-﻿'use client';
+'use client';
 
 import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/components/NotificationProvider';
 import { logger } from '@/lib/logger';
 
 export function ActivityMonitor() {
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const { addNotification } = useNotifications();
 
   useEffect(() => {
-    if (!session?.user?.tenantId) return;
+    if (!user?.tenantId) return;
 
     const checkActivities = async () => {
       try {
         // Check for urgent deadlines
-        const response = await fetch(`/api/tenant/${session.user.tenantId}/suggestions`);
+        const response = await fetch(`/api/tenant/${user.tenantId}/suggestions`);
         if (response.ok) {
           const data = await response.json();
           
@@ -36,7 +36,7 @@ export function ActivityMonitor() {
           });
         }
       } catch (error) {
-        logger.error('Erreur verification activites', { error, tenantId: session?.user?.tenantId });
+        logger.error('Erreur verification activites', { error, tenantId: user?.tenantId });
       }
     };
 
@@ -45,7 +45,12 @@ export function ActivityMonitor() {
     const interval = setInterval(checkActivities, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [session?.user?.tenantId, addNotification]);
+  }, [user?.tenantId, addNotification]);
 
   return null; // This is a background component
 }
+
+
+
+
+

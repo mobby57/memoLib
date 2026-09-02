@@ -1,21 +1,35 @@
-﻿'use client';
+'use client';
 
-import { useSession } from 'next-auth/react';
-import { UserRole, UserPermissions } from '@/types';
+import { useOrganization, useUser } from '@clerk/nextjs';
+import { UserPermissions, UserRole } from '@/types';
+
+const defaultPermissions: UserPermissions = {
+  canManageTenants: false,
+  canManageClients: false,
+  canManageDossiers: false,
+  canViewOwnDossier: false,
+  canManageFactures: false,
+  canViewOwnFactures: false,
+  canAccessAnalytics: false,
+  canManageUsers: false,
+};
+
+type AppUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  tenantId?: string;
+  tenantName?: string;
+  tenantPlan?: string;
+  clientId?: string;
+  permissions: UserPermissions;
+};
 
 export interface UseAuthReturn {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: UserRole;
-    tenantId?: string;
-    tenantName?: string;
-    tenantPlan?: string;
-    clientId?: string;
-    permissions: UserPermissions;
-  } | null;
-  session: any;
+  user: AppUser | null;
+  session: { user: AppUser } | null;
+  data: { user: AppUser } | null;
   status: 'authenticated' | 'unauthenticated' | 'loading';
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -29,78 +43,75 @@ export interface UseAuthReturn {
   requireAuth: () => void;
 }
 
+function metadataString(metadata: Record<string, unknown>, key: string): string | undefined {
+  const value = metadata[key];
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function metadataPermissions(metadata: Record<string, unknown>): UserPermissions {
+  const value = metadata.permissions;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return defaultPermissions;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  return {
+    canManageTenants: candidate.canManageTenants === true,
+    canManageClients: candidate.canManageClients === true,
+    canManageDossiers: candidate.canManageDossiers === true,
+    canViewOwnDossier: candidate.canViewOwnDossier === true,
+    canManageFactures: candidate.canManageFactures === true,
+    canViewOwnFactures: candidate.canViewOwnFactures === true,
+    canAccessAnalytics: candidate.canAccessAnalytics === true,
+    canManageUsers: candidate.canManageUsers === true,
+  };
+}
+
 export function useAuth(): UseAuthReturn {
-  const { data: session, status } = useSession();
-  
-  const user = session?.user as any;
-  const isLoading = status === 'loading';
-  const isAuthenticated = status === 'authenticated' && !!user;
-  
+  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
+  const { organization } = useOrganization();
+  const metadata = (clerkUser?.publicMetadata ?? {}) as Record<string, unknown>;
+  const role = (metadataString(metadata, 'role') ?? 'CLIENT') as UserRole;
+  const permissions = metadataPermissions(metadata);
+  const user =
+    isSignedIn && clerkUser
+      ? {
+          id: clerkUser.id,
+          name: clerkUser.fullName ?? clerkUser.firstName ?? clerkUser.primaryEmailAddress?.emailAddress ?? '',
+          email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
+          role,
+          tenantId: organization?.id ?? metadataString(metadata, 'tenantId'),
+          tenantName: organization?.name ?? metadataString(metadata, 'tenantName'),
+          tenantPlan: metadataString(metadata, 'tenantPlan'),
+          clientId: metadataString(metadata, 'clientId'),
+          permissions,
+        }
+      : null;
+  const isLoading = !isLoaded;
+  const status = isLoading ? 'loading' : user ? 'authenticated' : 'unauthenticated';
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
   const isAdmin = user?.role === 'ADMIN';
   const isClient = user?.role === 'CLIENT';
-  
-  const hasRole = (role: UserRole): boolean => {
-    return user?.role === role;
-  };
-  
-  const hasPermission = (permission: keyof UserPermissions): boolean => {
-    if (!user?.permissions) return false;
-    return user.permissions[permission] === true;
-  };
-  
-  const canAccessTenant = (tenantId: string): boolean => {
-    if (isSuperAdmin) return true;
-    if (isAdmin) return user?.tenantId === tenantId;
-    return false;
-  };
-  
-  const canAccessClient = (clientId: string): boolean => {
-    if (isSuperAdmin) return true;
-    if (isAdmin) {
-      // L'admin peut acceder aux clients de son tenant
-      // Cette verification devrait etre faite cote serveur
-      return true;
-    }
-    if (isClient) return user?.clientId === clientId;
-    return false;
-  };
-  
+
+  const session = user ? { user } : null;
+
   return {
-    user: isAuthenticated ? {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      tenantId: user.tenantId,
-      tenantName: user.tenantName,
-      tenantPlan: user.tenantPlan,
-      clientId: user.clientId,
-      permissions: user.permissions || {
-        canManageTenants: false,
-        canManageClients: false,
-        canManageDossiers: false,
-        canViewOwnDossier: false,
-        canManageFactures: false,
-        canViewOwnFactures: false,
-        canAccessAnalytics: false,
-        canManageUsers: false,
-      },
-    } : null,
+    user,
     session,
+    data: session,
     status,
     isLoading,
-    isAuthenticated,
+    isAuthenticated: user !== null,
     isSuperAdmin,
     isAdmin,
     isClient,
-    hasRole,
-    hasPermission,
-    canAccessTenant,
-    canAccessClient,
+    hasRole: expectedRole => user?.role === expectedRole,
+    hasPermission: permission => user?.permissions[permission] === true,
+    canAccessTenant: tenantId => isSuperAdmin || (isAdmin && user?.tenantId === tenantId),
+    canAccessClient: clientId => isSuperAdmin || isAdmin || (isClient && user?.clientId === clientId),
     requireAuth: () => {
-      if (!isAuthenticated) {
-        window.location.href = '/auth/login';
+      if (!isSignedIn) {
+        window.location.assign('/fr/sign-in');
       }
     },
   };

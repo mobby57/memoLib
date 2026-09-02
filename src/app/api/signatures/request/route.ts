@@ -1,14 +1,15 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 /**
  * POST /api/signatures/request
  * Envoie une demande de signature electronique (Yousign ou fallback).
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { documentId, signerEmail, signerName, documentName } = await req.json();
 
@@ -52,3 +53,5 @@ export async function POST(req: NextRequest) {
     note: 'Configurez YOUSIGN_API_KEY pour les signatures reelles',
   });
 }
+
+

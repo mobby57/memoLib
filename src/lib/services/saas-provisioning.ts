@@ -217,8 +217,8 @@ export async function saasSignup(input: SaasSignupInput): Promise<SaasSignupResu
         customerId: stripeCustomer.id,
         priceId,
         tenantId: result.tenant.id,
-        successUrl: `${process.env.NEXTAUTH_URL}/fr/dashboard?welcome=true&plan=${plan}`,
-        cancelUrl: `${process.env.NEXTAUTH_URL}/fr/pricing?cancelled=true`,
+        successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fr/dashboard?welcome=true&plan=${plan}`,
+        cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fr/pricing?cancelled=true`,
         trialDays: planConfig.trialDays,
       });
       stripeCheckoutUrl = session.url || null;
@@ -235,7 +235,7 @@ export async function saasSignup(input: SaasSignupInput): Promise<SaasSignupResu
       firstName,
       cabinetName,
       plan,
-      dashboardUrl: `${process.env.NEXTAUTH_URL}/fr/dashboard`,
+      dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fr/dashboard`,
     });
   } catch (error) {
     logger.warn('Welcome email failed', { error, email });
@@ -253,7 +253,7 @@ export async function saasSignup(input: SaasSignupInput): Promise<SaasSignupResu
     userId: result.user.id,
     tenantId: result.tenant.id,
     stripeCheckoutUrl,
-    dashboardUrl: `${process.env.NEXTAUTH_URL}/fr/dashboard`,
+    dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fr/dashboard`,
     message: stripeCheckoutUrl
       ? 'Compte créé ! Finalisez votre inscription via le paiement.'
       : 'Compte créé ! Votre essai gratuit de 14 jours commence maintenant.',

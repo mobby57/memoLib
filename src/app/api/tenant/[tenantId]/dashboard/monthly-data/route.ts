@@ -1,16 +1,16 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { tenantId: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const { user } = await auth();
+    const session = user ? { user } : null;
   
-  if (!session?.user || (session.user as any).tenantId !== params.tenantId) {
+  if (!user || (user as any).tenantId !== params.tenantId) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
 

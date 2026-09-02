@@ -1,7 +1,10 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { Packer } from 'docx';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import {
   generateMemoireRecours,
@@ -18,12 +21,12 @@ import {
 } from '@/lib/documents/docx-generator';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const user = session.user as any;
   const tenantId = user.tenantId;
 
   let body: any;
@@ -55,7 +58,7 @@ export async function POST(req: NextRequest) {
   if (dossierId && tenantId) {
     dossierData = await prisma.dossier.findFirst({
       where: { id: dossierId, tenantId },
-      include: { client: true },
+      include: { Client: true },
     });
   }
 
@@ -64,7 +67,7 @@ export async function POST(req: NextRequest) {
     lieu: 'Luxembourg',
     avocat: user.name || 'Maître',
     numeroDossier: dossierData?.numero || '',
-    ...(dossierData?.client ? { requerantNom: (dossierData.client as any).nom || '' } : {}),
+    ...(dossierData?.Client ? { requerantNom: `${dossierData.Client.firstName} ${dossierData.Client.lastName}` } : {}),
     ...variables,
   };
 
@@ -119,3 +122,7 @@ export async function GET() {
     })),
   });
 }
+
+
+
+

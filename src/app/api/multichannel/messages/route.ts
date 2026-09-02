@@ -1,14 +1,13 @@
+import { auth } from '@/lib/clerk-auth';
 /**
  * API Messages Multi-Canal
  * Récupération et gestion des messages de tous les canaux
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { auditService } from '@/lib/multichannel/audit-service';
 import { multiChannelService } from '@/lib/multichannel/channel-service';
 import { ChannelType } from '@/lib/multichannel/types';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -17,12 +16,11 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    if (!user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const user = session.user as any;
     const tenantId = user.tenantId;
 
     if (!tenantId && user.role !== 'SUPER_ADMIN') {
@@ -45,7 +43,7 @@ export async function GET(request: NextRequest) {
       limit: parseInt(url.searchParams.get('limit') || '50'),
     };
 
-    const result = await multiChannelService.getMessages(tenantId, options);
+    const result = await multiChannelService.getMessages(tenantId ?? '', options);
 
     return NextResponse.json({
       success: true,
@@ -68,12 +66,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { user } = await auth();
+    if (!user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const user = session.user as any;
     const body = await request.json();
 
     const { channel, recipient, subject, message: messageBody, clientId, dossierId } = body;
@@ -136,3 +133,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+
+
+

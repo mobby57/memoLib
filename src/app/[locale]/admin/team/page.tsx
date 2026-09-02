@@ -1,8 +1,8 @@
+import { useAuth } from '@/hooks/useAuth';
 'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -32,7 +32,7 @@ function getRoleInfo(role: string) {
 }
 
 export default function TeamPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
 
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -139,6 +139,14 @@ export default function TeamPage() {
             >
               {showInvite ? '✕ Fermer' : '+ Inviter un membre'}
             </button>
+          </div>
+          <div className="mt-4">
+            <Link
+              href="/admin/equipes"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1"
+            >
+              🧑‍🤝‍🧑 Gérer les équipes (groupes de collaborateurs)
+            </Link>
           </div>
         </div>
       </header>

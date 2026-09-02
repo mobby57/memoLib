@@ -1,6 +1,9 @@
-﻿import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 const startTime = Date.now();
@@ -8,12 +11,13 @@ const DEMO_MODE = process.env.DEMO_MODE === '1' || process.env.DEMO_MODE === 'tr
 const AI_HEALTH_STRICT = process.env.AI_HEALTH_STRICT !== 'false';
 
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }
 
-  const role = String((session.user as any).role || '').toUpperCase();
+  const role = String((user as any).role || '').toUpperCase();
   const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
   if (!allowedRoles.has(role)) {
     return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
@@ -125,3 +129,7 @@ function formatUptime(ms: number): string {
   if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
   return `${seconds}s`;
 }
+
+
+
+
