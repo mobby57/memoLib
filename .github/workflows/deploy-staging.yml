@@ -1,0 +1,31 @@
+name: Deploy to Staging (Docker Compose)
+
+on:
+  push:
+    branches: [ "staging" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and start with Docker Compose
+        run: |
+          docker compose -f docker-compose.staging.yml up -d --build
+
+      - name: Wait for container
+        run: sleep 10
+
+      - name: Install Python for smoke tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install -r requirements.txt || true
+
+      - name: Run Smoke Tests
+        run: python3 scripts/smoke_test.py
+        env:
+          STAGING_URL: "http://localhost:8080"

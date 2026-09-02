@@ -1,0 +1,21 @@
+groups:
+  - name: staging_alerts
+    interval: 30s
+    rules:
+      - alert: StagingDown
+        expr: up{job="staging-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🚨 L'application Staging est DOWN"
+          description: "Le pod est inaccessible depuis plus d'1 minute."
+
+      - alert: HighErrorRateStaging
+        expr: rate(http_requests_total{status=~"5..", env="staging"}[2m]) > 0.10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "⚠️ Taux d'erreur 5xx élevé sur Staging"
+          description: "Plus de 10% d'erreurs en 2 minutes."

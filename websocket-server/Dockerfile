@@ -1,11 +1,7 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
-
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
 COPY server.js .
 EXPOSE 8080
 CMD ["npm", "start"]
