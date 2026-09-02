@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { auth } from '@/lib/clerk-auth';
 /**
  * API Suggestions Intelligentes - IA Proactive
@@ -261,7 +262,8 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
       totalSuggestions: suggestions.length,
     });
   } catch (error) {
-    logger.error('Erreur suggestions:', { error });
+    const errorMessage = error instanceof Error ? error.message : String(error);`n  logger.error(`Erreur suggestions: ${errorMessage}`, { error });
+  Sentry.captureException(error);;
     return NextResponse.json(
       { error: 'Erreur lors de la génération des suggestions' },
       { status: 500 }
