@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "scheduler": "node scripts/railway-scheduler.mjs",
+    "scheduler:run-now": "node scripts/railway-scheduler.mjs --run-now",
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev --webpack",
     "dev:turbo": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev --turbo",
     "dev:legacy": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev",
