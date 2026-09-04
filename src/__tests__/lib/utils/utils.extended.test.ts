@@ -47,7 +47,7 @@ describe('Utils Module - Extended', () => {
   describe('formatDate function', () => {
     beforeEach(() => {
       vi.useFakeTimers();
-      jest.setSystemTime(new Date('2026-01-15T12:00:00Z'));
+      vi.setSystemTime(new Date('2026-01-15T12:00:00Z'));
     });
 
     afterEach(() => {

@@ -1,13 +1,8 @@
-﻿/**
- * Tests unitaires pour DossierService
- * Service métier central pour la gestion des dossiers
- */
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock le singleton @/lib/prisma directement
-vi.mock('@/lib/prisma', () => {
-  const mockPrisma = {
+const { mockPrisma } = vi.hoisted(() => ({
+  mockPrisma: {
     dossier: {
       count: vi.fn(),
       create: vi.fn(),
@@ -20,24 +15,18 @@ vi.mock('@/lib/prisma', () => {
     client: {
       findFirst: vi.fn(),
     },
+    aIDecision: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+    },
     $disconnect: vi.fn(),
-  };
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
-  return { prisma: mockPrisma, default: mockPrisma };
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
-});
+  },
+}));
+
+vi.mock('@/lib/prisma', () => ({ prisma: mockPrisma, default: mockPrisma }));
 
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
@@ -56,8 +45,6 @@ describe('DossierService', () => {
       const tenantId = 'tenant-123';
       
       // Mock du count
-      const { PrismaClient } = require('@prisma/client');
-      const mockPrisma = new PrismaClient();
       mockPrisma.dossier.count.mockResolvedValue(5);
       
       const numero = await DossierService.generateNumeroDossier(tenantId);
@@ -69,9 +56,6 @@ describe('DossierService', () => {
 
     it('incrémente le compteur pour chaque nouveau dossier', async () => {
       const tenantId = 'tenant-123';
-      
-      const { PrismaClient } = require('@prisma/client');
-      const mockPrisma = new PrismaClient();
       
       // Premier appel
       mockPrisma.dossier.count.mockResolvedValueOnce(0);
@@ -97,8 +81,6 @@ describe('DossierService', () => {
     };
 
     it('crée un dossier avec toutes les données requises', async () => {
-      const { PrismaClient } = require('@prisma/client');
-      const mockPrisma = new PrismaClient();
       
       // Mock client existant
       mockPrisma.client.findFirst.mockResolvedValue({
@@ -141,8 +123,6 @@ describe('DossierService', () => {
     });
 
     it('rejette si le client n\'appartient pas au tenant', async () => {
-      const { PrismaClient } = require('@prisma/client');
-      const mockPrisma = new PrismaClient();
       
       // Client non trouvé
       mockPrisma.client.findFirst.mockResolvedValue(null);
@@ -153,8 +133,6 @@ describe('DossierService', () => {
     });
 
     it('génère automatiquement un numéro de dossier', async () => {
-      const { PrismaClient } = require('@prisma/client');
-      const mockPrisma = new PrismaClient();
       
       mockPrisma.client.findFirst.mockResolvedValue({
         id: 'client-123',
@@ -191,8 +169,6 @@ describe('DossierService', () => {
     };
 
     it('crée une demande client avec priorité haute si urgente', async () => {
-      const { PrismaClient } = require('@prisma/client');
-      const mockPrisma = new PrismaClient();
       
       mockPrisma.dossier.count.mockResolvedValue(0);
       mockPrisma.dossier.create.mockResolvedValue({
@@ -212,8 +188,6 @@ describe('DossierService', () => {
     });
 
     it('crée une demande client avec priorité normale si non urgente', async () => {
-      const { PrismaClient } = require('@prisma/client');
-      const mockPrisma = new PrismaClient();
       
       const nonUrgentData = { ...mockDemandeData, urgence: false };
       

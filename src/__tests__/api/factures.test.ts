@@ -3,42 +3,43 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const mockPrisma = {
-  client: { findFirst: vi.fn() },
-  dossier: { findFirst: vi.fn() },
-  user: { findFirst: vi.fn() },
-  facture: {
-    findMany: vi.fn(),
-    groupBy: vi.fn(),
-    findFirst: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
+const { mockPrisma, mockAuth } = vi.hoisted(() => ({
+  mockPrisma: {
+    client: { findFirst: vi.fn() },
+    dossier: { findFirst: vi.fn() },
+    user: { findFirst: vi.fn() },
+    facture: {
+      findMany: vi.fn(),
+      groupBy: vi.fn(),
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    $transaction: vi.fn(),
   },
-  $transaction: vi.fn(),
-};
+  mockAuth: vi.fn(),
+}));
 
-vi.mock('@/lib/auth', () => ({
-  __esModule: true,
-  default: vi.fn(() => vi.fn()),
-  getServerSession: vi.fn(),
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: mockAuth,
 }));
 
 vi.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: mockPrisma,
+  prisma: mockPrisma,
 }));
 
 vi.mock('@/lib/notifications', () => ({
   NotificationService: { factureCreated: vi.fn() },
 }));
 
-const { GET, POST } = require('@/app/api/factures/route') as typeof import('@/app/api/factures/route');
+import { GET, POST } from '@/app/api/factures/route';
 
 describe('/api/factures', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getServerSession } = jest.requireMock('@/lib/auth') as { getServerSession: vi.Mock };
-    getServerSession.mockResolvedValue({
+    mockAuth.mockResolvedValue({
       user: { id: 'user-1', tenantId: 'tenant-a', role: 'LAWYER' },
     });
   });

@@ -95,7 +95,7 @@ describe('Error Utils', () => {
         .mockResolvedValue('success');
       
       const promise = retry(fn, 3, 100);
-      await jest.runAllTimersAsync();
+      await vi.runAllTimersAsync();
       
       const result = await promise;
       expect(result).toBe('success');
@@ -110,7 +110,7 @@ describe('Error Utils', () => {
       const fn = vi.fn().mockRejectedValue(new Error('always fail'));
       
       const promise = retry(fn, 3, 10);
-      await jest.runAllTimersAsync();
+      await vi.runAllTimersAsync();
       
       await expect(promise).rejects.toThrow('always fail');
       expect(fn).toHaveBeenCalledTimes(3);

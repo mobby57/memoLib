@@ -5,22 +5,19 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-vi.mock('@prisma/client', () => {
-  const auditLog = {
+const { mockAuditLog } = vi.hoisted(() => ({
+  mockAuditLog: {
     findFirst: vi.fn(),
     create: vi.fn(),
     findMany: vi.fn(),
-  };
-  (globalThis as Record<string, unknown>).__auditLogMock = auditLog;
+  },
+}));
 
-  class MockPrismaClient {
-    auditLog = auditLog;
-  }
-
-  return {
-    PrismaClient: MockPrismaClient,
-  };
-});
+vi.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  default: { auditLog: mockAuditLog },
+  prisma: { auditLog: mockAuditLog },
+}));
 
 vi.mock('@sentry/nextjs', () => ({
   captureMessage: vi.fn(),
@@ -33,12 +30,6 @@ import {
   verifyAuditChainIntegrity,
   auditMiddleware,
 } from '@/lib/security/audit-trail';
-
-const mockAuditLog = (globalThis as Record<string, unknown>).__auditLogMock as {
-  findFirst: vi.Mock;
-  create: vi.Mock;
-  findMany: vi.Mock;
-};
 
 const baseData = {
   userId: 'user-1',

@@ -1,19 +1,12 @@
-import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-﻿/**
+/**
  * Tests unitaires pour l'API /api/dossiers
  * Endpoints de gestion des dossiers
+ *
+ * NB: tests de logique isolés (rôles, filtres tenant, pagination), sans import
+ * des routes. Seul le mock Prisma est nécessaire.
  */
-
-// Mock NextAuth
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(),
-}));
 
 // Mock Prisma
 const mockPrisma = {
@@ -34,13 +27,7 @@ const mockPrisma = {
 
 vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
+  default: mockPrisma,
 }));
 
 describe('API /api/dossiers', () => {
@@ -50,12 +37,9 @@ describe('API /api/dossiers', () => {
 
   describe('GET /api/dossiers', () => {
     it('retourne 401 si non authentifié', async () => {
-      const { getServerSession } = require('@/lib/auth');
-      getServerSession.mockResolvedValue(null);
-
-      // Simulation de la logique de la route
-      const { user } = await auth();
-    const session = user ? { user } : null;
+      // Simulation de la logique de la route : pas d'utilisateur => non authentifié.
+      const user = null;
+      const session = user ? { user } : null;
       const isAuthenticated = !!session;
 
       expect(isAuthenticated).toBe(false);
@@ -157,7 +141,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { tenantId: 'tenant_A' } };
       const dossier = { id: 'dos_123', tenantId: 'tenant_B' };
 
-      const hasAccess = dossier.tenantId === user.tenantId;
+      const hasAccess = dossier.tenantId === session.user.tenantId;
 
       expect(hasAccess).toBe(false);
     });
@@ -221,7 +205,7 @@ describe('API /api/dossiers', () => {
       const client = await mockPrisma.client.findFirst({
         where: {
           id: 'cli_123',
-          tenantId: user.tenantId,
+          tenantId: session.user.tenantId,
         },
       });
 
@@ -288,7 +272,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { role: 'CLIENT' } };
 
       const canDelete = ['ADMIN', 'AVOCAT', 'SUPER_ADMIN'].includes(
-        user.role
+        session.user.role
       );
 
       expect(canDelete).toBe(false);
@@ -298,7 +282,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { role: 'ADMIN' } };
 
       const canDelete = ['ADMIN', 'AVOCAT', 'SUPER_ADMIN'].includes(
-        user.role
+        session.user.role
       );
 
       expect(canDelete).toBe(true);
