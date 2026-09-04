@@ -14,17 +14,24 @@ const { mockPrisma } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@prisma/client', () => ({
-  PrismaClient: class { 
-    client = mockPrisma.client;
-    dossier = mockPrisma.dossier;
-    emailAttachment = mockPrisma.emailAttachment;
-    legalDeadline = mockPrisma.legalDeadline;
-    inboxScore = mockPrisma.inboxScore;
-    email = mockPrisma.email;
+vi.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  prisma: {
+    client: mockPrisma.client,
+    dossier: mockPrisma.dossier,
+    emailAttachment: mockPrisma.emailAttachment,
+    legalDeadline: mockPrisma.legalDeadline,
+    inboxScore: mockPrisma.inboxScore,
+    email: mockPrisma.email,
   },
-  Email: {},
-  Client: {},
+  default: {
+    client: mockPrisma.client,
+    dossier: mockPrisma.dossier,
+    emailAttachment: mockPrisma.emailAttachment,
+    legalDeadline: mockPrisma.legalDeadline,
+    inboxScore: mockPrisma.inboxScore,
+    email: mockPrisma.email,
+  },
 }));
 
 vi.mock('@/lib/services/event-log.service', () => ({

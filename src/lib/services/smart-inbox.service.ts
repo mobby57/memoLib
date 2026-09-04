@@ -19,6 +19,7 @@
  */
 
 import { PrismaClient, Email, Client } from '@prisma/client';
+import { prisma as sharedPrisma } from '@/lib/prisma';
 import { eventLogService } from './event-log.service';
 
 export type ScoringFactors = {
@@ -38,7 +39,7 @@ export type InboxScoreResult = {
 };
 
 export class SmartInboxService {
-  constructor(private prisma: PrismaClient = new PrismaClient()) {}
+  constructor(private prisma: PrismaClient = sharedPrisma as unknown as PrismaClient) {}
 
   /**
    * Calcule le score de priorité pour un email
