@@ -13,9 +13,20 @@ import { config } from 'dotenv';
 
 config({ path: '.env' });
 
-const prisma = new PrismaClient({
-  datasources: { db: { url: process.env.DATABASE_URL } },
-});
+// Prisma 7 n'accepte plus l'option `datasources` et exige un driver adapter pour
+// se connecter. Ce test d'intégration s'exécute uniquement si une vraie base est
+// disponible ; sinon chaque test est court-circuité via `dbAvailable`.
+let prisma: PrismaClient;
+try {
+  prisma = new PrismaClient();
+} catch {
+  prisma = {
+    $connect: async () => {
+      throw new Error('PrismaClient unavailable');
+    },
+    $disconnect: async () => {},
+  } as unknown as PrismaClient;
+}
 
 let dbAvailable = false;
 

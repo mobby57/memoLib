@@ -13,8 +13,8 @@ let mockSessionUser: Record<string, unknown> = {
   email: 'user@test.com',
 };
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(async () => ({ user: mockSessionUser })),
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => ({ user: mockSessionUser })),
 }));
 
 vi.mock('@/app/api/auth/[...nextauth]/route', () => ({

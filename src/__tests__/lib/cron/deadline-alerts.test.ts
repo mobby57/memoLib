@@ -1,22 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-﻿const mockPrisma = {
-  legalDeadline: {
-    findMany: vi.fn(),
-    update: vi.fn(),
-  },
-  deadlineAlert: {
-    findFirst: vi.fn(),
-    create: vi.fn(),
-  },
-  notification: {
-    findFirst: vi.fn(),
-    create: vi.fn(),
-  },
-};
-
-vi.mock('@/lib/prisma', () => ({
-  prisma: mockPrisma,
+const { mockPrisma } = vi.hoisted(() => ({
+  mockPrisma: {
+    legalDeadline: {
+      findMany: vi.fn(),
+      update: vi.fn(),
+    },
+    deadlineAlert: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+    },
+    notification: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+    },
     aIDecision: {
       create: vi.fn(),
       findMany: vi.fn(),
@@ -24,9 +21,15 @@ vi.mock('@/lib/prisma', () => ({
       update: vi.fn(),
       deleteMany: vi.fn(),
     },
+  },
 }));
 
-const { checkDeadlineAlerts } = require('@/lib/cron/deadline-alerts') as typeof import('@/lib/cron/deadline-alerts');
+vi.mock('@/lib/prisma', () => ({
+  prisma: mockPrisma,
+  default: mockPrisma,
+}));
+
+import { checkDeadlineAlerts } from '@/lib/cron/deadline-alerts';
 
 describe('Deadline Alerts Cron', () => {
   beforeEach(() => {

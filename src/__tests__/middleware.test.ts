@@ -6,10 +6,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock @/lib/auth/jwt
-vi.mock('@/lib/auth/jwt', () => ({
-  getToken: vi.fn(),
-}));
+// Le middleware réel utilise Clerk ; ces tests couvrent uniquement la logique
+// de décision (routes publiques, RBAC, headers). On modélise `getToken` par un
+// simple mock local (le module '@/lib/auth/jwt' n'existe plus après migration Clerk).
+const getToken = vi.fn();
 
 describe('Middleware Global', () => {
   const createMockRequest = (

@@ -1,20 +1,17 @@
-import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Tests pour src/app/api/audit-logs/route.ts
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock @/lib/auth
+// Le route importe `auth` depuis '@/lib/clerk-auth' et fait `const { user } = await auth()`.
+// On conserve les corps de tests existants (mockGetServerSession renvoie { user } | null)
+// en adaptant auth() pour toujours retourner un objet destructurable.
 const mockGetServerSession = vi.fn();
-vi.mock('@/lib/auth', () => ({
-  getServerSession: (...args: any[]) => mockauth(),
-}));
-
-// Mock authOptions
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => {
+    const session = await mockGetServerSession();
+    return session ?? { user: null };
+  }),
 }));
 
 // Mock prisma
@@ -33,13 +30,6 @@ vi.mock('@/lib/prisma', () => ({
       findFirst: vi.fn(),
       count: vi.fn(),
       create: vi.fn(),
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
     },
   },
 }));

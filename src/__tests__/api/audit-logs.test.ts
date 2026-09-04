@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH, DELETE } from '@/app/api/audit-logs/route';
 import prisma from '@/lib/prisma';
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(async () => ({
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => ({
     user: {
       id: 'user-123',
       role: 'ADMIN',

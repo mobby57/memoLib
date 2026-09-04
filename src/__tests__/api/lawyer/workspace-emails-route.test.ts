@@ -13,23 +13,16 @@ const mockPrisma = {
   },
 };
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: mockGetServerSession,
-}));
-
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => {
+    const session = await mockGetServerSession();
+    return session ?? { user: null };
+  }),
 }));
 
 vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
-    aIDecision: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
+  default: mockPrisma,
 }));
 
 vi.mock('@/lib/logger', () => ({

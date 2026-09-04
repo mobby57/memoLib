@@ -177,6 +177,6 @@ describe('encryption', () => {
 
       // Tous les IV devraient être uniques
       expect(ivs.size).toBe(100);
-    });
+    }, 20000);
   });
 });

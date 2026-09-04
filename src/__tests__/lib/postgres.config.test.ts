@@ -71,8 +71,9 @@ describe('PostgreSQL Config - Pure Unit Tests', () => {
     it('should create SSL config', () => {
       const createSSLConfig = (mode: string) => {
         if (mode === 'disable') return false;
+        // 'require' et 'verify-full' valident le certificat serveur (sécurisé par défaut).
         return {
-          rejectUnauthorized: mode === 'verify-full',
+          rejectUnauthorized: mode === 'require' || mode === 'verify-full',
         };
       };
 
