@@ -1,6 +1,6 @@
 /**
  * Tests unitaires pour le rate limiter
- * @jest-environment node
+ * @vi-environment node
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';

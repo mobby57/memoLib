@@ -1,6 +1,6 @@
 /**
  * Tests unitaires - Smart Cache
- * @jest-environment node
+ * @vi-environment node
  */
 
 vi.mock('@/lib/cache/redis', () => ({

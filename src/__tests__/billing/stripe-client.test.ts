@@ -1,6 +1,6 @@
 /**
  * Tests unitaires pour le client Stripe
- * @jest-environment node
+ * @vi-environment node
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

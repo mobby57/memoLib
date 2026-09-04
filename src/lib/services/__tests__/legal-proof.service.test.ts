@@ -1,9 +1,9 @@
 /**
  * Tests unitaires - Service Legal Proof
- * @jest-environment node
+ * @vi-environment node
  */
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     aIDecision: {
       create: vi.fn(),
@@ -12,16 +12,16 @@ jest.mock('@/lib/prisma', () => ({
       update: vi.fn(),
       deleteMany: vi.fn(),
     },
-    legalProof: { create: jest.fn(), findUnique: jest.fn() },
-    tenant: { findUnique: jest.fn() },
+    legalProof: { create: vi.fn(), findUnique: vi.fn() },
+    tenant: { findUnique: vi.fn() },
   },
 }));
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('Legal Proof Service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Proof Creation & Management', () => {

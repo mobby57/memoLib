@@ -1,6 +1,6 @@
 /**
  * Tests unitaires pour le système d'alertes de coûts
- * @jest-environment node
+ * @vi-environment node
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,7 +24,7 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-// NOTE: Mocks are pre-configured in jest.setup.js for Redis/Cache
+// NOTE: Mocks are pre-configured in vi.setup.js for Redis/Cache
 import { checkAllTenantsForAlerts } from '@/lib/billing/cost-alerts';
 
 describe('cost-alerts', () => {

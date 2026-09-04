@@ -1,7 +1,7 @@
 /**
  * Test E2E — Droit à l'oubli RGPD (Article 17)
  * Flux complet : requestDeletion → checkLegalRetention → executeDeletion → runRightToErasureE2E
- * @jest-environment node
+ * @vi-environment node
  */
 
 vi.mock('@/lib/prisma', () => {

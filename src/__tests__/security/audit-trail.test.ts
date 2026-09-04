@@ -416,7 +416,7 @@ describe('auditMiddleware', () => {
       url: '/api/clients/1',
       params: { id: 'client-1' },
       query: {},
-      headers: { 'x-forwarded-for': '127.0.0.1', 'user-agent': 'jest' },
+      headers: { 'x-forwarded-for': '127.0.0.1', 'user-agent': 'vi' },
       socket: { remoteAddress: '127.0.0.1' },
     };
     const session = { user: { id: 'user-1', tenantId: 'tenant-1' } };

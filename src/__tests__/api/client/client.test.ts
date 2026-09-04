@@ -1,3 +1,4 @@
+import { getServerSession } from "next-auth";
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 ﻿/**
@@ -53,7 +54,6 @@ describe('API /api/client', () => {
 
   describe('Authentication', () => {
     it('rejette les requêtes non authentifiées', async () => {
-      const { getServerSession } = require('next-auth');
       getServerSession.mockResolvedValue(null);
 
       const session = await getServerSession();

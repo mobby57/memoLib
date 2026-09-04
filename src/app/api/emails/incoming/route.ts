@@ -15,7 +15,7 @@ import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { filterRuleService } from '@/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { type Prisma } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { PrismaClientKnownRequestError } from '@prisma/client';
 import { IncomingEmailPayloadSchema, normalizeIncomingEmailPayload } from '@/lib/email/ingestion';
 import { extractDraft } from '@/lib/adapters/email.adapter';
 import { recordEmailIngestion } from '@/lib/email/ingestion-metrics';

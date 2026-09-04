@@ -115,7 +115,7 @@ describe('Suggestion Service', () => {
 
     it('devrait calculer les jours sans mise à jour', () => {
       vi.useFakeTimers();
-      jest.setSystemTime(new Date('2026-04-06T12:00:00.000Z'));
+      vi.setSystemTime(new Date('2026-04-06T12:00:00.000Z'));
 
       const tenDaysAgo = new Date();
       tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);

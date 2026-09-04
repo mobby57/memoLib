@@ -1,7 +1,7 @@
 /**
  * Tests API — Webhook Stripe
  * Vérifie le fix tenant.owner → tenant.users admin
- * @jest-environment node
+ * @vi-environment node
  */
 
 vi.mock('@/lib/billing/stripe-client', () => ({

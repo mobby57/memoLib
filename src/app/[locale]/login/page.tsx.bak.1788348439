@@ -1,0 +1,8 @@
+export default async function LoginRedirect({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect(`/${locale}/auth/login`);
+}

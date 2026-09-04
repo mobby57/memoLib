@@ -1,6 +1,6 @@
 /**
  * Tests unitaires - Information Unit Service
- * @jest-environment node
+ * @vi-environment node
  */
 
 vi.mock('@/lib/prisma', () => ({

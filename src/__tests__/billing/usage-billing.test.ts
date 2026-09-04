@@ -1,7 +1,7 @@
 /**
  * Tests unitaires — usage-billing.ts
  * Vérifie que recordUsage écrit en base et calcule les coûts correctement
- * @jest-environment node
+ * @vi-environment node
  */
 
 const mockCreate = vi.fn();

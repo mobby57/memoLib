@@ -1,9 +1,10 @@
-﻿import { redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
-export default function LoginRedirect({
+export default async function LoginRedirect({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  redirect(`/${params.locale}/auth/login`);
+  const { locale } = await params;
+  redirect(`/${locale}/auth/login`);
 }

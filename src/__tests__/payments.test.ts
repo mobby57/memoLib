@@ -1,6 +1,6 @@
 /**
  * Tests unitaires - Payment Processing
- * @jest-environment node
+ * @vi-environment node
  */
 
 vi.mock('@/lib/prisma', () => ({

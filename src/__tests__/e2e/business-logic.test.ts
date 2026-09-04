@@ -20,7 +20,7 @@ describe(' LOGIQUES MÉTIER - memoLib', () => {
   describe('🏢 Scenario 1: Gestion Multi-Tenant', () => {
     
     it.skip('1.1 API Health Check accessible (requires running server)', async () => {
-      const response = await fetch('https://memolib.fly.dev/api/health');
+      const response = await fetch('http://localhost:3000/api/health');
       expect(response.status).toBe(200);
     });
 
@@ -47,7 +47,7 @@ describe(' LOGIQUES MÉTIER - memoLib', () => {
   describe(' Scenario 2: Authentification', () => {
     
     it.skip('2.1 Auth Providers disponibles (requires running server)', async () => {
-      const response = await fetch('https://memolib.fly.dev/api/auth/providers');
+      const response = await fetch('http://localhost:3000/api/auth/providers');
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.credentials).toBeDefined();
@@ -64,7 +64,7 @@ describe(' LOGIQUES MÉTIER - memoLib', () => {
     });
 
     it.skip('2.3 Routes API protegees (requires running server)', async () => {
-      const response = await fetch('https://memolib.fly.dev/api/admin/dossiers');
+      const response = await fetch('http://localhost:3000/api/admin/dossiers');
       expect([401, 403]).toContain(response.status);
     });
   });
@@ -376,7 +376,7 @@ describe(' LOGIQUES MÉTIER - memoLib', () => {
 // Ces tests nécessitent un serveur actif et sont skippés par défaut
 // ============================================
 describe.skip('🌐 Tests API Production (requires running server)', () => {
-  const BASE_URL = 'https://memolib.fly.dev';
+  const BASE_URL = 'http://localhost:3000';
 
   it('API Health Check', async () => {
     const response = await fetch(`${BASE_URL}/api/health`);

@@ -1,5 +1,5 @@
 
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jest/globals';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const hasRealDb =
@@ -26,33 +26,33 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
     process.env.USE_REAL_DB_FOR_TESTS = '1';
     process.env.INCOMING_EMAIL_WEBHOOK_SECRET = webhookSecret;
 
-    jest.resetModules();
+    vi.resetModules();
 
-    jest.doMock('@/lib/workflows/email-intelligence', () => ({
-      analyzeEmail: jest.fn(async () => ({
+    vi.doMock('@/lib/workflows/email-intelligence', () => ({
+      analyzeEmail: vi.fn(async () => ({
         category: 'document-request',
         urgency: 'high',
         sentiment: 'neutral',
       })),
     }));
 
-    jest.doMock('@/frontend/lib/services/filter-rule.service', () => ({
+    vi.doMock('@/frontend/lib/services/filter-rule.service', () => ({
       filterRuleService: {
-        evaluateAllRules: jest.fn(async () => []),
-        applyActions: jest.fn(async () => undefined),
+        evaluateAllRules: vi.fn(async () => []),
+        applyActions: vi.fn(async () => undefined),
       },
     }));
 
-    jest.doMock('@/lib/services/smart-inbox.service', () => ({
+    vi.doMock('@/lib/services/smart-inbox.service', () => ({
       smartInboxService: {
-        calculateScore: jest.fn(async () => ({ score: 77, reasons: ['integration-test'] })),
-        saveScore: jest.fn(async () => undefined),
+        calculateScore: vi.fn(async () => ({ score: 77, reasons: ['integration-test'] })),
+        saveScore: vi.fn(async () => undefined),
       },
     }));
 
-    jest.doMock('@/lib/services/event-log.service', () => ({
+    vi.doMock('@/lib/services/event-log.service', () => ({
       eventLogService: {
-        createEventLog: jest.fn(async () => ({ id: 'event-int' })),
+        createEventLog: vi.fn(async () => ({ id: 'event-int' })),
       },
     }));
 

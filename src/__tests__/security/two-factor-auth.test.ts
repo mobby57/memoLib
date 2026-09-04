@@ -1,6 +1,6 @@
 /**
  * Tests unitaires pour le système 2FA
- * @jest-environment node
+ * @vi-environment node
  */
 
 import { describe, expect, it, vi } from 'vitest';

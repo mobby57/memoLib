@@ -1,3 +1,19 @@
+vi.mock("ioredis", () => ({
+  default: vi.fn(() => ({
+    set: vi.fn().mockResolvedValue("OK"),
+    get: vi.fn().mockResolvedValue(null),
+  })),
+}));
+  default: vi.fn(() => ({
+    set: vi.fn().mockResolvedValue("OK"),
+    get: vi.fn().mockResolvedValue(null),
+  })),
+}));
+  default: vi.fn(() => ({
+    set: vi.fn().mockResolvedValue("OK"),
+    get: vi.fn().mockResolvedValue(null),
+  })),
+}));
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

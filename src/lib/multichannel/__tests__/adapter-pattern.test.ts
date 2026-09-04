@@ -3,7 +3,7 @@
  * Validation déduplication, extraction externalId, Factory
  */
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AdapterFactory } from '../adapter-factory';
 import { EmailAdapter, SMSAdapter, WhatsAppAdapter } from '../adapters';
 
