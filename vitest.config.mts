@@ -27,21 +27,8 @@ export default defineConfig({
             'src/__tests__/integration/legifrance-api.test.ts',
             // Tests d'intégration réseau (API Légifrance timeout)
             'tests/integration/legifrance-api.test.ts',
-            // Jest-era tests non encore migrés vers Vitest (jest.*, require(), new PrismaClient)
-            'src/__tests__/api/factures.test.ts',
-            'src/__tests__/api/legal-deadlines.test.ts',
+            // Intégration DB réelle : exige un vrai PostgreSQL (script email:test:integration-db)
             'src/__tests__/api/emails/incoming-route.integration.test.ts',
-            'src/__tests__/api/auth/auth.test.ts',
-            'src/__tests__/api/auth/register.test.ts',
-            'src/__tests__/api/client/client.test.ts',
-            'src/__tests__/api/dossiers/dossiers.test.ts',
-            'src/__tests__/services/dossier.service.test.ts',
-            'src/__tests__/lib/services/dossier.service.test.ts',
-            'src/__tests__/security/audit-trail.test.ts',
-            'src/__tests__/services/suggestionService.test.ts',
-            'src/__tests__/domain/e2e-encryption.test.ts',
-            'src/__tests__/utils/error-utils.test.ts',
-            'src/__tests__/lib/utils/utils.extended.test.ts',
         ],
     },
     resolve: {
