@@ -14,7 +14,6 @@ import { eventLogService } from '@/lib/services/event-log.service';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { filterRuleService } from '@/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
-import { Prisma } from '@prisma/client';
 import { IncomingEmailPayloadSchema, normalizeIncomingEmailPayload } from '@/lib/email/ingestion';
 import { recordEmailIngestion } from '@/lib/email/ingestion-metrics';
 import { NextRequest, NextResponse } from 'next/server';
@@ -225,7 +224,14 @@ export async function POST(request: NextRequest) {
       });
     } catch (error) {
       // Handle race conditions on unique messageId inserts with an idempotent response.
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      // Prisma 7 : on teste le code d'erreur via un type guard (pas d'instanceof sur
+      // Prisma.PrismaClientKnownRequestError, exporté comme type uniquement).
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code?: unknown }).code === 'P2002'
+      ) {
         const existing = await findDuplicateEmail(tenant.id, normalized);
         if (existing) {
           return NextResponse.json({
