@@ -130,17 +130,31 @@ function createRealClient() {
 // 4. CLIENT EXPORTÉ
 // ============================================
 
-export const prisma =
-  process.env.NODE_ENV === 'test'
-    ? createTestStub()
-    : createRealClient();
+/**
+ * Détecte l'exécution sous test (Vitest, Jest) en plus de NODE_ENV.
+ * Sous Prisma 7, instancier `new PrismaClient()` sans driver adapter lève une
+ * erreur : en test on veut donc toujours le stub, même si NODE_ENV n'est pas
+ * propagé jusqu'au worker.
+ */
+function isTestEnvironment(): boolean {
+  return (
+    process.env.NODE_ENV === 'test' ||
+    process.env.VITEST === 'true' ||
+    typeof process.env.VITEST_WORKER_ID !== 'undefined' ||
+    typeof process.env.JEST_WORKER_ID !== 'undefined'
+  );
+}
+
+export const prisma = isTestEnvironment()
+  ? createTestStub()
+  : createRealClient();
 
 // ============================================
 // 5. OPTIMISATION DB
 // ============================================
 
 export async function ensureDbOptimized() {
-  if (process.env.NODE_ENV === 'test') {
+  if (isTestEnvironment()) {
     return;
   }
 
@@ -184,7 +198,7 @@ export async function disconnectPrisma() {
 // 7. CYCLE DE VIE
 // ============================================
 
-if (process.env.NODE_ENV !== 'test') {
+if (!isTestEnvironment()) {
   prisma.$connect().catch((error: unknown) => {
     console.error('[DB] Connection failed:', error);
   });

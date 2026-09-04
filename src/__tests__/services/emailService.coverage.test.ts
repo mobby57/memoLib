@@ -46,7 +46,7 @@ describe('emailService.ts — Full Coverage', () => {
         { titre: 'RDV Préfecture', date: new Date('2026-04-01'), dossier: 'DOS-003' },
         7
       );
-      expect(result.subject).toContain('a venir');
+      expect(result.subject).toContain('À venir');
       expect(result.subject).toContain('7 jours');
       expect(result.htmlBody).toContain('#3b82f6');
     });
@@ -78,7 +78,7 @@ describe('emailService.ts — Full Coverage', () => {
         { numero: 'F-001', client: 'Test', montant: 100, dateEcheance: new Date() },
         1
       );
-      expect(result.subject).toContain('1 jours');
+      expect(result.subject).toContain('1 jour');
     });
   });
 
@@ -91,7 +91,7 @@ describe('emailService.ts — Full Coverage', () => {
         upcomingEcheances: 4,
         overdueFactures: 2,
       });
-      expect(result.subject).toContain('Resume hebdomadaire');
+      expect(result.subject).toContain('Résumé hebdomadaire');
       expect(result.htmlBody).toContain('5');
       expect(result.htmlBody).toContain('12500');
       expect(result.htmlBody).toContain('4');
@@ -124,11 +124,22 @@ describe('emailService.ts — Full Coverage', () => {
 
   describe('sendEmail', () => {
     it('should simulate sending and return true', async () => {
-      const result = await sendEmail({
-        to: [{ email: 'test@test.com', name: 'Test' }],
-        template: { subject: 'Test', htmlBody: '<p>Hello</p>', textBody: 'Hello' },
-      });
-      expect(result).toBe(true);
+      // Mode simulation : pas de clé Resend + hors production => sendEmail renvoie true.
+      const prevKey = process.env.RESEND_API_KEY;
+      const prevEnv = process.env.NODE_ENV;
+      delete process.env.RESEND_API_KEY;
+      process.env.NODE_ENV = 'test';
+      try {
+        const result = await sendEmail({
+          to: [{ email: 'test@test.com', name: 'Test' }],
+          template: { subject: 'Test', htmlBody: '<p>Hello</p>', textBody: 'Hello' },
+        });
+        expect(result).toBe(true);
+      } finally {
+        if (prevKey === undefined) delete process.env.RESEND_API_KEY;
+        else process.env.RESEND_API_KEY = prevKey;
+        process.env.NODE_ENV = prevEnv;
+      }
     });
   });
 });

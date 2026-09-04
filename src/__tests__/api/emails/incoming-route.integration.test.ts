@@ -30,13 +30,8 @@ describe('POST /api/emails/incoming (integration db)', () => {
 
     jest.resetModules();
 
-<<<<<<< HEAD
-    jest.doMock('@/lib/workflows/email-intelligence', () => ({
-      analyzeEmail: jest.fn(async () => ({
-=======
     vi.doMock('@/lib/workflows/email-intelligence', () => ({
       analyzeEmail: vi.fn(async () => ({
->>>>>>> save/clerk-wip-20260901
         category: 'document-request',
         urgency: 'high',
         sentiment: 'neutral',

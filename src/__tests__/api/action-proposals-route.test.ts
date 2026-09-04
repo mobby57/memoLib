@@ -25,9 +25,11 @@ const mocks = vi.hoisted(() => ({
 const { getServerSession } = mocks;
 const mockPrisma = mocks.prisma;
 
-vi.mock('@/lib/auth', () => ({
-  default: vi.fn(() => vi.fn()),
-  getServerSession: mocks.getServerSession,
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => {
+    const session = await mocks.getServerSession();
+    return session ?? { user: null };
+  }),
 }));
 
 vi.mock('@/lib/prisma', () => ({
