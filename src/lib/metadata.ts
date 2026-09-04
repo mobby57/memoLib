@@ -95,7 +95,10 @@ export const defaultMetadata: Metadata = {
     ],
     apple: [{ url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' }],
   },
-  manifest: '/site.webmanifest',
+  // Le manifest est généré par src/app/manifest.ts et servi à
+  // /manifest.webmanifest (chemin absolu obligatoire, sinon résolu en
+  // /fr/manifest.webmanifest sous le préfixe de locale -> 404).
+  manifest: '/manifest.webmanifest',
   alternates: {
     canonical: BASE_URL,
   },
