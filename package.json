@@ -97,7 +97,7 @@
     "email:to-workspace:ai": "tsx scripts/email-to-workspace-ai.ts",
     "email:test": "tsx scripts/test-email-processing.ts",
     "email:test:demo": "npm test -- src/__tests__/api/emails/incoming-route.test.ts src/__tests__/api/lawyer/workspace-emails-route.test.ts",
-    "email:test:integration-db": "cross-env REAL_DB_TESTS=1 USE_REAL_DB_FOR_TESTS=1 vitest run --config vitest.email-integration.config.ts",
+    "email:test:integration-db": "cross-env REAL_DB_TESTS=1 USE_REAL_DB_FOR_TESTS=1 vitest run --config vitest.email-integration.config.mts",
     "email:test:load": "tsx scripts/test-email-ingestion-load.ts",
     "email:thread": "tsx scripts/test-email-threading.ts",
     "gmail:auth": "node scripts/gmail-auth.js",
