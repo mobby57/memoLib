@@ -5,6 +5,7 @@
  */
 
 import { Prisma, PrismaClient } from '@prisma/client';
+import { prisma as sharedPrisma } from '@/lib/prisma';
 import { EventLogService } from './event-log.service';
 
 interface CreateCommentParams {
@@ -25,7 +26,7 @@ export class CollaborationService {
   private eventLogService: EventLogService;
 
   constructor(prisma?: PrismaClient, eventLogService?: EventLogService) {
-    this.prisma = prisma || new PrismaClient();
+    this.prisma = prisma || (sharedPrisma as unknown as PrismaClient);
     this.eventLogService = eventLogService || new EventLogService(this.prisma);
   }
 

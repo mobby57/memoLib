@@ -16,6 +16,7 @@
  */
 
 import { PrismaClient, FilterRule, Email } from '@prisma/client';
+import { prisma as sharedPrisma } from '@/lib/prisma';
 import { eventLogService } from './event-log.service';
 
 export type FilterCondition = {
@@ -49,7 +50,7 @@ export type RuleMatch = {
 };
 
 export class FilterRuleService {
-  constructor(private prisma: PrismaClient = new PrismaClient()) {}
+  constructor(private prisma: PrismaClient = sharedPrisma as unknown as PrismaClient) {}
 
   /**
    * Ã‰value toutes les règles actives pour un email donné
