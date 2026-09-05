@@ -208,11 +208,11 @@ export async function disconnectPrisma() {
 // 7. CYCLE DE VIE
 // ============================================
 
+// Note: on NE fait PAS de prisma.$connect() au chargement du module.
+// Prisma se connecte paresseusement à la première requête. Un connect eager
+// ici s'exécuterait pendant `next build` (collecte des routes) et pouvait
+// faire échouer le build sans DB accessible. La déconnexion propre reste gérée.
 if (!isTestEnvironment()) {
-  prisma.$connect().catch((error: unknown) => {
-    console.error('[DB] Connection failed:', error);
-  });
-
   process.on('beforeExit', () => {
     void disconnectPrisma();
   });
