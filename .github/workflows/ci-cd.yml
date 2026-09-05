@@ -70,20 +70,11 @@ jobs:
         run: npm run type-check
 
       - name: Unit tests
-        run: npm run test:ci || echo "JEST_EXIT_CODE=1" >> $GITHUB_ENV
+        run: npm run test:ci
         env:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_ci'
           CLERK_SECRET_KEY: 'sk_test_ci'
-
-      - name: Verify tests passed
-        run: |
-          if [ -f ./coverage/coverage-summary.json ]; then
-            echo "✅ Tests passed (coverage report found)"
-          else
-            echo "❌ Tests failed — no coverage report"
-            exit 1
-          fi
 
       - name: Build Next.js
         run: npm run build
