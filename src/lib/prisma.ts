@@ -1,6 +1,7 @@
 // src/lib/prisma.ts
 
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 // ============================================
 // 1. MÉTRIQUES
@@ -98,7 +99,16 @@ function createTestStub(): any {
 // ============================================
 
 function createRealClient() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('[DB] DATABASE_URL is not defined');
+  }
+
+  // Prisma 7 requiert un driver adapter. On utilise pg via PrismaPg.
+  const adapter = new PrismaPg({ connectionString });
+
   const client = new PrismaClient({
+    adapter,
     log:
       process.env.NODE_ENV === 'development'
         ? ['query', 'info', 'warn', 'error']
@@ -130,17 +140,31 @@ function createRealClient() {
 // 4. CLIENT EXPORTÉ
 // ============================================
 
-export const prisma =
-  process.env.NODE_ENV === 'test'
-    ? createTestStub()
-    : createRealClient();
+/**
+ * Détecte l'exécution sous test (Vitest, Jest) en plus de NODE_ENV.
+ * Sous Prisma 7, instancier `new PrismaClient()` sans driver adapter lève une
+ * erreur : en test on veut donc toujours le stub, même si NODE_ENV n'est pas
+ * propagé jusqu'au worker.
+ */
+function isTestEnvironment(): boolean {
+  return (
+    process.env.NODE_ENV === 'test' ||
+    process.env.VITEST === 'true' ||
+    typeof process.env.VITEST_WORKER_ID !== 'undefined' ||
+    typeof process.env.JEST_WORKER_ID !== 'undefined'
+  );
+}
+
+export const prisma = isTestEnvironment()
+  ? createTestStub()
+  : createRealClient();
 
 // ============================================
 // 5. OPTIMISATION DB
 // ============================================
 
 export async function ensureDbOptimized() {
-  if (process.env.NODE_ENV === 'test') {
+  if (isTestEnvironment()) {
     return;
   }
 
@@ -184,11 +208,11 @@ export async function disconnectPrisma() {
 // 7. CYCLE DE VIE
 // ============================================
 
-if (process.env.NODE_ENV !== 'test') {
-  prisma.$connect().catch((error: unknown) => {
-    console.error('[DB] Connection failed:', error);
-  });
-
+// Note: on NE fait PAS de prisma.$connect() au chargement du module.
+// Prisma se connecte paresseusement à la première requête. Un connect eager
+// ici s'exécuterait pendant `next build` (collecte des routes) et pouvait
+// faire échouer le build sans DB accessible. La déconnexion propre reste gérée.
+if (!isTestEnvironment()) {
   process.on('beforeExit', () => {
     void disconnectPrisma();
   });

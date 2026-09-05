@@ -5,8 +5,8 @@ import prisma from '@/lib/prisma';
 
 const mockTenantId = 'tenant-123';
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(async () => ({
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => ({
     user: {
       id: 'user-123',
       role: 'ADMIN',

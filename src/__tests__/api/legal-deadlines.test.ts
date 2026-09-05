@@ -3,10 +3,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH } from '@/app/api/legal-deadlines/route';
 import prisma from '@/lib/prisma';
 
-vi.mock('@/lib/auth', () => ({
-  __esModule: true,
-  default: vi.fn(() => vi.fn()),
-  getServerSession: vi.fn(),
+const { mockAuth } = vi.hoisted(() => ({ mockAuth: vi.fn() }));
+
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: mockAuth,
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -31,8 +31,7 @@ describe('/api/legal-deadlines', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getServerSession } = jest.requireMock('@/lib/auth') as { getServerSession: vi.Mock };
-    getServerSession.mockResolvedValue({
+    mockAuth.mockResolvedValue({
       user: { id: 'user-1', tenantId: mockTenantId, role: 'LAWYER' },
     });
   });

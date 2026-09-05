@@ -265,9 +265,17 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Erreur suggestions: ${errorMessage}`, { error });
     Sentry.captureException(error);
+    // On renvoie 200 avec une liste vide plutôt que 500 : les suggestions sont
+    // une fonctionnalité non critique et un 5xx déclenche une boucle de retry
+    // agressive côté client (SWR/React Query) qui martèle le serveur.
     return NextResponse.json(
-      { error: 'Erreur lors de la génération des suggestions' },
-      { status: 500 }
+      {
+        suggestions: [],
+        generatedAt: new Date().toISOString(),
+        totalSuggestions: 0,
+        degraded: true,
+      },
+      { status: 200 }
     );
   }
 }

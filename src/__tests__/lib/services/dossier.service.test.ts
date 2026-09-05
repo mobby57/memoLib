@@ -6,23 +6,27 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
  */
 
 // Mock Prisma
-const mockPrisma = {
-  dossier: {
-    count: vi.fn(),
-    create: vi.fn(),
-    findMany: vi.fn(),
-    findUnique: vi.fn(),
-    findFirst: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
+const { mockPrisma } = vi.hoisted(() => ({
+  mockPrisma: {
+    dossier: {
+      count: vi.fn(),
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    client: {
+      findFirst: vi.fn(),
+    },
   },
-  client: {
-    findFirst: vi.fn(),
-  },
-};
+}));
 
-vi.mock('@prisma/client', () => ({
-  PrismaClient: vi.fn(() => mockPrisma),
+vi.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  default: mockPrisma,
+  prisma: mockPrisma,
 }));
 
 vi.mock('@/lib/mappers/dossier.mapper', () => ({

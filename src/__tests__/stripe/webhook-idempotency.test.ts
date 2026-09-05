@@ -1,12 +1,14 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mockSet = vi.fn<Promise<string | null>, [string, string, { nx: true; ex: number }]>();
+const { mockSet } = vi.hoisted(() => ({
+  mockSet: vi.fn<(key: string, value: string, opts: { nx: true; ex: number }) => Promise<string | null>>(),
+}));
 
 vi.mock('@upstash/redis', () => ({
-  Redis: vi.fn().mockImplementation(() => ({
-    set: mockSet,
-  })),
+  Redis: class {
+    set = mockSet;
+  },
 }));
 
 describe('Stripe webhook idempotency', () => {

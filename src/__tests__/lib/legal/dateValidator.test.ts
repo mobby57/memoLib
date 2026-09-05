@@ -5,16 +5,24 @@ const validator = new DateValidatorService();
 
 describe('DateValidatorService', () => {
   it('devrait valider des dates cohérentes', () => {
-    const dates: ExtractedDates = {
-      decisionDate: '2026-08-01',
-      notificationDate: '2026-08-05',
-      deadlineDate: '2026-09-04',
-    };
-    const result = validator.validate(dates);
-    expect(result.valid).toBe(true);
-    expect(result.errors).toHaveLength(0);
-    expect(result.confidence).toBeCloseTo(0.95, 1);
-    expect(result.humanReviewRequired).toBe(false);
+    // Fixe "maintenant" avant la deadline pour que la règle DEADLINE_NOT_PAST
+    // (deadlineDate >= now) ne déclenche pas de warning et ne pénalise pas la confiance.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-06T00:00:00Z'));
+    try {
+      const dates: ExtractedDates = {
+        decisionDate: '2026-08-01',
+        notificationDate: '2026-08-05',
+        deadlineDate: '2026-09-04',
+      };
+      const result = validator.validate(dates);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+      expect(result.confidence).toBeCloseTo(0.95, 1);
+      expect(result.humanReviewRequired).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('devrait détecter une notification avant la décision', () => {

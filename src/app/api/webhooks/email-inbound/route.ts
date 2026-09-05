@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { encryptEmailBody } from '@/lib/security/email-encryption';
 import { getClientIP, checkRateLimit } from '@/lib/rate-limit';
 import { verifyWebhookRequest } from '@/lib/security/webhook-verification';
+import { notifyEmailReceived } from '@/lib/ws-emit';
 import { z } from 'zod';
 
 const MAX_WEBHOOK_BODY_BYTES = 2_100_000;
@@ -142,6 +143,16 @@ export async function POST(req: NextRequest) {
 
   // Lancer l'analyse IA en arrière-plan (fire-and-forget)
   analyzeEmailAsync(email.id, validatedEmail.subject || '', validatedEmail.body, validatedEmail.from).catch(() => {});
+
+  // Notification temps réel (best-effort)
+  notifyEmailReceived(tenantId, {
+    id: email.id,
+    type: 'email',
+    from: validatedEmail.from,
+    subject: validatedEmail.subject || '(sans objet)',
+    priority: 'high',
+    timestamp: email.receivedAt ?? new Date(),
+  }).catch(() => {});
 
   // Horodatage certifié RFC 3161 (preuve tierce de la date de réception)
   import('@/lib/services/certified-timestamp').then(({ certifyEmailReception }) => {

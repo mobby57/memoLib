@@ -8,6 +8,7 @@
 
 import { EventLogService } from './event-log.service';
 import { PrismaClient } from '@prisma/client';
+import { prisma as sharedPrisma } from '@/lib/prisma';
 
 interface OCRResult {
   text: string;
@@ -34,7 +35,7 @@ export class DocumentOCRService {
   private eventLogService: EventLogService;
 
   constructor(prisma?: PrismaClient, eventLogService?: EventLogService) {
-    this.prisma = prisma || new PrismaClient();
+    this.prisma = prisma || (sharedPrisma as unknown as PrismaClient);
     this.eventLogService = eventLogService || new EventLogService(this.prisma);
   }
 

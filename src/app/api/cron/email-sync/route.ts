@@ -4,12 +4,18 @@
  * Synchronise les emails pour TOUS les tenants qui ont connecté Gmail/Outlook.
  * Exécuté toutes les 5 minutes par Vercel Cron.
  * 
- * Flow: EmailAccount (tokens OAuth) → Gmail API / Microsoft Graph → processEmail → DB
+ * Flow: EmailAccount (tokens OAuth) → Gmail API / Microsoft Graph
+ *        → classifyEmailContent (IA + fallback mots-clés) → prisma.email.create (RECEIVED)
+ *
+ * La classification est une aide à la décision : aucun dossier n'est créé
+ * automatiquement. L'avocat intègre l'email via POST /api/emails/[id]/integrate.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { classifyEmailContent } from '@/lib/email/email-classifier';
+import { notifyEmailReceived } from '@/lib/ws-emit';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -161,9 +167,14 @@ async function fetchGmailEmails(
 
       // Extraire le body (text/plain ou text/html)
       const body = extractGmailBody(msgData.payload);
+      const truncatedBody = body.slice(0, 10000);
+
+      // Classification IA (avec fallback mots-clés) — aide à la décision,
+      // pas d'action automatique. L'avocat intègre ensuite via /integrate.
+      const classification = await classifyEmailContent(subject, truncatedBody);
 
       // Sauvegarder en DB
-      await prisma.email.create({
+      const created = await prisma.email.create({
         data: {
           id: crypto.randomUUID(),
           tenantId,
@@ -171,7 +182,11 @@ async function fetchGmailEmails(
           from,
           to,
           subject,
-          body: body.slice(0, 10000),
+          body: truncatedBody,
+          category: classification.typeDossier,
+          urgency: classification.urgency,
+          aiAnalysis: JSON.stringify(classification),
+          isProcessed: false,
           sourceProvider: 'gmail',
           sourceChannel: 'email',
           sourceDirection: 'inbound',
@@ -179,6 +194,22 @@ async function fetchGmailEmails(
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+      });
+
+      // Notification temps réel (best-effort, ne bloque pas l'ingestion)
+      await notifyEmailReceived(tenantId, {
+        id: created.id,
+        type: 'email',
+        from,
+        subject,
+        priority:
+          classification.urgency === 'high'
+            ? 'urgent'
+            : classification.urgency === 'low'
+              ? 'normal'
+              : 'high',
+        classification: classification.typeDossier,
+        timestamp: created.receivedAt ?? new Date(),
       });
 
       imported++;
@@ -276,15 +307,25 @@ async function fetchOutlookEmails(
         ? msg.body.content
         : (msg.body?.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-      await prisma.email.create({
+      const subject = msg.subject || '';
+      const truncatedBody = bodyContent.slice(0, 10000);
+
+      // Classification IA (avec fallback mots-clés)
+      const classification = await classifyEmailContent(subject, truncatedBody);
+
+      const created = await prisma.email.create({
         data: {
           id: crypto.randomUUID(),
           tenantId,
           providerMessageId: msg.id,
           from,
           to,
-          subject: msg.subject || '',
-          body: bodyContent.slice(0, 10000),
+          subject,
+          body: truncatedBody,
+          category: classification.typeDossier,
+          urgency: classification.urgency,
+          aiAnalysis: JSON.stringify(classification),
+          isProcessed: false,
           sourceProvider: 'outlook',
           sourceChannel: 'email',
           sourceDirection: 'inbound',
@@ -292,6 +333,21 @@ async function fetchOutlookEmails(
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+      });
+
+      await notifyEmailReceived(tenantId, {
+        id: created.id,
+        type: 'email',
+        from,
+        subject,
+        priority:
+          classification.urgency === 'high'
+            ? 'urgent'
+            : classification.urgency === 'low'
+              ? 'normal'
+              : 'high',
+        classification: classification.typeDossier,
+        timestamp: created.receivedAt ?? new Date(),
       });
 
       imported++;

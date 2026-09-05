@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model AIUsageLog {
@@ -1623,3 +1622,4 @@ enum ReportType {
   AI_ANALYSIS
   CUSTOM
 }
+

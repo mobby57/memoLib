@@ -49,6 +49,9 @@ export function ToastProvider({ children }: Readonly<{ children: ReactNode }>) {
     addToast({ message, variant, title });
   }, [addToast]);
 
+  // React Compiler ne peut pas préserver cette mémoïsation manuelle (setToasts
+  // fonctionnel + filter). Le useCallback reste volontaire et sans effet de bord.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const removeToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);

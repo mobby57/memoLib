@@ -11,8 +11,8 @@ const { session, prisma } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(() => session.current),
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => session.current ?? { user: null }),
 }));
 vi.mock('@/app/api/auth/[...nextauth]/route', () => ({ authOptions: {} }));
 vi.mock('@/lib/prisma', () => ({ __esModule: true, default: prisma }));

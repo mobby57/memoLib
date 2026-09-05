@@ -20,33 +20,15 @@ export default defineConfig({
             'src/__tests__/hooks/usePerformance.test.tsx',
             'src/__tests__/hooks/useSessionTimeout.test.ts',
             'src/__tests__/components/**/*.test.tsx',
-            // E2E / Integration DB → nécessitent serveur ou DB
+            // E2E / serveur ou réseau réel requis
             'src/__tests__/e2e/**',
-            'src/__tests__/integration/saas-db.test.ts',
             'src/__tests__/api/webhooks/test-multichannel.e2e.test.ts',
             // Doublons (déjà dans tests/integration/)
             'src/__tests__/integration/legifrance-api.test.ts',
             // Tests d'intégration réseau (API Légifrance timeout)
             'tests/integration/legifrance-api.test.ts',
-            // Tests avec mock @prisma/client constructeur (à migrer vers @/lib/prisma mock)
-            'src/__tests__/api/factures.test.ts',
-            'src/__tests__/api/legal-deadlines.test.ts',
+            // Intégration DB réelle : exige un vrai PostgreSQL (script email:test:integration-db)
             'src/__tests__/api/emails/incoming-route.integration.test.ts',
-            'src/__tests__/api/emails/incoming-route.test.ts',
-            'src/__tests__/api/auth/auth.test.ts',
-            'src/__tests__/api/auth/register.test.ts',
-            'src/__tests__/api/client/client.test.ts',
-            'src/__tests__/api/dossiers/dossiers.test.ts',
-            'src/__tests__/lib/cron/deadline-alerts.test.ts',
-            'src/__tests__/lib/auth/auth.test.ts',
-            'src/__tests__/services/dossier.service.test.ts',
-            'src/__tests__/lib/services/dossier.service.test.ts',
-            'src/__tests__/security/audit-trail.test.ts',
-            'src/__tests__/services/suggestionService.test.ts',
-            'src/__tests__/stripe/webhook-idempotency.test.ts',
-            'src/__tests__/domain/e2e-encryption.test.ts',
-            'src/__tests__/utils/error-utils.test.ts',
-            'src/__tests__/lib/utils/utils.extended.test.ts',
         ],
     },
     resolve: {
