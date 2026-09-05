@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useAuth as useClerkAuth } from '@clerk/nextjs';
 
 /**
  * React Hook for WebSocket Real-Time Notifications
@@ -36,6 +37,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const { autoConnect = true, reconnect = true, reconnectDelay = 3000, debug = false } = options;
 
   const { data: session, status, user } = useAuth();
+  const { getToken } = useClerkAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [state, setState] = useState<WebSocketState>({
     connected: false,
@@ -70,20 +72,41 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   );
 
   // Connect to WebSocket server
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     if (!user || state.connecting || state.connected) {
       return;
     }
 
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+    if (!wsUrl) {
+      log('NEXT_PUBLIC_WS_URL not configured — realtime disabled');
+      setState(prev => ({ ...prev, error: 'WS_URL_MISSING' }));
+      return;
+    }
+
     setState(prev => ({ ...prev, connecting: true, error: null }));
-    log('Connecting...');
+    log('Connecting to', wsUrl);
 
     const tenantId = user.tenantId;
 
+    // Récupérer le JWT Clerk pour authentifier le handshake
+    let token: string | null = null;
     try {
-      const newSocket = io({
+      token = await getToken();
+    } catch (err) {
+      log('Failed to get Clerk token:', err);
+    }
+
+    if (!token) {
+      setState(prev => ({ ...prev, connecting: false, error: 'NO_TOKEN' }));
+      return;
+    }
+
+    try {
+      const newSocket = io(wsUrl, {
         path: '/api/socket',
         transports: ['websocket', 'polling'],
+        auth: { token },
         reconnection: reconnect,
         reconnectionDelay: reconnectDelay,
         reconnectionAttempts: 5,
@@ -206,7 +229,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         error: error instanceof Error ? error.message : 'Unknown error',
       }));
     }
-  }, [user, state.connecting, state.connected, reconnect, reconnectDelay, log]);
+  }, [user, state.connecting, state.connected, reconnect, reconnectDelay, log, getToken]);
 
   // Disconnect from WebSocket server
   const disconnect = useCallback(() => {

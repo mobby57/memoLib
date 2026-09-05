@@ -1,13 +1,14 @@
 {
   "name": "memolib-websocket",
-  "version": "1.0.0",
-  "description": "Serveur WebSocket pour MemoLib",
+  "version": "2.0.0",
+  "description": "Serveur Socket.IO temps réel pour MemoLib",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "ws": "^8.18.0"
+    "@clerk/backend": "^1.15.0",
+    "socket.io": "^4.8.3"
   },
   "engines": {
     "node": "20.x"
