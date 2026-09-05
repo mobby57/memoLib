@@ -1,0 +1,395 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-04",
+  "philosophy": "Un cas est PASS uniquement si un test importe le CODE DE PRODUCTION réel et couvre le comportement (positif ET, quand pertinent, négatif). Sinon: GAP (à écrire) ou FALSE (test trompeur à remplacer). Jamais de faux PASS. L'unité de validation est la CHAÎNE MÉTIER.",
+  "statusLegend": {
+    "PASS": "Test importe le code prod et couvre le cas (assertion réelle).",
+    "PARTIAL": "Partiellement couvert (happy-path seul, ou une partie des sous-cas).",
+    "GAP": "Aucun test réel — comportement métier non démontré.",
+    "FALSE": "Un test existe mais est trompeur (logique ré-implémentée inline, ou mocke un modèle/relation absent du schéma). À remplacer.",
+    "SKIP": "Volontairement hors périmètre (documenté)."
+  },
+  "axes": [
+    { "id": "production-build", "label": "Production / Build", "blocker": true },
+    { "id": "technical-tests", "label": "Tests techniques", "blocker": true },
+    { "id": "critical-e2e", "label": "E2E utilisateur", "blocker": true },
+    { "id": "security-tenant", "label": "Sécurité / multi-tenant", "blocker": true },
+    { "id": "legal-compliance", "label": "Conformité juridique", "blocker": true },
+    { "id": "business-logic", "label": "Business Logic métier", "blocker": true }
+  ],
+  "chains": {
+    "email-to-action": "Email → IA → rattachement dossier → extraction obligations/délais → calcul juridique → alerte → action → document → audit",
+    "tenant-security": "Isolation stricte cabinet A / cabinet B sur tout accès (données, rôle, document, dossier, API)",
+    "human-in-the-loop": "Aucune mutation métier sans décision humaine authentifiée; l'IA ne produit qu'un brouillon/proposition"
+  },
+  "commandGates": {
+    "production-build": {
+      "description": "Le build de production réussit.",
+      "commands": ["npm run build"]
+    },
+    "technical-tests": {
+      "description": "La suite de tests techniques passe.",
+      "commands": ["npm run test:ci"]
+    },
+    "critical-e2e": {
+      "description": "Le parcours E2E critique passe (login → email → dossier → délai → document).",
+      "commands": ["npm run test:e2e"]
+    }
+  },
+  "cases": [
+    {
+      "id": "EMAIL-RECEIVE",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Réception email entrant (webhook signé)",
+      "productionModule": "src/app/api/emails/incoming/route.ts",
+      "expectedTest": "src/__tests__/api/emails/incoming-route.test.ts",
+      "assertion": "Route réelle importée; 401 secret invalide, 400 JSON/payload, 404 tenant introuvable.",
+      "negative": ["secret invalide -> 401", "payload invalide -> 400", "tenant introuvable -> 404"],
+      "status": "PASS"
+    },
+    {
+      "id": "EMAIL-DEDUP",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Déduplication email (même message deux fois = un seul traitement)",
+      "productionModule": "src/app/api/emails/incoming/route.ts",
+      "expectedTest": "src/__tests__/api/emails/incoming-route.test.ts",
+      "assertion": "duplicate=true; email.create NON appelé sur doublon.",
+      "negative": ["doublon connu -> duplicate=true, pas de create"],
+      "status": "PASS"
+    },
+    {
+      "id": "EMAIL-IDEMPOTENCE-RACE",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Idempotence sous course (contrainte unique P2002)",
+      "productionModule": "src/app/api/emails/incoming/route.ts",
+      "expectedTest": "src/__tests__/api/emails/incoming-route.test.ts",
+      "assertion": "P2002 -> réponse idempotente, pas de double effet.",
+      "negative": ["course P2002 -> duplicate=true"],
+      "status": "PASS"
+    },
+    {
+      "id": "EMAIL-CLASSIFY",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Classification IA de l'email (type, urgence, client, deadline)",
+      "productionModule": "src/lib/ai (analyzeEmail)",
+      "expectedTest": "TODO: test important le vrai classifieur (pas un mock d'IA)",
+      "assertion": "L'IA est MOCKÉE dans incoming-route.test.ts: la correction de la classification n'est pas validée.",
+      "negative": [],
+      "status": "GAP"
+    },
+    {
+      "id": "EMAIL-TO-DOSSIER",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Email -> Dossier: création dossier + rattachement client + lien email",
+      "productionModule": "src/app/api/emails/create-dossier/route.ts",
+      "expectedTest": "src/__tests__/api/emails/create-dossier-route.test.ts",
+      "awaitingFix": true,
+      "assertion": "Test écrit (chaîne réelle). ÉCHOUE volontairement contre la route actuelle: .catch(()=>{}) masque les échecs de persistance. Passe une fois la route corrigée -> alors PASS.",
+      "negative": ["client dédup par nom", "échec persistance délai NE DOIT PAS retourner success:true silencieux"],
+      "status": "GAP"
+    },
+    {
+      "id": "DEADLINE-PERSIST",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Les délais CESEDA sont RÉELLEMENT persistés lors de la création du dossier",
+      "productionModule": "src/app/api/emails/create-dossier/route.ts (getCesedaDeadlines)",
+      "expectedTest": "src/__tests__/api/emails/create-dossier-route.test.ts",
+      "awaitingFix": true,
+      "assertion": "Test écrit: vérifie que chaque legalDeadline.create fournit id/referenceDate/createdBy/updatedAt et un type dans l'enum. ÉCHOUE contre la route actuelle (champs requis manquants + type hors enum). Passe une fois la route corrigée.",
+      "negative": ["si un create échoue, le résultat NE DOIT PAS annoncer deadlinesCreated=N"],
+      "status": "GAP"
+    },
+    {
+      "id": "DEADLINE-CESEDA-RULES",
+      "axis": "legal-compliance",
+      "chain": "email-to-action",
+      "title": "Règles CESEDA: type de procédure, point de départ, unité (h/j/mois)",
+      "productionModule": "src/lib/cesda/deadlineEngine.ts",
+      "expectedTest": "src/__tests__/lib/cesda/deadlineEngine.real.test.ts",
+      "assertion": "OQTF 48h/30j, REFUS_TITRE 2 mois, ASILE, addHours/addDays/addMonths validés sur le vrai moteur.",
+      "negative": ["détection échéance dépassée"],
+      "status": "PASS"
+    },
+    {
+      "id": "DEADLINE-ENGINE-UNIFIED",
+      "axis": "legal-compliance",
+      "chain": "email-to-action",
+      "title": "Un seul moteur CESEDA fait autorité (pas 3 implémentations divergentes)",
+      "productionModule": "src/lib/cesda/deadlineEngine.ts",
+      "expectedTest": "TODO: le moteur testé (deadlineEngine) doit être celui câblé à create-dossier",
+      "assertion": "3 implémentations divergentes: deadlineEngine (testé), legal-deadlines route defaultDays, getCesedaDeadlines inline (câblé, non testé).",
+      "negative": [],
+      "status": "GAP"
+    },
+    {
+      "id": "DEADLINE-WORKING-DAYS",
+      "axis": "legal-compliance",
+      "chain": "email-to-action",
+      "title": "Jours ouvrés vs calendaires, week-ends, jours fériés",
+      "productionModule": "src/lib/cesda/deadlineEngine.ts",
+      "expectedTest": "tests/legal/scenarios/*.json + tests/legal/matrix.test.ts",
+      "assertion": "Week-end = 1 seul scénario; JOURS FÉRIÉS jamais testés.",
+      "negative": ["échéance tombant un jour férié reportée"],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "DEADLINE-HUMAN-REVIEW",
+      "axis": "legal-compliance",
+      "chain": "human-in-the-loop",
+      "title": "Chemin humanReviewRequired=true réellement exercé",
+      "productionModule": "src/lib/cesda/deadlineEngine.ts",
+      "expectedTest": "tests/legal/scenarios/*.json",
+      "assertion": "humanReviewRequired est asserté mais TOUJOURS false; le cas positif n'est jamais couvert.",
+      "negative": ["cas ambigu -> humanReviewRequired=true"],
+      "status": "GAP"
+    },
+    {
+      "id": "ALERT-J7",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Alerte J-7",
+      "productionModule": "src/lib/cron/deadline-alerts.ts",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "checkDeadlineAlerts réel; result.j7===1.",
+      "negative": [],
+      "status": "PASS"
+    },
+    {
+      "id": "ALERT-J3-J1",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Alertes J-3 et J-1",
+      "productionModule": "src/lib/cron/deadline-alerts.ts",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "J-3 et J-1 jamais assertés individuellement (findMany mocké à []).",
+      "negative": [],
+      "status": "GAP"
+    },
+    {
+      "id": "ALERT-OVERDUE",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Échéance dépassée (retard)",
+      "productionModule": "src/lib/cron/deadline-alerts.ts",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "result.overdue===1 sur le vrai cron.",
+      "negative": [],
+      "status": "PASS"
+    },
+    {
+      "id": "ALERT-NO-DUPLICATE",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Absence de doublon d'alerte (une alerte déjà envoyée n'est pas renvoyée)",
+      "productionModule": "src/lib/cron/deadline-alerts.ts",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "findFirst est mocké à null mais aucun test NÉGATIF: pas d'assertion 'ne recrée pas si déjà envoyée'.",
+      "negative": ["alerte déjà existante -> pas de seconde alerte"],
+      "status": "GAP"
+    },
+    {
+      "id": "ALERT-ACK",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Acquittement d'alerte",
+      "productionModule": "src/lib/cron/deadline-alerts.ts / route acquittement",
+      "expectedTest": "TODO",
+      "assertion": "Aucun test d'acquittement.",
+      "negative": [],
+      "status": "GAP"
+    },
+    {
+      "id": "DOSSIER-STATUS-TRANSITIONS",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Statuts dossier: transitions autorisées vs interdites",
+      "productionModule": "TODO: extraire une machine à états en code prod (n'existe pas)",
+      "expectedTest": "src/__tests__/domain/dossier-status.test.ts",
+      "assertion": "FALSE: matrice définie INLINE dans le test, en MAJUSCULES, alors que le schéma utilise statut lowercase 'en_cours'. Ne valide aucun code prod.",
+      "negative": ["transition interdite -> refusée"],
+      "status": "FALSE"
+    },
+    {
+      "id": "TENANT-ISOLATION-HELPER",
+      "axis": "security-tenant",
+      "chain": "tenant-security",
+      "title": "Isolation cabinet A/B au niveau accès dossier (anti-IDOR)",
+      "productionModule": "src/lib/auth/dossier-access.ts (canAccessDossier)",
+      "expectedTest": "src/__tests__/lib/auth/dossier-access.test.ts",
+      "assertion": "canAccessDossier réel; refus cross-tenant (dossier_not_found), requête scoppée where{id,tenantId}.",
+      "negative": ["dossier d'un autre tenant -> allowed:false"],
+      "status": "PASS"
+    },
+    {
+      "id": "TENANT-ISOLATION-API",
+      "axis": "security-tenant",
+      "chain": "tenant-security",
+      "title": "Isolation tenant de bout en bout via une VRAIE route HTTP",
+      "productionModule": "routes API dossiers/documents",
+      "expectedTest": "TODO: requête tenant A pour ressource tenant B -> 403/404 via handler réel",
+      "assertion": "Prouvé au niveau helper seulement, pas au niveau route HTTP.",
+      "negative": ["A demande ressource de B via l'API -> refus"],
+      "status": "GAP"
+    },
+    {
+      "id": "RBAC-DENY",
+      "axis": "security-tenant",
+      "chain": "tenant-security",
+      "title": "RBAC: un rôle sans permission est REFUSÉ",
+      "productionModule": "src/lib/auth/rbac",
+      "expectedTest": "tests/unit/rbac-cross-role.test.ts",
+      "assertion": "hasPermission/requireApiPermission réels; matrice de refus (CLIENT->DOSSIERS_MANAGE=403, COMPTABLE->TENANTS_CREATE=403).",
+      "negative": ["rôle non autorisé -> 403/401"],
+      "status": "PASS"
+    },
+    {
+      "id": "DOC-TEMPLATE-VARS",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Documents: variables de modèle, variable manquante (comportement déterministe)",
+      "productionModule": "src/lib/templates (renderTemplate/validateTemplate)",
+      "expectedTest": "src/__tests__/lib/templates/templateEngine.real.test.ts",
+      "assertion": "Moteur réel; échec sur variable requise manquante, ignore optionnelles.",
+      "negative": ["variable requise manquante -> échec", "plusieurs manquantes listées"],
+      "status": "PASS"
+    },
+    {
+      "id": "DOC-GENERATE-FLOW",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Génération document: persistance, version, rattachement dossier, téléchargement",
+      "productionModule": "src/app/api/documents/generate/route.ts",
+      "expectedTest": "TODO",
+      "assertion": "Seul le rendu string est testé; pas de flux génération/version/rattachement/download.",
+      "negative": [],
+      "status": "GAP"
+    },
+    {
+      "id": "UPLOAD-ANTIVIRUS",
+      "axis": "security-tenant",
+      "chain": "email-to-action",
+      "title": "Upload: scan antivirus (EICAR, exécutables, double extension)",
+      "productionModule": "src/lib/storage/antivirus (scanner réel)",
+      "expectedTest": "tests/unit/document-security.test.ts",
+      "assertion": "FALSE: le scanner et les signatures sont RÉ-IMPLÉMENTÉS inline dans le test; le scanner de prod n'est jamais importé.",
+      "negative": ["fichier EICAR rejeté", "double extension rejetée"],
+      "status": "FALSE"
+    },
+    {
+      "id": "UPLOAD-SIZE-ISOLATION",
+      "axis": "security-tenant",
+      "chain": "email-to-action",
+      "title": "Upload: limite de taille/type + isolation de stockage par tenant",
+      "productionModule": "src/lib/storage",
+      "expectedTest": "TODO",
+      "assertion": "Limite de taille et isolation stockage non assertées.",
+      "negative": ["fichier trop volumineux rejeté", "un tenant ne lit pas le blob d'un autre"],
+      "status": "GAP"
+    },
+    {
+      "id": "AI-FALLBACK",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "IA indisponible (Ollama down) -> fallback fonctionnel",
+      "productionModule": "src/lib/ai",
+      "expectedTest": "TODO",
+      "assertion": "Aucun test de dégradation quand Ollama est indisponible.",
+      "negative": ["IA down -> fallback, pas de crash"],
+      "status": "GAP"
+    },
+    {
+      "id": "AI-NO-AUTOSEND",
+      "axis": "business-logic",
+      "chain": "human-in-the-loop",
+      "title": "Brouillon IA: aucun envoi automatique, décision humaine requise",
+      "productionModule": "src/app/api/ai/draft-reply + brouillons",
+      "expectedTest": "TODO: assertion explicite 'aucun envoi automatique'",
+      "assertion": "Signal indirect seulement (expéditeur prioritaire -> proposition, pas d'action auto). Pas d'assertion NO-auto-send dédiée.",
+      "negative": ["brouillon généré -> pas d'envoi tant que non validé humainement"],
+      "status": "GAP"
+    },
+    {
+      "id": "HUMAN-VALIDATION",
+      "axis": "business-logic",
+      "chain": "human-in-the-loop",
+      "title": "Toute mutation métier exige une décision humaine authentifiée (FLOW-001)",
+      "productionModule": "couches API mutation (client/dossier/délai/message)",
+      "expectedTest": "TODO",
+      "assertion": "Exigence FLOW-001 encore to_audit; pas verrouillée par un test.",
+      "negative": ["entrée libre -> brouillon/proposition seulement, jamais de mutation directe"],
+      "status": "GAP"
+    },
+    {
+      "id": "BILLING-WEBHOOK-IDEMPOTENCE",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Webhook Stripe rejoué deux fois = une seule opération",
+      "productionModule": "src/app/api/payments/webhook + isStripeEventDuplicate",
+      "expectedTest": "src/__tests__/stripe/webhook-idempotency.test.ts + src/__tests__/api/payments/webhook-route.test.ts",
+      "assertion": "Deux couches réelles: Redis SET NX (+ fallback mémoire) et route (rejeu -> duplicate=true, $transaction NON appelé; P2002 -> duplicate).",
+      "negative": ["rejeu -> aucune opération en double"],
+      "status": "PASS"
+    },
+    {
+      "id": "GDPR-ERASURE",
+      "axis": "legal-compliance",
+      "chain": "tenant-security",
+      "title": "RGPD: la donnée est réellement supprimée/anonymisée partout",
+      "productionModule": "src/lib/compliance (GDPRCompliance)",
+      "expectedTest": "src/__tests__/compliance/gdpr-right-to-erasure.test.ts",
+      "assertion": "Cas négatifs présents (pas de tenant, double demande, rétention). MAIS aucune assertion que la donnée est réellement effacée/anonymisée (design = PENDING_REVIEW). Conflit de merge non résolu dans gdpr.coverage.test.ts.",
+      "negative": ["hors tenant refusé", "double demande refusée"],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "AUDIT-HASHCHAIN",
+      "axis": "legal-compliance",
+      "chain": "tenant-security",
+      "title": "Piste d'audit: intégrité de la hash-chain (détection falsification)",
+      "productionModule": "src/lib/security (createAuditLog/verifyAuditChainIntegrity)",
+      "expectedTest": "src/__tests__/security/audit-trail.test.ts",
+      "assertion": "Fonctions réelles; chaîne cassée détectée (brokenAt), hash falsifié détecté, chaîne intacte valide.",
+      "negative": ["previousHash incohérent -> détecté", "hash altéré -> détecté"],
+      "status": "PASS"
+    },
+    {
+      "id": "ONBOARDING-PERSIST",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Onboarding: progression réelle et état persistant",
+      "productionModule": "src/app/api/onboarding/status",
+      "expectedTest": "TODO: test de progression réelle + persistance",
+      "assertion": "OnboardingFlow testé en rendu seulement (steps passés en props); pas de persistance d'état.",
+      "negative": [],
+      "status": "GAP"
+    },
+    {
+      "id": "WORKFLOW-RESUME",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Workflows: transitions, erreurs, reprise/idempotence",
+      "productionModule": "src/lib/workflows",
+      "expectedTest": "TODO: reprise d'un workflow partiellement exécuté",
+      "assertion": "Validation de config seulement; pas de test reprise/idempotence runtime.",
+      "negative": ["reprise -> pas de double effet"],
+      "status": "GAP"
+    },
+    {
+      "id": "JURISPRUDENCE-FALLBACK",
+      "axis": "business-logic",
+      "chain": "email-to-action",
+      "title": "Jurisprudence: recherche + fallback quand l'API externe est indisponible",
+      "productionModule": "src/lib/legifrance",
+      "expectedTest": "src/__tests__/integration/legifrance-api.test.ts",
+      "assertion": "Tests SKIPPÉS sans clés PISTE (n'assertent rien en CI); pas de test de fallback.",
+      "negative": ["API indisponible -> fallback exploitable"],
+      "status": "GAP"
+    }
+  ]
+}

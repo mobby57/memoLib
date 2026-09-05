@@ -165,3 +165,7 @@ security-backup-*/
 /.agents/
 /.claude/
 /.kiro/
+
+
+# Rapports de maturité / validation métier (générés)
+/reports/

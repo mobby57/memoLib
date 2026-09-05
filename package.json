@@ -137,7 +137,10 @@
     "demo:client:sarrab:full": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab-full.ps1",
     "test:storage": "vitest run src/lib/storage/storageService.smoke.test.ts",
     "requirements:check": "node scripts/check-release-requirements.js",
-    "requirements:release": "node scripts/check-release-requirements.js --release"
+    "requirements:release": "node scripts/check-release-requirements.js --release",
+    "business:validate": "node scripts/business-validation/run-business-validation.js",
+    "business:validate:strict": "node scripts/business-validation/run-business-validation.js --strict",
+    "business:validate:full": "node scripts/business-validation/run-business-validation.js --run-commands --strict"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
