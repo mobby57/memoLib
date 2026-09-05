@@ -49,4 +49,4 @@ Disallow: /en/test/
 Disallow: /en/_next/
 Disallow: /en/static/
 
-Sitemap: https://memolib.space/sitemap.xml
+Sitemap: http://localhost:3000/sitemap.xml
