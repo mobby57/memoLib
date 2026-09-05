@@ -9,10 +9,14 @@ if (!connectionString) {
 }
 const adapter = new PrismaPg({ connectionString });
 
-export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
+const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = prisma;
 }
+
+// ✅ Export par défaut (pour les imports existants)
 export default prisma;
-export default prisma;
+
+// ✅ Export nommé (pour compatibilité)
+export { prisma };
