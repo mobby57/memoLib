@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
-
+import { useClerk } from '@clerk/nextjs';
 export default function SuperAdminNavigation() {
   const pathname = usePathname();
+  const { signOut } = useClerk();
 
   const navItems = [
     { href: '/super-admin', label: 'Dashboard', icon: '' },
@@ -50,7 +50,7 @@ export default function SuperAdminNavigation() {
 
           {/* Logout Button */}
           <button
-            onClick={() => signOut({ callbackUrl: '/auth/login' })}
+            onClick={() => signOut({ redirectUrl: '/fr/sign-in' })}
             className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
           >
             Deconnexion

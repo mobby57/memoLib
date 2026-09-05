@@ -1,16 +1,16 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession();
-        if (!session?.user?.email) {
+        const { user } = await auth();
+        if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const user = await prisma.user.findUnique({
-            where: { email: session.user.email },
+        const dbUser = await prisma.user.findUnique({
+            where: { email: user.email },
             include: {
                 stripeCustomer: {
                     include: {
@@ -25,12 +25,12 @@ export async function GET(req: NextRequest) {
             }
         });
 
-        if (!user?.stripeCustomer) {
+        if (!dbUser?.stripeCustomer) {
             return NextResponse.json({ invoices: [] });
         }
 
         return NextResponse.json({
-            invoices: user.stripeCustomer.invoices.map((inv: any) => ({
+            invoices: dbUser.stripeCustomer.invoices.map((inv: any) => ({
                 id: inv.id,
                 amount: inv.amountDue,
                 currency: inv.currency,
@@ -47,3 +47,7 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+
+
+

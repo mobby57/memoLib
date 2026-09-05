@@ -1,19 +1,21 @@
-﻿/**
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+/**
  * API Route: Obtenir les informations du compte GitHub de l'utilisateur
  * GET /api/github/user
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getGitHubUserInfo, isGitHubAuthorized } from '@/lib/github/user-client';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -46,3 +48,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+

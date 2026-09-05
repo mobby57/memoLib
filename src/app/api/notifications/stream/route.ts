@@ -1,13 +1,16 @@
-﻿import { NextRequest } from 'next/server';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+import { NextRequest } from 'next/server';
 import { registerSSEClient, unregisterSSEClient } from '@/lib/notifications';
-
 // GET - Stream SSE pour les notifications en temps reel
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId');
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  const userId = user?.id;
 
   if (!userId) {
-    return new Response('userId requis', { status: 400 });
+    return new Response('Non authentifié', { status: 401 });
   }
 
   const stream = new ReadableStream({
@@ -53,3 +56,5 @@ export async function GET(request: NextRequest) {
     },
   });
 }
+
+

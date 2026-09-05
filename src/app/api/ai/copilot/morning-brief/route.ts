@@ -1,17 +1,21 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
 
 /**
  * GET /api/ai/copilot/morning-brief
  * Morning Brief CESEDA — Résumé du jour pour l'avocat
  */
-export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+export const GET = withAIRateLimit(async (req: NextRequest) => {
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
-  const user = session.user as any;
   const now = new Date();
   const in7days = new Date(now.getTime() + 7 * 86400000);
 
@@ -73,4 +77,6 @@ export async function GET(req: NextRequest) {
       daysRemaining: Math.ceil((new Date(dl.dueDate).getTime() - now.getTime()) / 86400000),
     })),
   });
-}
+});
+
+

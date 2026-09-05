@@ -1,8 +1,7 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { MissingElement, canTransitionToReadyForHuman } from '@/types/workspace-reasoning';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -11,13 +10,12 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions);
+    const { user } = await auth();
+    const session = user ? { user } : null;
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const user = session.user as any;
     const userId = user.id;
     const tenantId = user.tenantId;
     const workspaceId = params.id;

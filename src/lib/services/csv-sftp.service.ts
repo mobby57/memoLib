@@ -223,7 +223,7 @@ export async function exportDossiersCsv(options: CsvExportOptions): Promise<stri
 
   const dossiers = await prisma.dossier.findMany({
     where,
-    include: { client: { select: { firstName: true, lastName: true, email: true } } },
+    include: { Client: { select: { firstName: true, lastName: true, email: true } } },
     orderBy: { dateCreation: 'desc' },
   });
 
@@ -231,8 +231,8 @@ export async function exportDossiersCsv(options: CsvExportOptions): Promise<stri
 
   const rows = dossiers.map(d => [
     d.numero || '',
-    d.client ? `${d.client.firstName} ${d.client.lastName}` : '',
-    d.client?.email || '',
+    d.Client ? `${d.Client.firstName} ${d.Client.lastName}` : '',
+    d.Client?.email || '',
     d.typeDossier || '',
     d.objet || '',
     d.statut || '',

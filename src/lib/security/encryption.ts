@@ -1,6 +1,12 @@
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
+const MASTER_KEY_MINIMUM_LENGTH = 32;
+let cachedDerivedKey: { source: string; key: Buffer } | undefined;
+
+export function isEncryptionMasterKeyUsable(masterKey: string | undefined): masterKey is string {
+  return Boolean(masterKey && masterKey.trim().length >= MASTER_KEY_MINIMUM_LENGTH);
+}
 
 /**
  * Derive a 256-bit key from the master key using scrypt.
@@ -13,12 +19,17 @@ const ALGORITHM = 'aes-256-gcm';
  */
 function getMasterKeyOrThrow(): Buffer {
   const masterKey = process.env.ENCRYPTION_MASTER_KEY;
-  if (!masterKey) {
+  if (!isEncryptionMasterKeyUsable(masterKey)) {
     throw new Error(
-      'ENCRYPTION_MASTER_KEY is not configured. ' +
+      `ENCRYPTION_MASTER_KEY must be configured and at least ${MASTER_KEY_MINIMUM_LENGTH} characters long. ` +
       'Set this environment variable before starting the application. ' +
       'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"'
     );
+  }
+
+  const cachedKey = cachedDerivedKey;
+  if (cachedKey?.source === masterKey) {
+    return cachedKey.key;
   }
 
   // Derive a deterministic salt from the master key to avoid hardcoded salt
@@ -27,7 +38,9 @@ function getMasterKeyOrThrow(): Buffer {
     .digest()
     .subarray(0, 16);
 
-  return crypto.scryptSync(masterKey, salt, 32, { N: 16384, r: 8, p: 1 });
+  const key = crypto.scryptSync(masterKey, salt, 32, { N: 16384, r: 8, p: 1 });
+  cachedDerivedKey = { source: masterKey, key };
+  return key;
 }
 
 export interface EncryptedDataPayload {
@@ -40,7 +53,12 @@ export interface EncryptedDataPayload {
 export function encryptData(plaintext: string): EncryptedDataPayload {
   const key = getMasterKeyOrThrow();
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv) as crypto.CipherGCM;
+  const cipher = crypto.createCipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.CipherGCM;
 
   const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
   const authTag = cipher.getAuthTag();
@@ -54,16 +72,43 @@ export function encryptData(plaintext: string): EncryptedDataPayload {
 }
 
 export function decryptData(payload: EncryptedDataPayload): string {
-  const key = getMasterKeyOrThrow();
-  const iv = Buffer.from(payload.iv, 'base64');
-  const authTag = Buffer.from(payload.authTag, 'base64');
-  const encrypted = Buffer.from(payload.encrypted, 'base64');
+  if (!payload || payload.version !== '1.0') {
+    throw new Error('Unsupported encrypted data payload version');
+  }
 
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv) as crypto.DecipherGCM;
+  const iv = decodeBase64(payload.iv, 'iv');
+  const authTag = decodeBase64(payload.authTag, 'authTag');
+  const encrypted = decodeBase64(payload.encrypted, 'encrypted');
+
+  if (iv.length !== 16) {
+    throw new Error('Encrypted data IV must be 16 bytes');
+  }
+  if (authTag.length !== 16) {
+    throw new Error('Encrypted data authentication tag must be 16 bytes');
+  }
+
+  const key = getMasterKeyOrThrow();
+  const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.DecipherGCM;
   decipher.setAuthTag(authTag);
 
   const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
   return decrypted.toString('utf8');
+}
+
+function decodeBase64(value: string, fieldName: string): Buffer {
+  if (
+    typeof value !== 'string' ||
+    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)
+  ) {
+    throw new Error(`Encrypted data ${fieldName} is not valid base64`);
+  }
+
+  return Buffer.from(value, 'base64');
 }
 
 export function encryptSensitiveField(value: string): EncryptedDataPayload {
@@ -85,7 +130,12 @@ export class EncryptionService {
 
     const iv = crypto.randomBytes(16);
     const key = this.getKey();
-    const cipher = crypto.createCipheriv(ALGORITHM, key, iv) as crypto.CipherGCM;
+    const cipher = crypto.createCipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.CipherGCM;
 
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -100,19 +150,32 @@ export class EncryptionService {
 
     try {
       const [ivHex, authTagHex, encrypted] = encryptedText.split(':');
+      if (
+        !ivHex ||
+        !authTagHex ||
+        encrypted === undefined ||
+        !/^[a-f\d]{32}$/i.test(ivHex) ||
+        !/^[a-f\d]{32}$/i.test(authTagHex) ||
+        !/^[a-f\d]*$/i.test(encrypted)
+      ) {
+        return encryptedText;
+      }
       const iv = Buffer.from(ivHex, 'hex');
       const authTag = Buffer.from(authTagHex, 'hex');
       const key = this.getKey();
 
-      const decipher = crypto.createDecipheriv(ALGORITHM, key, iv) as crypto.DecipherGCM;
+      const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.DecipherGCM;
       decipher.setAuthTag(authTag);
 
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
-
       return decrypted;
-    } catch (error) {
-      console.error('Decryption failed:', error);
+    } catch {
       return encryptedText; // Return original if decryption fails
     }
   }
@@ -168,7 +231,12 @@ export class EncryptionService {
 export async function encryptFile(data: Buffer): Promise<Buffer> {
   const iv = crypto.randomBytes(16);
   const key = EncryptionService['getKey']();
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv) as crypto.CipherGCM;
+  const cipher = crypto.createCipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.CipherGCM;
   const encrypted = Buffer.concat([cipher.update(data), cipher.final()]);
   const authTag = cipher.getAuthTag();
 
@@ -185,7 +253,12 @@ export async function decryptFile(data: Buffer): Promise<Buffer> {
   const authTag = data.subarray(16, 32);
   const ciphertext = data.subarray(32);
   const key = EncryptionService['getKey']();
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv) as crypto.DecipherGCM;
+  const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      key,
+      iv,
+      { authTagLength: 16 }
+    ) as crypto.DecipherGCM;
   decipher.setAuthTag(authTag);
 
   return Buffer.concat([decipher.update(ciphertext), decipher.final()]);

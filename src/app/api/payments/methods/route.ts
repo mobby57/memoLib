@@ -1,27 +1,27 @@
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { stripe } from '@/lib/stripe/config';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession();
-        if (!session?.user?.email) {
+        const { user } = await auth();
+        if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const user = await prisma.user.findUnique({
-            where: { email: session.user.email },
+        const dbUser = await prisma.user.findUnique({
+            where: { email: user.email },
             include: { stripeCustomer: true }
         });
 
-        if (!user?.stripeCustomer) {
+        if (!dbUser?.stripeCustomer) {
             return NextResponse.json({ paymentMethods: [] });
         }
 
         // Get payment methods from Stripe
         const paymentMethods = await stripe.paymentMethods.list({
-            customer: user.stripeCustomer.stripeCustomerId,
+            customer: dbUser.stripeCustomer.stripeCustomerId,
             type: 'card'
         });
 
@@ -45,8 +45,8 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
     try {
-        const session = await getServerSession();
-        if (!session?.user?.email) {
+        const { user } = await auth();
+        if (!user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -71,3 +71,7 @@ export async function DELETE(req: NextRequest) {
         );
     }
 }
+
+
+
+

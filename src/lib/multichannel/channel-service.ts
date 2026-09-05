@@ -1,5 +1,4 @@
-﻿// @ts-nocheck
-/**
+﻿/**
  * Service Multi-Canal Centralisé
  * Gère tous les canaux de communication avec normalisation, IA et audit
  */
@@ -201,6 +200,40 @@ export class MultiChannelService {
   }
 
   /**
+   * Traiter un message avec l'IA : analyse, urgence, liaison client, mise à jour
+   */
+  private async processWithAI(message: NormalizedMessage): Promise<void> {
+    try {
+      const analysis = await this.aiService.analyzeMessage(message);
+      message.aiAnalysis = analysis;
+      message.status = 'PROCESSED';
+      message.timestamps.processed = new Date();
+
+      if (!message.clientId) {
+        await this.autoLinkClient(message);
+      }
+
+      if (analysis.urgency === 'HIGH' || analysis.urgency === 'CRITICAL') {
+        await this.createUrgentAlert(message, analysis);
+      }
+
+      this.addAuditEntry(message, 'AI_PROCESSING_COMPLETED', 'AI', {
+        category: analysis.category,
+        urgency: analysis.urgency,
+      });
+
+      await this.updateMessage(message);
+    } catch (error) {
+      message.status = 'FAILED';
+      this.addAuditEntry(message, 'AI_PROCESSING_FAILED', 'SYSTEM', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      await this.updateMessage(message);
+      throw error;
+    }
+  }
+
+  /**
    * Stocker le message en base
    */
   private async storeMessage(message: NormalizedMessage): Promise<void> {
@@ -391,6 +424,8 @@ export class MultiChannelService {
   private dbToNormalized(db: any): NormalizedMessage {
     return {
       id: db.id,
+      externalId: db.externalId,
+      checksum: db.checksum,
       channel: db.channel,
       direction: db.direction,
       status: db.status,

@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 /**
  * Dashboard Admin/Avocat - Gestion du cabinet
  * Niveau 2 : Gestion clients, dossiers, avec limites plan
@@ -8,7 +9,6 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -22,9 +22,27 @@ type DashboardUser = {
   tenantName?: string;
 };
 
+type DashboardDossier = {
+  id: string;
+  statut?: string;
+  numéro?: string;
+  typeDossier?: string;
+  objet?: string;
+  client?: { nom?: string; prenom?: string } | null;
+};
+
+type DashboardClient = {
+  id: string;
+  nom?: string;
+  prenom?: string;
+  email?: string;
+  téléphone?: string;
+  _count?: { dossiers?: number };
+  user?: unknown;
+};
+
 export default function AdminDashboard() {
-  const { data: session, status } = useSession();
-  const user = session?.user as DashboardUser | undefined;
+  const { data: session, status, user } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState({
     clients: 0,
@@ -36,8 +54,8 @@ export default function AdminDashboard() {
     planName: '',
     aiLevel: 1,
   });
-  const [dossiers, setDossiers] = useState<any[]>([]);
-  const [clients, setClients] = useState<any[]>([]);
+  const [dossiers, setDossiers] = useState<DashboardDossier[]>([]);
+  const [clients, setClients] = useState<DashboardClient[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

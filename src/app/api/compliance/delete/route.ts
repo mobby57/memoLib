@@ -1,57 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { z } from 'zod';
+import { auth } from '@/lib/clerk-auth';
 import { GDPRCompliance } from '@/lib/compliance/gdpr';
+import { logger } from '@/lib/logger';
 
-export async function POST(req: NextRequest) {
-    try {
-        const session = await getServerSession();
+const deletionRequestSchema = z.object({ confirm: z.literal(true) }).strict();
 
-        if (!session?.user?.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+export async function POST(request: NextRequest) {
+  const { user } = await auth();
+  if (!user?.tenantId) {
+    return NextResponse.json({ error: user ? 'Accès refusé' : 'Non authentifié' }, { status: user ? 403 : 401 });
+  }
 
-        const { reason } = await req.json();
+  const parsed = deletionRequestSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Confirmation explicite requise' }, { status: 400 });
+  }
 
-        // Request account deletion
-        const deletion = await GDPRCompliance.requestDeletion(
-            session.user.email,
-            reason
-        );
-
-        return NextResponse.json({
-            message: 'Account deletion scheduled',
-            scheduledFor: deletion.scheduledFor,
-            gracePeriod: '30 days',
-            note: 'You can cancel this request anytime before the scheduled date'
-        });
-    } catch (error: any) {
-        console.error('Error requesting deletion:', error);
-        return NextResponse.json(
-            { error: error.message || 'Internal server error' },
-            { status: 500 }
-        );
+  try {
+    const deletion = await GDPRCompliance.requestDeletion(user.id);
+    return NextResponse.json({
+      requestId: deletion.id,
+      status: deletion.status,
+      scheduledFor: deletion.scheduledFor,
+      manualReviewRequired: true,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'An erasure request is already pending.') {
+      return NextResponse.json({ error: 'Une demande est déjà en cours.' }, { status: 409 });
     }
+    logger.error('Erasure request failed', error, { userId: user.id, tenantId: user.tenantId });
+    return NextResponse.json({ error: 'Impossible de créer la demande' }, { status: 500 });
+  }
 }
 
-export async function DELETE(req: NextRequest) {
-    try {
-        const session = await getServerSession();
+export async function DELETE() {
+  const { user } = await auth();
+  if (!user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  }
 
-        if (!session?.user?.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        // Cancel deletion request
-        await GDPRCompliance.cancelDeletion(session.user.email);
-
-        return NextResponse.json({
-            message: 'Deletion request cancelled successfully'
-        });
-    } catch (error: any) {
-        console.error('Error cancelling deletion:', error);
-        return NextResponse.json(
-            { error: error.message || 'Internal server error' },
-            { status: 500 }
-        );
+  try {
+    const cancelled = await GDPRCompliance.cancelDeletion(user.id);
+    if (!cancelled) {
+      return NextResponse.json({ error: 'Aucune demande active' }, { status: 404 });
     }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logger.error('Erasure cancellation failed', error, { userId: user.id });
+    return NextResponse.json({ error: 'Impossible d’annuler la demande' }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  const { user } = await auth();
+  if (!user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  }
+
+  try {
+    return NextResponse.json({ requests: await GDPRCompliance.getDeletionRequests(user.id) });
+  } catch (error) {
+    logger.error('Erasure request lookup failed', error, { userId: user.id });
+    return NextResponse.json({ error: 'Impossible de récupérer les demandes' }, { status: 500 });
+  }
 }

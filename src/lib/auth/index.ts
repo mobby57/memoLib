@@ -1,2 +1,1 @@
-// Re-export du vrai authOptions (NextAuth avec Prisma, bcrypt, RBAC)
-export { authOptions } from '@/lib/auth/authOptions';
+export { auth, type AuthContext, type AuthenticatedUser } from '../clerk-auth';

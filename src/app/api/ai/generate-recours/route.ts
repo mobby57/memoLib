@@ -1,124 +1,89 @@
-import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/clerk-auth';
+import { hybridAI } from '@/lib/ai/hybrid-client';
+import { canAccessDossier } from '@/lib/auth/dossier-access';
+import { withAIRateLimit } from '@/lib/middleware/rate-limit';
 import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
-/**
- * POST /api/ai/generate-recours
- * Genere un recours complet base sur les donnees du dossier.
- */
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+const recoursSchema = z.object({
+  dossierId: z.string().trim().min(1).max(128),
+  typeRecours: z.string().trim().min(2).max(100),
+  arguments: z.string().trim().max(6_000).optional(),
+}).strict();
 
-  const user = session.user as any;
-  const { dossierId, typeRecours, arguments: args } = await req.json();
+export const POST = withAIRateLimit(async (req: NextRequest) => {
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
 
-  if (!dossierId || !typeRecours) {
-    return NextResponse.json({ error: 'dossierId et typeRecours requis' }, { status: 400 });
-  }
+  const parsed = recoursSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Requête de recours invalide' }, { status: 400 });
+  const { dossierId, typeRecours, arguments: additionalArguments } = parsed.data;
+
+  const access = await canAccessDossier({
+    userId: user.id, tenantId: user.tenantId, role: user.role, groups: user.groups,
+    dossierId, action: 'read',
+  });
+  if (!access.allowed) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
 
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId: user.tenantId },
-    include: { client: true },
+    select: { typeDossier: true, juridiction: true, objet: true, description: true },
   });
+  if (!dossier) return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
 
-  if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
+  try {
+    const result = await hybridAI.generateWithCostControl(
+      `Tu es un avocat expert en droit des étrangers. Rédige un brouillon de ${typeRecours}.
 
-  const ollamaUrl = process.env.OLLAMA_URL;
-  let content: string;
+Type de dossier: ${dossier.typeDossier}
+Juridiction: ${dossier.juridiction || 'Tribunal administratif'}
+Objet: ${dossier.objet || 'Non précisé'}
+Description: ${dossier.description || 'Non précisée'}
+${additionalArguments ? `Arguments supplémentaires: ${additionalArguments}` : ''}
 
-  if (ollamaUrl) {
-    try {
-      const prompt = `Tu es un avocat expert en droit des etrangers. Redige un ${typeRecours} complet pour ce dossier:
-- Client: ${dossier.client?.nom || 'N/A'}
-- Type: ${dossier.typeDossier}
-- Juridiction: ${dossier.juridiction || 'Tribunal administratif'}
-- Objet: ${dossier.objet || ''}
-- Description: ${dossier.description || ''}
-${args ? `- Arguments supplementaires: ${args}` : ''}
-
-Structure le recours avec: En-tete, Faits, Discussion (moyens de droit), Demande. Cite les articles CESEDA pertinents.`;
-
-      const res = await fetch(`${ollamaUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: process.env.OLLAMA_MODEL || 'llama3.2:latest', prompt, stream: false }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        content = data.response;
-      } else {
-        content = generateFallbackRecours(dossier, typeRecours);
-      }
-    } catch { content = generateFallbackRecours(dossier, typeRecours); }
-  } else {
-    content = generateFallbackRecours(dossier, typeRecours);
+Structure le recours avec : En-tête, Faits, Discussion (moyens de droit), Demandes.
+N'affirme aucun fait, délai ou article non présent dans les éléments. Signale les informations à compléter.`,
+      user.tenantId
+    );
+    return NextResponse.json({
+      success: true,
+      typeRecours,
+      dossierId,
+      content: result.response,
+      wordCount: result.response.trim().split(/\s+/).filter(Boolean).length,
+      requiresHumanReview: true,
+    });
+  } catch {
+    const content = generateFallbackRecours(dossier, typeRecours);
+    return NextResponse.json({
+      success: true, typeRecours, dossierId, content,
+      wordCount: content.split(/\s+/).length, _fallback: true, requiresHumanReview: true,
+    });
   }
+});
 
-  return NextResponse.json({
-    success: true,
-    typeRecours,
-    dossierId,
-    content,
-    wordCount: content.split(/\s+/).length,
-    note: 'Document genere par IA. A relire et valider par l\'avocat avant envoi.',
-  });
-}
-
-function generateFallbackRecours(dossier: any, typeRecours: string): string {
-  const client = dossier.client?.nom || '[NOM CLIENT]';
-  const date = new Date().toLocaleDateString('fr-FR');
-
+function generateFallbackRecours(
+  dossier: { typeDossier: string; juridiction: string | null; objet: string | null },
+  typeRecours: string
+): string {
   return `TRIBUNAL ADMINISTRATIF DE [VILLE]
 
 RECOURS ${typeRecours.toUpperCase()}
 
-POUR: ${client}
-CONTRE: Prefet de [DEPARTEMENT]
-
-OBJET: ${dossier.objet || `Annulation de la decision du [DATE] portant ${dossier.typeDossier}`}
-
----
+OBJET : ${dossier.objet || `Recours relatif à ${dossier.typeDossier}`}
+JURIDICTION : ${dossier.juridiction || '[À compléter]'}
 
 FAITS
 
-${client} est de nationalite [NATIONALITE], present(e) sur le territoire francais depuis [DATE ARRIVEE].
-
-Par decision en date du [DATE DECISION], le prefet de [DEPARTEMENT] a pris a son encontre une mesure de ${dossier.typeDossier}.
-
-Cette decision est contestee pour les motifs suivants.
-
----
+[Décrire les faits vérifiés et les pièces qui les étayent.]
 
 DISCUSSION
 
-I. Sur la violation de l'article 8 de la CEDH (droit a la vie privee et familiale)
-
-Le requerant justifie d'une vie privee et familiale etablie en France:
-- [ELEMENTS DE VIE PRIVEE]
-- [LIENS FAMILIAUX]
-
-II. Sur la violation de l'article L.611-3 du CESEDA
-
-[ARGUMENTS JURIDIQUES]
-
-III. Sur l'erreur manifeste d'appreciation
-
-[ARGUMENTS]
-
----
+[Développer les moyens de droit après vérification des textes applicables.]
 
 PAR CES MOTIFS
 
-Il est demande au Tribunal:
-- A titre principal: d'annuler la decision du [DATE]
-- A titre subsidiaire: d'enjoindre au prefet de reexaminer la situation
-- De mettre a la charge de l'Etat la somme de 1 500 EUR au titre de l'article L.761-1 du CJA
-
-Fait a [VILLE], le ${date}
-
-Me. [NOM AVOCAT]
-Avocat au Barreau de [BARREAU]`;
+[Préciser les demandes après validation par l’avocat.]`;
 }

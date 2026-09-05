@@ -27,7 +27,7 @@ describe('encryption.ts — Full Coverage', () => {
       const original = process.env.ENCRYPTION_MASTER_KEY;
       delete process.env.ENCRYPTION_MASTER_KEY;
       
-      expect(() => encryptData('test')).toThrow('ENCRYPTION_MASTER_KEY is not configured');
+      expect(() => encryptData('test')).toThrow('ENCRYPTION_MASTER_KEY must be configured');
       
       process.env.ENCRYPTION_MASTER_KEY = original;
     });

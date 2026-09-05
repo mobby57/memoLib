@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { ReportingService } from '@/lib/services/comptabilite';
 import prisma from '@/lib/prisma';
 
@@ -13,10 +12,10 @@ import prisma from '@/lib/prisma';
  * Sinon, fallback sur les factures existantes (rétrocompatibilité).
  */
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  const { user } = await auth();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
-  const user = session.user as any;
   const year = parseInt(req.nextUrl.searchParams.get('year') || new Date().getFullYear().toString());
 
   try {
@@ -70,3 +69,7 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+
+
+

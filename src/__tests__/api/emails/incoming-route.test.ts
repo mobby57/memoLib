@@ -20,6 +20,7 @@ const mockPrisma = {
   workflowExecution: { create: vi.fn(), update: vi.fn() },
   dossier: { findFirst: vi.fn(), create: vi.fn() },
   draft: { findFirst: vi.fn(), create: vi.fn() },
+  actionProposal: { upsert: vi.fn() },
 };
 
 vi.mock('@/lib/security/webhook-verification', () => {
@@ -99,6 +100,7 @@ describe('POST /api/emails/incoming', () => {
     (mockPrisma.emailAttachment.createMany as any).mockResolvedValue({ count: 0 });
     (mockPrisma.draft.findFirst as any).mockResolvedValue(null);
     (mockPrisma.draft.create as any).mockResolvedValue({ id: 'draft_1' });
+    (mockPrisma.actionProposal.upsert as any).mockResolvedValue({ id: 'proposal_1' });
   });
 
   it('returns duplicate=true when email is already known', async () => {
@@ -430,12 +432,9 @@ describe('POST /api/emails/incoming', () => {
     expect(createManyArg.data).toHaveLength(3);
   });
 
-  it('creates client and dossier automatically for high-priority sender without known client', async () => {
+  it('creates a structured proposal, never a client or dossier, for a high-priority sender', async () => {
     (mockPrisma.tenant.findFirst as any).mockResolvedValue({ id: 'tenant_1' });
     (mockPrisma.client.findFirst as any).mockResolvedValue(null);
-    (mockPrisma.client.create as any).mockResolvedValue({ id: 'client_auto_1' });
-    (mockPrisma.dossier.findFirst as any).mockResolvedValue(null);
-    (mockPrisma.dossier.create as any).mockResolvedValue({ id: 'dossier_auto_1' });
     (mockPrisma.email.findFirst as any).mockResolvedValue(null);
     (mockAnalyzeEmail as any).mockResolvedValue({
       category: 'new-case',
@@ -472,14 +471,19 @@ describe('POST /api/emails/incoming', () => {
       workflowId: 'wf_auto_1',
     });
 
-    expect(mockPrisma.client.create).toHaveBeenCalledTimes(1);
-    expect(mockPrisma.dossier.create).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.client.create).not.toHaveBeenCalled();
+    expect(mockPrisma.dossier.create).not.toHaveBeenCalled();
 
-    expect(mockPrisma.email.create).toHaveBeenCalledWith(
+    const emailCreateData = (mockPrisma.email.create as any).mock.calls[0][0].data;
+    expect(emailCreateData).not.toHaveProperty('clientId');
+    expect(emailCreateData).not.toHaveProperty('dossierId');
+    expect(mockPrisma.actionProposal.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
-          clientId: 'client_auto_1',
-          dossierId: 'dossier_auto_1',
+        create: expect.objectContaining({
+          tenantId: 'tenant_1',
+          emailId: 'email_auto_1',
+          type: 'CREATE_DOSSIER',
+          idempotencyKey: 'email:email_auto_1:triage:v1',
         }),
       })
     );

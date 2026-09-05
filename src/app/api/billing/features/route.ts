@@ -1,3 +1,8 @@
+import { auth } from '@/lib/clerk-auth';
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
+// CLERK-MIGRATION: Remplacement user -> user (vérifier)
+// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API : Features disponibles pour le tenant courant
  *
@@ -8,18 +13,17 @@
  * la logique côté client (optionnel — le hook fonctionne aussi en standalone).
  */
 
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getFeatureGate, FEATURE_CATEGORIES } from '@/lib/billing/features';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const { user } = await auth();
+    const session = user ? { user } : null;
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const tenantId = (session.user as any)?.tenantId;
+  const tenantId = (user as any)?.tenantId;
   if (!tenantId) {
     return NextResponse.json({ error: 'No tenant' }, { status: 403 });
   }
@@ -49,3 +53,7 @@ export async function GET(req: NextRequest) {
     })),
   });
 }
+
+
+
+
