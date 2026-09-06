@@ -24,12 +24,17 @@ describe('Matrice juridique – Scénarios CESEDA', () => {
   });
 
   it.each(scenarios)('$id – $description', (scenario) => {
-    const mode = scenario.input.metadata?.mode || 'calendar';
+    const notificationDate = new Date(scenario.input.notificationDate);
+    // Évaluation déterministe : on fige "maintenant" à la date de notification.
+    // L'urgence redevient reproductible (indépendante de l'horloge réelle) et
+    // reflète la gravité au moment où le dossier est reçu — ce que les
+    // scénarios figent. La gravité finale = max(gravité métier de base,
+    // urgence temporelle).
     const result = calculateDeadline(
       scenario.input.procedureType as ProcedureType,
-      new Date(scenario.input.notificationDate),
+      notificationDate,
       scenario.input.metadata || {},
-      mode
+      notificationDate
     );
 
     // Vérifier la date limite
@@ -37,17 +42,9 @@ describe('Matrice juridique – Scénarios CESEDA', () => {
     const actualDeadline = result.deadlineDate.toISOString().split('T')[0];
     expect(actualDeadline).toBe(expectedDeadline);
 
-    // Vérifier l'urgence.
-    // L'urgence dépend du temps restant PAR RAPPORT À MAINTENANT
-    // (calculateUrgencyLevel utilise new Date()), alors que les scénarios
-    // figent une urgence attendue. Cette valeur devient donc non déterministe
-    // à mesure que la date d'échéance approche. On vérifie donc que l'urgence
-    // est une valeur valide et cohérente avec le temps restant réel, sans
-    // imposer une valeur figée fragile. La date limite (sortie juridiquement
-    // critique) reste, elle, assertée exactement ci-dessus.
+    // Vérifier l'urgence (déterministe car "now" est figé à la notification).
     if (scenario.expected.urgency) {
-      const VALID_URGENCIES = ['faible', 'moyen', 'eleve', 'élevé', 'critique'];
-      expect(VALID_URGENCIES).toContain(result.urgencyLevel);
+      expect(result.urgencyLevel).toBe(scenario.expected.urgency);
     }
 
     // Vérifier humanReviewRequired
