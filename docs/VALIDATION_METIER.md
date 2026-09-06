@@ -62,13 +62,12 @@ Statuts possibles :
 
 ## 5. État actuel (grounded dans le code)
 
-**Verdict : 🔴 NO-GO** — 8 PASS · 2 PARTIAL · 2 FALSE · 8 GAP.
+**Verdict : 🔴 NO-GO** — 10 PASS · 2 PARTIAL · 2 FALSE · 6 GAP.
 
-🟢 **Réellement validés :** idempotence email entrant, isolation tenant (anti-IDOR), RBAC deny, idempotence webhook Stripe, hash-chain audit, alertes J-7 / retard.
+🟢 **Réellement validés :** idempotence email entrant, isolation tenant (anti-IDOR), RBAC deny, idempotence webhook Stripe, hash-chain audit, alertes J-7 / retard, **Email→Dossier + persistance des délais** (P0 corrigé).
 
-🔴 **GAP centraux (risque principal) :**
-- **`EMAIL-TO-DOSSIER` / `DEADLINE-PERSIST`** — `src/app/api/emails/create-dossier/route.ts` n'a aucun test. **Bug confirmé par lecture du code** : la route omet des champs requis de `LegalDeadline` (`id`, `referenceDate`, `createdBy`, `updatedAt`) et émet des `type` hors de l'enum `DeadlineType` (`OQTF_DEPART`, `ASILE_OFPRA`…). Chaque `legalDeadline.create()` jette une erreur — avalée par `.catch(() => {})` — et la route renvoie `{ success: true, deadlinesCreated: N }` alors que **zéro délai n'est persisté**. C'est la thèse produit en échec direct.
-- **`CESEDA-ENGINE-UNIFIED` / `CESEDA-JOURS-FERIES`** — 3 moteurs divergents ; celui câblé au flux (`getCesedaDeadlines` inline) est le seul non testé et calcule `date + N×86400000` sans week-end ni jours fériés (un référé 48h tombant un samedi est faux).
+🔴 **GAP centraux restants :**
+- **`CESEDA-ENGINE-UNIFIED` / `CESEDA-JOURS-FERIES`** — 3 moteurs divergents ; celui câblé au flux (`getCesedaDeadlines` inline) calcule `date + N×86400000` sans week-end ni jours fériés (un référé 48h tombant un samedi est faux).
 - **`AI-FALLBACK` / `AI-NO-AUTO-SEND` / `AI-HUMAN-REVIEW`** — pas de fallback Ollama testé, pas de verrou « NO auto-send », chemin de revue humaine jamais exercé.
 - **`RGPD-ERASURE`** — aucun test ne prouve la suppression/anonymisation effective.
 
@@ -107,12 +106,8 @@ Sorties générées : `reports/business-validation.md` et `reports/business-vali
 3. Passer le `status` du cas à `PASS` et retirer `awaitingFix` s'il était présent.
 4. Relancer `npm run business:validate` et vérifier que le cas est bien 🟢.
 
-### Prochain GAP prioritaire (P0)
+### Prochain GAP prioritaire
 
-Fermer **`EMAIL-TO-DOSSIER` / `DEADLINE-PERSIST`** :
+**P0 fermé :** `EMAIL-TO-DOSSIER` / `DEADLINE-PERSIST` — la route `create-dossier` fournit désormais les champs requis (`id`, `referenceDate`, `createdBy`, `updatedAt`), mappe les `type` sur l'enum `DeadlineType`, et ne masque plus l'échec de persistance (`.catch(() => {})` retiré). Le test `src/__tests__/api/emails/create-dossier-route.test.ts` importe le code de prod et couvre le chemin négatif.
 
-1. Dans `create-dossier/route.ts`, fournir pour chaque `legalDeadline.create` : `id`, `referenceDate`, `createdBy`, `updatedAt`.
-2. Mapper les libellés CESEDA sur des valeurs valides de l'enum `DeadlineType`.
-3. Retirer les `.catch(() => {})` des créations de délais : un échec ne doit pas être masqué.
-4. Dé-skip `src/__tests__/api/emails/create-dossier-route.test.ts`.
-5. Passer les deux cas à `PASS` (retirer `awaitingFix`).
+**P1 suivant — `CESEDA-JOURS-FERIES` :** le moteur câblé calcule un délai calendaire brut (`fromDate + N×86400000`). Il faut reporter au prochain jour ouvré tout délai tombant un week-end ou un jour férié, unifier sur un seul moteur CESEDA, et le tester (import du code de prod, cas week-end + jours fériés).
