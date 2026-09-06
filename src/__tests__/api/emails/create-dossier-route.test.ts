@@ -1,52 +1,39 @@
 /**
- * Spec de caractérisation — chaîne Email -> Dossier -> Délais (P0).
+ * Spec de la chaîne Email -> Dossier -> Délais (P0).
  *
- * ⚠️ describe.skip VOLONTAIRE.
+ * Verrouille la chaîne métier la plus critique. Documente et prévient la
+ * régression du bug corrigé dans src/app/api/emails/create-dossier/route.ts :
  *
- * Ce test verrouille la chaîne métier la plus critique et documente un BUG CONFIRMÉ
- * (lecture du code de src/app/api/emails/create-dossier/route.ts) :
+ *   Auparavant, la route omettait des champs REQUIS de LegalDeadline
+ *   (id, referenceDate, createdBy, updatedAt — aucun @default) et émettait des
+ *   `type` hors de l'enum DeadlineType (OQTF_DEPART, ASILE_OFPRA...). Chaque
+ *   prisma.legalDeadline.create() jetait, l'erreur était avalée par
+ *   `.catch(() => {})`, et la route renvoyait { success: true,
+ *   deadlinesCreated: N } alors que ZÉRO délai n'était persisté
+ *   (perte silencieuse d'un délai = thèse produit en échec).
  *
- *   La route omet des champs REQUIS de LegalDeadline (id, referenceDate, createdBy,
- *   updatedAt — aucun @default dans le schéma) et émet des `type` hors de l'enum
- *   DeadlineType (OQTF_DEPART, OQTF_RECOURS_TA, ASILE_OFPRA, TS_RECOURS_GRACIEUX...).
- *   Chaque prisma.legalDeadline.create() jette donc une erreur de validation —
- *   mais `.catch(() => {})` l'avale, et la route renvoie { success: true,
- *   deadlinesCreated: N } alors que ZÉRO délai n'est persisté.
+ *   Correctif : champs requis fournis, `type` mappés sur l'enum valide,
+ *   `.catch(() => {})` retirés des créations de délais.
  *
- *   => Un cabinet perd un délai silencieusement. C'est exactement la thèse produit
- *      à empêcher.
- *
- * Tant que la route n'est pas corrigée, ce test échouerait ; il est donc `.skip`
- * pour ne pas casser la suite CI sur un travail hors périmètre de cette PR.
- *
- * POUR CORRIGER (puis dé-skip) :
- *   1. Dans create-dossier/route.ts, fournir pour chaque legalDeadline.create :
- *      id: crypto.randomUUID(), referenceDate: <date>, createdBy: user.id,
- *      updatedAt: new Date().
- *   2. Mapper les libellés CESEDA sur des valeurs valides de l'enum DeadlineType
- *      (RECOURS_CONTENTIEUX, OQTF, RETENTION, CUSTOM, ...).
- *   3. Retirer les `.catch(() => {})` sur les créations de délais : un échec de
- *      persistance d'un délai doit faire échouer la requête (ou au minimum ne pas
- *      renvoyer success:true avec un deadlinesCreated mensonger).
- *   4. Retirer le `.skip` ci-dessous.
- *   5. Passer EMAIL-TO-DOSSIER et DEADLINE-PERSIST à "PASS" (retirer awaitingFix)
- *      dans scripts/business-cases.json.
+ * Ce test échoue si la régression réapparaît (champ requis manquant ou type
+ * hors enum), ce qui refait chuter EMAIL-TO-DOSSIER / DEADLINE-PERSIST en GAP.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { auth } from '@/lib/clerk-auth';
-import { prisma } from '@/lib/prisma';
 import { POST } from '@/app/api/emails/create-dossier/route';
 
 vi.mock('@/lib/clerk-auth', () => ({ auth: vi.fn() }));
 
-const mockPrisma = {
+// vi.mock est hissé en haut du fichier : le mock prisma doit être créé via
+// vi.hoisted pour être disponible dans la factory sans erreur d'initialisation.
+const mockPrisma = vi.hoisted(() => ({
   client: { findFirst: vi.fn(), create: vi.fn() },
   dossier: { count: vi.fn(), create: vi.fn() },
   email: { update: vi.fn() },
   legalDeadline: { create: vi.fn() },
   communityTemplate: { findFirst: vi.fn() },
-};
+}));
 
 vi.mock('@/lib/prisma', () => ({ prisma: mockPrisma }));
 
@@ -79,7 +66,7 @@ function makeRequest(body: unknown): NextRequest {
   });
 }
 
-describe.skip('[P0] Email -> Dossier -> Délais (caractérisation, awaiting route fix)', () => {
+describe('[P0] Email -> Dossier -> Délais (chaîne métier critique)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockedAuth.mockResolvedValue({

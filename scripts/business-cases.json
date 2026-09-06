@@ -103,22 +103,20 @@
       "axis": "business-logic",
       "chain": "Email -> IA -> rattachement dossier",
       "title": "Email -> Dossier crée réellement le dossier ET rattache l'email",
-      "status": "GAP",
-      "awaitingFix": true,
+      "status": "PASS",
       "expectedTest": "src/__tests__/api/emails/create-dossier-route.test.ts",
       "assertion": "Importe create-dossier/route.ts; vérifie dossier créé + email.dossierId mis à jour.",
-      "evidence": "CODE VÉRIFIÉ: src/app/api/emails/create-dossier/route.ts n'a AUCUN test. Route couplée à getCesedaDeadlines inline."
+      "evidence": "Route corrigée + test importe le code de prod réel (POST). Dossier créé et email rattaché vérifiés."
     },
     {
       "id": "DEADLINE-PERSIST",
       "axis": "legal-compliance",
       "chain": "extraction obligations/délais -> persistance",
       "title": "Un délai détecté est réellement persisté (pas de perte silencieuse)",
-      "status": "GAP",
-      "awaitingFix": true,
+      "status": "PASS",
       "expectedTest": "src/__tests__/api/emails/create-dossier-route.test.ts",
       "assertion": "prisma.legalDeadline.create appelé avec les champs requis (id, referenceDate, createdBy, updatedAt) et un type ENUM valide; échec de persistance -> réponse NON success.",
-      "evidence": "BUG CONFIRMÉ (code lu): la route omet id/referenceDate/createdBy/updatedAt (tous requis, sans @default) et émet des type hors enum DeadlineType (OQTF_DEPART, ASILE_OFPRA...). Chaque create jette, mais .catch(()=>{}) avale l'erreur -> renvoie success:true avec deadlinesCreated:N alors que 0 délai persiste."
+      "evidence": "BUG CORRIGÉ: la route fournit désormais id/referenceDate/createdBy/updatedAt, mappe les type sur l'enum DeadlineType valide, et ne masque plus l'échec (.catch retiré -> 500). Test importe le code de prod et couvre le chemin négatif."
     },
     {
       "id": "CESEDA-ENGINE-UNIFIED",
