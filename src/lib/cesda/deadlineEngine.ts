@@ -45,7 +45,11 @@ export function calculateDeadline(
 
     case ProcedureType.ASILE:
       // Depend du stade
-      if (metadata?.stade === "CNDA") {
+      if (metadata?.stade === "CNDA_accelere") {
+        // Recours CNDA en procedure acceleree (retention/assignation) = 15 jours
+        // (art. L.532-2 CESEDA). Delai de recours reduit.
+        deadlineDate = addDays(notificationDate, 15)
+      } else if (metadata?.stade === "CNDA") {
         config = STANDARD_DEADLINES.ASILE_CNDA
         deadlineDate = addDays(notificationDate, 30)
       } else {

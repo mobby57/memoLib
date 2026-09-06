@@ -28,7 +28,7 @@
       }
     },
     "expected": {
-      "expectedDeadline": "2027-02-01",
+      "expectedDeadline": "2026-08-16",
       "urgency": "eleve",
       "humanReviewRequired": false
     }
