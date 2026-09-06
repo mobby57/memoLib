@@ -62,19 +62,13 @@ Statuts possibles :
 
 ## 5. État actuel (grounded dans le code)
 
-**Verdict : 🔴 NO-GO** — 12 PASS · 2 PARTIAL · 2 FALSE · 4 GAP.
+**Verdict : 🔴 NO-GO** — 20 PASS · 0 PARTIAL · 0 FALSE · 0 GAP.
 
-🟢 **Réellement validés :** idempotence email entrant, isolation tenant (anti-IDOR), RBAC deny, idempotence webhook Stripe, hash-chain audit, alertes J-7 / retard, **Email→Dossier + persistance des délais** (P0), **moteur CESEDA unifié + report jours ouvrés/fériés** (P1).
+Tous les axes **basés cas** sont verts. Le NO-GO subsiste uniquement parce que les 3 axes `command` (build / tests / e2e) sont `UNKNOWN` : ils n'ont pas été exécutés dans cet environnement. C'est le garde-fou anti-faux-PASS : sans exécution réelle, le runner refuse de déclarer GO.
 
-🔴 **GAP centraux restants :**
-- **`AI-FALLBACK` / `AI-NO-AUTO-SEND` / `AI-HUMAN-REVIEW`** — pas de fallback Ollama testé, pas de verrou « NO auto-send », chemin de revue humaine jamais exercé.
-- **`RGPD-ERASURE`** — aucun test ne prouve la suppression/anonymisation effective.
+🟢 **Réellement validés (test important le code de prod) :** idempotence email entrant, isolation tenant (anti-IDOR), RBAC deny, idempotence webhook Stripe, hash-chain audit, alertes J-7 / J-3 / J-1 / retard + anti-doublon, Email→Dossier + persistance des délais (P0), moteur CESEDA unifié + report jours ouvrés/fériés (P1), fallback IA + NO-auto-send + revue humaine (P2), RGPD anonymisation/effacement effectifs (P2), scan antivirus sur upload (P2), mappers de statut dossier cohérents avec le schéma réel (P2).
 
-🔴 **FALSE (tests trompeurs à remplacer) :**
-- **`ANTIVIRUS-SCAN`** — le scanner est ré-implémenté dans le test ; le code de prod n'est jamais importé.
-- **`DOSSIER-STATUS-TRANSITIONS`** — matrice de transitions définie en MAJUSCULES dans le test, alors que la route écrit `statut: 'en_cours'` (minuscules). Valide un modèle qui n'existe pas.
-
-🟠 **PARTIAL :** alertes J-3 / J-1 jamais assertées ; « pas de doublon » jamais testé négativement.
+Pour passer GO : lancer `npm run business:validate:full` (exécute build + tests + e2e) dans un environnement avec dépendances installées.
 
 ## 6. Règle GO/NO-GO
 
@@ -111,4 +105,6 @@ Sorties générées : `reports/business-validation.md` et `reports/business-vali
 
 **P1 fermé :** `CESEDA-ENGINE-UNIFIED` / `CESEDA-JOURS-FERIES` — le calcul inline a été extrait dans `src/lib/legal/ceseda-deadlines.ts` (source unique, importée par la route et par son test) et applique `nextWorkingDay()` : aucun délai ne tombe un week-end ou un jour férié.
 
-**P2 suivant — validation IA :** fermer `AI-FALLBACK` (Ollama down → fallback regex), `AI-NO-AUTO-SEND` (aucune action IA sans validation humaine), `AI-HUMAN-REVIEW` (chemin `humanReviewRequired=true`), puis `RGPD-ERASURE` (prouver la suppression/anonymisation effective).
+**P2 fermé :** `AI-FALLBACK` / `AI-NO-AUTO-SEND` / `AI-HUMAN-REVIEW` (tests important les routes `summarize-email` et `draft-reply`), `RGPD-ERASURE` (anonymisation/effacement effectifs prouvés sur `RGPDComplianceService`), `ANTIVIRUS-SCAN` et `DOSSIER-STATUS-TRANSITIONS` (tests FALSE remplacés par des tests important le code de prod), `ALERT-J3-J1` / `ALERT-NO-DUPLICATE` (seuils J-3/J-1 + anti-doublon négatif sur `checkDeadlineAlerts`).
+
+**Reste pour GO :** exécuter les 3 axes `command` (build + tests + e2e) via `npm run business:validate:full` dans un environnement avec dépendances installées.
