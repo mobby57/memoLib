@@ -33,6 +33,17 @@ fs.mkdirSync(reportsDir, { recursive: true });
 const args = process.argv.slice(2);
 const runCommands = args.includes('--run-commands');
 const strict = args.includes('--strict');
+// --commands=build,test:ci  -> exécute seulement ces gates (par id), le reste = UNKNOWN.
+// Permet à la CI d'évaluer honnêtement les gates qu'elle peut lancer et de laisser
+// les autres (ex: e2e) en UNKNOWN plutôt que de forcer un faux PASS/FAIL.
+const commandsArg = args.find((a) => a.startsWith('--commands='));
+const selectedCommands = commandsArg
+  ? commandsArg
+      .slice('--commands='.length)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  : null;
 
 function fileExists(rel) {
   return fs.existsSync(path.join(root, rel));
@@ -69,8 +80,10 @@ const evaluatedCases = catalogue.cases.map((c) => {
 // ---- Evaluate command gates --------------------------------------------------
 const commandGates = Object.entries(catalogue.commandGates || {}).map(
   ([id, gate]) => {
+    // Un gate est exécuté si --run-commands (tous) ou si son id est dans --commands=...
+    const shouldRun = runCommands || (selectedCommands && selectedCommands.includes(id));
     let result = 'UNKNOWN';
-    if (runCommands) {
+    if (shouldRun) {
       result = commandOk(gate.command) ? 'PASS' : 'FAIL';
     }
     return { id, ...gate, result, passing: result === 'PASS' };
