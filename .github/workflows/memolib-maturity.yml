@@ -50,6 +50,15 @@ jobs:
           NEXTAUTH_SECRET: ci-test-secret-not-for-production
           NEXTAUTH_URL: http://localhost:3000
 
+      - name: Run business validation (métier)
+        if: always()
+        run: node scripts/business-validation.js
+
+      - name: Publish business validation report
+        if: always()
+        run: |
+          if [ -f reports/business-validation.md ]; then cat reports/business-validation.md >> "$GITHUB_STEP_SUMMARY"; fi
+
       - name: Publish report
         if: always()
         run: |
