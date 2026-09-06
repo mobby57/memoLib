@@ -46,7 +46,7 @@ describe('emailService.ts — Full Coverage', () => {
         { titre: 'RDV Préfecture', date: new Date('2026-04-01'), dossier: 'DOS-003' },
         7
       );
-      expect(result.subject).toContain('a venir');
+      expect(result.subject).toContain('À venir');
       expect(result.subject).toContain('7 jours');
       expect(result.htmlBody).toContain('#3b82f6');
     });

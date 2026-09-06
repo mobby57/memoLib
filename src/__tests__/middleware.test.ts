@@ -6,10 +6,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock @/lib/auth/jwt
-vi.mock('@/lib/auth/jwt', () => ({
-  getToken: vi.fn(),
-}));
+// @/lib/auth/jwt n'existe pas comme module réel : on fournit un mock local
+// hoisté utilisé directement par les tests (pas d'import réel à résoudre).
+const getToken = vi.hoisted(() => vi.fn());
 
 describe('Middleware Global', () => {
   const createMockRequest = (
