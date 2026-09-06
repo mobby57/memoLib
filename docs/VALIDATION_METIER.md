@@ -62,12 +62,11 @@ Statuts possibles :
 
 ## 5. État actuel (grounded dans le code)
 
-**Verdict : 🔴 NO-GO** — 10 PASS · 2 PARTIAL · 2 FALSE · 6 GAP.
+**Verdict : 🔴 NO-GO** — 12 PASS · 2 PARTIAL · 2 FALSE · 4 GAP.
 
-🟢 **Réellement validés :** idempotence email entrant, isolation tenant (anti-IDOR), RBAC deny, idempotence webhook Stripe, hash-chain audit, alertes J-7 / retard, **Email→Dossier + persistance des délais** (P0 corrigé).
+🟢 **Réellement validés :** idempotence email entrant, isolation tenant (anti-IDOR), RBAC deny, idempotence webhook Stripe, hash-chain audit, alertes J-7 / retard, **Email→Dossier + persistance des délais** (P0), **moteur CESEDA unifié + report jours ouvrés/fériés** (P1).
 
 🔴 **GAP centraux restants :**
-- **`CESEDA-ENGINE-UNIFIED` / `CESEDA-JOURS-FERIES`** — 3 moteurs divergents ; celui câblé au flux (`getCesedaDeadlines` inline) calcule `date + N×86400000` sans week-end ni jours fériés (un référé 48h tombant un samedi est faux).
 - **`AI-FALLBACK` / `AI-NO-AUTO-SEND` / `AI-HUMAN-REVIEW`** — pas de fallback Ollama testé, pas de verrou « NO auto-send », chemin de revue humaine jamais exercé.
 - **`RGPD-ERASURE`** — aucun test ne prouve la suppression/anonymisation effective.
 
@@ -110,4 +109,6 @@ Sorties générées : `reports/business-validation.md` et `reports/business-vali
 
 **P0 fermé :** `EMAIL-TO-DOSSIER` / `DEADLINE-PERSIST` — la route `create-dossier` fournit désormais les champs requis (`id`, `referenceDate`, `createdBy`, `updatedAt`), mappe les `type` sur l'enum `DeadlineType`, et ne masque plus l'échec de persistance (`.catch(() => {})` retiré). Le test `src/__tests__/api/emails/create-dossier-route.test.ts` importe le code de prod et couvre le chemin négatif.
 
-**P1 suivant — `CESEDA-JOURS-FERIES` :** le moteur câblé calcule un délai calendaire brut (`fromDate + N×86400000`). Il faut reporter au prochain jour ouvré tout délai tombant un week-end ou un jour férié, unifier sur un seul moteur CESEDA, et le tester (import du code de prod, cas week-end + jours fériés).
+**P1 fermé :** `CESEDA-ENGINE-UNIFIED` / `CESEDA-JOURS-FERIES` — le calcul inline a été extrait dans `src/lib/legal/ceseda-deadlines.ts` (source unique, importée par la route et par son test) et applique `nextWorkingDay()` : aucun délai ne tombe un week-end ou un jour férié.
+
+**P2 suivant — validation IA :** fermer `AI-FALLBACK` (Ollama down → fallback regex), `AI-NO-AUTO-SEND` (aucune action IA sans validation humaine), `AI-HUMAN-REVIEW` (chemin `humanReviewRequired=true`), puis `RGPD-ERASURE` (prouver la suppression/anonymisation effective).

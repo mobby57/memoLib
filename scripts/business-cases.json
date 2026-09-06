@@ -123,20 +123,20 @@
       "axis": "legal-compliance",
       "chain": "calcul juridique",
       "title": "Un seul moteur CESEDA, testé, câblé au flux réel",
-      "status": "GAP",
-      "expectedTest": "src/__tests__/lib/cesda/deadlineEngine.real.test.ts",
-      "assertion": "Le moteur câblé à email->dossier est celui qui est testé (import du code de prod).",
-      "evidence": "CODE VÉRIFIÉ: 3 moteurs divergents; celui câblé (getCesedaDeadlines inline dans route.ts) est le SEUL non testé."
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/legal/ceseda-deadlines.test.ts",
+      "assertion": "Le moteur câblé à email->dossier (src/lib/legal/ceseda-deadlines.ts) est importé et testé.",
+      "evidence": "Le calcul inline a été extrait dans src/lib/legal/ceseda-deadlines.ts, importé par la route ET par le test (code de prod réel). Source unique de vérité."
     },
     {
       "id": "CESEDA-JOURS-FERIES",
       "axis": "legal-compliance",
       "chain": "calcul juridique",
       "title": "Délais reportés hors week-end et jours fériés",
-      "status": "GAP",
-      "expectedTest": "src/__tests__/lib/cesda/deadlineEngine.real.test.ts",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/legal/ceseda-deadlines.test.ts",
       "assertion": "Un délai (ex: référé 48h) tombant un samedi/férié est reporté au prochain jour ouvré.",
-      "evidence": "CODE VÉRIFIÉ: getCesedaDeadlines fait fromDate + N*86400000, sans week-end ni jours fériés. Jamais testé."
+      "evidence": "Le moteur applique nextWorkingDay() (src/lib/legal/workingDays.ts). Test: aucun délai ne tombe un week-end/férié sur 60x12 combinaisons + cas samedi->lundi explicite."
     },
     {
       "id": "AI-FALLBACK",
