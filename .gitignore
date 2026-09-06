@@ -162,6 +162,9 @@ security-backup-*/
 /cookie.txt
 /memolib-audit.zip
 /semgrep-*.sarif
+
+# Generated validation/maturity reports (reproducible via scripts/*.js)
+/reports/
 /.agents/
 /.claude/
 /.kiro/
