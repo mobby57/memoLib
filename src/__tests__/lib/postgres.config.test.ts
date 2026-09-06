@@ -71,13 +71,16 @@ describe('PostgreSQL Config - Pure Unit Tests', () => {
     it('should create SSL config', () => {
       const createSSLConfig = (mode: string) => {
         if (mode === 'disable') return false;
+        // Sémantique PostgreSQL : seuls verify-ca / verify-full valident le
+        // certificat. `require` chiffre sans vérifier -> rejectUnauthorized:false.
         return {
-          rejectUnauthorized: mode === 'verify-full',
+          rejectUnauthorized: mode === 'verify-full' || mode === 'verify-ca',
         };
       };
 
       expect(createSSLConfig('disable')).toBe(false);
-      expect(createSSLConfig('require')).toEqual({ rejectUnauthorized: true });
+      expect(createSSLConfig('require')).toEqual({ rejectUnauthorized: false });
+      expect(createSSLConfig('verify-full')).toEqual({ rejectUnauthorized: true });
     });
   });
 

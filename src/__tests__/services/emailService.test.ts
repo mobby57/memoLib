@@ -162,7 +162,7 @@ describe('Email Template Validation', () => {
 
     // Vérifie structure HTML basique
     expect(result.htmlBody).toContain('<!DOCTYPE html>');
-    expect(result.htmlBody).toContain('<html>');
+    expect(result.htmlBody).toContain('<html lang="fr">');
     expect(result.htmlBody).toContain('</body>');
   });
 
