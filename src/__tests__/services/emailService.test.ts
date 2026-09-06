@@ -48,7 +48,7 @@ describe('EmailService', () => {
     it('génère un email avec sujet "à venir" pour échéance à 7 jours', () => {
       const result = generateEcheanceReminderEmail(mockEcheance, 7);
 
-      expect(result.subject).toContain('a venir');
+      expect(result.subject).toContain('À venir');
       expect(result.subject).toContain('7 jours');
     });
 
