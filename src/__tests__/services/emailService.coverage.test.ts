@@ -78,7 +78,7 @@ describe('emailService.ts — Full Coverage', () => {
         { numero: 'F-001', client: 'Test', montant: 100, dateEcheance: new Date() },
         1
       );
-      expect(result.subject).toContain('1 jours');
+      expect(result.subject).toContain('1 jour');
     });
   });
 
@@ -91,7 +91,7 @@ describe('emailService.ts — Full Coverage', () => {
         upcomingEcheances: 4,
         overdueFactures: 2,
       });
-      expect(result.subject).toContain('Resume hebdomadaire');
+      expect(result.subject).toContain('Résumé hebdomadaire');
       expect(result.htmlBody).toContain('5');
       expect(result.htmlBody).toContain('12500');
       expect(result.htmlBody).toContain('4');
