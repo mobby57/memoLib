@@ -25,6 +25,7 @@
     "business:validate": "node scripts/business-validation.js",
     "business:validate:strict": "node scripts/business-validation.js --strict",
     "business:validate:full": "node scripts/business-validation.js --run-commands --strict",
+    "business:validate:ci": "node scripts/business-validation.js --commands=production-build,technical-tests",
     "test:integration": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest __testPathPatterns=integration --coverage --passWithNoTests --maxWorkers=2",
     "test:unit": "vitest run tests/unit src/__tests__/lib src/__tests__/domain src/__tests__/utils src/__tests__/types src/__tests__/constants",
     "test:e2e": "playwright test tests/e2e",

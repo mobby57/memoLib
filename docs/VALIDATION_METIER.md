@@ -88,9 +88,20 @@ npm run business:validate:strict
 
 # Exécute aussi build + tests + e2e (nécessite les dépendances installées)
 npm run business:validate:full
+
+# Variante CI : exécute seulement les gates build + tests (e2e reste UNKNOWN)
+npm run business:validate:ci
 ```
 
+Le runner accepte `--commands=<id1,id2>` pour n'exécuter que certains gates (par id : `production-build`, `technical-tests`, `critical-e2e`). Les gates non sélectionnés restent `UNKNOWN` — jamais un faux PASS.
+
 Sorties générées : `reports/business-validation.md` et `reports/business-validation.json`.
+
+### Intégration CI (état honnête)
+
+La job `memolib-maturity.yml` lance `npm run business:validate:ci` (build + tests). **Sans `--strict`**, l'étape publie le rapport dans le résumé de job sans bloquer : c'est volontaire car la suite `test:ci` existante comporte actuellement des échecs **préexistants** (au 2026-09, ~77 tests en échec sur ~4646, dans des fichiers non liés à cet axe — `teams`, `lawyer/workspace-emails`, `dateValidator`… issus de la migration Clerk en cours). Le gate `technical-tests` rapporte donc honnêtement `FAIL` tant que ces tests ne sont pas réparés ; il ne faut pas le rendre bloquant sur une dette préexistante hors périmètre.
+
+Pour un GO réel : réparer la suite `test:ci`, puis passer la CI en `business:validate:full`/`--strict`.
 
 ## 8. Comment fermer un GAP
 
