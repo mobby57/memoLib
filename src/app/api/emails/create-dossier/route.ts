@@ -2,7 +2,7 @@ import { auth } from '@/lib/clerk-auth';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import type { DeadlineType } from '@prisma/client';
+import { getCesedaDeadlines } from '@/lib/legal/ceseda-deadlines';
 export async function POST(req: NextRequest) {
   const { user } = await auth();
     const session = user ? { user } : null;
@@ -170,75 +170,6 @@ function parseDate(str: string): Date | null {
   return isNaN(natural.getTime()) ? null : natural;
 }
 
-interface CesedaDeadline {
-  type: DeadlineType;
-  label: string;
-  dueDate: Date;
-}
-
-/**
- * Génère les délais CESEDA. Le champ `type` DOIT être une valeur valide de
- * l'enum Prisma DeadlineType. La nature précise du délai (départ volontaire,
- * référé-liberté, OFPRA...) est portée par `label`.
- *
- * Valeurs valides de DeadlineType (prisma/schema.prisma):
- *   RECOURS_GRACIEUX, RECOURS_HIERARCHIQUE, RECOURS_CONTENTIEUX, APPEL,
- *   CASSATION, REPONSE_PREFECTURE, CONVOCATION_AUDIENCE, PRODUCTION_PIECES,
- *   EXECUTION_DECISION, OQTF, RETENTION, CUSTOM.
- *
- * NOTE: le calcul ci-dessous est un délai calendaire brut (fromDate + N jours).
- * Le report hors week-end / jours fériés reste un GAP identifié
- * (voir docs/VALIDATION_METIER.md — CESEDA-JOURS-FERIES).
- */
-function getCesedaDeadlines(typeDossier: string, fromDate: Date): CesedaDeadline[] {
-  const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
-
-  const deadlines: Record<string, CesedaDeadline[]> = {
-    OQTF: [
-      { type: 'OQTF', label: 'Délai de départ volontaire (30 jours)', dueDate: addDays(fromDate, 30) },
-      { type: 'RECOURS_CONTENTIEUX', label: 'Recours TA contre OQTF (30 jours)', dueDate: addDays(fromDate, 30) },
-    ],
-    OQTF_SANS_DELAI: [
-      { type: 'OQTF', label: '⚠️ URGENT — Recours OQTF sans délai (48h)', dueDate: addDays(fromDate, 2) },
-      { type: 'RECOURS_CONTENTIEUX', label: '⚠️ URGENT — Référé-liberté (48h)', dueDate: addDays(fromDate, 2) },
-    ],
-    IRTF: [
-      { type: 'RECOURS_CONTENTIEUX', label: '⚠️ URGENT — Recours IRTF (48h si OQTF sans délai)', dueDate: addDays(fromDate, 2) },
-    ],
-    Asile: [
-      { type: 'PRODUCTION_PIECES', label: 'Dépôt demande OFPRA (21 jours)', dueDate: addDays(fromDate, 21) },
-      { type: 'RECOURS_CONTENTIEUX', label: 'Recours CNDA (1 mois)', dueDate: addDays(fromDate, 30) },
-    ],
-    Asile_accelere: [
-      { type: 'RECOURS_CONTENTIEUX', label: '⚠️ URGENT — Recours CNDA procédure accélérée (15 jours)', dueDate: addDays(fromDate, 15) },
-    ],
-    TitreSejour: [
-      { type: 'RECOURS_GRACIEUX', label: 'Recours gracieux préfecture (2 mois)', dueDate: addDays(fromDate, 60) },
-      { type: 'RECOURS_CONTENTIEUX', label: 'Recours TA (2 mois)', dueDate: addDays(fromDate, 60) },
-    ],
-    Naturalisation: [
-      { type: 'RECOURS_CONTENTIEUX', label: 'Recours contre refus (2 mois)', dueDate: addDays(fromDate, 60) },
-    ],
-    AppelDecision: [
-      { type: 'APPEL', label: 'Appel CAA (2 mois)', dueDate: addDays(fromDate, 60) },
-    ],
-    RegroupementFamilial: [
-      { type: 'RECOURS_CONTENTIEUX', label: 'Recours contre refus (2 mois)', dueDate: addDays(fromDate, 60) },
-    ],
-    Refere_suspension: [
-      { type: 'RECOURS_CONTENTIEUX', label: '⚠️ URGENT — Référé-suspension (avant exécution)', dueDate: addDays(fromDate, 3) },
-    ],
-    Refere_liberte: [
-      { type: 'RECOURS_CONTENTIEUX', label: '⚠️ URGENT — Référé-liberté (48h)', dueDate: addDays(fromDate, 2) },
-    ],
-    Retention: [
-      { type: 'RETENTION', label: '⚠️ URGENT — Saisine JLD rétention (48h)', dueDate: addDays(fromDate, 2) },
-      { type: 'APPEL', label: '⚠️ URGENT — Appel ordonnance JLD (24h)', dueDate: addDays(fromDate, 1) },
-    ],
-  };
-
-  return deadlines[typeDossier] || [];
-}
 
 
 
