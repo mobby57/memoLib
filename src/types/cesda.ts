@@ -12,6 +12,8 @@ export enum ProcedureType {
   ASILE = 'ASILE',
   REGROUPEMENT_FAMILIAL = 'REGROUPEMENT_FAMILIAL',
   NATURALISATION = 'NATURALISATION',
+  CONTENTIEUX = 'CONTENTIEUX',
+  REFERE_LIBERTE = 'REFERE_LIBERTE',
 }
 
 /**
@@ -24,6 +26,8 @@ export const PROCEDURE_LABELS: Record<ProcedureType, string> = {
   [ProcedureType.ASILE]: "Demande d'Asile",
   [ProcedureType.REGROUPEMENT_FAMILIAL]: 'Regroupement Familial',
   [ProcedureType.NATURALISATION]: 'Naturalisation Francaise',
+  [ProcedureType.CONTENTIEUX]: 'Contentieux administratif',
+  [ProcedureType.REFERE_LIBERTE]: 'Référé-liberté (L.521-2 CJA)',
 };
 
 /**
@@ -36,6 +40,8 @@ export const PROCEDURE_COLORS: Record<ProcedureType, string> = {
   [ProcedureType.ASILE]: '#1E40AF', // Bleu profond
   [ProcedureType.REGROUPEMENT_FAMILIAL]: '#7C3AED', // Violet
   [ProcedureType.NATURALISATION]: '#059669', // Vert emeraude
+  [ProcedureType.CONTENTIEUX]: '#6366F1', // Indigo
+  [ProcedureType.REFERE_LIBERTE]: '#DC2626', // Rouge vif (urgence)
 };
 
 /**
@@ -708,6 +714,52 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
         label: 'Casier judiciaire',
         required: true,
         order: 3,
+      },
+    ],
+  },
+  [ProcedureType.CONTENTIEUX]: {
+    procedureType: ProcedureType.CONTENTIEUX,
+    items: [
+      {
+        category: ChecklistCategory.VERIFICATIONS,
+        label: 'Décision attaquée identifiée',
+        required: true,
+        order: 1,
+      },
+      {
+        category: ChecklistCategory.VERIFICATIONS,
+        label: 'Délai de recours vérifié',
+        required: true,
+        order: 2,
+      },
+      {
+        category: ChecklistCategory.PIECES,
+        label: 'Décision contestée',
+        required: true,
+        order: 1,
+      },
+    ],
+  },
+  [ProcedureType.REFERE_LIBERTE]: {
+    procedureType: ProcedureType.REFERE_LIBERTE,
+    items: [
+      {
+        category: ChecklistCategory.VERIFICATIONS,
+        label: 'Atteinte grave à une liberté fondamentale caractérisée',
+        required: true,
+        order: 1,
+      },
+      {
+        category: ChecklistCategory.VERIFICATIONS,
+        label: 'Urgence caractérisée (48h)',
+        required: true,
+        order: 2,
+      },
+      {
+        category: ChecklistCategory.PIECES,
+        label: 'Décision ou comportement de l\'administration',
+        required: true,
+        order: 1,
       },
     ],
   },
