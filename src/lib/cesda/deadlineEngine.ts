@@ -16,9 +16,9 @@ import {
 export function calculateDeadline(
   procedureType: ProcedureType,
   notificationDate: Date,
-  metadata?: any
+  metadata?: any,
+  now: Date = new Date()
 ): DeadlineCalculation {
-  const now = new Date()
   let deadlineDate: Date
   let config: DeadlineConfig | undefined
 
@@ -64,6 +64,16 @@ export function calculateDeadline(
       deadlineDate = addMonths(notificationDate, 18)
       break
 
+    case ProcedureType.REFERE_LIBERTE:
+      // Refere-liberte : le juge statue sous 48h (L.521-2 CJA).
+      deadlineDate = addHours(notificationDate, 48)
+      break
+
+    case ProcedureType.CONTENTIEUX:
+      // Recours contentieux standard = 2 mois.
+      deadlineDate = addMonths(notificationDate, 2)
+      break
+
     default:
       // Delai par defaut
       deadlineDate = addDays(notificationDate, 60)
@@ -74,8 +84,17 @@ export function calculateDeadline(
   const hoursRemaining = Math.max(0, diff / (1000 * 60 * 60))
   const daysRemaining = Math.max(0, hoursRemaining / 24)
 
-  // Determiner le niveau d'urgence
-  const urgencyLevel = calculateUrgencyLevel(hoursRemaining, procedureType)
+  // Determiner le niveau d'urgence.
+  // Gravite finale = max(gravite metier de base, urgence temporelle).
+  // Ce principe respecte l'approche protectrice recommandee par l'avis
+  // juridique : un dossier faible sur le fond mais dont l'echeance est
+  // imminente devient urgent ; un dossier grave sur le fond (OQTF sans delai,
+  // IRTF, retention...) ne peut jamais etre classe "faible" meme si l'echeance
+  // est lointaine. La gravite de base est deterministe (independante de now),
+  // ce qui rend la classification stable dans le temps.
+  const temporalUrgency = calculateUrgencyLevel(hoursRemaining, procedureType)
+  const baseGravity = getBaseGravity(procedureType, metadata)
+  const urgencyLevel = maxUrgency(baseGravity, temporalUrgency)
 
   return {
     notificationDate,
@@ -108,6 +127,90 @@ export function calculateUrgencyLevel(
   if (hoursRemaining <= 168) return UrgencyLevel.ELEVE // < 1 semaine
   if (hoursRemaining <= 720) return UrgencyLevel.MOYEN // < 1 mois
   return UrgencyLevel.FAIBLE
+}
+
+/**
+ * Ordre de severite des niveaux d'urgence (croissant).
+ */
+const URGENCY_SEVERITY: Record<UrgencyLevel, number> = {
+  [UrgencyLevel.FAIBLE]: 0,
+  [UrgencyLevel.MOYEN]: 1,
+  [UrgencyLevel.ELEVE]: 2,
+  [UrgencyLevel.CRITIQUE]: 3,
+}
+
+/**
+ * Retourne le niveau d'urgence le plus severe des deux.
+ */
+export function maxUrgency(a: UrgencyLevel, b: UrgencyLevel): UrgencyLevel {
+  return URGENCY_SEVERITY[a] >= URGENCY_SEVERITY[b] ? a : b
+}
+
+/**
+ * Gravite METIER de base d'une procedure, INDEPENDANTE du temps restant.
+ *
+ * Bareme valide par avis juridique (droit des etrangers). La gravite reflete
+ * l'enjeu intrinseque de la procedure et ses facteurs aggravants (portes par
+ * les metadata), avant toute consideration de delai :
+ *
+ *  - OQTF sans delai, IRTF, retention, refere-liberte : CRITIQUE/ELEVE
+ *  - OQTF simple, asile en procedure acceleree             : ELEVE
+ *  - Asile (regime normal), recours contentieux            : MOYEN
+ *  - Refus/retrait de titre simple, naturalisation, RF     : FAIBLE
+ *
+ * La gravite finale renvoyee par calculateDeadline est ensuite
+ * max(baseGravity, urgence temporelle) — approche protectrice.
+ */
+export function getBaseGravity(
+  procedureType: ProcedureType,
+  metadata?: any
+): UrgencyLevel {
+  switch (procedureType) {
+    case ProcedureType.OQTF: {
+      // OQTF sans delai (48h) ou IRTF associee = situation critique par nature.
+      if (metadata?.oqtfType === "sans_delai") return UrgencyLevel.CRITIQUE
+      if (metadata?.irtfAssociee) return UrgencyLevel.CRITIQUE
+      // OQTF avec delai de depart volontaire = eleve.
+      return UrgencyLevel.ELEVE
+    }
+
+    case ProcedureType.ASILE: {
+      // Procedure acceleree ou Dublin = delais serres, enjeu renforce.
+      if (metadata?.procedureAcceleree || metadata?.procedureDublin) {
+        return UrgencyLevel.ELEVE
+      }
+      // CNDA accelere (retention / assignation, delais tres courts) = ELEVE.
+      if (metadata?.stade === "CNDA_accelere") return UrgencyLevel.ELEVE
+      // Recours CNDA = contentieux a delai (30 jours) -> moyen.
+      if (metadata?.stade === "CNDA") return UrgencyLevel.MOYEN
+      // Asile en regime normal (OFPRA) -> moyen (enjeu fort mais delai large).
+      return UrgencyLevel.MOYEN
+    }
+
+    case ProcedureType.REFERE_LIBERTE:
+      // Refere-liberte (L.521-2 CJA) : urgence absolue (48h) -> critique.
+      return UrgencyLevel.CRITIQUE
+
+    case ProcedureType.CONTENTIEUX:
+      // Contentieux administratif standard (recours 2-3 mois) -> moyen.
+      return UrgencyLevel.MOYEN
+
+    case ProcedureType.RETRAIT_TITRE:
+      // Le retrait d'un titre existant est plus grave qu'un simple refus.
+      return UrgencyLevel.MOYEN
+
+    case ProcedureType.REFUS_TITRE:
+      // Refus/renouvellement simple : gravite de base faible (recours 2 mois).
+      return UrgencyLevel.FAIBLE
+
+    case ProcedureType.REGROUPEMENT_FAMILIAL:
+    case ProcedureType.NATURALISATION:
+      // Instructions longues, pas de delai client strict : gravite de base faible.
+      return UrgencyLevel.FAIBLE
+
+    default:
+      return UrgencyLevel.FAIBLE
+  }
 }
 
 /**
