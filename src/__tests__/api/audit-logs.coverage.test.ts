@@ -1,15 +1,24 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Tests pour src/app/api/audit-logs/route.ts
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock @/lib/auth
+// Mock @/lib/auth (NextAuth legacy) + @/lib/clerk-auth (migration Clerk)
 const mockGetServerSession = vi.fn();
 vi.mock('@/lib/auth', () => ({
-  getServerSession: (...args: any[]) => mockauth(),
+  getServerSession: (...args: any[]) => mockGetServerSession(...args),
+}));
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => {
+    const session = await mockGetServerSession();
+    return {
+      isAuthenticated: Boolean(session?.user),
+      clerkUserId: session?.user ? 'clerk_test' : null,
+      orgId: null,
+      user: session?.user ?? null,
+    };
+  }),
 }));
 
 // Mock authOptions
