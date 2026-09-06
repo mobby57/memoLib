@@ -6,6 +6,14 @@ const { session, registerSSEClient } = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/auth', () => ({ getServerSession: vi.fn(() => session.current) }));
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => ({
+    isAuthenticated: Boolean(session.current?.user),
+    clerkUserId: session.current?.user ? 'clerk_test' : null,
+    orgId: null,
+    user: session.current?.user ?? null,
+  })),
+}));
 vi.mock('@/app/api/auth/[...nextauth]/route', () => ({ authOptions: {} }));
 vi.mock('@/lib/notifications', () => ({
   registerSSEClient,

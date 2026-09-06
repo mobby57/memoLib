@@ -5,10 +5,22 @@ const validator = new DateValidatorService();
 
 describe('DateValidatorService', () => {
   it('devrait valider des dates cohérentes', () => {
+    // Dates relatives à maintenant pour éviter un test fragile dans le temps :
+    // la deadline doit rester dans le futur (sinon la règle DEADLINE_NOT_PAST
+    // ajoute un warning et baisse la confiance à 0.85).
+    const now = new Date();
+    const iso = (d: Date) => d.toISOString().slice(0, 10);
+    const decision = new Date(now);
+    decision.setDate(decision.getDate() - 5);
+    const notification = new Date(now);
+    notification.setDate(notification.getDate() - 1);
+    const deadline = new Date(now);
+    deadline.setDate(deadline.getDate() + 30);
+
     const dates: ExtractedDates = {
-      decisionDate: '2026-08-01',
-      notificationDate: '2026-08-05',
-      deadlineDate: '2026-09-04',
+      decisionDate: iso(decision),
+      notificationDate: iso(notification),
+      deadlineDate: iso(deadline),
     };
     const result = validator.validate(dates);
     expect(result.valid).toBe(true);
