@@ -4,6 +4,7 @@ const shouldStartWebServer = process.env.PLAYWRIGHT_SKIP_WEBSERVER !== 'true';
 
 export default defineConfig({
   testDir: './tests',
+  globalSetup: require.resolve('./tests/e2e/global-setup'),
   timeout: 30 * 1000,
   expect: {
     timeout: 5000,

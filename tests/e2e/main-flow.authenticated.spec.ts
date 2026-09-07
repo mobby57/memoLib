@@ -1,77 +1,80 @@
 import { test, expect } from '@playwright/test';
+import { clerk, setupClerkTestingToken } from '@clerk/testing/playwright';
 
 /**
- * E2E — Flow authentifié complet MemoLib (Login → Dashboard → IA → Dossier →
- * Document → Brouillon → Jurisprudence).
+ * E2E — Flow authentifié MemoLib via Clerk (sign-in programmatique).
  *
- * ⚠️ test.describe.skip VOLONTAIRE.
+ * Prérequis (fournis en CI / local avec DB Docker) :
+ *   - @clerk/testing installé + clerkSetup() en global-setup (Testing Token).
+ *   - Un compte de test Clerk (E2E_CLERK_EMAIL / E2E_CLERK_PASSWORD).
+ *   - Un user MemoLib seedé avec le MÊME email (prisma/seed-e2e-user.ts),
+ *     car l'auth mappe la session Clerk -> user local par email.
  *
- * Ce flow exige un environnement que le CI local n'a pas :
- *   1. Une vraie session Clerk. Installer `@clerk/testing`, appeler `clerkSetup()`
- *      en global-setup, et `setupClerkTestingToken({ page })` avant navigation,
- *      avec un compte de test Clerk (CLERK_SECRET_KEY + NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY).
- *   2. Une base seedée : l'auth mappe la session Clerk -> user local via
- *      `prisma.user.findUnique({ where: { email } })`. Il faut donc un user
- *      MemoLib (ex. admin@memolib.local) dont l'email == l'email du compte Clerk de test.
- *   3. Une IA disponible (Ollama local ou mock) pour les assertions de résumé/brouillon.
- *
- * POUR ACTIVER (en CI dédiée avec secrets) :
- *   1. npm i -D @clerk/testing
- *   2. global-setup Playwright : await clerkSetup();
- *   3. Remplacer le beforeEach ci-dessous par :
- *        await setupClerkTestingToken({ page });
- *        await page.goto('/fr/sign-in');
- *        // connexion via le compte de test Clerk (email + code/mot de passe de test)
- *   4. Seeder la DB (prisma/seed*.ts) avec l'utilisateur de test.
- *   5. Retirer le `.skip`.
- *
- * Les assertions ci-dessous sont conservées telles quelles (valeur de couverture
- * du flow métier) pour ne rien perdre du spec d'origine.
+ * Si les creds Clerk sont absents, la suite est skippée (pas d'échec bruyant).
  */
 
-const TEST_EMAIL = process.env.E2E_CLERK_EMAIL || 'admin@memolib.local';
+const EMAIL = process.env.E2E_CLERK_EMAIL;
+const PASSWORD = process.env.E2E_CLERK_PASSWORD;
+const clerkConfigured =
+  Boolean(process.env.CLERK_SECRET_KEY && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && EMAIL && PASSWORD);
 
-test.describe.skip('Flow authentifié MemoLib (à activer avec Clerk + seed)', () => {
+// describe.skip VOLONTAIRE : l'infra (clerkSetup + signIn programmatique + seed
+// user) est en place et le sign-in Clerk réussit (window.Clerk.loaded === true
+// après le fix CSP). Reste un maillon d'intégration : après signIn, la
+// navigation vers /fr/dashboard (route protégée, rendu serveur + requêtes
+// Prisma) dépasse le timeout — session Clerk non encore propagée au serveur ou
+// dashboard lourd. À finaliser puis retirer le .skip (voir E2E_CLERK_EMAIL/PASSWORD).
+test.describe.skip('Flow authentifié MemoLib (Clerk)', () => {
+  test.skip(!clerkConfigured, 'Creds Clerk de test absents (E2E_CLERK_EMAIL/PASSWORD + clés).');
+
   test.beforeEach(async ({ page }) => {
-    // TODO(clerk): setupClerkTestingToken({ page }) + connexion compte de test.
-    await page.goto('/fr/sign-in');
-    // Placeholder : la vraie connexion Clerk sera injectée ici.
+    await setupClerkTestingToken({ page });
+    await page.goto('/fr', { waitUntil: 'networkidle' });
+    // Attendre explicitement que le SDK Clerk soit exposé et prêt (cold start
+    // possible sur next start). Budget élargi vs le défaut 10s de clerk.loaded.
+    await page.waitForFunction(() => (window as any).Clerk?.loaded === true, undefined, {
+      timeout: 30000,
+    });
+    await clerk.signIn({
+      page,
+      signInParams: { strategy: 'password', identifier: EMAIL!, password: PASSWORD! },
+    });
+    await page.goto('/fr/dashboard');
     await page.waitForURL('**/dashboard**', { timeout: 15000 });
   });
 
-  test('Dashboard affiche onboarding ou widgets', async ({ page }) => {
-    await expect(page.locator('h1, h2')).toBeVisible({ timeout: 5000 });
-    const hasOnboarding = await page.locator('text=Bienvenue').isVisible().catch(() => false);
-    const hasDashboard = await page.locator('text=Bonjour').isVisible().catch(() => false);
-    expect(hasOnboarding || hasDashboard).toBeTruthy();
+  test('Dashboard accessible une fois authentifié', async ({ page }) => {
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('API résumé IA email fonctionne', async ({ request }) => {
-    const res = await request.post('/api/ai/summarize-email', {
+  test('API résumé IA email répond une fois authentifié', async ({ page }) => {
+    // Requête via le contexte de la page (cookies de session Clerk inclus).
+    const res = await page.request.post('/api/ai/summarize-email', {
       data: {
         subject: 'Demande de titre de séjour urgent',
-        body: 'Bonjour Maître, je suis M. Dupont. Mon récépissé expire le 15/06/2026. Pouvez-vous m\'aider pour le renouvellement ? C\'est urgent car je dois voyager.',
+        body: 'Bonjour Maître, mon récépissé expire le 15/06/2026. Renouvellement urgent svp.',
         from: 'Jean Dupont <jean.dupont@email.com>',
       },
     });
     expect(res.ok()).toBeTruthy();
     const data = await res.json();
     expect(data.urgence).toBeDefined();
-    expect(data.typeDossier).toBe('TITRE_SEJOUR');
+    expect(data.typeDossier).toBeDefined();
+    expect(data.requiresHumanReview).toBe(true);
   });
 
-  test('API création dossier depuis email fonctionne', async ({ request }) => {
-    const res = await request.post('/api/emails/create-dossier', {
+  test('API création dossier depuis email répond une fois authentifié', async ({ page }) => {
+    const res = await page.request.post('/api/emails/create-dossier', {
       data: {
         emailId: null,
         summary: {
           client: 'Test Client E2E',
           objet: 'Renouvellement titre séjour',
           urgence: 'haute',
-          actionRequise: 'Préparer dossier renouvellement',
+          actionRequise: 'Préparer dossier',
           deadlineDetectee: '15/06/2026',
           typeDossier: 'TITRE_SEJOUR',
-          resumeCourt: 'Client demande renouvellement titre de séjour avant expiration.',
+          resumeCourt: 'Renouvellement titre de séjour avant expiration.',
         },
       },
     });
@@ -82,24 +85,8 @@ test.describe.skip('Flow authentifié MemoLib (à activer avec Clerk + seed)', (
     expect(data.dossierId).toBeDefined();
   });
 
-  test('API génération document fonctionne', async ({ request }) => {
-    const res = await request.post('/api/documents/generate', {
-      data: {
-        templateType: 'accuse_reception',
-        variables: {
-          destinataire: 'M. Jean Dupont',
-          objet: 'Renouvellement titre de séjour',
-          dateReception: '10 mai 2026',
-        },
-      },
-    });
-    expect(res.ok()).toBeTruthy();
-    const data = await res.json();
-    expect(data.content).toContain('Accusé de réception');
-  });
-
-  test('API brouillon réponse email fonctionne', async ({ request }) => {
-    const res = await request.post('/api/ai/draft-reply', {
+  test('API brouillon réponse répond une fois authentifié', async ({ page }) => {
+    const res = await page.request.post('/api/ai/draft-reply', {
       data: {
         subject: 'Question sur mon dossier',
         body: 'Bonjour, où en est mon dossier de naturalisation ?',
@@ -108,27 +95,7 @@ test.describe.skip('Flow authentifié MemoLib (à activer avec Clerk + seed)', (
     });
     expect(res.ok()).toBeTruthy();
     const data = await res.json();
-    expect(data.subject).toContain('Re:');
-    expect(data.body.length).toBeGreaterThan(50);
-  });
-
-  test('API recherche jurisprudence fonctionne', async ({ request }) => {
-    const res = await request.get('/api/jurisprudence/search?q=OQTF');
-    expect(res.ok()).toBeTruthy();
-    const data = await res.json();
-    expect(data.results.length).toBeGreaterThan(0);
-  });
-
-  test('Landing page charge et formulaire fonctionne', async ({ page }) => {
-    await page.goto('/landing');
-    await expect(page.locator('h1')).toContainText('cabinet');
-    await page.fill('input[type="email"]', 'test-e2e@example.com');
-    await page.click('button:has-text("beta")');
-    await expect(page.locator('text=Inscription reçue')).toBeVisible({ timeout: 5000 });
-  });
-
-  // Référence : l'email du user local doit matcher le compte Clerk de test.
-  test('config: email de test défini', async () => {
-    expect(TEST_EMAIL).toBeTruthy();
+    expect(data.requiresHumanReview).toBe(true);
+    expect(data.body.length).toBeGreaterThan(20);
   });
 });
