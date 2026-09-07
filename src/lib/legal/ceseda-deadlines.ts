@@ -1,5 +1,23 @@
-import type { DeadlineType } from '@prisma/client';
 import { nextWorkingDay } from '@/lib/legal/workingDays';
+
+/**
+ * Valeurs valides de l'enum Prisma DeadlineType (prisma/schema.prisma).
+ * Type local pour garder une securite de type a la compilation sans dependre
+ * de l'export de type du client Prisma (non exporte dans cette version).
+ */
+export type DeadlineType =
+  | 'RECOURS_GRACIEUX'
+  | 'RECOURS_HIERARCHIQUE'
+  | 'RECOURS_CONTENTIEUX'
+  | 'APPEL'
+  | 'CASSATION'
+  | 'REPONSE_PREFECTURE'
+  | 'CONVOCATION_AUDIENCE'
+  | 'PRODUCTION_PIECES'
+  | 'EXECUTION_DECISION'
+  | 'OQTF'
+  | 'RETENTION'
+  | 'CUSTOM';
 
 /**
  * Moteur CESEDA unifié — calcul des délais légaux (droit des étrangers).
