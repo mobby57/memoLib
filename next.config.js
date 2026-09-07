@@ -100,6 +100,18 @@ module.exports = withSentryConfig(module.exports, {
   org: 'ms-conseils',
   project: 'javascript-nextjs-w2',
 
+  // Jeton d'upload des source maps. Absent (local / preview sans secret) =>
+  // on desactive l'upload pour ne pas faire echouer le build sur un appel
+  // reseau a l'API Sentry. En CI/production, le secret est fourni et l'upload
+  // s'effectue normalement.
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+  release: {
+    create: Boolean(process.env.SENTRY_AUTH_TOKEN),
+  },
+
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
 
