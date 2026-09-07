@@ -284,9 +284,12 @@ export class EventLogService {
 // SINGLETON EXPORT
 // ============================================
 
-// Vérifier si prisma est une vraie instance ou un mock
-const isRealPrisma = prisma && typeof prisma.eventLog?.create === 'function';
-export const eventLogService = new EventLogService(isRealPrisma ? undefined : prisma);
+// Le service utilise le client `prisma` partagé (paresseux) via le fallback du
+// constructeur. On NE lit PAS `prisma` ici au niveau module : cela déclencherait
+// l'instanciation du PrismaClient au chargement du module et casserait la
+// collecte page-data de `next build`. En test, le stub est déjà injecté par le
+// module prisma lui-même.
+export const eventLogService = new EventLogService();
 
 // ============================================
 // HELPER : Créer EventLog (shortcut)
