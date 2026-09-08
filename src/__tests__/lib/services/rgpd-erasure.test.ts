@@ -7,7 +7,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockPrisma, createEventLog } = vi.hoisted(() => {
+const { mockPrisma, createEventLog, purgeIntakeByClientEmail } = vi.hoisted(() => {
   const model = () => ({
     update: vi.fn().mockResolvedValue({}),
     updateMany: vi.fn().mockResolvedValue({ count: 1 }),
@@ -31,6 +31,7 @@ const { mockPrisma, createEventLog } = vi.hoisted(() => {
       dataExportRequest: model(),
     },
     createEventLog: vi.fn().mockResolvedValue({}),
+    purgeIntakeByClientEmail: vi.fn().mockResolvedValue({ purgedRequests: 0, purgedFiles: 0 }),
   };
 });
 
@@ -39,6 +40,9 @@ vi.mock('@/lib/services/event-log.service', () => ({
   EventLogService: class {
     createEventLog = createEventLog;
   },
+}));
+vi.mock('@/lib/services/intake.service', () => ({
+  purgeIntakeByClientEmail,
 }));
 
 import { RGPDComplianceService } from '@/lib/services/rgpd-compliance.service';
@@ -111,6 +115,23 @@ describe('[P2] RGPD — anonymisation & effacement effectifs', () => {
       const logOrder = createEventLog.mock.invocationCallOrder[0];
       const deleteOrder = mockPrisma.user.delete.mock.invocationCallOrder[0];
       expect(logOrder).toBeLessThan(deleteOrder);
+    });
+
+    it('purge aussi les demandes d’intake liées à l’email (droit à l’oubli)', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({ email: 'client@example.com' });
+      purgeIntakeByClientEmail.mockResolvedValue({ purgedRequests: 2, purgedFiles: 3 });
+
+      const result = await service.deleteUserData({ userId: 'u1', tenantId: 't1', requestedBy: 'admin' });
+
+      expect(purgeIntakeByClientEmail).toHaveBeenCalledWith('t1', 'client@example.com', 'admin');
+      expect(result.deletedRecords.intake_requests).toBe(2);
+      expect(result.deletedRecords.intake_files).toBe(3);
+    });
+
+    it('ne tente pas de purge intake si l’utilisateur n’a pas d’email', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      await service.deleteUserData({ userId: 'u1', tenantId: 't1', requestedBy: 'admin' });
+      expect(purgeIntakeByClientEmail).not.toHaveBeenCalled();
     });
   });
 });

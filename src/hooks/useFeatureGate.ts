@@ -1,6 +1,3 @@
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement import useSession
 /**
  * Hook React — Feature Gate Client
  *
