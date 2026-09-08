@@ -1,5 +1,4 @@
-﻿// @ts-nocheck
-/**
+﻿/**
  * InformationUnitService
  *
  * Core service for the "Zero Ignored Information" guarantee
@@ -13,6 +12,9 @@
 
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
+import { hybridAI } from '@/lib/ai/hybrid-client';
+import { classifyEmail } from '@/lib/classifiers/email-classifier';
+import { logger } from '@/lib/logger';
 
 type InformationUnitSource = string;
 
@@ -153,20 +155,106 @@ export class InformationUnitService {
       },
     });
 
-    // Auto-classify to CLASSIFIED (simulated AI classification)
-    // In production, this would call AI classification service
+    // Auto-classify: appelle la VRAIE classification (IA + fallback regex),
+    // remplace l'ancienne simulation codée en dur (confidence: 0.89).
+    const classification = await this.classifyContent(input.content, input.tenantId);
+
     await this.transition({
       unitId: unit.id,
       toStatus: InformationUnitStatus.CLASSIFIED,
-      reason: 'Classification automatique (IA)',
+      reason: `Classification ${classification.method} (confiance ${classification.confidence})`,
       changedBy: 'system',
       metadata: {
-        confidence: 0.89,
-        classifier: 'llama3.2:3b',
+        confidence: classification.confidence,
+        classifier: classification.classifier,
+        method: classification.method,
+        caseType: classification.caseType,
+        priority: classification.priority,
+        needsHumanReview: classification.needsHumanReview,
       },
     });
 
     return unit;
+  }
+
+  /**
+   * Classifie un contenu entrant.
+   *
+   * Stratégie protectrice (cf. thèse "ne rien perdre") :
+   *  1. IA réelle (hybridAI : Ollama -> cloud -> ...) pour type de dossier + confiance.
+   *  2. Fallback déterministe (classifyEmail regex) si l'IA échoue ou renvoie
+   *     une réponse non exploitable.
+   *  3. Confiance faible => needsHumanReview = true (l'unité sera routée vers
+   *     validation humaine plutôt que traitée automatiquement).
+   *
+   * @returns confidence réelle (0-1), classifier utilisé, method ('ai'|'fallback'),
+   *          caseType, priority, needsHumanReview.
+   */
+  private async classifyContent(
+    content: string,
+    tenantId: string
+  ): Promise<{
+    confidence: number;
+    classifier: string;
+    method: 'ai' | 'fallback';
+    caseType?: string;
+    priority?: string;
+    needsHumanReview: boolean;
+  }> {
+    const HUMAN_REVIEW_THRESHOLD = 0.7;
+
+    // 1. Tentative IA réelle
+    try {
+      const prompt = `Classe ce contenu juridique entrant. Ne retourne aucun identifiant personnel.
+
+Contenu :
+${content.slice(0, 4000)}
+
+Retourne UNIQUEMENT ce JSON :
+{"caseType":"OQTF|ASILE|TITRE_SEJOUR|NATURALISATION|REGROUPEMENT_FAMILIAL|CONTENTIEUX|GENERAL","priority":"basse|normale|haute|critique","confidence":0.0}`;
+
+      const result = await hybridAI.generateWithCostControl(prompt, tenantId);
+      const match = result.response.match(/\{[\s\S]*\}/);
+      if (match) {
+        const parsed = JSON.parse(match[0]) as {
+          caseType?: string;
+          priority?: string;
+          confidence?: number;
+        };
+        const confidence =
+          typeof parsed.confidence === 'number'
+            ? Math.max(0, Math.min(1, parsed.confidence))
+            : 0;
+        if (parsed.caseType && confidence > 0) {
+          return {
+            confidence,
+            classifier: (result as { model?: string }).model || 'hybrid-ai',
+            method: 'ai',
+            caseType: parsed.caseType,
+            priority: parsed.priority,
+            needsHumanReview: confidence < HUMAN_REVIEW_THRESHOLD,
+          };
+        }
+      }
+      logger.warn('[InformationUnit] Réponse IA non exploitable, fallback regex', { tenantId });
+    } catch (error) {
+      logger.warn('[InformationUnit] Classification IA échouée, fallback regex', {
+        tenantId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    // 2. Fallback déterministe (regex) — jamais d'échec silencieux
+    const fallback = classifyEmail('', content);
+    return {
+      confidence: fallback.confidence,
+      classifier: 'regex-fallback',
+      method: 'fallback',
+      caseType: fallback.caseType,
+      priority: fallback.priority,
+      // needsHumanReview vrai si le fallback le juge, OU si confiance faible.
+      needsHumanReview: fallback.needsHumanReview || fallback.confidence < HUMAN_REVIEW_THRESHOLD,
+    };
   }
 
   /**
@@ -265,8 +353,9 @@ export class InformationUnitService {
    * Check if status requires human action
    */
   private checkHumanActionRequired(status: InformationUnitStatusValue): boolean {
-    return [InformationUnitStatus.HUMAN_ACTION_REQUIRED, InformationUnitStatus.AMBIGUOUS].includes(
-      status
+    return (
+      status === InformationUnitStatus.HUMAN_ACTION_REQUIRED ||
+      status === InformationUnitStatus.AMBIGUOUS
     );
   }
 
