@@ -157,7 +157,7 @@ export class InformationUnitService {
 
     // Auto-classify: appelle la VRAIE classification (IA + fallback regex),
     // remplace l'ancienne simulation codée en dur (confidence: 0.89).
-    const classification = await this.classifyContent(input.content, input.tenantId);
+    const classification = await this.classify(input.content, input.tenantId);
 
     await this.transition({
       unitId: unit.id,
@@ -178,7 +178,7 @@ export class InformationUnitService {
   }
 
   /**
-   * Classifie un contenu entrant.
+   * Classifie un contenu entrant (PUBLIC — réutilisable par IngestionService).
    *
    * Stratégie protectrice (cf. thèse "ne rien perdre") :
    *  1. IA réelle (hybridAI : Ollama -> cloud -> ...) pour type de dossier + confiance.
@@ -190,7 +190,7 @@ export class InformationUnitService {
    * @returns confidence réelle (0-1), classifier utilisé, method ('ai'|'fallback'),
    *          caseType, priority, needsHumanReview.
    */
-  private async classifyContent(
+  async classify(
     content: string,
     tenantId: string
   ): Promise<{
