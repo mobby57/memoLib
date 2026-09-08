@@ -143,6 +143,19 @@ export async function POST(req: NextRequest) {
   // Lancer l'analyse IA en arrière-plan (fire-and-forget)
   analyzeEmailAsync(email.id, validatedEmail.subject || '', validatedEmail.body, validatedEmail.from).catch(() => {});
 
+  // Ingestion unifiée (§3.4) : tout email entrant devient une InformationUnit
+  // tracée + classée + rattachée au bon dossier (ou signalée pour revue humaine).
+  // Fire-and-forget : ne bloque pas la réponse webhook, n'altère pas le chemin critique.
+  import('@/lib/services/ingestion.service').then(({ ingestionService }) => {
+    ingestionService.ingest({
+      tenantId,
+      source: 'EMAIL',
+      content: `${validatedEmail.subject || ''}\n${validatedEmail.body}`,
+      senderEmail: extractEmailAddress(validatedEmail.from),
+      sourceMetadata: { emailId: email.id, from: validatedEmail.from, subject: validatedEmail.subject },
+    }).catch(() => {});
+  }).catch(() => {});
+
   // Horodatage certifié RFC 3161 (preuve tierce de la date de réception)
   import('@/lib/services/certified-timestamp').then(({ certifyEmailReception }) => {
     certifyEmailReception({
@@ -154,6 +167,12 @@ export async function POST(req: NextRequest) {
   }).catch(() => {});
 
   return NextResponse.json({ success: true, emailId: email.id });
+}
+
+/** Extrait l'adresse email nue depuis un "From" (ex: "Jean Dupont <jean@x.fr>" -> "jean@x.fr"). */
+function extractEmailAddress(from: string): string {
+  const match = from.match(/([^<\s]+@[^>\s]+)/);
+  return match ? match[1].toLowerCase() : from.trim().toLowerCase();
 }
 
 async function resolveTenant(toAddress?: string): Promise<string | null> {
