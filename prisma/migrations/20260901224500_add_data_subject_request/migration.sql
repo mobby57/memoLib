@@ -1,4 +1,4 @@
-CREATE TABLE "DataSubjectRequest" (
+CREATE TABLE IF NOT EXISTS "DataSubjectRequest" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -14,16 +14,27 @@ CREATE TABLE "DataSubjectRequest" (
     CONSTRAINT "DataSubjectRequest_pkey" PRIMARY KEY ("id")
 );
 
-CREATE INDEX "DataSubjectRequest_tenantId_userId_requestType_status_idx"
+CREATE INDEX IF NOT EXISTS "DataSubjectRequest_tenantId_userId_requestType_status_idx"
 ON "DataSubjectRequest"("tenantId", "userId", "requestType", "status");
 
-CREATE INDEX "DataSubjectRequest_status_scheduledFor_idx"
+CREATE INDEX IF NOT EXISTS "DataSubjectRequest_status_scheduledFor_idx"
 ON "DataSubjectRequest"("status", "scheduledFor");
 
-ALTER TABLE "DataSubjectRequest"
-ADD CONSTRAINT "DataSubjectRequest_tenantId_fkey"
-FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'DataSubjectRequest_tenantId_fkey'
+  ) THEN
+    ALTER TABLE "DataSubjectRequest"
+      ADD CONSTRAINT "DataSubjectRequest_tenantId_fkey"
+      FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
 
-ALTER TABLE "DataSubjectRequest"
-ADD CONSTRAINT "DataSubjectRequest_userId_fkey"
-FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'DataSubjectRequest_userId_fkey'
+  ) THEN
+    ALTER TABLE "DataSubjectRequest"
+      ADD CONSTRAINT "DataSubjectRequest_userId_fkey"
+      FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+  END IF;
+END $$;
