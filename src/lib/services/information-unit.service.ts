@@ -129,30 +129,36 @@ export class InformationUnitService {
       return existing;
     }
 
-    // Create unit in RECEIVED status
+    // Create unit in RECEIVED status.
+    // Aligné sur le schéma réel : id/updatedAt requis (pas de @default), metadata
+    // et sourceMetadata sont des colonnes `text` (JSON sérialisé), et l'historique
+    // de statut va dans la table dédiée InformationStatusHistory (pas une colonne
+    // statusHistory qui n'existe pas).
+    const now = new Date();
     const unit = await prisma.informationUnit.create({
       data: {
+        id: crypto.randomUUID(),
         tenantId: input.tenantId,
         source: input.source,
         content: input.content,
         contentHash,
-        sourceMetadata: input.sourceMetadata,
+        sourceMetadata: input.sourceMetadata ? JSON.stringify(input.sourceMetadata) : null,
         linkedWorkspaceId: input.linkedWorkspaceId,
-        metadata: input.metadata,
+        metadata: input.metadata ? JSON.stringify(input.metadata) : null,
         currentStatus: InformationUnitStatus.RECEIVED,
-        statusReason: `Recu via ${input.source}`,
         lastStatusChangeBy: 'system',
-        statusHistory: [
-          {
-            timestamp: new Date().toISOString(),
-            fromStatus: null,
-            toStatus: InformationUnitStatus.RECEIVED,
-            reason: `Auto-cree via ${input.source}`,
-            changedBy: 'system',
-            metadata: input.sourceMetadata,
-          },
-        ],
+        lastStatusChangeAt: now,
+        updatedAt: now,
       },
+    });
+
+    // Historique initial dans la table dédiée
+    await this.recordHistory({
+      unitId: unit.id,
+      fromStatus: null,
+      toStatus: InformationUnitStatus.RECEIVED,
+      reason: `Auto-cree via ${input.source}`,
+      changedBy: 'system',
     });
 
     // Auto-classify: appelle la VRAIE classification (IA + fallback regex),
@@ -175,6 +181,30 @@ export class InformationUnitService {
     });
 
     return unit;
+  }
+
+  /**
+   * Enregistre une entrée d'historique de statut dans la table dédiée
+   * InformationStatusHistory (source de vérité de l'audit trail).
+   */
+  private async recordHistory(entry: {
+    unitId: string;
+    fromStatus: InformationUnitStatusValue | null;
+    toStatus: InformationUnitStatusValue;
+    reason: string;
+    changedBy: string;
+  }): Promise<void> {
+    await prisma.informationStatusHistory.create({
+      data: {
+        id: crypto.randomUUID(),
+        unitId: entry.unitId,
+        fromStatus: entry.fromStatus,
+        toStatus: entry.toStatus,
+        reason: entry.reason,
+        changedBy: entry.changedBy,
+        changedAt: new Date(),
+      },
+    });
   }
 
   /**
@@ -275,37 +305,56 @@ Retourne UNIQUEMENT ce JSON :
     // Validate required fields for state transitions
     this.validateStatusRequirements(input.toStatus, input.reason);
 
-    // Append to audit trail
-    const newHistory = [
-      ...((unit.statusHistory as any[]) || []),
-      {
-        timestamp: new Date().toISOString(),
-        fromStatus: unit.currentStatus,
-        toStatus: input.toStatus,
-        reason: input.reason,
-        changedBy: input.changedBy,
-        metadata: input.metadata,
-      },
-    ];
+    // Enregistrer l'historique dans la table dédiée (au lieu d'une colonne
+    // statusHistory inexistante).
+    await this.recordHistory({
+      unitId: input.unitId,
+      fromStatus: unit.currentStatus,
+      toStatus: input.toStatus,
+      reason: input.reason,
+      changedBy: input.changedBy,
+    });
 
-    // Determine if this status requires human action
+    // Fusionner les metadata existantes (colonne text/JSON) avec les nouvelles,
+    // et y porter requiresHumanAction (pas de colonne dédiée dans le schéma réel).
+    const existingMeta = this.parseJson(unit.metadata);
     const requiresAction = this.checkHumanActionRequired(input.toStatus);
+    const mergedMeta = {
+      ...existingMeta,
+      ...(input.metadata || {}),
+      requiresHumanAction: requiresAction,
+      lastReason: input.reason,
+    };
 
-    // Update unit
+    const now = new Date();
     const updated = await prisma.informationUnit.update({
       where: { id: input.unitId },
       data: {
         currentStatus: input.toStatus,
-        statusReason: input.reason,
-        statusHistory: newHistory,
-        lastStatusChangeAt: new Date(),
+        lastStatusChangeAt: now,
         lastStatusChangeBy: input.changedBy,
-        requiresHumanAction: requiresAction,
-        metadata: input.metadata,
+        metadata: JSON.stringify(mergedMeta),
+        updatedAt: now,
+        // Horodatage des jalons de pipeline
+        ...(input.toStatus === InformationUnitStatus.CLASSIFIED ? { classifiedAt: now } : {}),
+        ...(input.toStatus === InformationUnitStatus.ANALYZED ? { analyzedAt: now } : {}),
+        ...(input.toStatus === InformationUnitStatus.RESOLVED ? { resolvedAt: now } : {}),
+        ...(input.toStatus === InformationUnitStatus.CLOSED ? { closedAt: now } : {}),
       },
     });
 
     return updated;
+  }
+
+  /** Parse une colonne JSON (text) de façon sûre. */
+  private parseJson(value: unknown): Record<string, unknown> {
+    if (!value || typeof value !== 'string') return {};
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
   }
 
   /**
@@ -405,10 +454,11 @@ Retourne UNIQUEMENT ce JSON :
           try {
             const { Resend } = await import('resend');
             const resend = new Resend(process.env.RESEND_API_KEY);
-            if (process.env.RESEND_API_KEY && unit.metadata?.clientEmail) {
+            const unitMeta = this.parseJson(unit.metadata);
+            if (process.env.RESEND_API_KEY && unitMeta.clientEmail) {
               await resend.emails.send({
                 from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
-                to: unit.metadata.clientEmail as string,
+                to: unitMeta.clientEmail as string,
                 subject: 'Rappel : Informations manquantes - memoLib',
                 html: `<h2>Informations manquantes</h2><p>Des informations sont encore nécessaires pour votre dossier. Merci de les compléter.</p>`,
               });
@@ -514,6 +564,12 @@ Retourne UNIQUEMENT ce JSON :
       throw new Error(`InformationUnit not found: ${unitId}`);
     }
 
+    // L'historique vit dans la table dédiée InformationStatusHistory.
+    const statusHistory = await prisma.informationStatusHistory.findMany({
+      where: { unitId },
+      orderBy: { changedAt: 'asc' },
+    });
+
     return {
       unitId: unit.id,
       tenantId: unit.tenantId,
@@ -521,8 +577,8 @@ Retourne UNIQUEMENT ce JSON :
       contentHash: unit.contentHash,
       receivedAt: unit.receivedAt,
       currentStatus: unit.currentStatus,
-      statusHistory: unit.statusHistory,
-      integrity_hash: this.calculateHash(JSON.stringify(unit.statusHistory)),
+      statusHistory,
+      integrity_hash: this.calculateHash(JSON.stringify(statusHistory)),
       exportedAt: new Date().toISOString(),
     };
   }

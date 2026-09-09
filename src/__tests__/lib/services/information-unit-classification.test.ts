@@ -15,6 +15,9 @@ const { mockPrisma, generateWithCostControl } = vi.hoisted(() => ({
       create: vi.fn(),
       update: vi.fn(),
     },
+    informationStatusHistory: {
+      create: vi.fn(),
+    },
   },
   generateWithCostControl: vi.fn(),
 }));
@@ -27,21 +30,29 @@ import { InformationUnitService, InformationUnitStatus } from '@/lib/services/in
 
 const service = new InformationUnitService();
 
+/** Récupère et parse le metadata (JSON string) du 1er update (transition CLASSIFIED). */
+function classifiedMeta() {
+  const call = mockPrisma.informationUnit.update.mock.calls[0][0];
+  expect(call.data.currentStatus).toBe(InformationUnitStatus.CLASSIFIED);
+  return JSON.parse(call.data.metadata);
+}
+
 function setupCreateMocks() {
   mockPrisma.informationUnit.findUnique
-    // 1er appel: dédup (aucun doublon)
+    // dédup (aucun doublon)
     .mockResolvedValueOnce(null)
-    // 2e appel: dans transition() pour lire l'unité créée
+    // transition() relit l'unité créée
     .mockResolvedValueOnce({
       id: 'unit-1',
       currentStatus: InformationUnitStatus.RECEIVED,
-      statusHistory: [],
+      metadata: null,
     });
   mockPrisma.informationUnit.create.mockResolvedValue({
     id: 'unit-1',
     currentStatus: InformationUnitStatus.RECEIVED,
   });
   mockPrisma.informationUnit.update.mockResolvedValue({ id: 'unit-1' });
+  mockPrisma.informationStatusHistory.create.mockResolvedValue({ id: 'h-1' });
 }
 
 describe('[Réparation] InformationUnitService — classification réelle', () => {
@@ -58,13 +69,14 @@ describe('[Réparation] InformationUnitService — classification réelle', () =
 
     await service.create({ tenantId: 't1', source: 'EMAIL', content: 'OQTF reçue, recours urgent' });
 
-    // La transition CLASSIFIED doit porter la confiance IA réelle (0.92), method 'ai'.
-    const updateCall = mockPrisma.informationUnit.update.mock.calls[0][0];
-    expect(updateCall.data.currentStatus).toBe(InformationUnitStatus.CLASSIFIED);
-    expect(updateCall.data.metadata.confidence).toBe(0.92);
-    expect(updateCall.data.metadata.method).toBe('ai');
-    expect(updateCall.data.metadata.caseType).toBe('OQTF');
+    // La transition CLASSIFIED porte la confiance IA réelle (0.92), method 'ai'.
+    const meta = classifiedMeta();
+    expect(meta.confidence).toBe(0.92);
+    expect(meta.method).toBe('ai');
+    expect(meta.caseType).toBe('OQTF');
     expect(generateWithCostControl).toHaveBeenCalledTimes(1);
+    // L'historique est écrit dans la table dédiée (RECEIVED puis CLASSIFIED).
+    expect(mockPrisma.informationStatusHistory.create).toHaveBeenCalledTimes(2);
   });
 
   it('bascule sur le fallback regex quand l’IA échoue (jamais d’échec silencieux)', async () => {
@@ -77,14 +89,12 @@ describe('[Réparation] InformationUnitService — classification réelle', () =
       content: 'Bonjour, refus de titre de séjour, je souhaite un recours.',
     });
 
-    const updateCall = mockPrisma.informationUnit.update.mock.calls[0][0];
-    expect(updateCall.data.currentStatus).toBe(InformationUnitStatus.CLASSIFIED);
-    expect(updateCall.data.metadata.method).toBe('fallback');
-    expect(updateCall.data.metadata.classifier).toBe('regex-fallback');
-    // La confiance provient du classifieur regex réel (nombre entre 0 et 1).
-    expect(typeof updateCall.data.metadata.confidence).toBe('number');
-    expect(updateCall.data.metadata.confidence).toBeGreaterThanOrEqual(0);
-    expect(updateCall.data.metadata.confidence).toBeLessThanOrEqual(1);
+    const meta = classifiedMeta();
+    expect(meta.method).toBe('fallback');
+    expect(meta.classifier).toBe('regex-fallback');
+    expect(typeof meta.confidence).toBe('number');
+    expect(meta.confidence).toBeGreaterThanOrEqual(0);
+    expect(meta.confidence).toBeLessThanOrEqual(1);
   });
 
   it('marque needsHumanReview quand la confiance IA est faible', async () => {
@@ -96,9 +106,35 @@ describe('[Réparation] InformationUnitService — classification réelle', () =
 
     await service.create({ tenantId: 't1', source: 'EMAIL', content: 'Message ambigu' });
 
-    const updateCall = mockPrisma.informationUnit.update.mock.calls[0][0];
-    expect(updateCall.data.metadata.confidence).toBe(0.4);
-    expect(updateCall.data.metadata.needsHumanReview).toBe(true);
+    const meta = classifiedMeta();
+    expect(meta.confidence).toBe(0.4);
+    expect(meta.needsHumanReview).toBe(true);
+  });
+
+  it('stocke metadata et sourceMetadata en JSON (colonnes text du schéma réel)', async () => {
+    setupCreateMocks();
+    generateWithCostControl.mockResolvedValue({
+      response: '{"caseType":"OQTF","priority":"haute","confidence":0.8}',
+      model: 'llama3.2:3b',
+    });
+
+    await service.create({
+      tenantId: 't1',
+      source: 'EMAIL',
+      content: 'x',
+      sourceMetadata: { emailId: 'e1' },
+    });
+
+    // create() doit fournir id + updatedAt (pas de @default dans le schéma) et
+    // sérialiser sourceMetadata en string JSON.
+    const createData = mockPrisma.informationUnit.create.mock.calls[0][0].data;
+    expect(createData.id).toBeTruthy();
+    expect(createData.updatedAt).toBeInstanceOf(Date);
+    expect(typeof createData.sourceMetadata).toBe('string');
+    expect(JSON.parse(createData.sourceMetadata)).toEqual({ emailId: 'e1' });
+    // Ne doit PAS écrire de colonnes inexistantes.
+    expect(createData.statusHistory).toBeUndefined();
+    expect(createData.statusReason).toBeUndefined();
   });
 
   it('retourne l’unité existante sur doublon (dédup SHA-256) sans reclassifier', async () => {
