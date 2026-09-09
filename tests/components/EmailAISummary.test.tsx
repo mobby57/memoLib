@@ -26,6 +26,10 @@ const mockSummary = {
 describe('EmailAISummary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Réinitialise l'implémentation du mock fetch entre les tests pour éviter
+    // toute fuite d'implémentation (ex: mockResolvedValue d'un bloc précédent
+    // persistant dans le bloc "Erreur réseau"). N'affecte pas le composant.
+    mockFetch.mockReset();
   });
 
   describe('État initial', () => {
@@ -149,11 +153,9 @@ describe('EmailAISummary', () => {
       render(<EmailAISummary {...defaultProps} />);
       fireEvent.click(screen.getByText(/analyser avec l.ia/i));
 
+      // Le composant passe en état erreur → bouton "Erreur — Réessayer".
       await waitFor(() => {
-        // Le composant rend "Erreur — Réessayer" avec em dash
-        expect(screen.getByText((_content, element) => {
-          return element?.textContent?.includes('essayer') ?? false;
-        })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /réessayer/i })).toBeInTheDocument();
       });
     });
 
@@ -167,16 +169,7 @@ describe('EmailAISummary', () => {
       render(<EmailAISummary {...defaultProps} />);
       fireEvent.click(screen.getByText(/analyser avec l.ia/i));
 
-      await waitFor(() => {
-        expect(screen.getByText((_content, element) => {
-          return element?.textContent?.includes('essayer') ?? false;
-        })).toBeInTheDocument();
-      });
-
-      // Cliquer sur le bouton d'erreur (c'est un <button> qui contient le texte)
-      const retryBtn = screen.getByText((_content, element) => {
-        return element?.tagName === 'BUTTON' && (element?.textContent?.includes('essayer') ?? false);
-      });
+      const retryBtn = await screen.findByRole('button', { name: /réessayer/i });
       fireEvent.click(retryBtn);
 
       await waitFor(() => {

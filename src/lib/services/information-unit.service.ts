@@ -1,5 +1,4 @@
-﻿// @ts-nocheck
-/**
+﻿/**
  * InformationUnitService
  *
  * Core service for the "Zero Ignored Information" guarantee
@@ -13,6 +12,9 @@
 
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
+import { hybridAI } from '@/lib/ai/hybrid-client';
+import { classifyEmail } from '@/lib/classifiers/email-classifier';
+import { logger } from '@/lib/logger';
 
 type InformationUnitSource = string;
 
@@ -127,46 +129,162 @@ export class InformationUnitService {
       return existing;
     }
 
-    // Create unit in RECEIVED status
+    // Create unit in RECEIVED status.
+    // Aligné sur le schéma réel : id/updatedAt requis (pas de @default), metadata
+    // et sourceMetadata sont des colonnes `text` (JSON sérialisé), et l'historique
+    // de statut va dans la table dédiée InformationStatusHistory (pas une colonne
+    // statusHistory qui n'existe pas).
+    const now = new Date();
     const unit = await prisma.informationUnit.create({
       data: {
+        id: crypto.randomUUID(),
         tenantId: input.tenantId,
         source: input.source,
         content: input.content,
         contentHash,
-        sourceMetadata: input.sourceMetadata,
+        sourceMetadata: input.sourceMetadata ? JSON.stringify(input.sourceMetadata) : null,
         linkedWorkspaceId: input.linkedWorkspaceId,
-        metadata: input.metadata,
+        metadata: input.metadata ? JSON.stringify(input.metadata) : null,
         currentStatus: InformationUnitStatus.RECEIVED,
-        statusReason: `Recu via ${input.source}`,
         lastStatusChangeBy: 'system',
-        statusHistory: [
-          {
-            timestamp: new Date().toISOString(),
-            fromStatus: null,
-            toStatus: InformationUnitStatus.RECEIVED,
-            reason: `Auto-cree via ${input.source}`,
-            changedBy: 'system',
-            metadata: input.sourceMetadata,
-          },
-        ],
+        lastStatusChangeAt: now,
+        updatedAt: now,
       },
     });
 
-    // Auto-classify to CLASSIFIED (simulated AI classification)
-    // In production, this would call AI classification service
+    // Historique initial dans la table dédiée
+    await this.recordHistory({
+      unitId: unit.id,
+      fromStatus: null,
+      toStatus: InformationUnitStatus.RECEIVED,
+      reason: `Auto-cree via ${input.source}`,
+      changedBy: 'system',
+    });
+
+    // Auto-classify: appelle la VRAIE classification (IA + fallback regex),
+    // remplace l'ancienne simulation codée en dur (confidence: 0.89).
+    const classification = await this.classify(input.content, input.tenantId);
+
     await this.transition({
       unitId: unit.id,
       toStatus: InformationUnitStatus.CLASSIFIED,
-      reason: 'Classification automatique (IA)',
+      reason: `Classification ${classification.method} (confiance ${classification.confidence})`,
       changedBy: 'system',
       metadata: {
-        confidence: 0.89,
-        classifier: 'llama3.2:3b',
+        confidence: classification.confidence,
+        classifier: classification.classifier,
+        method: classification.method,
+        caseType: classification.caseType,
+        priority: classification.priority,
+        needsHumanReview: classification.needsHumanReview,
       },
     });
 
     return unit;
+  }
+
+  /**
+   * Enregistre une entrée d'historique de statut dans la table dédiée
+   * InformationStatusHistory (source de vérité de l'audit trail).
+   */
+  private async recordHistory(entry: {
+    unitId: string;
+    fromStatus: InformationUnitStatusValue | null;
+    toStatus: InformationUnitStatusValue;
+    reason: string;
+    changedBy: string;
+  }): Promise<void> {
+    await prisma.informationStatusHistory.create({
+      data: {
+        id: crypto.randomUUID(),
+        unitId: entry.unitId,
+        fromStatus: entry.fromStatus,
+        toStatus: entry.toStatus,
+        reason: entry.reason,
+        changedBy: entry.changedBy,
+        changedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Classifie un contenu entrant (PUBLIC — réutilisable par IngestionService).
+   *
+   * Stratégie protectrice (cf. thèse "ne rien perdre") :
+   *  1. IA réelle (hybridAI : Ollama -> cloud -> ...) pour type de dossier + confiance.
+   *  2. Fallback déterministe (classifyEmail regex) si l'IA échoue ou renvoie
+   *     une réponse non exploitable.
+   *  3. Confiance faible => needsHumanReview = true (l'unité sera routée vers
+   *     validation humaine plutôt que traitée automatiquement).
+   *
+   * @returns confidence réelle (0-1), classifier utilisé, method ('ai'|'fallback'),
+   *          caseType, priority, needsHumanReview.
+   */
+  async classify(
+    content: string,
+    tenantId: string
+  ): Promise<{
+    confidence: number;
+    classifier: string;
+    method: 'ai' | 'fallback';
+    caseType?: string;
+    priority?: string;
+    needsHumanReview: boolean;
+  }> {
+    const HUMAN_REVIEW_THRESHOLD = 0.7;
+
+    // 1. Tentative IA réelle
+    try {
+      const prompt = `Classe ce contenu juridique entrant. Ne retourne aucun identifiant personnel.
+
+Contenu :
+${content.slice(0, 4000)}
+
+Retourne UNIQUEMENT ce JSON :
+{"caseType":"OQTF|ASILE|TITRE_SEJOUR|NATURALISATION|REGROUPEMENT_FAMILIAL|CONTENTIEUX|GENERAL","priority":"basse|normale|haute|critique","confidence":0.0}`;
+
+      const result = await hybridAI.generateWithCostControl(prompt, tenantId);
+      const match = result.response.match(/\{[\s\S]*\}/);
+      if (match) {
+        const parsed = JSON.parse(match[0]) as {
+          caseType?: string;
+          priority?: string;
+          confidence?: number;
+        };
+        const confidence =
+          typeof parsed.confidence === 'number'
+            ? Math.max(0, Math.min(1, parsed.confidence))
+            : 0;
+        if (parsed.caseType && confidence > 0) {
+          return {
+            confidence,
+            classifier: (result as { model?: string }).model || 'hybrid-ai',
+            method: 'ai',
+            caseType: parsed.caseType,
+            priority: parsed.priority,
+            needsHumanReview: confidence < HUMAN_REVIEW_THRESHOLD,
+          };
+        }
+      }
+      logger.warn('[InformationUnit] Réponse IA non exploitable, fallback regex', { tenantId });
+    } catch (error) {
+      logger.warn('[InformationUnit] Classification IA échouée, fallback regex', {
+        tenantId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    // 2. Fallback déterministe (regex) — jamais d'échec silencieux
+    const fallback = classifyEmail('', content);
+    return {
+      confidence: fallback.confidence,
+      classifier: 'regex-fallback',
+      method: 'fallback',
+      caseType: fallback.caseType,
+      priority: fallback.priority,
+      // needsHumanReview vrai si le fallback le juge, OU si confiance faible.
+      needsHumanReview: fallback.needsHumanReview || fallback.confidence < HUMAN_REVIEW_THRESHOLD,
+    };
   }
 
   /**
@@ -187,37 +305,56 @@ export class InformationUnitService {
     // Validate required fields for state transitions
     this.validateStatusRequirements(input.toStatus, input.reason);
 
-    // Append to audit trail
-    const newHistory = [
-      ...((unit.statusHistory as any[]) || []),
-      {
-        timestamp: new Date().toISOString(),
-        fromStatus: unit.currentStatus,
-        toStatus: input.toStatus,
-        reason: input.reason,
-        changedBy: input.changedBy,
-        metadata: input.metadata,
-      },
-    ];
+    // Enregistrer l'historique dans la table dédiée (au lieu d'une colonne
+    // statusHistory inexistante).
+    await this.recordHistory({
+      unitId: input.unitId,
+      fromStatus: unit.currentStatus,
+      toStatus: input.toStatus,
+      reason: input.reason,
+      changedBy: input.changedBy,
+    });
 
-    // Determine if this status requires human action
+    // Fusionner les metadata existantes (colonne text/JSON) avec les nouvelles,
+    // et y porter requiresHumanAction (pas de colonne dédiée dans le schéma réel).
+    const existingMeta = this.parseJson(unit.metadata);
     const requiresAction = this.checkHumanActionRequired(input.toStatus);
+    const mergedMeta = {
+      ...existingMeta,
+      ...(input.metadata || {}),
+      requiresHumanAction: requiresAction,
+      lastReason: input.reason,
+    };
 
-    // Update unit
+    const now = new Date();
     const updated = await prisma.informationUnit.update({
       where: { id: input.unitId },
       data: {
         currentStatus: input.toStatus,
-        statusReason: input.reason,
-        statusHistory: newHistory,
-        lastStatusChangeAt: new Date(),
+        lastStatusChangeAt: now,
         lastStatusChangeBy: input.changedBy,
-        requiresHumanAction: requiresAction,
-        metadata: input.metadata,
+        metadata: JSON.stringify(mergedMeta),
+        updatedAt: now,
+        // Horodatage des jalons de pipeline
+        ...(input.toStatus === InformationUnitStatus.CLASSIFIED ? { classifiedAt: now } : {}),
+        ...(input.toStatus === InformationUnitStatus.ANALYZED ? { analyzedAt: now } : {}),
+        ...(input.toStatus === InformationUnitStatus.RESOLVED ? { resolvedAt: now } : {}),
+        ...(input.toStatus === InformationUnitStatus.CLOSED ? { closedAt: now } : {}),
       },
     });
 
     return updated;
+  }
+
+  /** Parse une colonne JSON (text) de façon sûre. */
+  private parseJson(value: unknown): Record<string, unknown> {
+    if (!value || typeof value !== 'string') return {};
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
   }
 
   /**
@@ -265,8 +402,9 @@ export class InformationUnitService {
    * Check if status requires human action
    */
   private checkHumanActionRequired(status: InformationUnitStatusValue): boolean {
-    return [InformationUnitStatus.HUMAN_ACTION_REQUIRED, InformationUnitStatus.AMBIGUOUS].includes(
-      status
+    return (
+      status === InformationUnitStatus.HUMAN_ACTION_REQUIRED ||
+      status === InformationUnitStatus.AMBIGUOUS
     );
   }
 
@@ -316,10 +454,11 @@ export class InformationUnitService {
           try {
             const { Resend } = await import('resend');
             const resend = new Resend(process.env.RESEND_API_KEY);
-            if (process.env.RESEND_API_KEY && unit.metadata?.clientEmail) {
+            const unitMeta = this.parseJson(unit.metadata);
+            if (process.env.RESEND_API_KEY && unitMeta.clientEmail) {
               await resend.emails.send({
                 from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
-                to: unit.metadata.clientEmail as string,
+                to: unitMeta.clientEmail as string,
                 subject: 'Rappel : Informations manquantes - memoLib',
                 html: `<h2>Informations manquantes</h2><p>Des informations sont encore nécessaires pour votre dossier. Merci de les compléter.</p>`,
               });
@@ -425,6 +564,12 @@ export class InformationUnitService {
       throw new Error(`InformationUnit not found: ${unitId}`);
     }
 
+    // L'historique vit dans la table dédiée InformationStatusHistory.
+    const statusHistory = await prisma.informationStatusHistory.findMany({
+      where: { unitId },
+      orderBy: { changedAt: 'asc' },
+    });
+
     return {
       unitId: unit.id,
       tenantId: unit.tenantId,
@@ -432,8 +577,8 @@ export class InformationUnitService {
       contentHash: unit.contentHash,
       receivedAt: unit.receivedAt,
       currentStatus: unit.currentStatus,
-      statusHistory: unit.statusHistory,
-      integrity_hash: this.calculateHash(JSON.stringify(unit.statusHistory)),
+      statusHistory,
+      integrity_hash: this.calculateHash(JSON.stringify(statusHistory)),
       exportedAt: new Date().toISOString(),
     };
   }

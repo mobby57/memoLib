@@ -16,6 +16,16 @@ vi.mock('@/lib/auth', () => ({
   getServerSession: vi.fn(async () => (mockSessionUser ? { user: mockSessionUser } : null)),
 }));
 
+// Migration Clerk : la route utilise @/lib/clerk-auth `auth()`, pas NextAuth.
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => ({
+    isAuthenticated: Boolean(mockSessionUser),
+    clerkUserId: mockSessionUser ? 'clerk_test' : null,
+    orgId: null,
+    user: mockSessionUser ?? null,
+  })),
+}));
+
 vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
   authOptions: {},
 }));

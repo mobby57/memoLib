@@ -68,8 +68,8 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value:
               process.env.NODE_ENV === 'production'
-                ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.vercel.com *.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' *.vercel.com *.google-analytics.com *.sentry.io *.upstash.io; frame-ancestors 'none'"
-                : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' localhost:* *.vercel.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http://localhost:*; font-src 'self' data:; connect-src 'self' localhost:* *.vercel.com *.sentry.io *.upstash.io; frame-ancestors 'self'",
+                ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.vercel.com *.google-analytics.com https://*.clerk.accounts.dev https://clerk.memolib.fr; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' *.vercel.com *.google-analytics.com *.sentry.io *.upstash.io https://*.clerk.accounts.dev https://clerk.memolib.fr; frame-src 'self' https://*.clerk.accounts.dev; frame-ancestors 'none'"
+                : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' localhost:* *.vercel.com https://*.clerk.accounts.dev; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob: http://localhost:*; font-src 'self' data:; connect-src 'self' localhost:* *.vercel.com *.sentry.io *.upstash.io https://*.clerk.accounts.dev; frame-src 'self' https://*.clerk.accounts.dev; frame-ancestors 'self'",
           },
         ],
       },
@@ -99,6 +99,18 @@ module.exports = withSentryConfig(module.exports, {
 
   org: 'ms-conseils',
   project: 'javascript-nextjs-w2',
+
+  // Jeton d'upload des source maps. Absent (local / preview sans secret) =>
+  // on desactive l'upload pour ne pas faire echouer le build sur un appel
+  // reseau a l'API Sentry. En CI/production, le secret est fourni et l'upload
+  // s'effectue normalement.
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+  release: {
+    create: Boolean(process.env.SENTRY_AUTH_TOKEN),
+  },
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
