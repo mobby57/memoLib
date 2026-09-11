@@ -201,6 +201,7 @@
     "picomatch": "^4.0.4",
     "prisma": "^5.22.0",
     "qrcode": "^1.5.4",
+    "railway": "^3.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.69.0",

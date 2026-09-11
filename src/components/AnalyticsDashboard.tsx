@@ -1,3 +1,5 @@
+'use client';
+
 // CLERK-MIGRATION: Remplacement import useSession
 /**
  * Composant Dashboard Analytique Avance
@@ -6,7 +8,7 @@
  * Innovation: Analytics en temps reel avec graphiques interactifs
  */
 
-'use client';
+
 
 import { useEffect, useState } from 'react';
 import { logger } from '@/lib/logger';

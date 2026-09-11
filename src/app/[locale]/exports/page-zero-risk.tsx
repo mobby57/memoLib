@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { ZeroRiskExport } from '@/lib/zero-risk-export'
 import { useState } from 'react'
