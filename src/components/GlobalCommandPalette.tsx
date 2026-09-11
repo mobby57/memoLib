@@ -1,7 +1,9 @@
+'use client';
+
 // CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
 // CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
 // CLERK-MIGRATION: Remplacement import useSession
-'use client';
+
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';

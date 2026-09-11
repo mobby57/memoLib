@@ -1,10 +1,12 @@
+'use client';
+
 import { useAuth } from '@/hooks/useAuth';
 /**
  * Dashboard Client - Vue personnelle
  * Niveau 3 : Accès uniquement aux propres dossiers du client
  */
 
-'use client';
+
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';

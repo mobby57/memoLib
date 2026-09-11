@@ -1,3 +1,5 @@
+'use client';
+
 ﻿/**
  * Composant Suggestions Intelligentes
  * Affiche les suggestions proactives de l'IA
@@ -5,7 +7,7 @@
  * Innovation: L'IA devient proactive et suggere des actions
  */
 
-'use client';
+
 
 import { useEffect, useState } from 'react';
 import { logger } from '@/lib/logger';

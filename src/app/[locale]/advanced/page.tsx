@@ -1,10 +1,12 @@
+'use client';
+
 import { useAuth } from '@/hooks/useAuth';
 /**
  * Page de demonstration des fonctionnalités avancees
  * Recherche semantique, Suggestions, Analytics
  */
 
-'use client';
+
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';

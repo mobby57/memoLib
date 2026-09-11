@@ -1,7 +1,9 @@
+'use client';
+
 // CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
 // CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
 // CLERK-MIGRATION: Remplacement import useSession
-'use client';
+
 
 import { useAuth } from '@/hooks/useAuth';
 import { Info, ArrowRight } from 'lucide-react';
