@@ -2,7 +2,8 @@
 # Dockerfile Frontend Next.js
 # =============================================================================
 
-FROM node:20-alpine AS base
+# Node 22 is required by current project dependencies (including railway CLI).
+FROM node:22-alpine AS base
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
@@ -10,7 +11,11 @@ WORKDIR /app
 FROM base AS deps
 COPY package*.json ./
 COPY prisma ./prisma
-RUN npm ci --legacy-peer-deps && npm cache clean --force
+# better-sqlite3 may need a native build on Alpine. Keep the toolchain only in
+# this disposable dependency stage so the final image stays small.
+RUN apk add --no-cache python3 make g++ && \
+    npm ci --legacy-peer-deps && \
+    npm cache clean --force
 
 # Stage: Builder
 FROM base AS builder
@@ -26,6 +31,7 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
