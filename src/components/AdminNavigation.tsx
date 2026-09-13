@@ -1,87 +1,96 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useClerk } from '@clerk/nextjs';
+import {
+  Bell,
+  CalendarClock,
+  FileText,
+  FolderOpen,
+  Inbox,
+  LogOut,
+  Settings,
+  Users,
+} from 'lucide-react';
 
 export default function AdminNavigation() {
   const pathname = usePathname() ?? '';
   const locale = pathname.split('/')[1] || 'fr';
+  const { signOut } = useClerk();
   const lhref = (path: string) => `/${locale}${path}`;
 
-  return (
-    <nav className="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-1">
-            <Link
-              href={lhref("/admin")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
-            >
-              ?? Dashboard
-            </Link>
-            <Link
-              href={lhref("/admin/clients")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
-            >
-               Clients
-            </Link>
-            <Link
-              href={lhref("/admin/dossiers")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
-            >
-               Dossiers
-            </Link>
-            <Link
-              href={lhref("/admin/documents")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
-            >
-               Documents
-            </Link>
-            <Link
-              href={lhref("/admin/messages")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
-            >
-               Messages
-            </Link>
-            <Link
-              href={lhref("/admin/email-monitoring")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
-            >
-               Emails
-            </Link>
-            <Link
-              href={lhref("/admin/ai-usage")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all"
-            >
-              ?? Usage IA
-            </Link>
-            <Link
-              href={lhref("/admin/costs")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all"
-            >
-              ?? Coets IA
-            </Link>
-            <Link
-              href={lhref("/admin/parametres")}
-              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
-            >
-              ?? Parametres
-            </Link>
-          </div>
+  const navigation = [
+    { href: '/inbox', label: 'Inbox', icon: Inbox },
+    { href: '/admin/dossiers', label: 'Dossiers', icon: FolderOpen },
+    { href: '/admin/clients', label: 'Clients', icon: Users },
+    { href: '/admin/documents', label: 'Documents', icon: FileText },
+    { href: '/admin/parametres', label: 'Paramètres', icon: Settings },
+  ];
 
-          <div className="flex items-center gap-4">
-            <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full text-sm font-semibold">
-              ADMIN
-            </span>
-            <Link
-              href="/api/auth/signout"
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold transition-colors"
-            >
-              Deconnexion
-            </Link>
-          </div>
+  const isActive = (href: string) => {
+    const target = lhref(href);
+    return pathname === target || pathname.startsWith(`${target}/`);
+  };
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-6 px-4 sm:px-6">
+        <Link href={lhref('/dashboard')} className="flex shrink-0 items-center gap-2">
+          <span className="text-lg font-bold tracking-tight text-slate-900">MemoLib</span>
+          <span className="hidden rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700 sm:inline">
+            Cabinet
+          </span>
+        </Link>
+
+        <nav aria-label="Navigation principale" className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+          {navigation.map(({ href, label, icon: Icon }) => {
+            const active = isActive(href);
+            return (
+              <Link
+                key={href}
+                href={lhref(href)}
+                aria-current={active ? 'page' : undefined}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  active
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex shrink-0 items-center gap-1 border-l border-slate-200 pl-2">
+          <Link
+            href={lhref('/admin/integration')}
+            aria-label="Intégrations et connexion email"
+            title="Intégrations et connexion email"
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+          >
+            <CalendarClock className="h-4 w-4" />
+          </Link>
+          <button
+            type="button"
+            aria-label="Notifications"
+            title="Notifications"
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+          >
+            <Bell className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => signOut({ redirectUrl: lhref('/auth/login') })}
+            className="ml-1 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-700"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="hidden lg:inline">Déconnexion</span>
+          </button>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }
