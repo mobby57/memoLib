@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
+import { Analytics } from '@vercel/analytics/next';
 
 import { defaultMetadata } from '@/lib/metadata';
 import CrispChat from '@/components/support/CrispChat';
@@ -17,6 +18,7 @@ export default function RootLayout({
         <ClerkProvider>
           {children}
           <CrispChat />
+          <Analytics />
         </ClerkProvider>
       </body>
     </html>
