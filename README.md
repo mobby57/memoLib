@@ -1,355 +1,324 @@
-# 🚀 MemoLib - Plateforme Juridique Intelligente
+# MemoLib — Le workspace intelligent du cabinet
 
-[![CI/CD Pipeline](https://github.com/mobby57/memoLib/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/ci-cd.yml)
-[![Security — Semgrep](https://github.com/mobby57/memoLib/actions/workflows/sast-semgrep.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/sast-semgrep.yml)
-[![Trivy Scan](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml)
-[![Tests](https://img.shields.io/badge/tests-4463_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791)](https://www.postgresql.org/)
-[![Vercel](https://img.shields.io/badge/Vercel-deployed-black)](https://vercel.com/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+> **Le dossier au centre. L’IA au service du professionnel.**  
+> De l’information à l’action. Du papier au numérique. Du client au dossier.
 
-## 🎯 Qu'est-ce que MemoLib ?
+MemoLib est une plateforme de gestion de dossiers juridiques conçue pour les avocats, notaires, commissaires de justice, experts juridiques et petites structures.
 
-**MemoLib** est une plateforme de gestion intelligente pour **cabinets d'avocats**. Elle automatise le workflow complet : réception d'emails, analyse IA, création de dossiers, gestion des deadlines, génération de documents, et conformité RGPD.
+Son principe est simple : **ne pas imposer au professionnel de changer brutalement sa façon de travailler**. Le papier, l’e-mail, les documents numériques et les échanges avec les clients peuvent continuer à coexister. MemoLib fait circuler l’information entre ces mondes et la rattache au bon dossier.
 
-### Pour qui ?
+## La vision
 
-- ⚖️ Cabinets d'avocats (1-50 avocats)
-- 📜 Notaires, huissiers, experts juridiques
-- 🏢 PME juridiques
+Le véritable centre de gravité n’est ni l’e-mail, ni le document, ni l’IA.
+
+**C’est le dossier.**
+
+Chaque information entrante peut devenir une information exploitable du dossier :
+
+```text
+                    INFORMATION
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+       E-mail          Papier        Document
+          │              │              │
+          └──────────────┼──────────────┘
+                         ▼
+                 COMPRÉHENSION IA
+                         │
+                         ▼
+                  CLIENT IDENTIFIÉ
+                         │
+                         ▼
+                   DOSSIER CIBLE
+                         │
+                         ▼
+                ACTION PROPOSÉE
+                         │
+                         ▼
+               VALIDATION HUMAINE
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+      Document         Tâche         Échéance
+          │              │              │
+          └──────────────┼──────────────┘
+                         ▼
+                    HISTORIQUE
+```
+
+L’IA aide à comprendre, classer, relier et préparer. **Le professionnel garde la décision finale.**
+
+## Un dossier qui traverse le papier et le numérique
+
+MemoLib doit permettre une continuité dans les deux sens.
+
+### Papier → MemoLib
+
+Un courrier, une pièce ou une feuille reçue sur papier peut être photographié ou numérisé.
+
+```text
+Photo / Scan
+     ↓
+OCR / compréhension IA
+     ↓
+Client et dossier proposés
+     ↓
+Vérification humaine
+     ↓
+Document + événement dans le dossier
+```
+
+L’objectif n’est pas de créer une usine à archivage : **il s’agit de ne plus perdre l’information parce qu’elle est arrivée sur papier.**
+
+### Numérique → MemoLib
+
+Les e-mails et documents numériques sont analysés et rattachés au dossier.
+
+MemoLib peut identifier notamment :
+
+- le client concerné ;
+- le dossier probable ;
+- le type de document ou de demande ;
+- le niveau d’urgence ;
+- une éventuelle échéance ;
+- les pièces jointes ;
+- une action à effectuer.
+
+### MemoLib → Papier
+
+Le professionnel peut préparer des documents à imprimer ou transmettre.
+
+Avant l’impression, MemoLib peut vérifier la version utilisée et enregistrer un événement opérationnel, par exemple :
+
+```text
+PRINTED
+Document : courrier_client.pdf
+Version  : v3
+Utilisateur : collaborateur
+Date/heure : …
+Dossier : …
+```
+
+Le but est d'assurer la continuité du dossier, **pas de prétendre transformer une impression en preuve juridique par une technologie artificielle**.
+
+### MemoLib → Numérique
+
+Documents, courriers, réponses et autres éléments produits depuis le dossier peuvent repartir vers les canaux numériques appropriés.
+
+## L’IA comme collaborateur, pas comme décideur
+
+MemoLib utilise l’IA pour réduire le travail répétitif et aider le professionnel à traiter l'information plus rapidement.
+
+Elle peut notamment :
+
+- analyser un message ou un document ;
+- extraire des informations utiles ;
+- proposer un client et un dossier ;
+- détecter une urgence ou une échéance ;
+- classer une demande ;
+- identifier des informations manquantes ;
+- proposer une action ;
+- préparer un brouillon de réponse ou de document.
+
+Le fonctionnement recherché est :
+
+```text
+IA → proposition → vérification → validation humaine → action
+```
+
+**MemoLib ne prend pas de décision juridique autonome à la place du professionnel.**
+
+## Le dossier comme historique vivant
+
+Un dossier rassemble progressivement :
+
+- clients et parties ;
+- communications ;
+- documents ;
+- tâches ;
+- échéances ;
+- événements ;
+- actions réalisées ;
+- informations issues du papier et du numérique.
+
+Le professionnel doit pouvoir comprendre rapidement **ce qui est arrivé, ce qui a été compris, ce qui a été proposé et ce qui a réellement été validé ou effectué.**
+
+## Une inbox qui devient du travail exploitable
+
+L’objectif n’est pas simplement de créer une boîte mail améliorée.
+
+Une information reçue doit pouvoir suivre un parcours clair :
+
+```text
+REÇU
+  ↓
+ANALYSÉ
+  ↓
+CLIENT / DOSSIER IDENTIFIÉ
+  ↓
+ACTION PROPOSÉE
+  ↓
+VALIDÉE
+  ↓
+TRAITÉE
+  ↓
+HISTORISÉE
+```
+
+Cela permet de transformer progressivement une masse d’informations entrantes en travail organisé.
+
+## Canaux et continuité de l'information
+
+La vision à terme est de réunir progressivement plusieurs sources :
+
+```text
+E-mail ───────┐
+WhatsApp ─────┤
+SMS ──────────┤
+Téléphone ────┤──→ INBOX UNIFIÉE → IA / ROUTAGE → DOSSIER
+Web ──────────┤                                      │
+Papier ───────┘                                      ▼
+                                          Tâches / Échéances
+                                                   │
+                                                   ▼
+                                          Validation humaine
+```
+
+Le canal d’entrée peut changer. **Le dossier reste le point de référence.**
+
+## Pour qui ?
+
+MemoLib cible notamment :
+
+- cabinets d’avocats ;
+- études notariales ;
+- commissaires de justice ;
+- experts et professionnels du droit ;
+- petites et moyennes structures juridiques.
+
+L’expérience doit rester compréhensible par un professionnel non technique : **recevoir → comprendre → rattacher → décider → agir.**
+
+## Fonctionnalités principales
+
+Selon le périmètre activé :
+
+- gestion des cabinets et utilisateurs ;
+- clients et dossiers ;
+- documents et pièces jointes ;
+- communications ;
+- tâches et échéances ;
+- boîte de réception ;
+- analyse et classification assistées par IA ;
+- rapprochement client/dossier ;
+- propositions d’actions ;
+- préparation de réponses et documents ;
+- historique des événements ;
+- ingestion de documents papier numérisés ;
+- connexions aux canaux de communication ;
+- contrôle humain avant les actions sensibles.
+
+## Sécurité et responsabilité
+
+La sécurité et l'isolation des données sont des principes fondamentaux du projet.
+
+MemoLib est conçu autour notamment de :
+
+- séparation des espaces et des données ;
+- contrôles d'accès ;
+- protection des documents ;
+- traçabilité des actions ;
+- validation humaine des décisions importantes ;
+- principe de minimisation et de protection des données.
+
+Les fonctionnalités liées au droit et à l’IA sont destinées à **assister le professionnel**, et non à remplacer son appréciation juridique.
+
+## Philosophie produit
+
+MemoLib privilégie les briques qui résolvent un problème réel avant les mécanismes complexes.
+
+Par exemple, un hash de contenu peut être utile pour identifier précisément une version de document produite ou imprimée. Il s'agit d'un mécanisme d'intégrité opérationnelle, pas d'une promesse de preuve juridique universelle.
+
+De même, le QR code, l’archivage avancé ou les mécanismes cryptographiques supplémentaires ne deviennent centraux que lorsqu’un besoin réel le justifie.
+
+**La valeur vient de la continuité du dossier, pas de la complexité technique.**
+
+## Architecture fonctionnelle
+
+```text
+┌──────────────────────────────────────────────────────┐
+│                    CANAUX D'ENTRÉE                    │
+│  E-mail · Papier · Web · SMS · WhatsApp · Téléphone │
+└─────────────────────────┬────────────────────────────┘
+                          ↓
+┌──────────────────────────────────────────────────────┐
+│              COMPRÉHENSION / ROUTAGE IA              │
+│  Extraction · classification · rapprochement · IA   │
+└─────────────────────────┬────────────────────────────┘
+                          ↓
+┌──────────────────────────────────────────────────────┐
+│                         DOSSIER                       │
+│  Client · documents · communications · événements   │
+└─────────────────────────┬────────────────────────────┘
+                          ↓
+┌──────────────────────────────────────────────────────┐
+│                    ACTIONS DE TRAVAIL                 │
+│       Tâches · échéances · réponses · documents     │
+└─────────────────────────┬────────────────────────────┘
+                          ↓
+┌──────────────────────────────────────────────────────┐
+│                 VALIDATION HUMAINE                    │
+└──────────────────────────────────────────────────────┘
+```
+
+## Développement
+
+Le projet utilise une architecture web moderne autour notamment de :
+
+- Next.js / React ;
+- TypeScript ;
+- PostgreSQL ;
+- Prisma ;
+- authentification et gestion des utilisateurs ;
+- services d'IA ;
+- stockage et traitement de documents ;
+- intégrations de messagerie et de communication ;
+- CI/CD et contrôles de sécurité.
+
+Les détails techniques peuvent évoluer avec le produit. **Le modèle fonctionnel — l'information qui converge vers le dossier puis vers l'action validée — reste le principe directeur.**
+
+## État du projet
+
+MemoLib est en développement et évolue vers un produit exploitable par des professionnels du droit.
+
+Les fonctionnalités et niveaux de maturité peuvent varier selon l'environnement déployé. Les éléments encore expérimentaux ne doivent pas être considérés comme des fonctionnalités de production garanties.
+
+## Roadmap produit
+
+### Court terme
+
+- simplifier radicalement le parcours du professionnel ;
+- rendre le dossier et son historique immédiatement lisibles ;
+- fiabiliser les parcours Inbox → Client → Dossier ;
+- renforcer l’analyse IA avec validation humaine ;
+- améliorer la gestion des documents et échéances ;
+- consolider les intégrations e-mail.
+
+### Ensuite
+
+- capture papier → OCR → dossier ;
+- impression contrôlée et événements PRINTED ;
+- inbox unifiée multi-canaux ;
+- collecte d'informations et de pièces auprès des clients ;
+- automatisation progressive des tâches répétitives ;
+- assistants spécialisés par domaine juridique.
+
+## Principe fondateur
+
+> **Le dossier au centre. L’IA au service du professionnel.**
+>
+> MemoLib ne cherche pas à supprimer le papier, l’e-mail ou les habitudes du professionnel. Il cherche à faire en sorte que, quel que soit le canal utilisé, **l’information retrouve toujours le bon dossier et puisse devenir une action maîtrisée.**
 
 ---
 
-## ✨ Features principales
-
-### 🤖 IA Juridique
-
-- **Résumé automatique d'email** — Détecte client, urgence, type de dossier, deadline
-- **Brouillon de réponse** — Génère une réponse contextualisée au dossier
-- **Classification automatique** — OQTF, titre de séjour, asile, naturalisation...
-- **Recherche jurisprudence** — Interroge Légifrance (CESEDA, jurisprudence)
-
-### 📧 Emails intelligents
-
-- Webhook inbound (Gmail, Outlook, SendGrid)
-- Déduplication SHA256
-- Analyse IA automatique à la réception
-- **Email → Dossier en 1 clic** (le wow moment)
-
-### 📁 Dossiers
-
-- Workflow de statut complet
-- Timeline automatique (emails + documents + deadlines)
-- Attribution à des avocats
-- Tags, priorités, échéances
-
-### 📄 Génération de documents
-
-- 6 templates juridiques : accusé de réception, mise en demeure, recours gracieux, recours contentieux, convocation, attestation
-- Variables auto-remplies depuis le dossier
-- Édition + téléchargement
-
-### ⏰ Délais légaux
-
-- Alertes automatiques J-7, J-3, J-1
-- Widget dashboard avec code couleur
-- Détection IA des deadlines dans les emails
-
-### 🔐 Sécurité & Conformité
-
-- RBAC 9 rôles (SUPER_ADMIN → CLIENT)
-- Multi-tenant par cabinet
-- RGPD : anonymisation, droit à l'oubli, audit trail chaîné (hash chain)
-- Rate limiting (Upstash Redis + fallback)
-- Brute force protection
-- Scan antivirus sur uploads (ClamAV + signatures)
-
-### 🚀 Onboarding
-
-- Wizard interactif pour les nouveaux utilisateurs
-- Détection automatique de la progression
-- Guide pas-à-pas : client → email → dossier
-
----
-
-## 🛠️ Stack Technique
-
-| Composant       | Technologie                                      |
-| --------------- | ------------------------------------------------ |
-| Frontend + API  | Next.js 16, React 19, TypeScript, Tailwind CSS   |
-| Base de données | PostgreSQL 17 (Neon serverless)                  |
-| ORM             | Prisma 5                                         |
-| Auth            | NextAuth (Credentials, Google, GitHub, Azure AD) |
-| IA              | Ollama (local) + fallback regex                  |
-| Email           | ImapFlow (IMAP), webhook inbound                 |
-| Paiements       | Stripe (subscriptions + usage)                   |
-| Monitoring      | Sentry (server + client + replay)                |
-| CI/CD           | GitHub Actions (8 workflows)                     |
-| Déploiement     | Vercel                                           |
-
----
-
-## 🛡️ Engineering Excellence
-
-| Pratique              | Détail                                                           |
-| --------------------- | ---------------------------------------------------------------- |
-| **CI/CD**             | 8 workflows GitHub Actions (build, test, security, release)      |
-| **Quality Gate**      | Tests + type-check + lint bloquants (branch protection)          |
-| **Tests**             | 4463 tests (Jest 4384 + Vitest 79) — TypeScript 0 errors         |
-| **Security Scanning** | Semgrep SAST, Trivy (bloquant), TruffleHog secrets, CodeQL v4   |
-| **Environments**      | Preview → Staging → Production (Vercel native + Neon branches)   |
-| **Semantic Release**  | Versioning automatique + changelog                               |
-| **Dependency Review** | Dependabot + audit automatique                                   |
-| **Monitoring**        | Sentry (errors + performance + session replay)                   |
-| **RGPD**              | Audit trail chaîné (hash chain), anonymisation, droit à l'oubli  |
-| **Antivirus**         | Scan ClamAV sur chaque upload                                    |
-| **Rate Limiting**     | Upstash Redis + brute force protection                           |
-| **RBAC**              | 9 rôles, permissions granulaires, multi-tenant                   |
-
----
-
-## 📦 Installation
-
-### Prérequis
-
-- Node.js 20+ et npm
-- PostgreSQL (ou Neon serverless)
-
-### Installation
-
-```powershell
-git clone https://github.com/mobby57/memoLib.git
-cd memoLib
-npm install
-cp .env.example .env.local
-# Éditer .env.local avec vos valeurs
-npx prisma generate
-npx prisma migrate deploy
-npm run dev
-```
-
-**Accès :** http://localhost:3000
-
----
-
-## 🧪 Tests
-
-### Tests unitaires + intégration (Vitest)
-
-```powershell
-npx vitest run
-```
-
-Couvre : RBAC, email adapter, deadlines, documents, facturation, Légifrance.
-
-### Tests E2E (Playwright)
-
-```powershell
-npx playwright test tests/e2e/main-flow.spec.ts
-```
-
-Couvre le flow complet :
-
-1. Login → Dashboard
-2. Résumé IA d'un email (vérifie urgence, type, client, deadline)
-3. Création dossier depuis email en 1 clic
-4. Génération de document juridique
-5. Brouillon de réponse IA
-6. Recherche jurisprudence
-7. Landing page + inscription beta
-
-### TypeScript check
-
-```powershell
-npx tsc --noEmit
-```
-
-### Tous les tests
-
-```powershell
-# Tests unitaires
-npx vitest run
-
-# Type check
-npx tsc --noEmit
-
-# E2E (nécessite l'app en cours d'exécution)
-npx playwright test
-```
-
----
-
-## 📊 API Endpoints principaux
-
-> 📖 **Documentation interactive (Swagger)** : http://localhost:5078/swagger
-
-### IA
-
-```
-POST /api/ai/summarize-email     # Résumé structuré d'un email
-POST /api/ai/draft-reply         # Brouillon de réponse contextualisé
-```
-
-### Dossiers
-
-```
-POST /api/emails/create-dossier  # Email → Dossier en 1 clic
-GET  /api/dossiers/timeline      # Timeline automatique d'un dossier
-```
-
-### Documents
-
-```
-POST /api/documents/generate     # Génération courrier juridique
-GET  /api/documents/generate     # Liste des templates disponibles
-POST /api/documents/upload       # Upload document sécurisé
-```
-
-### Jurisprudence
-
-```
-GET  /api/jurisprudence/search?q=OQTF  # Recherche Légifrance
-```
-
-### Webhooks
-
-```
-POST /api/webhooks/email-inbound  # Réception email (Gmail/Outlook/SendGrid)
-POST /api/webhooks/stripe         # Paiements Stripe
-```
-
-### Auth
-
-```
-POST /api/auth/[...nextauth]     # NextAuth (login, register, OAuth)
-GET  /api/onboarding/status      # Statut onboarding utilisateur
-```
-
-### Cron
-
-```
-GET /api/cron/deadline-alerts    # Alertes échéances (quotidien)
-GET /api/cron/cost-alerts        # Alertes coûts (quotidien)
-```
-
----
-
-## 📁 Structure du Projet
-
-```
-MemoLib/
-├── src/                      # App Next.js (pages + API routes)
-│   ├── app/                  # App Router (pages + API routes)
-│   ├── components/           # Composants React
-│   │   ├── emails/           # EmailAISummary, DraftReplyEditor
-│   │   ├── dossiers/         # DossierTimeline
-│   │   ├── documents/        # DocumentGenerator
-│   │   ├── dashboard/        # DeadlineAlerts
-│   │   ├── onboarding/       # OnboardingWizard
-│   │   └── forms/            # FormField, FormLayout, Button
-│   ├── lib/                  # Utilitaires, Prisma, auth, billing, IA
-│   └── hooks/                # React hooks (useAuth, useRealtime)
-├── prisma/                   # Schéma Prisma + migrations
-├── tests/                    # Tests (Vitest, Playwright)
-├── scripts/                  # Scripts utilitaires
-├── docs/                     # Documentation technique
-├── docker-compose.yml        # PostgreSQL (dev local)
-└── vercel.json               # Config Vercel (prod)
-```
-
----
-
-## ⚙️ Variables d'environnement
-
-```env
-# Base de données
-DATABASE_URL="postgresql://user:password@localhost:5432/memolib"
-
-# Auth
-NEXTAUTH_SECRET="votre-secret"
-NEXTAUTH_URL="http://localhost:3000"
-
-# IA (optionnel — fallback regex si absent)
-OLLAMA_URL="http://localhost:11434"
-OLLAMA_MODEL="llama3.2:latest"
-
-# Jurisprudence (optionnel — fallback local si absent)
-PISTE_CLIENT_ID=""
-PISTE_CLIENT_SECRET=""
-
-# Webhook email (optionnel)
-EMAIL_WEBHOOK_SECRET="votre-secret-webhook"
-
-# Stripe (optionnel)
-STRIPE_SECRET_KEY=""
-STRIPE_WEBHOOK_SECRET=""
-
-# Monitoring (optionnel)
-SENTRY_DSN=""
-
-# ClamAV antivirus (optionnel)
-CLAMAV_HOST="localhost"
-CLAMAV_PORT="3310"
-```
-
----
-
-## 🚀 Déploiement
-
-### Frontend → Vercel (automatique)
-
-Vercel déploie automatiquement via l'intégration GitHub native :
-- **Preview** : chaque PR
-- **Staging** : push sur `develop`
-- **Production** : push sur `main`
-
-### Migrations Prisma
-
-Les migrations sont exécutées automatiquement par le CI/CD lors d'un push sur `main`.
-
----
-
-## 📈 Roadmap
-
-### ✅ Livré
-
-- [x] Multi-tenant RBAC complet (9 rôles)
-- [x] Gestion dossiers + clients + emails
-- [x] IA : résumé email, brouillon réponse, classification
-- [x] Email → Dossier en 1 clic
-- [x] Timeline automatique
-- [x] Génération documents juridiques (6 templates)
-- [x] Recherche jurisprudence (Légifrance)
-- [x] Webhook email inbound (Gmail/Outlook/SendGrid)
-- [x] Facturation Stripe + usage billing
-- [x] Délais légaux avec alertes J-7/J-3/J-1
-- [x] Onboarding wizard
-- [x] Landing page beta
-- [x] Conformité RGPD + audit trail chaîné
-- [x] CI/CD (8 workflows GitHub Actions)
-- [x] Tests (Jest + Vitest + Playwright)
-
-### 🚧 En cours
-
-- [ ] Plugin Gmail / Outlook natif
-- [ ] OCR avancé sur documents
-- [ ] Agents IA autonomes (suivi procédure)
-
-### 💡 Futur
-
-- [ ] Application mobile (React Native)
-- [ ] Marketplace d'intégrations
-- [ ] Transcription audio (audiences)
-- [ ] Collaboration inter-cabinets
-
----
-
-## 📝 Licence
-
-MIT License
-
-## 📞 Support
-
-- 📚 Documentation : `docs/`
-- 🐛 Issues : [GitHub Issues](https://github.com/mobby57/memoLib/issues)
+**MemoLib — De l’information à l’action. Du papier au numérique. Du client au dossier.**
