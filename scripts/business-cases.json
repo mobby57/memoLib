@@ -1,0 +1,242 @@
+{
+  "version": 1,
+  "description": "Catalogue de validation métier MemoLib. Unité de validation = la chaîne métier complète (Email -> IA -> dossier -> obligations/délais -> calcul juridique -> alerte -> action -> document -> audit). Un cas ne compte PASS que si un test importe le code de PRODUCTION réel ET couvre le comportement. Sinon: GAP (à écrire) / FALSE (test trompeur à remplacer) / PARTIAL (partiel). Jamais de faux PASS.",
+  "thesis": "Empêcher qu'un cabinet perde une info, un délai, une pièce, une action ou une trace.",
+  "statusLegend": {
+    "PASS": "Un test importe le code de prod réel et couvre le cas (positif + négatif si pertinent).",
+    "PARTIAL": "Le cas est partiellement couvert (chemins critiques manquants).",
+    "FALSE": "Un test existe mais valide un modèle inexistant ou ré-implémente le code au lieu de l'importer.",
+    "GAP": "Aucun test réel ne couvre le cas.",
+    "BROKEN": "Calculé par le runner: statut PASS déclaré mais expectedTest introuvable sur le disque."
+  },
+  "axes": {
+    "production-build": { "label": "Build production", "type": "command", "blocking": true },
+    "technical-tests": { "label": "Tests techniques (suite CI)", "type": "command", "blocking": true },
+    "critical-e2e": { "label": "E2E critiques", "type": "command", "blocking": true },
+    "security-tenant": { "label": "Sécurité & isolation multi-tenant", "type": "cases", "blocking": true },
+    "legal-compliance": { "label": "Conformité juridique (délais, CESEDA, RGPD)", "type": "cases", "blocking": true },
+    "business-logic": { "label": "Logique métier (chaîne complète)", "type": "cases", "blocking": true }
+  },
+  "commandGates": {
+    "production-build": {
+      "axis": "production-build",
+      "description": "next build compile sans erreur",
+      "command": "npm run build",
+      "npmScript": "build"
+    },
+    "technical-tests": {
+      "axis": "technical-tests",
+      "description": "Suite de tests CI (Vitest/Jest) verte",
+      "command": "npm run test:ci",
+      "npmScript": "test:ci"
+    },
+    "critical-e2e": {
+      "axis": "critical-e2e",
+      "description": "Playwright flow critique (login -> email -> dossier -> document)",
+      "command": "npx playwright test tests/e2e/main-flow.spec.ts",
+      "npmScript": "test:e2e"
+    }
+  },
+  "cases": [
+    {
+      "id": "EMAIL-IDEMPOTENCE",
+      "axis": "business-logic",
+      "chain": "Email -> ingestion",
+      "title": "Email entrant idempotent (doublon SHA256, course P2002, secret invalide, tenant introuvable)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/emails/incoming-route.test.ts",
+      "assertion": "Importe la route d'ingestion réelle; couvre doublon + race P2002 + secret invalide + tenant introuvable.",
+      "evidence": "Vérifié: fichier présent, cas négatifs couverts (inventaire empirique)."
+    },
+    {
+      "id": "TENANT-ISOLATION",
+      "axis": "security-tenant",
+      "chain": "Accès dossier",
+      "title": "Isolation multi-tenant anti-IDOR (where scoppé {id, tenantId})",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/domain/audit.test.ts",
+      "assertion": "canAccessDossier scope la requête par tenantId; refuse l'accès cross-tenant.",
+      "evidence": "Vérifié via inventaire; requête scoppée where:{id, tenantId}."
+    },
+    {
+      "id": "RBAC-DENY",
+      "axis": "security-tenant",
+      "chain": "Autorisation",
+      "title": "RBAC refuse les rôles interdits (403/401)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/audit-logs.test.ts",
+      "assertion": "Matrice de rôles interdits -> 401/403.",
+      "evidence": "Vérifié via inventaire."
+    },
+    {
+      "id": "STRIPE-IDEMPOTENCE",
+      "axis": "business-logic",
+      "chain": "Paiement -> webhook",
+      "title": "Idempotence webhook Stripe (Redis SET NX + P2002)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/stripe/webhook-idempotency.test.ts",
+      "assertion": "Double livraison webhook -> une seule application (2 couches).",
+      "evidence": "Vérifié via inventaire."
+    },
+    {
+      "id": "AUDIT-HASHCHAIN",
+      "axis": "security-tenant",
+      "chain": "Audit -> trace",
+      "title": "Hash-chain audit détecte chaîne cassée + falsification",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/security/audit-trail.test.ts",
+      "assertion": "Détection de rupture de chaîne et de falsification d'entrée.",
+      "evidence": "Vérifié via inventaire."
+    },
+    {
+      "id": "DOC-MISSING-VARS",
+      "axis": "business-logic",
+      "chain": "Document -> génération",
+      "title": "Variables manquantes détectées dans les templates",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/utils/rgpd-helpers.real.test.ts",
+      "assertion": "Génération refuse/signale les variables manquantes.",
+      "evidence": "Vérifié via inventaire (à re-pointer vers le test template réel si distinct)."
+    },
+    {
+      "id": "EMAIL-TO-DOSSIER",
+      "axis": "business-logic",
+      "chain": "Email -> IA -> rattachement dossier",
+      "title": "Email -> Dossier crée réellement le dossier ET rattache l'email",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/emails/create-dossier-route.test.ts",
+      "assertion": "Importe create-dossier/route.ts; vérifie dossier créé + email.dossierId mis à jour.",
+      "evidence": "Route corrigée + test importe le code de prod réel (POST). Dossier créé et email rattaché vérifiés."
+    },
+    {
+      "id": "DEADLINE-PERSIST",
+      "axis": "legal-compliance",
+      "chain": "extraction obligations/délais -> persistance",
+      "title": "Un délai détecté est réellement persisté (pas de perte silencieuse)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/emails/create-dossier-route.test.ts",
+      "assertion": "prisma.legalDeadline.create appelé avec les champs requis (id, referenceDate, createdBy, updatedAt) et un type ENUM valide; échec de persistance -> réponse NON success.",
+      "evidence": "BUG CORRIGÉ: la route fournit désormais id/referenceDate/createdBy/updatedAt, mappe les type sur l'enum DeadlineType valide, et ne masque plus l'échec (.catch retiré -> 500). Test importe le code de prod et couvre le chemin négatif."
+    },
+    {
+      "id": "CESEDA-ENGINE-UNIFIED",
+      "axis": "legal-compliance",
+      "chain": "calcul juridique",
+      "title": "Un seul moteur CESEDA, testé, câblé au flux réel",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/legal/ceseda-deadlines.test.ts",
+      "assertion": "Le moteur câblé à email->dossier (src/lib/legal/ceseda-deadlines.ts) est importé et testé.",
+      "evidence": "Le calcul inline a été extrait dans src/lib/legal/ceseda-deadlines.ts, importé par la route ET par le test (code de prod réel). Source unique de vérité."
+    },
+    {
+      "id": "CESEDA-JOURS-FERIES",
+      "axis": "legal-compliance",
+      "chain": "calcul juridique",
+      "title": "Délais reportés hors week-end et jours fériés",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/legal/ceseda-deadlines.test.ts",
+      "assertion": "Un délai (ex: référé 48h) tombant un samedi/férié est reporté au prochain jour ouvré.",
+      "evidence": "Le moteur applique nextWorkingDay() (src/lib/legal/workingDays.ts). Test: aucun délai ne tombe un week-end/férié sur 60x12 combinaisons + cas samedi->lundi explicite."
+    },
+    {
+      "id": "AI-FALLBACK",
+      "axis": "business-logic",
+      "chain": "Email -> IA",
+      "title": "Fallback IA quand Ollama indisponible (dégradation contrôlée)",
+      "status": "GAP",
+      "expectedTest": "src/__tests__/lib/ai/fallback.test.ts",
+      "assertion": "Ollama down -> fallback regex, jamais d'échec silencieux ni d'auto-send.",
+      "evidence": "Inventaire: aucun test de fallback IA n'existe."
+    },
+    {
+      "id": "AI-NO-AUTO-SEND",
+      "axis": "business-logic",
+      "chain": "action -> validation humaine",
+      "title": "Aucune action IA envoyée sans validation humaine explicite",
+      "status": "GAP",
+      "expectedTest": "src/__tests__/lib/ai/no-auto-send.test.ts",
+      "assertion": "Un brouillon IA reste en état 'à valider'; aucun chemin n'envoie automatiquement.",
+      "evidence": "Inventaire: pas de verrou 'NO auto-send' explicite ni de test associé."
+    },
+    {
+      "id": "AI-HUMAN-REVIEW",
+      "axis": "legal-compliance",
+      "chain": "extraction -> validation humaine",
+      "title": "humanReviewRequired=true déclenche une revue humaine",
+      "status": "GAP",
+      "expectedTest": "src/__tests__/lib/ai/human-review.test.ts",
+      "assertion": "Le chemin humanReviewRequired=true est exercé et bloque l'automatisation.",
+      "evidence": "Inventaire: chemin humanReviewRequired=true jamais exercé."
+    },
+    {
+      "id": "RGPD-ERASURE",
+      "axis": "legal-compliance",
+      "chain": "audit -> droit à l'oubli",
+      "title": "La donnée est réellement supprimée/anonymisée (pas seulement une demande PENDING)",
+      "status": "GAP",
+      "expectedTest": "src/__tests__/rgpd-compliance.test.ts",
+      "assertion": "Après traitement d'une demande, la donnée ciblée est effectivement supprimée/anonymisée en base.",
+      "evidence": "Inventaire: le design crée une demande PENDING_REVIEW; aucun test ne prouve la suppression/anonymisation effective."
+    },
+    {
+      "id": "ANTIVIRUS-SCAN",
+      "axis": "security-tenant",
+      "chain": "pièce -> upload",
+      "title": "Scan antivirus sur upload (code de prod importé)",
+      "status": "FALSE",
+      "expectedTest": "src/__tests__/lib/security/antivirus.test.ts",
+      "assertion": "Le test importe src/lib/security/antivirus.ts et vérifie le rejet d'un EICAR.",
+      "evidence": "CODE VÉRIFIÉ: le scanner est ré-implémenté DANS le test; le code de prod (src/lib/security/antivirus.ts) n'est jamais importé -> faux PASS."
+    },
+    {
+      "id": "DOSSIER-STATUS-TRANSITIONS",
+      "axis": "business-logic",
+      "chain": "dossier -> workflow statut",
+      "title": "Transitions de statut valides selon le schéma réel",
+      "status": "FALSE",
+      "expectedTest": "src/__tests__/domain/dossier-status.test.ts",
+      "assertion": "La matrice de transitions testée provient du code/schéma de prod (statut en minuscules: en_cours).",
+      "evidence": "CODE VÉRIFIÉ: le test définit la matrice EN MAJUSCULES dans le test, alors que la route écrit statut:'en_cours' (minuscules). Valide un modèle inexistant."
+    },
+    {
+      "id": "ALERT-J7",
+      "axis": "legal-compliance",
+      "chain": "délai -> alerte",
+      "title": "Alerte J-7 émise",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "J-7 déclenche une alerte (alertJ7Sent).",
+      "evidence": "Vérifié via inventaire: J-7 et retard assertés."
+    },
+    {
+      "id": "ALERT-OVERDUE",
+      "axis": "legal-compliance",
+      "chain": "délai -> alerte",
+      "title": "Alerte de retard (OVERDUE) émise",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "Un délai dépassé génère une alerte OVERDUE.",
+      "evidence": "Vérifié via inventaire."
+    },
+    {
+      "id": "ALERT-J3-J1",
+      "axis": "legal-compliance",
+      "chain": "délai -> alerte",
+      "title": "Alertes J-3 et J-1 émises",
+      "status": "PARTIAL",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "J-3 (alertJ3Sent) et J-1 (alertJ1Sent) déclenchent chacune une alerte.",
+      "evidence": "CODE VÉRIFIÉ: schéma a alertJ3Sent/alertJ1Sent. Inventaire: seuls J-7 et retard assertés; J-3/J-1 jamais."
+    },
+    {
+      "id": "ALERT-NO-DUPLICATE",
+      "axis": "legal-compliance",
+      "chain": "délai -> alerte",
+      "title": "Pas de double alerte pour le même seuil",
+      "status": "PARTIAL",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "Deux exécutions du cron ne renvoient pas deux fois la même alerte (assertion NÉGATIVE).",
+      "evidence": "Inventaire: le 'pas de doublon' n'est jamais testé négativement."
+    }
+  ]
+}
