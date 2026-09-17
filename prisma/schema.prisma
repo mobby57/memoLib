@@ -715,7 +715,7 @@ model InformationUnit {
   tenantId                 String
   source                   InformationUnitSource
   content                  String
-  contentHash              String                     @unique
+  contentHash              String
   currentStatus            InformationUnitStatus      @default(RECEIVED)
   sourceMetadata           String?
   linkedWorkspaceId        String?
@@ -737,6 +737,7 @@ model InformationUnit {
   Proof                    Proof[]
 
   @@index([contentHash])
+  @@unique([tenantId, contentHash])
   @@index([currentStatus])
   @@index([tenantId, currentStatus])
   @@index([tenantId])
