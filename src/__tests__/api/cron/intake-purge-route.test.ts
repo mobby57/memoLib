@@ -41,6 +41,16 @@ describe('GET /api/cron/intake-purge', () => {
     expect(mocks.runIntakePurge).toHaveBeenCalled();
   });
 
+  it('refuse le header x-vercel-cron forgeable', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('CRON_SECRET', 'sekret');
+    const res = await GET(
+      req('http://localhost/api/cron/intake-purge?days=1', { 'x-vercel-cron': '1' })
+    );
+    expect(res.status).toBe(401);
+    expect(mocks.runIntakePurge).not.toHaveBeenCalled();
+  });
+
   it('passe days et dryRun au job', async () => {
     vi.stubEnv('NODE_ENV', 'development');
     const res = await GET(req('http://localhost/api/cron/intake-purge?days=90&dryRun=1'));
