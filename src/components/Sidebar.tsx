@@ -1,8 +1,3 @@
-// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement import useSession
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';

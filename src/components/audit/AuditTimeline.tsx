@@ -1,3 +1,4 @@
+'use client';
 ﻿/**
  * AuditTimeline Component
  *
@@ -5,7 +6,6 @@
  * Implémentation UI pour RULE-005 (exhaustivité) et RULE-006 (checksums)
  */
 
-'use client';
 
 import { useEffect, useState } from 'react';
 import {

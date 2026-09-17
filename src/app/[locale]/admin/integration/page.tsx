@@ -1,5 +1,6 @@
-import { useAuth } from '@/hooks/useAuth';
 'use client';
+
+import { useAuth } from '@/hooks/useAuth';
 
 export const dynamic = 'force-dynamic';
 

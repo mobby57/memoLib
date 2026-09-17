@@ -1,5 +1,5 @@
-﻿// components/payments/PaymentForm.tsx
 'use client';
+﻿// components/payments/PaymentForm.tsx
 
 import { useState } from 'react';
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';

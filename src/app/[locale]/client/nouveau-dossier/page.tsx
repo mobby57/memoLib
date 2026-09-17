@@ -1,10 +1,11 @@
+'use client';
+
 import { useAuth } from '@/hooks/useAuth';
 /**
  * Formulaire Complet - Client remplit son dossier
  * Toutes informations + documents + listes deroulantes
  */
 
-'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';

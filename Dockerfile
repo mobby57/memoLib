@@ -1,24 +1,21 @@
-FROM node:22-bookworm-slim AS builder
-RUN apt-get update && apt-get install -y openssl python3 python3-pip && rm -rf /var/lib/apt/lists/*
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+FROM node:18-slim AS deps
 WORKDIR /app
 COPY package*.json ./
-COPY prisma ./prisma/
-RUN npm ci
-RUN npx prisma generate
+RUN apt-get update && apt-get install -y python3 python3-pip openssl && rm -rf /var/lib/apt/lists/*
+RUN npm ci --legacy-peer-deps
+
+FROM node:18-slim AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM node:22-bookworm-slim AS runner
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+FROM node:18-slim AS runner
 WORKDIR /app
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV production
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/public ./public
 EXPOSE 3000
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
-
+CMD ["npm", "start"]
