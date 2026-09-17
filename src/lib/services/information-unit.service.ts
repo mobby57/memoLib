@@ -120,8 +120,8 @@ export class InformationUnitService {
     const contentHash = this.calculateHash(input.content);
 
     // Check for duplicate
-    const existing = await prisma.informationUnit.findUnique({
-      where: { contentHash },
+    const existing = await prisma.informationUnit.findFirst({
+      where: { tenantId: input.tenantId, contentHash },
     });
 
     if (existing) {
@@ -637,5 +637,4 @@ Retourne UNIQUEMENT ce JSON :
 
 // Export singleton instance
 export const informationUnitService = new InformationUnitService();
-
 

@@ -32,6 +32,7 @@ vi.mock('@/lib/prisma', () => ({
   default: {
     informationUnit: {
       findMany: vi.fn(),
+      findFirst: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
@@ -81,7 +82,7 @@ describe('/api/information-units', () => {
   describe('POST', () => {
     it('should create information unit', async () => {
       const mockUnit = { id: '1', content: 'test', currentStatus: 'RECEIVED' };
-      (prisma.informationUnit.findUnique as any).mockResolvedValue(null);
+      (prisma.informationUnit.findFirst as any).mockResolvedValue(null);
       (prisma.informationUnit.create as any).mockResolvedValue(mockUnit);
       (prisma.informationStatusHistory.create as any).mockResolvedValue({});
 
@@ -100,10 +101,15 @@ describe('/api/information-units', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
+      expect(prisma.informationUnit.findFirst).toHaveBeenCalledWith({
+        where: expect.objectContaining({
+          tenantId: mockTenantId,
+        }),
+      });
     });
 
     it('should return 409 if duplicate', async () => {
-      (prisma.informationUnit.findUnique as any).mockResolvedValue({ id: '1' });
+      (prisma.informationUnit.findFirst as any).mockResolvedValue({ id: '1' });
 
       const request = new NextRequest('http://localhost/api/information-units', {
         method: 'POST',

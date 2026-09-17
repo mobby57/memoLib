@@ -100,8 +100,8 @@ export async function POST(request: NextRequest) {
 
     const contentHash = crypto.createHash('sha256').update(content).digest('hex');
 
-    const existing = await prisma.informationUnit.findUnique({
-      where: { contentHash },
+    const existing = await prisma.informationUnit.findFirst({
+      where: { tenantId: effectiveTenantId, contentHash },
     });
 
     if (existing) {
@@ -202,7 +202,6 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
-
 
 
 
