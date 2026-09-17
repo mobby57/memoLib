@@ -18,6 +18,7 @@
  */
 import { informationUnitService } from '@/lib/services/information-unit.service';
 import { dossierMatcher } from '@/lib/services/dossier-matcher.service';
+import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
 export interface IngestInput {
@@ -78,6 +79,27 @@ export class IngestionService {
     });
 
     const needsHumanReview = classification.needsHumanReview || match.needsHumanReview;
+
+    // Persistance du rattachement UNIQUEMENT si le match est confiant.
+    // Sinon on laisse dossierId null : l'unité part en revue humaine (jamais de
+    // rattachement automatique à l'aveugle).
+    if (match.matched && !needsHumanReview && match.dossierId) {
+      try {
+        await prisma.informationUnit.update({
+          where: { id: (unit as { id: string }).id },
+          data: {
+            dossierId: match.dossierId,
+            matchConfidence: match.confidence,
+            updatedAt: new Date(),
+          },
+        });
+      } catch (error) {
+        logger.warn('[Ingestion] Échec persistance du rattachement dossier', {
+          unitId: (unit as { id: string }).id,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
 
     logger.info('[Ingestion] Flux traité', {
       tenantId: input.tenantId,

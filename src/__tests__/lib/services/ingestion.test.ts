@@ -4,10 +4,11 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { create, classify, match } = vi.hoisted(() => ({
+const { create, classify, match, prismaUpdate } = vi.hoisted(() => ({
   create: vi.fn(),
   classify: vi.fn(),
   match: vi.fn(),
+  prismaUpdate: vi.fn(),
 }));
 
 vi.mock('@/lib/services/information-unit.service', () => ({
@@ -16,6 +17,7 @@ vi.mock('@/lib/services/information-unit.service', () => ({
 vi.mock('@/lib/services/dossier-matcher.service', () => ({
   dossierMatcher: { match },
 }));
+vi.mock('@/lib/prisma', () => ({ prisma: { informationUnit: { update: prismaUpdate } } }));
 vi.mock('@/lib/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
 
 import { IngestionService } from '@/lib/services/ingestion.service';
@@ -58,6 +60,13 @@ describe('IngestionService — orchestration du flux entrant', () => {
     expect(match).toHaveBeenCalledWith(
       expect.objectContaining({ tenantId: 't1', senderEmail: 'jean@dupont.fr', detectedTypeDossier: 'OQTF' })
     );
+    // Match confiant => le rattachement est PERSISTÉ (dossierId + confiance).
+    expect(prismaUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'unit-1' },
+        data: expect.objectContaining({ dossierId: 'd1', matchConfidence: 0.9 }),
+      })
+    );
   });
 
   it('needsHumanReview si le rattachement est incertain', async () => {
@@ -81,6 +90,8 @@ describe('IngestionService — orchestration du flux entrant', () => {
 
     expect(r.dossier.matched).toBe(false);
     expect(r.needsHumanReview).toBe(true);
+    // Rattachement incertain => AUCUNE persistance du lien (revue humaine).
+    expect(prismaUpdate).not.toHaveBeenCalled();
   });
 
   it('needsHumanReview si la classification est incertaine (même si dossier trouvé)', async () => {

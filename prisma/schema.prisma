@@ -423,6 +423,7 @@ model Dossier {
   TimeEntry          TimeEntry[]
   ChannelMessage     ChannelMessage[]
   DossierMember      DossierMember[]
+  InformationUnit    InformationUnit[]
   Team               Team?            @relation(fields: [teamId], references: [id])
 
   @@unique([tenantId, numero])
@@ -718,6 +719,8 @@ model InformationUnit {
   currentStatus            InformationUnitStatus      @default(RECEIVED)
   sourceMetadata           String?
   linkedWorkspaceId        String?
+  dossierId                String?
+  matchConfidence          Float?
   metadata                 String?
   lastStatusChangeBy       String?
   lastStatusChangeAt       DateTime?
@@ -730,12 +733,14 @@ model InformationUnit {
   updatedAt                DateTime
   InformationStatusHistory InformationStatusHistory[]
   Tenant                   Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Dossier                  Dossier?                   @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   Proof                    Proof[]
 
   @@index([contentHash])
   @@index([currentStatus])
   @@index([tenantId, currentStatus])
   @@index([tenantId])
+  @@index([dossierId])
 }
 
 model Jurisprudence {
