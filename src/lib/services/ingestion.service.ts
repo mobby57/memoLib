@@ -8,10 +8,8 @@
  *     1. InformationUnitService.create()   -> dédup SHA-256 + unité tracée + classification IA
  *     2. classification (type de dossier détecté, confiance, needsHumanReview)
  *     3. DossierMatcherService.match()      -> dossier cible OU revue humaine
- *     4. renvoie une DÉCISION (ne réalise pas le rattachement en base ici :
- *        le modèle InformationUnit n'a pas de champ dossierId, et on veut une
- *        validation humaine sur les cas incertains — l'appelant persiste selon
- *        sa politique).
+ *     4. persiste le rattachement uniquement lorsqu'il est déterministe et
+ *        confiant, sinon renvoie une décision nécessitant une revue humaine.
  *
  * Invariant : tout ce qui entre devient une InformationUnit (rien n'est perdu),
  * et aucune action automatique n'est prise si la confiance est faible.
