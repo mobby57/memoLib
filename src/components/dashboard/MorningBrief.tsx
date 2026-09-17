@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { useState, useEffect } from "react"
 import { Brain, AlertTriangle, FileText, Clock, Zap } from "lucide-react"
