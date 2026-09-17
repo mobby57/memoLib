@@ -1,6 +1,9 @@
 'use client';
 ﻿// components/payments/PaymentForm.tsx
 
+﻿// components/payments/PaymentForm.tsx
+
+
 import { useState } from 'react';
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { formatCurrencyAmount, type CurrencyCode } from '@/lib/currencies';

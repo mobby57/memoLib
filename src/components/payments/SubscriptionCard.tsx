@@ -1,6 +1,9 @@
 'use client';
 ﻿// components/payments/SubscriptionCard.tsx
 
+﻿// components/payments/SubscriptionCard.tsx
+
+
 import { useState } from 'react';
 import { PRODUCT_TIERS, type ProductTier } from '@/lib/billing/plans';
 

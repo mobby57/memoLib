@@ -13,6 +13,7 @@ on:
       - 'docker/**'
       - 'docker-compose.prod.yml'
       - '.dockerignore'
+      - 'railway.toml'
       - '.github/workflows/ci-cd.yml'
   pull_request:
     branches: [main]
@@ -26,6 +27,7 @@ on:
       - 'docker/**'
       - 'docker-compose.prod.yml'
       - '.dockerignore'
+      - 'railway.toml'
       - '.github/workflows/ci-cd.yml'
   workflow_dispatch:
 
@@ -41,41 +43,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # =========================================================================
-  # Build, Lint, Type-check, Test
-  # =========================================================================
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Generate Prisma client
         run: npx prisma generate
-
       - name: Lint
         run: npm run lint
-
       - name: Type check
         run: npm run type-check
-
       - name: Unit tests
         run: npm run test:ci
         env:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_ci'
           CLERK_SECRET_KEY: 'sk_test_ci'
-
       - name: Build Next.js
         run: npm run build
         env:
@@ -83,7 +74,6 @@ jobs:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_ci'
           CLERK_SECRET_KEY: 'sk_test_ci'
           NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
-
       - name: Upload coverage
         if: always()
         uses: codecov/codecov-action@v4
@@ -95,13 +85,10 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Build production image
         run: docker build --file docker/Dockerfile.frontend --target runner --tag memolib:ci .
-
       - name: Validate production Compose configuration
         run: docker compose -f docker-compose.prod.yml config --quiet
         env:
@@ -113,19 +100,13 @@ jobs:
           UPSTASH_REDIS_REST_URL: https://example.upstash.io
           UPSTASH_REDIS_REST_TOKEN: ci-test-token
 
-  # =========================================================================
-  # Security Scan (reports CRITICAL/HIGH, does not block PR merge)
-  # Blocking will be enabled once existing vulnerabilities are resolved.
-  # =========================================================================
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: [build-and-test, docker-build]
     timeout-minutes: 10
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -135,96 +116,17 @@ jobs:
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
           exit-code: '0'
-
       - name: Upload Trivy results
         uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
 
-  # =========================================================================
-  # Prisma Migrations (production only — deploy handled by Vercel integration)
-  # =========================================================================
-  migrate-production:
-    name: Run Migrations (Production)
-    runs-on: ubuntu-latest
-    needs: [build-and-test, docker-build, security-scan]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Run Prisma migrations
-        run: |
-          npm ci --ignore-scripts
-          npx prisma generate
-          npx prisma migrate resolve --applied 20260323090000_add_email_ingestion_fields || true
-          npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-
-  # =========================================================================
-  # Post-deploy smoke test (production — Render)
-  # =========================================================================
-  smoke-test:
-    name: Smoke Test (Production)
-    runs-on: ubuntu-latest
-    needs: [migrate-production]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    timeout-minutes: 5
-    env:
-      PROD_URL: ${{ vars.PRODUCTION_URL || 'https://memolib.space' }}
-
-    steps:
-      - name: Wait for Render deploy
-        run: sleep 60
-
-      - name: Health check
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 $PROD_URL)
-          if [ "$STATUS" -ne 200 ] && [ "$STATUS" -ne 307 ]; then
-            echo "❌ Health check failed (HTTP $STATUS)"
-            echo "Response:"
-            curl -s --max-time 10 $PROD_URL | head -50
-            exit 1
-          fi
-          echo "✅ App responding (HTTP $STATUS)"
-
-      - name: Auth endpoint check
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $PROD_URL/api/auth/providers)
-          if [ "$STATUS" -ne 200 ]; then
-            echo "❌ Auth endpoint failed (HTTP $STATUS)"
-            exit 1
-          fi
-          echo "✅ Auth endpoint OK"
-
-      - name: API version check
-        run: |
-          RESPONSE=$(curl -s --max-time 10 $PROD_URL/api/version)
-          echo "API response: $RESPONSE"
-          if echo "$RESPONSE" | grep -q "error"; then
-            echo "⚠️ Version endpoint returned error (non-blocking)"
-          else
-            echo "✅ Version endpoint OK"
-          fi
-
-  # =========================================================================
-  # Quality Gate — always runs, even when paths filter skips other jobs.
-  # Configure THIS job as the single required status check in Branch Protection.
-  # =========================================================================
   quality-gate:
     name: Quality Gate
     runs-on: ubuntu-latest
     if: always()
-    needs: [build-and-test, security-scan]
-
+    needs: [build-and-test, docker-build, security-scan]
     steps:
       - name: Evaluate results
         run: |
@@ -232,20 +134,9 @@ jobs:
           DOCKER_RESULT="${{ needs.docker-build.result }}"
           SCAN_RESULT="${{ needs.security-scan.result }}"
           echo "build-and-test : $BUILD_RESULT"
-          echo "docker-build    : $DOCKER_RESULT"
+          echo "docker-build   : $DOCKER_RESULT"
           echo "security-scan  : $SCAN_RESULT"
-
-          # "skipped" means the paths filter prevented the job from running → treat as pass
-          if [[ "$BUILD_RESULT" == "failure" || "$BUILD_RESULT" == "cancelled" ]]; then
-            echo "❌ build-and-test failed — quality gate blocked."
-            exit 1
-          fi
-          if [[ "$DOCKER_RESULT" == "failure" || "$DOCKER_RESULT" == "cancelled" ]]; then
-            echo "❌ docker-build failed — quality gate blocked."
-            exit 1
-          fi
-          if [[ "$SCAN_RESULT" == "failure" || "$SCAN_RESULT" == "cancelled" ]]; then
-            echo "❌ security-scan failed — quality gate blocked."
-            exit 1
-          fi
-          echo "✅ Quality gate passed."
+          if [[ "$BUILD_RESULT" == "failure" || "$BUILD_RESULT" == "cancelled" ]]; then exit 1; fi
+          if [[ "$DOCKER_RESULT" == "failure" || "$DOCKER_RESULT" == "cancelled" ]]; then exit 1; fi
+          if [[ "$SCAN_RESULT" == "failure" || "$SCAN_RESULT" == "cancelled" ]]; then exit 1; fi
+          echo "✅ Quality gate passed. Railway is responsible for production migration/deployment."

@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { useState } from "react"
 import { Brain, Shield, AlertTriangle, CheckCircle, FileText, Clock, Zap, TrendingUp, TrendingDown, Lock, Loader2, ChevronDown, ChevronRight, Scale } from "lucide-react"
