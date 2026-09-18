@@ -1,16 +1,16 @@
-FROM node:18-slim AS deps
+FROM node:22-slim AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN apt-get update && apt-get install -y python3 python3-pip openssl && rm -rf /var/lib/apt/lists/*
 RUN npm ci --legacy-peer-deps
 
-FROM node:18-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM node:18-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 ENV NODE_ENV production
 COPY --from=builder /app/.next ./.next
