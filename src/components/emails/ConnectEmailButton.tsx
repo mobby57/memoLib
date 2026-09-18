@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { Mail, CheckCircle, Loader2 } from 'lucide-react';
 
 interface ConnectEmailButtonProps {
   provider?: 'gmail' | 'outlook';
@@ -10,10 +11,6 @@ interface ConnectEmailButtonProps {
   className?: string;
 }
 
-/**
- * Bouton "Connecter Gmail" / "Connecter Outlook"
- * Redirige vers le flow OAuth pour autoriser l'accès à la boîte mail.
- */
 export function ConnectEmailButton({
   provider = 'gmail',
   connectedEmail,
@@ -24,7 +21,6 @@ export function ConnectEmailButton({
 
   const handleConnect = () => {
     setLoading(true);
-    // Redirection vers le flow OAuth
     window.location.href = `/api/email/connect/${provider}`;
   };
 
@@ -76,24 +72,18 @@ export function ConnectEmailButton({
       disabled={loading}
       className={`flex items-center justify-center gap-3 w-full py-3.5 px-5 rounded-xl font-medium transition-all shadow-sm hover:shadow-md ${c.bg} ${c.text} disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
-      {loading ? (
-        <Loader2 className="w-5 h-5 animate-spin" />
-      ) : (
-        c.icon
-      )}
+      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : c.icon}
       <span>{loading ? 'Connexion...' : c.label}</span>
     </button>
   );
 }
 
-/**
- * Panneau de connexion email complet (Gmail + Outlook + IMAP)
- */
 export function ConnectEmailPanel({
   connectedEmail,
 }: {
   connectedEmail?: string | null;
 }) {
+  const { locale } = useParams<{ locale: string }>();
   return (
     <div className="space-y-3">
       <ConnectEmailButton provider="gmail" connectedEmail={connectedEmail} />
@@ -104,7 +94,7 @@ export function ConnectEmailPanel({
         <div className="flex-1 h-px bg-gray-200" />
       </div>
       <a
-        href="/fr/settings/emails/imap"
+        href={`/${locale}/settings/emails/imap`}
         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition-all"
       >
         <Mail className="w-4 h-4" />
