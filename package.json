@@ -296,5 +296,8 @@
     "npm": ">=10.0.0",
     "node": ">=20.0.0"
   },
-  "overrides": {}
+  "overrides": {},
+  "optionalDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "1.2.7"
+  }
 }
