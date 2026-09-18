@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const { mockPrisma, generateWithCostControl } = vi.hoisted(() => ({
   mockPrisma: {
     informationUnit: {
+      findFirst: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
@@ -38,15 +39,12 @@ function classifiedMeta() {
 }
 
 function setupCreateMocks() {
-  mockPrisma.informationUnit.findUnique
-    // dédup (aucun doublon)
-    .mockResolvedValueOnce(null)
-    // transition() relit l'unité créée
-    .mockResolvedValueOnce({
-      id: 'unit-1',
-      currentStatus: InformationUnitStatus.RECEIVED,
-      metadata: null,
-    });
+  mockPrisma.informationUnit.findFirst.mockResolvedValueOnce(null);
+  mockPrisma.informationUnit.findUnique.mockResolvedValueOnce({
+    id: 'unit-1',
+    currentStatus: InformationUnitStatus.RECEIVED,
+    metadata: null,
+  });
   mockPrisma.informationUnit.create.mockResolvedValue({
     id: 'unit-1',
     currentStatus: InformationUnitStatus.RECEIVED,
@@ -74,6 +72,9 @@ describe('[Réparation] InformationUnitService — classification réelle', () =
     expect(meta.confidence).toBe(0.92);
     expect(meta.method).toBe('ai');
     expect(meta.caseType).toBe('OQTF');
+    expect(mockPrisma.informationUnit.findFirst).toHaveBeenCalledWith({
+      where: expect.objectContaining({ tenantId: 't1' }),
+    });
     expect(generateWithCostControl).toHaveBeenCalledTimes(1);
     // L'historique est écrit dans la table dédiée (RECEIVED puis CLASSIFIED).
     expect(mockPrisma.informationStatusHistory.create).toHaveBeenCalledTimes(2);
@@ -138,7 +139,10 @@ describe('[Réparation] InformationUnitService — classification réelle', () =
   });
 
   it('retourne l’unité existante sur doublon (dédup SHA-256) sans reclassifier', async () => {
-    mockPrisma.informationUnit.findUnique.mockResolvedValueOnce({ id: 'dup', currentStatus: 'RECEIVED' });
+    mockPrisma.informationUnit.findFirst.mockResolvedValueOnce({
+      id: 'dup',
+      currentStatus: 'RECEIVED',
+    });
 
     const res = await service.create({ tenantId: 't1', source: 'EMAIL', content: 'déjà vu' });
 

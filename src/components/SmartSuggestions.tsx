@@ -1,5 +1,5 @@
 'use client';
-﻿/**
+/**
  * Composant Suggestions Intelligentes
  * Affiche les suggestions proactives de l'IA
  * 

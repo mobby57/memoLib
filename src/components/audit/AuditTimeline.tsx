@@ -1,5 +1,5 @@
 'use client';
-﻿/**
+/**
  * AuditTimeline Component
  *
  * Affiche la timeline chronologique des événements pour une entité

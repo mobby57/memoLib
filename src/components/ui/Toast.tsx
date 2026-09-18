@@ -33,6 +33,10 @@ export function useToast() {
 export function ToastProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, [setToasts]);
+
   const addToast = useCallback((toast: Omit<Toast, 'id'>) => {
     const id = `${Date.now()}-${++toastCounter}`;
     const newToast = { ...toast, id };
@@ -43,15 +47,11 @@ export function ToastProvider({ children }: Readonly<{ children: ReactNode }>) {
         removeToast(id);
       }, toast.duration || 5000);
     }
-  }, []);
+  }, [removeToast, setToasts]);
 
   const showToast = useCallback((message: string, variant: Toast['variant'], title?: string) => {
     addToast({ message, variant, title });
   }, [addToast]);
-
-  const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
 
   const contextValue = useMemo(
     () => ({ toasts, addToast, showToast, removeToast }),
