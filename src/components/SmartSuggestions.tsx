@@ -1,12 +1,10 @@
 'use client';
-
-﻿/**
+/**
  * Composant Suggestions Intelligentes
  * Affiche les suggestions proactives de l'IA
  * 
  * Innovation: L'IA devient proactive et suggere des actions
  */
-
 
 
 import { useEffect, useState } from 'react';

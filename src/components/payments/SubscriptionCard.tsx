@@ -1,6 +1,7 @@
 'use client';
+// components/payments/SubscriptionCard.tsx
 
-﻿// components/payments/SubscriptionCard.tsx
+// components/payments/SubscriptionCard.tsx
 
 
 import { useState } from 'react';

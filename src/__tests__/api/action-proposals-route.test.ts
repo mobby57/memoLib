@@ -30,6 +30,20 @@ vi.mock('@/lib/auth', () => ({
   getServerSession: mocks.getServerSession,
 }));
 
+// Migration Clerk : les routes utilisent @/lib/clerk-auth `auth()`. On dérive
+// la session du même mock getServerSession piloté par chaque test.
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => {
+    const session = await mocks.getServerSession();
+    return {
+      isAuthenticated: Boolean(session?.user),
+      clerkUserId: session?.user ? 'clerk_test' : null,
+      orgId: null,
+      user: session?.user ?? null,
+    };
+  }),
+}));
+
 vi.mock('@/lib/prisma', () => ({
   prisma: mocks.prisma,
   default: mocks.prisma,

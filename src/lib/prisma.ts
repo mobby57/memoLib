@@ -130,10 +130,45 @@ function createRealClient() {
 // 4. CLIENT EXPORTÉ
 // ============================================
 
-export const prisma =
-  process.env.NODE_ENV === 'test'
-    ? createTestStub()
-    : createRealClient();
+// Pattern singleton + instanciation PARESSEUSE via Proxy.
+//
+// Pourquoi lazy : importer `prisma` ne doit PAS construire un PrismaClient.
+// Sinon, la simple présence de `import { prisma } from '@/lib/prisma'` (ex. dans
+// clerk-auth, importé par ~200 routes) instancie le client au chargement du
+// module, ce qui échoue pendant la collecte page-data de `next build`
+// (new PrismaClient() throw sans contexte moteur/DB au build).
+//
+// Le client réel n'est construit qu'au PREMIER accès à une propriété
+// (première requête au runtime). Le stub de test reste inchangé.
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+
+function getClient(): PrismaClient {
+  if (process.env.NODE_ENV === 'test') {
+    return (globalForPrisma.prisma ??= createTestStub());
+  }
+  return (globalForPrisma.prisma ??= createRealClient());
+}
+
+// Type volontairement `any` : c'était déjà le type effectif de `prisma`
+// auparavant (union `createTestStub(): any | PrismaClient` => `any`). On le
+// conserve pour NE PAS introduire une vague d'erreurs de typage pré-existantes
+// (usages de $transaction, etc. masqués jusqu'ici). Le seul objectif ici est
+// l'instanciation paresseuse pour débloquer `next build`.
+const lazyPrisma: any = new Proxy(
+  {},
+  {
+    get(_target, prop, receiver) {
+      const client = getClient();
+      const value = Reflect.get(client as object, prop, receiver);
+      return typeof value === 'function' ? value.bind(client) : value;
+    },
+    has(_target, prop) {
+      return prop in getClient();
+    },
+  }
+);
+
+export const prisma = lazyPrisma;
 
 // ============================================
 // 5. OPTIMISATION DB
@@ -167,12 +202,15 @@ export async function ensureDbOptimized() {
 // ============================================
 
 export async function disconnectPrisma() {
-  if (!prisma || typeof prisma.$disconnect !== 'function') {
+  // N'accède au client que s'il a réellement été instancié (évite de le créer
+  // juste pour le déconnecter, ce qui déclencherait le Proxy inutilement).
+  const client = globalForPrisma.prisma;
+  if (!client || typeof client.$disconnect !== 'function') {
     return;
   }
 
   try {
-    await prisma.$disconnect();
+    await client.$disconnect();
   } catch (error) {
     if (process.env.NODE_ENV !== 'test') {
       console.error('[DB] Disconnect failed:', error);
@@ -184,11 +222,11 @@ export async function disconnectPrisma() {
 // 7. CYCLE DE VIE
 // ============================================
 
+// NB: pas de prisma.$connect() au niveau module. Prisma se connecte
+// paresseusement à la première requête. Un connect impatient ici casserait la
+// collecte page-data de `next build` (échec de connexion DB au build) et
+// n'apporte rien en serverless. On conserve uniquement une déconnexion propre.
 if (process.env.NODE_ENV !== 'test') {
-  prisma.$connect().catch((error: unknown) => {
-    console.error('[DB] Connection failed:', error);
-  });
-
   process.on('beforeExit', () => {
     void disconnectPrisma();
   });

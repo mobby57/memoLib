@@ -40,7 +40,12 @@ function credentialsAuthorize() {
   ) => Promise<unknown>;
 }
 
-describe('Credentials authentication', () => {
+// ⚠️ describe.skip : ce test valide le provider "credentials" de NextAuth
+// (authOptions), supprimé par la migration vers Clerk. Il n'existe plus de
+// `authOptions` importable. À supprimer ou réécrire pour Clerk si un flux
+// credentials est réintroduit. Laissé skip pour ne pas casser la suite sur du
+// code retiré (référence `authOptions` non définie).
+describe.skip('Credentials authentication', () => {
   const originalNodeEnv = process.env.NODE_ENV;
   const originalDemoMode = process.env.DEMO_MODE;
 

@@ -1,5 +1,5 @@
 import { extractionPipeline } from "@/lib/services/extractionPipeline";
-﻿/**
+/**
  * Service d'extraction automatique des delais (echeances) depuis les documents CESEDA
  * Utilise l'IA (OpenAI/Ollama) pour analyser les documents et extraire les dates cles
  */

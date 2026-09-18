@@ -1,5 +1,6 @@
 'use client';
 
+import { useParams } from 'next/navigation'
 import { useState } from 'react';
 import { Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 

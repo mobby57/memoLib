@@ -1,5 +1,4 @@
 'use client';
-
 /**
  * Composants UI pour le Feature Gating — MemoLib
  *
@@ -9,7 +8,6 @@
  *
  * Si la feature n'est pas disponible, affiche un prompt d'upgrade.
  */
-
 
 
 import React from 'react';

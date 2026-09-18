@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/hooks/useAuth';
 
-
 // Force dynamic to prevent prerendering errors with useSession hook
 export const dynamic = 'force-dynamic';
 

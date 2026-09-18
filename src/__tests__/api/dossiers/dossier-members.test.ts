@@ -17,6 +17,15 @@ vi.mock('@/lib/auth', () => ({
   getServerSession: vi.fn(async () => ({ user: mockSessionUser })),
 }));
 
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(async () => ({
+    isAuthenticated: Boolean(mockSessionUser),
+    clerkUserId: mockSessionUser ? 'clerk_test' : null,
+    orgId: null,
+    user: mockSessionUser ?? null,
+  })),
+}));
+
 vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
   authOptions: {},
 }));

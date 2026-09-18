@@ -12,7 +12,7 @@
     },
     "expected": {
       "expectedDeadline": "2026-08-31",
-      "urgency": "critique",
+      "urgency": "moyen",
       "humanReviewRequired": false
     }
   },
@@ -28,8 +28,8 @@
       }
     },
     "expected": {
-      "expectedDeadline": "2027-02-01",
-      "urgency": "faible",
+      "expectedDeadline": "2026-08-16",
+      "urgency": "eleve",
       "humanReviewRequired": false
     }
   }

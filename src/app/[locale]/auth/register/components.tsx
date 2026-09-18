@@ -1,11 +1,10 @@
 'use client';
 
-// @ts-nocheck
-
-
 import { useState } from 'react';
 import { CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { PLANS } from './constants';
+
+type PlanId = (typeof PLANS)[number]['id'];
 
 interface PasswordStrengthProps {
   password: string;
@@ -82,7 +81,7 @@ export function PasswordInput({ value, onChange, placeholder, id }: PasswordInpu
 interface PlanSelectorProps {
   plans?: typeof PLANS;
   selected: string;
-  onSelect: (plan: 'SOLO' | 'CABINET' | 'ENTERPRISE' | 'PILOT') => void;
+  onSelect: (plan: PlanId) => void;
 }
 
 export function PlanSelector({ plans: plansOverride, selected, onSelect }: PlanSelectorProps) {

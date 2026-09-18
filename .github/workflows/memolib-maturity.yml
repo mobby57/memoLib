@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 
 jobs:
   maturity:
@@ -49,6 +49,20 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
           NEXTAUTH_SECRET: ci-test-secret-not-for-production
           NEXTAUTH_URL: http://localhost:3000
+
+      - name: Run business validation (métier)
+        if: always()
+        run: npm run business:validate:ci
+        env:
+          CI: true
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: ci-test-secret-not-for-production
+          NEXTAUTH_URL: http://localhost:3000
+
+      - name: Publish business validation report
+        if: always()
+        run: |
+          if [ -f reports/business-validation.md ]; then cat reports/business-validation.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Publish report
         if: always()

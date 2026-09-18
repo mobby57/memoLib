@@ -23,6 +23,73 @@ model AIUsageLog {
   @@index([tenantId])
 }
 
+/// Traçabilité des décisions IA (valeur probante) — chaînage par hash.
+/// Créé initialement via migration 20260831_add_ai_decision ; ce modèle
+/// réaligne le schéma sur les migrations et l'usage code (src/lib/ai/auditService.ts).
+model AIDecision {
+  id             String    @id @default(cuid())
+  tenantId       String
+  userId         String?
+  entityType     String
+  entityId       String
+  decisionType   String
+  input          Json
+  output         Json
+  confidence     Float
+  source         String
+  humanReviewed  Boolean   @default(false)
+  reviewedBy     String?
+  reviewedAt     DateTime?
+  blockchainHash String?
+  exportedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([entityId])
+  @@index([createdAt])
+}
+
+/// Demande d'intake client (formulaire de collecte de données/documents).
+/// Origine : Google Sheet (webhook), email, ou saisie manuelle.
+///
+/// SÉCURITÉ RGPD — données sensibles (justiciables OQTF/asile) :
+///  - `encryptedData` contient les réponses du formulaire, chiffrées au niveau
+///    applicatif (AES-256-GCM via src/lib/security/encryption.ts). Illisibles
+///    sans la clé maître, même avec un accès direct à la base.
+///  - `clientEmailEnc` : email client chiffré ; `clientEmailHash` : SHA-256
+///    pour déduplication/recherche sans exposer l'email en clair.
+///  - Les métadonnées non sensibles (statut, type, complétude) restent en clair
+///    pour permettre le requêtage et l'agrégation ("demandes à aider").
+model IntakeRequest {
+  id                String   @id @default(cuid())
+  tenantId          String
+  clientId          String?
+
+  type              String   // OQTF | Asile | TitreSejour | ...
+  status            String   @default("PENDING") // PENDING|IN_PROGRESS|COMPLETE|NEEDS_HELP
+  origin            String   @default("manual")   // googlesheet|email|manual
+  sourceRef         String?  // ex: n° de ligne / id de la ligne Google Sheet
+
+  clientEmailEnc    String?  // email chiffré (payload JSON)
+  clientEmailHash   String?  // SHA-256 pour dédup/recherche
+
+  encryptedData     String?  // réponses du formulaire, chiffrées (payload JSON)
+
+  requiredFields    Json?    // champs attendus (schéma du formulaire)
+  requiredDocuments Json?    // documents attendus
+  providedDocuments Json?    // documents fournis (labels cochés)
+  uploadedFiles     Json?    // fichiers réellement déposés (métadonnées, réf. de stockage chiffré)
+  completeness      Int      @default(0) // 0..100
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([tenantId, origin, sourceRef])
+  @@index([tenantId, status])
+  @@index([clientEmailHash])
+  @@index([status])
+}
+
 model ArchivePolicy {
   id              String        @id
   tenantId        String
@@ -356,6 +423,7 @@ model Dossier {
   TimeEntry          TimeEntry[]
   ChannelMessage     ChannelMessage[]
   DossierMember      DossierMember[]
+  InformationUnit    InformationUnit[]
   Team               Team?            @relation(fields: [teamId], references: [id])
 
   @@unique([tenantId, numero])
@@ -647,10 +715,12 @@ model InformationUnit {
   tenantId                 String
   source                   InformationUnitSource
   content                  String
-  contentHash              String                     @unique
+  contentHash              String
   currentStatus            InformationUnitStatus      @default(RECEIVED)
   sourceMetadata           String?
   linkedWorkspaceId        String?
+  dossierId                String?
+  matchConfidence          Float?
   metadata                 String?
   lastStatusChangeBy       String?
   lastStatusChangeAt       DateTime?
@@ -663,12 +733,15 @@ model InformationUnit {
   updatedAt                DateTime
   InformationStatusHistory InformationStatusHistory[]
   Tenant                   Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Dossier                  Dossier?                   @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   Proof                    Proof[]
 
   @@index([contentHash])
+  @@unique([tenantId, contentHash])
   @@index([currentStatus])
   @@index([tenantId, currentStatus])
   @@index([tenantId])
+  @@index([dossierId])
 }
 
 model Jurisprudence {
@@ -1057,6 +1130,32 @@ model TenantSettings {
   storageLimit  Int      @default(1000)
   createdAt     DateTime @default(now())
   updatedAt     DateTime
+
+  // --- Configuration cabinet (administrable via /settings, incrément 1) ---
+  // Identité du cabinet
+  cabinetName    String?
+  cabinetLogo    String?
+  cabinetAddress String?
+  cabinetPhone   String?
+  cabinetEmail   String?
+
+  // Préférences régionales par défaut du cabinet
+  defaultLanguage String @default("fr")
+  defaultTimezone String @default("Europe/Paris")
+  dateFormat      String @default("DD/MM/YYYY")
+
+  // Politique de notifications au niveau cabinet
+  emailNotifications    Boolean @default(true)
+  deadlineNotifications Boolean @default(true)
+
+  // Fonctionnalités toggables par le cabinet (feature flags par tenant)
+  ocrEnabled       Boolean @default(false)
+  aiEnabled        Boolean @default(true)
+
+  // Configuration documents / uploads
+  maxUploadSizeMb   Int @default(10)
+  maxFilesPerUpload Int @default(5)
+
   Tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
@@ -1105,6 +1204,7 @@ model User {
   DossierMember    DossierMember[]
   TeamMember       TeamMember[]
   UserConsent      UserConsent[]
+  UserPreference   UserPreference[]
   DataSubjectRequest DataSubjectRequest[]
 
   @@index([role])
@@ -1131,6 +1231,24 @@ model UserConsent {
   @@index([userId])
   @@index([type])
   @@index([userId, type])
+}
+
+/// Préférences utilisateur (clé/valeur JSON) : thème, colonnes, filtres,
+/// raccourcis… Distinct de TenantSettings (config cabinet). Chaque utilisateur
+/// ne lit/écrit que ses propres préférences (scope userId côté API).
+model UserPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  tenantId  String
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([userId])
+  @@index([tenantId])
 }
 
 /// Demande d'exercice d'un droit par la personne concernée. La résolution est
