@@ -5,39 +5,60 @@ import prisma from '@/lib/prisma';
 
 const mockTenantId = 'tenant-123';
 
-let mockSessionUser: Record<string, unknown> | undefined = {
+let mockUser: Record<string, unknown> | null = {
   id: 'user-123',
   role: 'AVOCAT',
   tenantId: mockTenantId,
   email: 'user@test.com',
+  name: 'Test User',
 };
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(async () => (mockSessionUser ? { user: mockSessionUser } : null)),
-}));
-
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
-}));
-
-vi.mock('@/lib/prisma', () => {
-  const mockPrisma = {
+const { mockAuth, mockPrisma } = vi.hoisted(() => ({
+  mockAuth: vi.fn(),
+  mockPrisma: {
     team: {
       findMany: vi.fn(),
       create: vi.fn(),
     },
-  };
-  return { __esModule: true, default: mockPrisma };
-});
+  },
+}));
+
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: mockAuth,
+}));
+
+vi.mock('@/lib/prisma', () => ({
+  prisma: mockPrisma,
+  default: mockPrisma,
+}));
 
 vi.mock('@/lib/logger', () => ({
-  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  },
 }));
 
 describe('/api/teams', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockSessionUser = { id: 'user-123', role: 'AVOCAT', tenantId: mockTenantId, email: 'user@test.com' };
+
+    mockUser = {
+      id: 'user-123',
+      role: 'AVOCAT',
+      tenantId: mockTenantId,
+      email: 'user@test.com',
+      name: 'Test User',
+    };
+
+    mockAuth.mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-123',
+      orgId: 'org-123',
+      user: mockUser,
+    });
   });
 
   describe('GET', () => {
@@ -52,7 +73,13 @@ describe('/api/teams', () => {
     });
 
     it('refuse (401) sans session', async () => {
-      mockSessionUser = undefined;
+      mockUser = null;
+      mockAuth.mockResolvedValue({
+        isAuthenticated: false,
+        clerkUserId: null,
+        orgId: null,
+        user: null,
+      });
       const response = await GET();
       expect(response.status).toBe(401);
     });
@@ -72,7 +99,20 @@ describe('/api/teams', () => {
     });
 
     it('refuse (403) pour un rôle sans permission users:manage (STAGIAIRE)', async () => {
-      mockSessionUser = { id: 'user-1', role: 'STAGIAIRE', tenantId: mockTenantId };
+      mockUser = {
+        id: 'user-1',
+        role: 'STAGIAIRE',
+        tenantId: mockTenantId,
+        email: 'stagiaire@test.com',
+        name: 'Test Stagiaire',
+      };
+
+      mockAuth.mockResolvedValue({
+        isAuthenticated: true,
+        clerkUserId: 'clerk-user-2',
+        orgId: 'org-123',
+        user: mockUser,
+      });
 
       const request = new NextRequest('http://localhost/api/teams', {
         method: 'POST',

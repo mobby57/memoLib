@@ -1,6 +1,6 @@
 'use client';
 
-﻿// components/payments/PaymentForm.tsx
+// components/payments/PaymentForm.tsx
 
 
 import { useState } from 'react';

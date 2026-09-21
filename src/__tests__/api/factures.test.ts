@@ -2,6 +2,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { auth } from '@/lib/clerk-auth';
 
 const mockPrisma = {
   client: { findFirst: vi.fn() },
@@ -17,10 +18,8 @@ const mockPrisma = {
   $transaction: vi.fn(),
 };
 
-vi.mock('@/lib/auth', () => ({
-  __esModule: true,
-  default: vi.fn(() => vi.fn()),
-  getServerSession: vi.fn(),
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(),
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -37,9 +36,17 @@ const { GET, POST } = require('@/app/api/factures/route') as typeof import('@/ap
 describe('/api/factures', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getServerSession } = jest.requireMock('@/lib/auth') as { getServerSession: vi.Mock };
-    getServerSession.mockResolvedValue({
-      user: { id: 'user-1', tenantId: 'tenant-a', role: 'LAWYER' },
+    vi.mocked(auth).mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-1',
+      orgId: null,
+      user: {
+        id: 'user-1',
+        email: 'lawyer@example.test',
+        name: 'Test Lawyer',
+        role: 'LAWYER',
+        tenantId: 'tenant-a',
+      },
     });
   });
 

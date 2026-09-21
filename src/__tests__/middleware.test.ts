@@ -6,11 +6,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock @/lib/auth/jwt
-vi.mock('@/lib/auth/jwt', () => ({
-  getToken: vi.fn(),
-}));
-
 describe('Middleware Global', () => {
   const createMockRequest = (
     pathname: string,
@@ -50,29 +45,6 @@ describe('Middleware Global', () => {
 
         expect(isPublic).toBe(true);
       });
-    });
-  });
-
-  describe('Routes Authentifiées', () => {
-    it('rejette les requêtes non authentifiées', async () => {
-      (getToken as any).mockResolvedValue(null);
-
-      const token = await getToken({ req: {} as any, secret: 'test' });
-      expect(token).toBeNull();
-    });
-
-    it('accepte les requêtes avec token valide', async () => {
-      const mockToken = {
-        sub: 'user-123',
-        role: 'ADMIN',
-        tenantId: 'tenant-123',
-      };
-
-      (getToken as any).mockResolvedValue(mockToken);
-
-      const token = await getToken({ req: {} as any, secret: 'test' });
-      expect(token).toEqual(mockToken);
-      expect(token?.role).toBe('ADMIN');
     });
   });
 

@@ -1,20 +1,15 @@
-import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Tests pour src/app/api/audit-logs/route.ts
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock @/lib/auth
-const mockGetServerSession = vi.fn();
-vi.mock('@/lib/auth', () => ({
-  getServerSession: (...args: any[]) => mockauth(),
+// Mock Clerk auth
+const { mockAuth } = vi.hoisted(() => ({
+  mockAuth: vi.fn(),
 }));
 
-// Mock authOptions
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: mockAuth,
 }));
 
 // Mock prisma
@@ -68,7 +63,12 @@ describe('audit-logs route — Full Coverage', () => {
 
   describe('GET', () => {
     it('should return 401 when not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockAuth.mockResolvedValue({
+        isAuthenticated: false,
+        clerkUserId: null,
+        orgId: null,
+        user: null,
+      });
       const req = createMockRequest('http://localhost/api/audit-logs?tenantId=t1');
       const res = await GET(req);
       const data = await res.json();
@@ -77,7 +77,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should return 403 for non-allowed roles', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'CLIENT', tenantId: 't1', email: 'x@x.com' },
       });
       const req = createMockRequest('http://localhost/api/audit-logs');
@@ -86,7 +86,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should return logs for ADMIN', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'ADMIN', tenantId: 't1', email: 'admin@test.com' },
       });
       mockPrisma.auditLog.findMany.mockResolvedValue([{ id: 'log1', action: 'CREATE' }]);
@@ -101,7 +101,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should apply filters', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'LAWYER', tenantId: 't1', email: 'law@test.com' },
       });
       mockPrisma.auditLog.findMany.mockResolvedValue([]);
@@ -115,7 +115,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should handle SUPER_ADMIN with tenantId param', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'SUPER_ADMIN', email: 'super@test.com' },
       });
       mockPrisma.auditLog.findMany.mockResolvedValue([]);
@@ -127,7 +127,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should return 400 for SUPER_ADMIN without tenantId', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'SUPER_ADMIN', email: 'super@test.com' },
       });
       const req = createMockRequest('http://localhost/api/audit-logs');
@@ -136,7 +136,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should return 403 for tenant mismatch', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'ADMIN', tenantId: 't1', email: 'a@b.com' },
       });
       const req = createMockRequest('http://localhost/api/audit-logs?tenantId=t2');
@@ -145,7 +145,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should return 500 on error', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'ADMIN', tenantId: 't1', email: 'a@b.com' },
       });
       mockPrisma.auditLog.findMany.mockRejectedValue(new Error('DB down'));
@@ -158,7 +158,7 @@ describe('audit-logs route — Full Coverage', () => {
 
   describe('POST', () => {
     it('should create audit log', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'ADMIN', tenantId: 't1', email: 'a@b.com' },
       });
       mockPrisma.auditLog.findFirst.mockResolvedValue(null);
@@ -182,7 +182,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should chain hash from previous log', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'ADMIN', tenantId: 't1', email: 'a@b.com' },
       });
       mockPrisma.auditLog.findFirst.mockResolvedValue({ id: 'prev', timestampHash: 'abc123' });
@@ -200,7 +200,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should return 400 for missing fields', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'ADMIN', tenantId: 't1', email: 'a@b.com' },
       });
       const req = createMockRequest('http://localhost/api/audit-logs', {
@@ -212,7 +212,12 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should return 401 when not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockAuth.mockResolvedValue({
+        isAuthenticated: false,
+        clerkUserId: null,
+        orgId: null,
+        user: null,
+      });
       const req = createMockRequest('http://localhost/api/audit-logs', {
         method: 'POST',
         body: { tenantId: 't1', action: 'X', entityType: 'Y', entityId: 'Z' },
@@ -222,7 +227,7 @@ describe('audit-logs route — Full Coverage', () => {
     });
 
     it('should return 500 on error', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockAuth.mockResolvedValue({
         user: { id: 'u1', role: 'ADMIN', tenantId: 't1', email: 'a@b.com' },
       });
       mockPrisma.auditLog.findFirst.mockRejectedValue(new Error('fail'));

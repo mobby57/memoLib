@@ -1,12 +1,11 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@/lib/clerk-auth';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH } from '@/app/api/legal-deadlines/route';
 import prisma from '@/lib/prisma';
 
-vi.mock('@/lib/auth', () => ({
-  __esModule: true,
-  default: vi.fn(() => vi.fn()),
-  getServerSession: vi.fn(),
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(),
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -31,9 +30,17 @@ describe('/api/legal-deadlines', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getServerSession } = jest.requireMock('@/lib/auth') as { getServerSession: vi.Mock };
-    getServerSession.mockResolvedValue({
-      user: { id: 'user-1', tenantId: mockTenantId, role: 'LAWYER' },
+    vi.mocked(auth).mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-1',
+      orgId: null,
+      user: {
+        id: 'user-1',
+        email: 'lawyer@example.test',
+        name: 'Test Lawyer',
+        role: 'LAWYER',
+        tenantId: mockTenantId,
+      },
     });
   });
 

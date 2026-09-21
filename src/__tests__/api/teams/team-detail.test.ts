@@ -5,30 +5,33 @@ import prisma from '@/lib/prisma';
 
 const mockTenantId = 'tenant-123';
 
-let mockSessionUser: Record<string, unknown> | undefined = {
+let mockUser: Record<string, unknown> | null = {
   id: 'user-123',
   role: 'AVOCAT',
   tenantId: mockTenantId,
+  email: 'user@test.com',
+  name: 'Test User',
 };
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(async () => (mockSessionUser ? { user: mockSessionUser } : null)),
-}));
-
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
-}));
-
-vi.mock('@/lib/prisma', () => {
-  const mockPrisma = {
+const { mockAuth, mockPrisma } = vi.hoisted(() => ({
+  mockAuth: vi.fn(),
+  mockPrisma: {
     team: {
       findFirst: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
     },
-  };
-  return { __esModule: true, default: mockPrisma };
-});
+  },
+}));
+
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: mockAuth,
+}));
+
+vi.mock('@/lib/prisma', () => ({
+  prisma: mockPrisma,
+  default: mockPrisma,
+}));
 
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
@@ -41,7 +44,21 @@ function makeParams(id: string) {
 describe('/api/teams/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockSessionUser = { id: 'user-123', role: 'AVOCAT', tenantId: mockTenantId };
+
+    mockUser = {
+      id: 'user-123',
+      role: 'AVOCAT',
+      tenantId: mockTenantId,
+      email: 'user@test.com',
+      name: 'Test User',
+    };
+
+    mockAuth.mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-123',
+      orgId: 'org-123',
+      user: mockUser,
+    });
   });
 
   describe('GET', () => {
@@ -79,7 +96,20 @@ describe('/api/teams/[id]', () => {
     });
 
     it('refuse (403) sans permission users:manage', async () => {
-      mockSessionUser = { id: 'user-1', role: 'STAGIAIRE', tenantId: mockTenantId };
+      mockUser = {
+        id: 'user-1',
+        role: 'STAGIAIRE',
+        tenantId: mockTenantId,
+        email: 'stagiaire@test.com',
+        name: 'Test Stagiaire',
+      };
+
+      mockAuth.mockResolvedValue({
+        isAuthenticated: true,
+        clerkUserId: 'clerk-user-2',
+        orgId: 'org-123',
+        user: mockUser,
+      });
 
       const request = new NextRequest('http://localhost/api/teams/t1', {
         method: 'PATCH',
