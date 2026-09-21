@@ -2,11 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-<<<<<<< HEAD
+    $transaction: vi.fn(),
+
     userConsent: {
       create: vi.fn(),
       findMany: vi.fn(),
       findFirst: vi.fn(),
+    },
+
     aIDecision: {
       create: vi.fn(),
       findMany: vi.fn(),
@@ -14,41 +17,73 @@ vi.mock('@/lib/prisma', () => ({
       update: vi.fn(),
       deleteMany: vi.fn(),
     },
-    },
+
     user: {
       findUnique: vi.fn(),
       update: vi.fn(),
     },
-    email: { findMany: vi.fn() },
-    stripeCustomer: { findUnique: vi.fn() },
-    subscription: { findMany: vi.fn(), findFirst: vi.fn() },
-    auditLog: { findMany: vi.fn(), updateMany: vi.fn() },
-    userSettings: { findUnique: vi.fn() },
-    session: { findMany: vi.fn() },
+
+    email: {
+      findMany: vi.fn(),
+    },
+
+    stripeCustomer: {
+      findUnique: vi.fn(),
+    },
+
+    subscription: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+    },
+
+    auditLog: {
+      findMany: vi.fn(),
+      updateMany: vi.fn(),
+    },
+
+    userSettings: {
+      findUnique: vi.fn(),
+    },
+
+    session: {
+      findMany: vi.fn(),
+    },
+
     dataExportRequest: {
       create: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn(),
     },
+
     deletionRequest: {
       create: vi.fn(),
       updateMany: vi.fn(),
     },
+
     dataBreach: {
       create: vi.fn(),
       update: vi.fn(),
     },
-    dossier: { findMany: vi.fn() },
-    notification: { deleteMany: vi.fn() },
-    calendarEvent: { deleteMany: vi.fn() },
-=======
-    $transaction: vi.fn(),
-    userConsent: { create: vi.fn(), findMany: vi.fn() },
-    user: { findUnique: vi.fn() },
-    auditLog: { findMany: vi.fn() },
-    dataSubjectRequest: { findFirst: vi.fn(), findMany: vi.fn(), create: vi.fn(), updateMany: vi.fn() },
-    dossier: { findFirst: vi.fn() },
->>>>>>> save/clerk-wip-20260901
+
+    dataSubjectRequest: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      updateMany: vi.fn(),
+    },
+
+    dossier: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+    },
+
+    notification: {
+      deleteMany: vi.fn(),
+    },
+
+    calendarEvent: {
+      deleteMany: vi.fn(),
+    },
   },
 }));
 

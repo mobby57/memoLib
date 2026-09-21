@@ -5,6 +5,12 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
 
+// Variables d'environnement minimales pour les tests Vitest.
+// Elles ne doivent jamais contenir de secrets de production.
+process.env.CLERK_SECRET_KEY ??= 'test_clerk_secret_key';
+process.env.NEXT_PUBLIC_APP_URL ??= 'http://localhost:3000';
+
+
 const dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
@@ -51,6 +57,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
+            'server-only': resolve(dirname, 'src/test/mocks/server-only.ts'),
             // Keep alias resolution aligned with tsconfig.json paths (@/* -> src/*)
             '@': resolve(dirname, 'src')
         }

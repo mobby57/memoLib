@@ -97,6 +97,8 @@ jobs:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ci
           CLERK_SECRET_KEY: sk_test_ci
           NEXT_PUBLIC_APP_URL: https://example.test
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ci-test-nextauth-secret
           UPSTASH_REDIS_REST_URL: https://example.upstash.io
           UPSTASH_REDIS_REST_TOKEN: ci-test-token
 

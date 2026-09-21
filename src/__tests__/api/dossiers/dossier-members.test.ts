@@ -1,5 +1,19 @@
 import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+const { mockAuth, canAccessDossier } = vi.hoisted(() => ({
+  mockAuth: vi.fn(),
+  canAccessDossier: vi.fn(),
+}));
+
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: mockAuth,
+}));
+
+vi.mock('@/lib/auth/dossier-access', () => ({
+  canAccessDossier,
+}));
+
 import { GET, POST, PATCH, DELETE } from '@/app/api/dossiers/[id]/members/route';
 import prisma from '@/lib/prisma';
 
@@ -12,14 +26,6 @@ let mockSessionUser: Record<string, unknown> = {
   tenantId: mockTenantId,
   email: 'user@test.com',
 };
-
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(async () => ({ user: mockSessionUser })),
-}));
-
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
-}));
 
 vi.mock('@/lib/prisma', () => {
   const mockPrisma = {
@@ -48,12 +54,26 @@ function makeParams(id: string) {
 describe('/api/dossiers/[id]/members', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
     mockSessionUser = {
       id: mockUserId,
       role: 'STAGIAIRE',
       tenantId: mockTenantId,
       email: 'user@test.com',
     };
+
+    mockAuth.mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-123',
+      orgId: 'org-123',
+      user: mockSessionUser,
+    });
+
+    canAccessDossier.mockResolvedValue({
+      allowed: false,
+      reason: 'no_access',
+    });
+
     (prisma as any).teamMember.findUnique.mockResolvedValue(null);
   });
 
@@ -68,6 +88,11 @@ describe('/api/dossiers/[id]/members', () => {
     });
 
     it('liste les membres si l\'utilisateur a accès en lecture (RBAC global)', async () => {
+      canAccessDossier.mockResolvedValue({
+        allowed: true,
+        reason: 'global_admin',
+      });
+
       mockSessionUser.role = 'COLLABORATEUR'; // a dossiers:read globalement
       (prisma as any).dossier.findFirst.mockResolvedValue({ id: 'd1', tenantId: mockTenantId, responsableId: null, teamId: null });
       (prisma as any).dossierMember.findMany.mockResolvedValue([
@@ -97,6 +122,11 @@ describe('/api/dossiers/[id]/members', () => {
     });
 
     it('ajoute un membre si l\'utilisateur est responsable du dossier', async () => {
+      canAccessDossier.mockResolvedValue({
+        allowed: true,
+        reason: 'responsable',
+      });
+
       (prisma as any).dossier.findFirst.mockResolvedValue({ id: 'd1', tenantId: mockTenantId, responsableId: mockUserId, teamId: null });
       (prisma as any).user.findFirst.mockResolvedValue({ id: 'u2' });
       (prisma as any).dossierMember.upsert.mockResolvedValue({ id: 'm1', dossierId: 'd1', userId: 'u2', role: 'COLLABORATOR' });
@@ -113,6 +143,11 @@ describe('/api/dossiers/[id]/members', () => {
     });
 
     it('refuse (404) si l\'utilisateur cible n\'appartient pas au même tenant', async () => {
+      canAccessDossier.mockResolvedValue({
+        allowed: true,
+        reason: 'responsable',
+      });
+
       (prisma as any).dossier.findFirst.mockResolvedValue({ id: 'd1', tenantId: mockTenantId, responsableId: mockUserId, teamId: null });
       (prisma as any).user.findFirst.mockResolvedValue(null);
 
@@ -128,6 +163,11 @@ describe('/api/dossiers/[id]/members', () => {
 
   describe('PATCH', () => {
     it('modifie le rôle d\'un membre existant', async () => {
+      canAccessDossier.mockResolvedValue({
+        allowed: true,
+        reason: 'responsable',
+      });
+
       (prisma as any).dossier.findFirst.mockResolvedValue({ id: 'd1', tenantId: mockTenantId, responsableId: mockUserId, teamId: null });
       (prisma as any).dossierMember.findUnique.mockResolvedValue({ id: 'm1', tenantId: mockTenantId });
       (prisma as any).dossierMember.update.mockResolvedValue({ id: 'm1', role: 'VIEWER' });
@@ -142,6 +182,11 @@ describe('/api/dossiers/[id]/members', () => {
     });
 
     it('refuse (404) si le membre à modifier n\'existe pas', async () => {
+      canAccessDossier.mockResolvedValue({
+        allowed: true,
+        reason: 'responsable',
+      });
+
       (prisma as any).dossier.findFirst.mockResolvedValue({ id: 'd1', tenantId: mockTenantId, responsableId: mockUserId, teamId: null });
       (prisma as any).dossierMember.findUnique.mockResolvedValue(null);
 
@@ -157,6 +202,11 @@ describe('/api/dossiers/[id]/members', () => {
 
   describe('DELETE', () => {
     it('retire un membre existant', async () => {
+      canAccessDossier.mockResolvedValue({
+        allowed: true,
+        reason: 'responsable',
+      });
+
       (prisma as any).dossier.findFirst.mockResolvedValue({ id: 'd1', tenantId: mockTenantId, responsableId: mockUserId, teamId: null });
       (prisma as any).dossierMember.findUnique.mockResolvedValue({ id: 'm1', tenantId: mockTenantId });
       (prisma as any).dossierMember.delete.mockResolvedValue({});

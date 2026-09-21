@@ -5,6 +5,9 @@ const validator = new DateValidatorService();
 
 describe('DateValidatorService', () => {
   it('devrait valider des dates cohérentes', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-15T00:00:00.000Z'));
+
     const dates: ExtractedDates = {
       decisionDate: '2026-08-01',
       notificationDate: '2026-08-05',
@@ -15,6 +18,7 @@ describe('DateValidatorService', () => {
     expect(result.errors).toHaveLength(0);
     expect(result.confidence).toBeCloseTo(0.95, 1);
     expect(result.humanReviewRequired).toBe(false);
+    vi.useRealTimers();
   });
 
   it('devrait détecter une notification avant la décision', () => {

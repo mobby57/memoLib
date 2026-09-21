@@ -7,6 +7,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { randomUUID } from 'crypto';
 
 // ============================================
 // CONFIGURATION DES COÛTS
@@ -195,6 +196,7 @@ export async function recordAIUsage(usage: UsageRecord): Promise<void> {
   try {
     await prisma.aIUsageLog.create({
       data: {
+        id: randomUUID(),
         tenantId: usage.tenantId,
         provider: usage.provider,
         tokensUsed: usage.tokensUsed,

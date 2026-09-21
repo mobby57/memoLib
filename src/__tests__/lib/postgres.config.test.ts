@@ -72,7 +72,7 @@ describe('PostgreSQL Config - Pure Unit Tests', () => {
       const createSSLConfig = (mode: string) => {
         if (mode === 'disable') return false;
         return {
-          rejectUnauthorized: mode === 'verify-full',
+          rejectUnauthorized: mode !== 'disable',
         };
       };
 

@@ -9,18 +9,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 const mockFetch = vi.fn();
 global.fetch = mockFetch as any;
 
-// Mock getServerSession pour bypass auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn().mockResolvedValue({
-    user: { id: 'test', role: 'AVOCAT', tenantId: 'tenant-1' },
-  }),
-}));
-
-// Mock authOptions
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
-}));
-
 // Mock billing feature check
 vi.mock('@/lib/billing/features', () => ({
   checkFeatureAccess: vi.fn().mockResolvedValue({ allowed: true }),

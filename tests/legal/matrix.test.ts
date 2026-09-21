@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { calculateDeadline } from '@/lib/cesda/deadlineEngine';
@@ -17,6 +17,15 @@ function loadScenarios(): any[] {
 
 describe('Matrice juridique – Scénarios CESEDA', () => {
   const scenarios = loadScenarios();
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-01T00:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it('tous les IDs doivent être uniques', () => {
     const ids = scenarios.map(s => s.id);

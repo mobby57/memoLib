@@ -23,10 +23,10 @@ describe('Middleware Logic - Pure Unit Tests', () => {
     });
 
     it('should validate session', () => {
-      const isValidSession = (session: any) => 
-        session && 
-        userId && 
-        session.expiresAt && 
+      const isValidSession = (session: any) =>
+        session &&
+        session.userId &&
+        session.expiresAt &&
         new Date(session.expiresAt) > new Date();
 
       const validSession = {
@@ -66,7 +66,7 @@ describe('Middleware Logic - Pure Unit Tests', () => {
     });
 
     it('should calculate retry after', () => {
-      const getRetryAfter = (windowEnd: number) => 
+      const getRetryAfter = (windowEnd: number) =>
         Math.max(0, Math.ceil((windowEnd - Date.now()) / 1000));
 
       const future = Date.now() + 30000;
@@ -76,7 +76,7 @@ describe('Middleware Logic - Pure Unit Tests', () => {
 
   describe('CORS middleware', () => {
     it('should check allowed origins', () => {
-      const isAllowedOrigin = (origin: string, allowedOrigins: string[]) => 
+      const isAllowedOrigin = (origin: string, allowedOrigins: string[]) =>
         allowedOrigins.includes(origin) || allowedOrigins.includes('*');
 
       const allowed = ['https://example.com', 'https://app.example.com'];
@@ -176,7 +176,7 @@ describe('Middleware Logic - Pure Unit Tests', () => {
     });
 
     it('should generate CSP header', () => {
-      const generateCSP = (directives: Record<string, string[]>) => 
+      const generateCSP = (directives: Record<string, string[]>) =>
         Object.entries(directives)
           .map(([key, values]) => `${key} ${values.join(' ')}`)
           .join('; ');
@@ -203,7 +203,7 @@ describe('Middleware Logic - Pure Unit Tests', () => {
       };
 
       const schema = { name: 'string', age: 'number' };
-      
+
       const valid = validateBody({ name: 'Test', age: 25 }, schema);
       expect(valid.valid).toBe(true);
 

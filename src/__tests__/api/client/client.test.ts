@@ -10,9 +10,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
  * Endpoints du portail client
  */
 
-// Mock NextAuth
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(),
+// Mock Clerk auth
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(),
 }));
 
 // Mock Prisma
@@ -58,8 +58,12 @@ describe('API /api/client', () => {
 
   describe('Authentication', () => {
     it('rejette les requêtes non authentifiées', async () => {
-      const { getServerSession } = require('@/lib/auth');
-      getServerSession.mockResolvedValue(null);
+      vi.mocked(auth).mockResolvedValue({
+        isAuthenticated: false,
+        clerkUserId: null,
+        orgId: null,
+        user: null,
+      });
 
       const { user } = await auth();
     const session = user ? { user } : null;
@@ -70,7 +74,7 @@ describe('API /api/client', () => {
     it('rejette les utilisateurs sans rôle CLIENT', async () => {
       const session = { user: { role: 'ADMIN' } };
 
-      const isClient = user.role === 'CLIENT';
+      const isClient = session.user.role === 'CLIENT';
 
       expect(isClient).toBe(false);
     });
@@ -85,8 +89,8 @@ describe('API /api/client', () => {
         },
       };
 
-      const isClient = user.role === 'CLIENT';
-      const hasClientId = !!user.clientId;
+      const isClient = session.user.role === 'CLIENT';
+      const hasClientId = !!session.user.clientId;
 
       expect(isClient).toBe(true);
       expect(hasClientId).toBe(true);

@@ -5,19 +5,12 @@ import prisma from '@/lib/prisma';
 
 const mockTenantId = 'tenant-123';
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(async () => ({
-    user: {
-      id: 'user-123',
-      role: 'ADMIN',
-      tenantId: mockTenantId,
-      email: 'user@test.com',
-    },
-  })),
+const { mockAuth } = vi.hoisted(() => ({
+  mockAuth: vi.fn(),
 }));
 
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: mockAuth,
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -37,6 +30,19 @@ vi.mock('@/lib/prisma', () => ({
 describe('/api/proofs', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockAuth.mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-123',
+      orgId: 'org-123',
+      user: {
+        id: 'user-123',
+        role: 'ADMIN',
+        tenantId: mockTenantId,
+        email: 'user@test.com',
+        name: 'Test User',
+      },
+    });
   });
 
   describe('GET', () => {

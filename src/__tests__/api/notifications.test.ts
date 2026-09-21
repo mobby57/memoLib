@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { session, prisma } = vi.hoisted(() => ({
+const { session, mockAuth, prisma } = vi.hoisted(() => ({
   session: { current: null as { user?: { id?: string } } | null },
+  mockAuth: vi.fn(),
   prisma: {
     notification: {
       findMany: vi.fn(),
@@ -11,10 +12,9 @@ const { session, prisma } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(() => session.current),
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: mockAuth,
 }));
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({ authOptions: {} }));
 vi.mock('@/lib/prisma', () => ({ __esModule: true, default: prisma }));
 vi.mock('@/lib/notifications', () => ({
   getUnreadCount: vi.fn(() => 0),
@@ -29,10 +29,29 @@ describe('API /api/notifications', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     session.current = { user: { id: 'user-a' } };
+
+    mockAuth.mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-a',
+      orgId: 'org-a',
+      user: {
+        id: 'user-a',
+        email: 'user@test.com',
+        name: 'Test User',
+        role: 'LAWYER',
+        tenantId: 'tenant-a',
+      },
+    });
   });
 
   it('rejects anonymous reads', async () => {
     session.current = null;
+    mockAuth.mockResolvedValue({
+      isAuthenticated: false,
+      clerkUserId: null,
+      orgId: null,
+      user: null,
+    });
     expect((await GET(new Request('http://localhost/api/notifications') as never)).status).toBe(401);
   });
 
@@ -75,6 +94,12 @@ describe('API /api/notifications', () => {
 
   it('rejects anonymous mutations', async () => {
     session.current = null;
+    mockAuth.mockResolvedValue({
+      isAuthenticated: false,
+      clerkUserId: null,
+      orgId: null,
+      user: null,
+    });
     const response = await PATCH(new Request('http://localhost/api/notifications', {
       method: 'PATCH',
       body: JSON.stringify({ markAll: true }),

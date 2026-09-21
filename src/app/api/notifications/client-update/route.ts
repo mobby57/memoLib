@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/clerk-auth';
+import { RBAC_PERMISSIONS, requireApiPermission } from '@/lib/auth/rbac';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+
+const clientUpdateSchema = z
+  .object({
+    dossierId: z.string().trim().min(1).max(128),
+    type: z.enum(['piece_recue', 'dossier_complet', 'statut_change', 'deadline_proche']),
+    message: z.string().trim().max(2_000).optional(),
+  })
+  .strict();
 
 /**
  * POST /api/notifications/client-update
@@ -7,11 +19,18 @@ import { prisma } from '@/lib/prisma';
  * Appele automatiquement quand une piece est recue ou un statut change.
  */
 export async function POST(req: NextRequest) {
-  const { dossierId, type, message } = await req.json();
-
-  if (!dossierId || !type) {
-    return NextResponse.json({ error: 'dossierId et type requis' }, { status: 400 });
+  const { user } = await auth();
+  if (!user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
+  const permission = requireApiPermission({ user }, RBAC_PERMISSIONS.DOSSIERS_MANAGE);
+  if (!permission.ok) return permission.response;
+
+  const parsedBody = clientUpdateSchema.safeParse(await req.json().catch(() => null));
+  if (!parsedBody.success) {
+    return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
+  }
+  const { dossierId, type, message } = parsedBody.data;
 
   const dossier = await prisma.dossier.findUnique({
     where: { id: dossierId },
@@ -22,7 +41,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Dossier ou client non trouve' }, { status: 404 });
   }
 
-  const templates: Record<string, (d: any) => { subject: string; body: string }> = {
+  if (user.role !== 'SUPER_ADMIN' && (!user.tenantId || dossier.tenantId !== user.tenantId)) {
+    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+  }
+
+  type DossierWithClient = typeof dossier;
+  const templates: Record<
+    (typeof type),
+    (d: DossierWithClient) => { subject: string; body: string }
+  > = {
     piece_recue: (d) => ({
       subject: `Piece recue — Dossier ${d.numero}`,
       body: `Bonjour,\n\nNous avons bien recu votre document pour le dossier ${d.numero}.\n\nProgression : ${d.checklistReceived}/${d.checklistTotal} pieces recues.\n${d.checklistComplete ? '\nVotre dossier est maintenant COMPLET. Votre avocat va le traiter dans les meilleurs delais.' : `\nIl reste ${d.checklistTotal - d.checklistReceived} piece(s) a fournir.`}\n\nCordialement,\nCabinet ${d.tenantId}`,
@@ -42,19 +69,16 @@ export async function POST(req: NextRequest) {
   };
 
   const template = templates[type];
-  if (!template) {
-    return NextResponse.json({ error: `Type inconnu: ${type}` }, { status: 400 });
-  }
+  template(dossier);
 
-  const { subject, body } = template(dossier);
-
-  // Log (email reel quand SMTP configure)
-  console.log(`[NOTIF CLIENT] To: ${dossier.Client.email} | Subject: ${subject}`);
+  logger.info('Notification client préparée', {
+    dossierId: dossier.id,
+    notificationType: type,
+    tenantId: dossier.tenantId,
+  });
 
   return NextResponse.json({
     success: true,
-    to: dossier.Client.email,
-    subject,
-    preview: body.substring(0, 100) + '...',
+    notificationType: type,
   });
 }
