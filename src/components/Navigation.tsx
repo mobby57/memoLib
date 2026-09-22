@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 
+import { useClerk } from '@clerk/nextjs';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -132,10 +133,10 @@ const navigationItems: NavItem[] = [
 
 export function Navigation() {
   const router = useRouter();
+  const { signOut } = useClerk();
   const handleSignout = async (e: React.MouseEvent) => {
     e.preventDefault();
-    await fetch('/api/auth/signout', { method: 'POST', credentials: 'include' });
-    router.push(`/${locale}`);
+    await signOut({ redirectUrl: '/' });
   };
 
   const { user, isAuthenticated } = useAuth();
