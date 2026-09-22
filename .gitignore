@@ -165,3 +165,8 @@ security-backup-*/
 /.agents/
 /.claude/
 /.kiro/
+code-report.txt
+audit.json
+*.bak
+*.bak.*
+*.backup.*

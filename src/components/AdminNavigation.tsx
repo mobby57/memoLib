@@ -3,17 +3,18 @@ import { useRouter } from 'next/navigation';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useClerk } from '@clerk/nextjs';
 
 export default function AdminNavigation() {
   const router = useRouter();
-  const handleSignout = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    await fetch('/api/auth/signout', { method: 'POST', credentials: 'include' });
-    router.push(`/${locale}`);
-  };
-
   const pathname = usePathname() ?? '';
   const locale = pathname.split('/')[1] || 'fr';
+  const { signOut } = useClerk();
+
+  const handleSignout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await signOut({ redirectUrl: '/' });
+  };
   const lhref = (path: string) => `/${locale}${path}`;
 
   return (
