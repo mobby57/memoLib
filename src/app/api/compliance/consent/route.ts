@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/lib/clerk-auth';
+import { auth as clerkAuth } from '@clerk/nextjs/server';
 import {
   CONSENT_TYPES,
   CURRENT_PRIVACY_POLICY_VERSION,
@@ -26,10 +26,8 @@ const consentRequestSchema = z
   .strict();
 
 export async function POST(request: NextRequest) {
-  const { user } = await auth();
-  if (!user) {
-    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-  }
+  // Lit la session SANS exiger qu'elle existe (RGPD anonyme autorisé)
+  const { userId } = await clerkAuth();
 
   const parsed = consentRequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
@@ -43,31 +41,46 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    await GDPRCompliance.recordConsents(
-      user.id,
-      parsed.data.consents.map(({ type, granted, policyVersion }) => ({
-        type,
-        granted,
-        version: policyVersion,
-      }))
-    );
-    return NextResponse.json({ success: true });
+    if (userId) {
+      // Utilisateur connecté → stockage BDD
+      await GDPRCompliance.recordConsents(
+        userId,
+        parsed.data.consents.map(({ type, granted, policyVersion }) => ({
+          type,
+          granted,
+          version: policyVersion,
+        }))
+      );
+    } else {
+      // Anonyme → log serveur (RGPD : preuve via cookie côté client)
+      logger.info('Anonymous consent recorded', {
+        types: parsed.data.consents.map((c) => c.type),
+      });
+    }
+
+    const res = NextResponse.json({ success: true });
+    res.cookies.set('consent-recorded', '1', {
+      httpOnly: false,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365,
+      path: '/',
+    });
+    return res;
   } catch (error) {
-    logger.error('Consent update failed', error, { userId: user.id });
+    logger.error('Consent update failed', error, { userId });
     return NextResponse.json({ error: 'Impossible d’enregistrer le consentement' }, { status: 500 });
   }
 }
 
 export async function GET() {
-  const { user } = await auth();
-  if (!user) {
-    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  const { userId } = await clerkAuth();
+  if (!userId) {
+    return NextResponse.json({ consents: [] });
   }
-
   try {
-    return NextResponse.json({ consents: await GDPRCompliance.getUserConsents(user.id) });
+    return NextResponse.json({ consents: await GDPRCompliance.getUserConsents(userId) });
   } catch (error) {
-    logger.error('Consent lookup failed', error, { userId: user.id });
+    logger.error('Consent lookup failed', error, { userId });
     return NextResponse.json({ error: 'Impossible de récupérer les consentements' }, { status: 500 });
   }
 }

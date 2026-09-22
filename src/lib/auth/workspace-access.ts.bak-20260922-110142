@@ -1,0 +1,17 @@
+import { prisma } from '@/lib/prisma';
+
+/**
+ * Vérifie que le workspace appartient bien au tenant de l'utilisateur.
+ * Retourne false si le workspace n'existe pas OU appartient à un autre tenant.
+ * → la route appelante doit renvoyer 404 (jamais 403, pour ne pas fuiter l'existence).
+ */
+export async function assertWorkspaceAccess(
+  workspaceId: string,
+  tenantId: string
+): Promise<boolean> {
+  const ws = await prisma.workspace.findFirst({
+    where: { id: workspaceId, tenantId },
+    select: { id: true },
+  });
+  return ws !== null;
+}

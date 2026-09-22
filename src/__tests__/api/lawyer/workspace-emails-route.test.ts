@@ -6,7 +6,8 @@ const routePath = '../../../app/api/lawyer/workspaces/[id]/emails/route';
 const { mockAuth, mockPrisma } = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockPrisma: {
-    workspaceEmail: {
+    workspace: { findFirst: vi.fn() },
+    workspaceEmail: { findFirst: vi.fn(),
       update: vi.fn(),
       findMany: vi.fn(),
     },
@@ -29,6 +30,7 @@ vi.mock('@/lib/logger', () => ({
 
 describe('POST /api/lawyer/workspaces/[id]/emails', () => {
   beforeEach(() => {
+    mockPrisma.workspace.findFirst.mockResolvedValue({ id: 'ws-test-1' });
     vi.clearAllMocks();
   });
 
@@ -63,6 +65,7 @@ describe('POST /api/lawyer/workspaces/[id]/emails', () => {
   });
 
   it('applies mark_read action for a lawyer user', async () => {
+    mockPrisma.workspaceEmail.findFirst.mockResolvedValue({ id: 'mail_1' });
     mockAuth.mockResolvedValue({
       isAuthenticated: true,
       clerkUserId: 'clerk-lawyer-1',
