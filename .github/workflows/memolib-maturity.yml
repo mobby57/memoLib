@@ -47,8 +47,6 @@ jobs:
         env:
           CI: true
           DATABASE_URL: postgresql://test:test@localhost:5432/test
-          NEXTAUTH_SECRET: ci-test-secret-not-for-production
-          NEXTAUTH_URL: http://localhost:3000
 
       - name: Publish report
         if: always()
