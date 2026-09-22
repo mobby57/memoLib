@@ -67,7 +67,7 @@ const nextConfig = {
   },
 };
 
-const { withSentryConfig } = require('@sentry/nextjs');
+const { withSentryConfig } = require('@sentry/nextjs/config');
 
 module.exports = withSentryConfig(nextConfig, {
   org: 'ms-conseils',

@@ -121,16 +121,13 @@ export default function ConsentBanner() {
                 body: JSON.stringify({
                     consents: Object.entries(prefs).map(([type, granted]) => ({
                         type,
-                        granted,
-                        policyVersion: '2026-10-01',
-                    })),
-                }),
-                keepalive: true,
+                        granted
+                    }))
+                })
             });
         } catch (error) {
-            console.debug('[consent] save skipped:', error);
+            console.error('Failed to save consent:', error);
         }
-    
     };
 
     if (!showBanner) return null;

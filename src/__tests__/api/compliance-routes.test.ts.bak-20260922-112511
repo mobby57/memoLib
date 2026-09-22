@@ -15,7 +15,7 @@ vi.mock('@/lib/compliance/gdpr', () => ({
     getDeletionRequests: vi.fn(),
   },
 }));
-vi.mock('@/lib/logger', () => ({ logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { error: vi.fn() } }));
 
 import { auth } from '@/lib/clerk-auth';
 import { GDPRCompliance } from '@/lib/compliance/gdpr';
