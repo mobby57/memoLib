@@ -170,3 +170,4 @@ audit.json
 *.bak
 *.bak.*
 *.backup.*
+next-env.d.ts
