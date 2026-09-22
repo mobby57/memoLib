@@ -95,7 +95,7 @@
     "email:setup": "tsx scripts/email-setup.ts",
     "email:to-workspace": "tsx scripts/email-to-workspace.ts",
     "email:to-workspace:ai": "tsx scripts/email-to-workspace-ai.ts",
-    "email:test": "tsx scripts/test-email-processing.ts",
+    "email:test": "npm run email:test:demo",
     "email:test:demo": "npm test -- src/__tests__/api/emails/incoming-route.test.ts src/__tests__/api/lawyer/workspace-emails-route.test.ts",
     "email:test:integration-db": "cross-env REAL_DB_TESTS=1 USE_REAL_DB_FOR_TESTS=1 vitest run --config vitest.email-integration.config.ts",
     "email:test:load": "tsx scripts/test-email-ingestion-load.ts",
@@ -137,7 +137,8 @@
     "demo:client:sarrab:full": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab-full.ps1",
     "test:storage": "vitest run src/lib/storage/storageService.smoke.test.ts",
     "requirements:check": "node scripts/check-release-requirements.js",
-    "requirements:release": "node scripts/check-release-requirements.js --release"
+    "requirements:release": "node scripts/check-release-requirements.js --release",
+    "test:legal": "vitest run src/__tests__/api/legal-deadlines.test.ts src/__tests__/deadline-monitoring.test.ts src/__tests__/lib/cesda/deadlineEngine.real.test.ts src/__tests__/lib/cron/deadline-alerts.test.ts src/__tests__/lib/services/deadlineExtractor.real.test.ts src/__tests__/lib/services/oqtfDeadlineService.real.test.ts src/__tests__/services/deadlineExtractor.coverage.test.ts src/__tests__/services/deadlineExtractor.test.ts src/__tests__/services/oqtfDeadlineService.test.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
