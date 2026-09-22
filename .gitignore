@@ -171,3 +171,19 @@ audit.json
 *.bak.*
 *.backup.*
 next-env.d.ts
+
+# Backups locaux générés par les scripts de fix
+*.bak-*
+*.bak
+*.DISABLED-*
+*.dead
+
+# Scripts Python de fix jetables
+fix-*.py
+fix-*.sh
+audit-and-gen.sh
+patch-*.sh
+gen-*.sh
+
+# Fichiers Next.js
+.next/
