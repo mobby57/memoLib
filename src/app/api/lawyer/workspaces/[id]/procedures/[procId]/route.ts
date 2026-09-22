@@ -9,6 +9,7 @@ import { auth } from '@/lib/clerk-auth';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { assertWorkspaceAccess } from '@/lib/auth/workspace-access';
 
 export async function GET(
   request: NextRequest,
@@ -19,6 +20,10 @@ export async function GET(
     const session = user ? { user } : null;
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
 
     const procedure = await prisma.procedure.findUnique({
@@ -82,6 +87,10 @@ export async function PATCH(
     const session = user ? { user } : null;
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
     const body = await request.json();
 
@@ -180,6 +189,10 @@ export async function DELETE(
     const session = user ? { user } : null;
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
     // Vérifier que la procédure existe et appartient au workspace
     const procedure = await prisma.procedure.findUnique({

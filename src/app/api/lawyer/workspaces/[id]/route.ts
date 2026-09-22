@@ -8,6 +8,7 @@ import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { assertWorkspaceAccess } from '@/lib/auth/workspace-access';
 
 // GET - Récupérer workspace complet avec toutes les relations
 export async function GET(
@@ -20,6 +21,10 @@ export async function GET(
     
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
     const workspaceId = params.id;
 
@@ -146,6 +151,10 @@ export async function PATCH(
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
+    }
     const workspaceId = params.id;
     const body = await request.json();
 
@@ -231,6 +240,10 @@ export async function DELETE(
     
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
     const workspaceId = params.id;
 
