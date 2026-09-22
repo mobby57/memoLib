@@ -28,7 +28,7 @@ export async function GET(
     }
 
     // Récupérer le document
-    const document = await prisma.workspaceDocument.findUnique({
+    const document = await prisma.workspaceDocument.findFirst({
       where: { id: params.docId },
       include: {
         workspace: {
