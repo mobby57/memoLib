@@ -52,8 +52,8 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value:
               process.env.NODE_ENV === 'production'
-                ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' *.google-analytics.com *.sentry.io *.upstash.io; frame-ancestors 'none'"
-                : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http://localhost:*; font-src 'self' data:; connect-src 'self' localhost:* *.sentry.io *.upstash.io; frame-ancestors 'self'",
+                ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.google-analytics.com https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: https://img.clerk.com https://*.clerk.accounts.dev; font-src 'self' data:; connect-src 'self' *.google-analytics.com https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com https://clerk-telemetry.com *.sentry.io *.upstash.io; frame-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com; worker-src 'self' blob:; frame-ancestors 'none'"
+                : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' localhost:* https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http://localhost:* https://img.clerk.com https://*.clerk.accounts.dev; font-src 'self' data:; connect-src 'self' localhost:* https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com https://clerk-telemetry.com *.sentry.io *.upstash.io; frame-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com; worker-src 'self' blob:; frame-ancestors 'self'",
           },
         ],
       },
