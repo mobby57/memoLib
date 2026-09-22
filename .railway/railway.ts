@@ -65,8 +65,6 @@ export default defineRailway(() => {
       IMAP_TLS: preserve(),
       IMAP_USER: preserve(),
       INTAKE_WEBHOOK_SECRET: preserve(),
-      NEXTAUTH_SECRET: preserve(),
-      NEXTAUTH_URL: preserve(),
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: preserve(),
       NEXT_PUBLIC_SENTRY_DSN: preserve(),
       NEXT_PUBLIC_WS_URL: preserve(),
