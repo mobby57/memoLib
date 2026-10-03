@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   ArrowRight,
   CheckCircle2,
@@ -103,6 +104,13 @@ export default function DemoCompletePage() {
 
   const currentStep = DEMO_STEPS[currentIndex];
 
+  // Routes prefixees par la locale ([locale]) : les liens internes doivent
+  // inclure /${locale} sinon ils renvoient un 404 (bug en production).
+  const params = useParams();
+  const locale = (Array.isArray(params?.locale) ? params.locale[0] : params?.locale) || 'fr';
+  const withLocale = (path: string) =>
+    path.startsWith('/') ? `/${locale}${path}` : path;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-6 py-10">
@@ -118,7 +126,7 @@ export default function DemoCompletePage() {
               </h1>
             </div>
             <Link
-              href="/demo"
+              href={withLocale('/demo')}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Voir la démo rapide
@@ -229,7 +237,7 @@ export default function DemoCompletePage() {
 
             <div className="flex flex-wrap gap-3">
               <Link
-                href={currentStep.href}
+                href={withLocale(currentStep.href)}
                 className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3"
               >
                 Lancer cette étape
@@ -264,21 +272,21 @@ export default function DemoCompletePage() {
 
           <div className="mt-6 grid sm:grid-cols-3 gap-3">
             <Link
-              href="/demo/email-simulator"
+              href={withLocale('/demo/email-simulator')}
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <Mail className="w-4 h-4" />
               Tester les emails
             </Link>
             <Link
-              href="/demo/workspace-reasoning"
+              href={withLocale('/demo/workspace-reasoning')}
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <Users className="w-4 h-4" />
               Voir le raisonnement
             </Link>
             <Link
-              href="/demo/legal-proof"
+              href={withLocale('/demo/legal-proof')}
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <FileText className="w-4 h-4" />
