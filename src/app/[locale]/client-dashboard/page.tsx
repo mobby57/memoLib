@@ -3,6 +3,7 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
+import { useClerk } from '@clerk/nextjs';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -48,6 +49,7 @@ interface ClientDashboardData {
 
 export default function ClientDashboardPage() {
   const { user, isLoading, isAuthenticated, isClient } = useAuth();
+  const { signOut } = useClerk();
   const [data, setData] = useState<ClientDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -134,7 +136,7 @@ export default function ClientDashboardPage() {
               <p className="text-xs text-gray-500 dark:text-gray-400">Client</p>
             </div>
             <button
-              onClick={() => window.location.href = '/api/auth/signout'}
+              onClick={() => signOut({ redirectUrl: '/' })}
               className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
             >
               <LogOut className="w-5 h-5" />

@@ -52,25 +52,41 @@ export async function POST(
         });
         return NextResponse.json({ success: true, facture });
 
-      case 'update_dossier_status':
+      case 'update_dossier_status': {
+        const target = await prisma.dossier.findFirst({
+          where: { id: data.dossierId, tenantId },
+          select: { id: true },
+        });
+        if (!target) {
+          return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+        }
         const updatedDossier = await prisma.dossier.update({
-          where: { id: data.dossierId },
+          where: { id: target.id },
           data: {
             statut: data.statut,
             lastActivityAt: new Date()
           }
         });
         return NextResponse.json({ success: true, dossier: updatedDossier });
+      }
 
-      case 'mark_echeance_complete':
+      case 'mark_echeance_complete': {
+        const target = await prisma.echeance.findFirst({
+          where: { id: data.echeanceId, dossier: { tenantId } },
+          select: { id: true },
+        });
+        if (!target) {
+          return NextResponse.json({ error: 'Échéance non trouvée' }, { status: 404 });
+        }
         const updatedEcheance = await prisma.echeance.update({
-          where: { id: data.echeanceId },
+          where: { id: target.id },
           data: {
             statut: 'termine',
             completedAt: new Date()
           }
         });
         return NextResponse.json({ success: true, echeance: updatedEcheance });
+      }
 
       default:
         return NextResponse.json(

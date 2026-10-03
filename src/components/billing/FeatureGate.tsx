@@ -1,4 +1,6 @@
 'use client';
+import { useParams } from 'next/navigation';
+
 /**
  * Composants UI pour le Feature Gating — MemoLib
  *
@@ -8,6 +10,7 @@
  *
  * Si la feature n'est pas disponible, affiche un prompt d'upgrade.
  */
+
 
 
 import React from 'react';
@@ -32,6 +35,7 @@ export function FeatureGate({
   fallback,
   mode = 'block',
 }: FeatureGateProps) {
+  const { locale } = useParams<{ locale: string }>();
   const { check, isLoading } = useFeatureGate();
 
   if (isLoading) {
@@ -106,6 +110,7 @@ interface UpgradePromptProps {
 }
 
 export function UpgradePrompt({ feature, compact = false }: UpgradePromptProps) {
+  const { locale } = useParams<{ locale: string }>();
   const { check } = useFeatureGate();
   const result = check(feature);
   const label = FEATURE_LABELS[feature] || feature.replace(/_/g, ' ');
@@ -118,7 +123,7 @@ export function UpgradePrompt({ feature, compact = false }: UpgradePromptProps) 
           <span>Plan {result.requiredTierLabel} requis</span>
         </div>
         <Link
-          href="/settings/billing?upgrade=true"
+          href={`/${locale}/billing?upgrade=true`}
           className="text-xs text-indigo-600 hover:text-indigo-800 underline"
         >
           Mettre à niveau →
@@ -144,7 +149,7 @@ export function UpgradePrompt({ feature, compact = false }: UpgradePromptProps) 
       </p>
 
       <Link
-        href="/settings/billing?upgrade=true"
+        href={`/${locale}/billing?upgrade=true`}
         className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
       >
         <ArrowUpRight className="w-4 h-4" />

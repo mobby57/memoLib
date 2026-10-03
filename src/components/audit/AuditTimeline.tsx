@@ -1,10 +1,12 @@
 'use client';
+
 /**
  * AuditTimeline Component
  *
  * Affiche la timeline chronologique des événements pour une entité
  * Implémentation UI pour RULE-005 (exhaustivité) et RULE-006 (checksums)
  */
+
 
 
 import { useEffect, useState } from 'react';

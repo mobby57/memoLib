@@ -21,7 +21,7 @@ export default function LawyerAdvancedPage() {
             </p>
           </div>
           <Link
-            href="/lawyer/intégrations"
+            href="/lawyer/integrations"
             className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors"
           >
             Voir la demo complete →
@@ -69,7 +69,7 @@ export default function LawyerAdvancedPage() {
                   WebSocket pour mises à jour instantanees
                 </p>
                 <Link
-                  href="/lawyer/intégrations"
+                  href="/lawyer/integrations"
                   className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
                 >
                   Voir la demo →

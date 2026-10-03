@@ -98,7 +98,7 @@ export default function IntegrationsPage() {
 
     const loadIntegrations = async () => {
         try {
-            const response = await fetch('/api/intégrations');
+            const response = await fetch('/api/integrations');
             const data = await response.json();
             setIntegrations(data.intégrations || []);
         } catch (error) {
@@ -110,7 +110,7 @@ export default function IntegrationsPage() {
 
     const loadAuditLog = async () => {
         try {
-            const response = await fetch('/api/intégrations/audit');
+            const response = await fetch('/api/integrations/audit');
             const data = await response.json();
             setAuditLog(data.logs || []);
         } catch (error) {
@@ -130,7 +130,7 @@ export default function IntegrationsPage() {
 
         try {
             // Initiate OAuth flow
-            const response = await fetch('/api/intégrations/connect', {
+            const response = await fetch('/api/integrations/connect', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -158,7 +158,7 @@ export default function IntegrationsPage() {
         }
 
         try {
-            await fetch(`/api/intégrations/${integrationId}`, {
+            await fetch(`/api/integrations/${integrationId}`, {
                 method: 'DELETE',
             });
             loadIntegrations();
@@ -170,7 +170,7 @@ export default function IntegrationsPage() {
 
     const handleSync = async (integrationId: string) => {
         try {
-            await fetch(`/api/intégrations/${integrationId}/sync`, {
+            await fetch(`/api/integrations/${integrationId}/sync`, {
                 method: 'POST',
             });
             loadIntegrations();
@@ -181,7 +181,7 @@ export default function IntegrationsPage() {
 
     const exportData = async (integrationId: string) => {
         try {
-            const response = await fetch(`/api/intégrations/${integrationId}/export`);
+            const response = await fetch(`/api/integrations/${integrationId}/export`);
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');

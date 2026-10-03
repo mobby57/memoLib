@@ -5,7 +5,7 @@ import { POST as reject } from '@/app/api/action-proposals/[id]/reject/route';
 import { ActionProposalStatus, decideActionProposal } from '@/lib/services/action-proposal.service';
 
 const mocks = vi.hoisted(() => ({
-  getServerSession: vi.fn(),
+  mockAuth: vi.fn(),
   prisma: {
     actionProposal: {
       findMany: vi.fn(),
@@ -22,26 +22,11 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
-const { getServerSession } = mocks;
+
 const mockPrisma = mocks.prisma;
 
-vi.mock('@/lib/auth', () => ({
-  default: vi.fn(() => vi.fn()),
-  getServerSession: mocks.getServerSession,
-}));
-
-// Migration Clerk : les routes utilisent @/lib/clerk-auth `auth()`. On dérive
-// la session du même mock getServerSession piloté par chaque test.
 vi.mock('@/lib/clerk-auth', () => ({
-  auth: vi.fn(async () => {
-    const session = await mocks.getServerSession();
-    return {
-      isAuthenticated: Boolean(session?.user),
-      clerkUserId: session?.user ? 'clerk_test' : null,
-      orgId: null,
-      user: session?.user ?? null,
-    };
-  }),
+  auth: mocks.mockAuth,
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -54,8 +39,17 @@ describe('action proposal routes', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    getServerSession.mockResolvedValue({
-      user: { id: 'user-a', tenantId: 'tenant-a', role: 'LAWYER' },
+    mocks.mockAuth.mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-a',
+      orgId: 'org-a',
+      user: {
+        id: 'user-a',
+        email: 'user@test.com',
+        name: 'Test User',
+        role: 'LAWYER',
+        tenantId: 'tenant-a',
+      },
     });
     mockPrisma.$transaction.mockImplementation(async callback => callback(mockPrisma));
     mockPrisma.auditLog.findFirst.mockResolvedValue(null);
@@ -63,7 +57,12 @@ describe('action proposal routes', () => {
   });
 
   it('rejects a decision without an authenticated session', async () => {
-    getServerSession.mockResolvedValue(null);
+    mocks.mockAuth.mockResolvedValue({
+      isAuthenticated: false,
+      clerkUserId: null,
+      orgId: null,
+      user: null,
+    });
 
     const response = await reject(
       new NextRequest('http://localhost/api/action-proposals/proposal-1/reject', {

@@ -22,9 +22,9 @@ const mockPrisma = {
   actionProposal: { upsert: vi.fn() },
 };
 
-vi.mock('@/lib/security/webhook-verification', () => {
-  const actual = jest.requireActual('@/lib/security/webhook-verification') as typeof import('@/lib/security/webhook-verification');
-  const { NextResponse: ActualNextResponse } = jest.requireActual('next/server') as typeof import('next/server');
+vi.mock('@/lib/security/webhook-verification', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/security/webhook-verification')>('@/lib/security/webhook-verification');
+  const { NextResponse: ActualNextResponse } = await vi.importActual<typeof import('next/server')>('next/server');
   return {
     ...actual,
     verifyWebhookRequest: vi.fn((req: NextRequest, body: string, secret: string) => {

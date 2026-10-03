@@ -10,6 +10,7 @@ import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
+import { assertWorkspaceAccess } from '@/lib/auth/workspace-access';
 
 export async function GET(
   request: NextRequest,
@@ -21,9 +22,13 @@ export async function GET(
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
+    }
 
     // Récupérer le document
-    const document = await prisma.workspaceDocument.findUnique({
+    const document = await prisma.workspaceDocument.findFirst({
       where: { id: params.docId },
       include: {
         workspace: {

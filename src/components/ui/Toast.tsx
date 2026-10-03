@@ -35,7 +35,7 @@ export function ToastProvider({ children }: Readonly<{ children: ReactNode }>) {
 
   const removeToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, [setToasts]);
+  }, []);
 
   const addToast = useCallback((toast: Omit<Toast, 'id'>) => {
     const id = `${Date.now()}-${++toastCounter}`;
@@ -47,7 +47,7 @@ export function ToastProvider({ children }: Readonly<{ children: ReactNode }>) {
         removeToast(id);
       }, toast.duration || 5000);
     }
-  }, [removeToast, setToasts]);
+  }, [removeToast]);
 
   const showToast = useCallback((message: string, variant: Toast['variant'], title?: string) => {
     addToast({ message, variant, title });

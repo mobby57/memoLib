@@ -3,28 +3,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH, DELETE } from '@/app/api/audit-logs/route';
 import prisma from '@/lib/prisma';
 
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(async () => ({
-    user: {
-      id: 'user-123',
-      role: 'ADMIN',
-      tenantId: 'tenant-123',
-      email: 'user@test.com',
-    },
-  })),
+const { mockAuth } = vi.hoisted(() => ({
+  mockAuth: vi.fn(),
 }));
 
 vi.mock('@/lib/clerk-auth', () => ({
-  auth: vi.fn(async () => ({
-    isAuthenticated: true,
-    clerkUserId: 'clerk_test',
-    orgId: null,
-    user: { id: 'user-123', role: 'ADMIN', tenantId: 'tenant-123', email: 'user@test.com' },
-  })),
-}));
-
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
+  auth: mockAuth,
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -44,6 +28,19 @@ describe('/api/audit-logs', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockAuth.mockResolvedValue({
+      isAuthenticated: true,
+      clerkUserId: 'clerk-user-123',
+      orgId: 'org-123',
+      user: {
+        id: 'user-123',
+        role: 'ADMIN',
+        tenantId: 'tenant-123',
+        email: 'user@test.com',
+        name: 'Test User',
+      },
+    });
   });
 
   describe('GET', () => {

@@ -148,7 +148,7 @@ export default function WorkspaceReasoningPage() {
 
         <div className="mt-8 text-center">
           <Link
-            href="/demo/légal-proof"
+            href="/demo/legal-proof"
             className={`inline-flex items-center gap-2 font-semibold py-3 px-6 rounded-lg transition-colors ${
               isProcessing 
                 ? 'bg-gray-400 text-white cursor-not-allowed'

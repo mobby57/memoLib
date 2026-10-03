@@ -1,10 +1,22 @@
 import { auth } from '@/lib/clerk-auth';
+import { authorizeWorkspaceAccess } from '@/lib/auth/workspace-access';
+import { RBAC_PERMISSIONS, requireApiPermission } from '@/lib/auth/rbac';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { existsSync } from 'fs';
 import { unlink } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
+import { z } from 'zod';
+
+const updateDocumentSchema = z
+  .object({
+    verified: z.boolean().optional(),
+    category: z.string().trim().max(100).optional(),
+    description: z.string().trim().max(2_000).optional(),
+    tags: z.array(z.string().trim().min(1).max(100)).max(20).optional(),
+  })
+  .strict();
 
 /**
  * PATCH /api/lawyer/workspaces/[id]/documents/[docId]
@@ -20,11 +32,36 @@ export async function PATCH(
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+    const permission = requireApiPermission({ user }, RBAC_PERMISSIONS.DOCUMENTS_MANAGE);
+    if (!permission.ok) return permission.response;
+    const workspaceAccess = await authorizeWorkspaceAccess(params.id, user);
+    if (!workspaceAccess.ok) return workspaceAccess.response;
 
-    const body = await request.json();
-    const { verified, category, description, tags } = body;
+    const parsedBody = updateDocumentSchema.safeParse(await request.json().catch(() => null));
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
+    }
+    const { verified, category, description, tags } = parsedBody.data;
 
-    const updateData: any = {};
+    const document = await prisma.workspaceDocument.findFirst({
+      where: {
+        id: params.docId,
+        workspaceId: params.id,
+        tenantId: workspaceAccess.workspace.tenantId,
+      },
+    });
+    if (!document) {
+      return NextResponse.json({ error: 'Document non trouvé' }, { status: 404 });
+    }
+
+    const updateData: {
+      verified?: boolean;
+      verifiedAt?: Date;
+      verifiedBy?: string;
+      category?: string;
+      description?: string;
+      tags?: string;
+    } = {};
 
     if (verified !== undefined) {
       updateData.verified = verified;
@@ -38,15 +75,15 @@ export async function PATCH(
     if (description !== undefined) updateData.description = description;
     if (tags !== undefined) updateData.tags = JSON.stringify(tags);
 
-    const document = await prisma.workspaceDocument.update({
-      where: { id: params.docId },
+    const updatedDocument = await prisma.workspaceDocument.update({
+      where: { id: document.id },
       data: updateData,
     });
 
     return NextResponse.json({
       success: true,
       message: 'Document mis à jour',
-      document,
+      document: updatedDocument,
     });
   } catch (error) {
     logger.error('Erreur PATCH document:', { error });
@@ -68,10 +105,18 @@ export async function DELETE(
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+    const permission = requireApiPermission({ user }, RBAC_PERMISSIONS.DOCUMENTS_MANAGE);
+    if (!permission.ok) return permission.response;
+    const workspaceAccess = await authorizeWorkspaceAccess(params.id, user);
+    if (!workspaceAccess.ok) return workspaceAccess.response;
 
     // Récupérer document pour supprimer le fichier physique
-    const document = await prisma.workspaceDocument.findUnique({
-      where: { id: params.docId },
+    const document = await prisma.workspaceDocument.findFirst({
+      where: {
+        id: params.docId,
+        workspaceId: params.id,
+        tenantId: workspaceAccess.workspace.tenantId,
+      },
     });
 
     if (!document) {

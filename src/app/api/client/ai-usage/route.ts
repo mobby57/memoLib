@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     // Calculer l'usage du mois
     let usage = { totalCost: 0, totalRequests: 0, totalTokens: 0 };
     let dailyUsage: { date: string; cost: number; requests: number }[] = [];
-    const byModel: Record<string, { cost: number; requests: number }> = {};
+    const byProvider: Record<string, { cost: number; requests: number }> = {};
 
     try {
       // Agrégat total
@@ -88,9 +88,9 @@ export async function GET(request: NextRequest) {
         .map(([date, data]) => ({ date, ...data }))
         .sort((a, b) => a.date.localeCompare(b.date));
 
-      // Usage par modèle
-      const modelData = await prisma.aIUsageLog.groupBy({
-        by: ['model'],
+      // Usage par fournisseur. AIUsageLog ne stocke pas le modèle.
+      const providerData = await prisma.aIUsageLog.groupBy({
+        by: ['provider'],
         where: {
           tenantId,
           createdAt: { gte: startDate, lte: endDate },
@@ -99,10 +99,11 @@ export async function GET(request: NextRequest) {
         _count: true,
       });
 
-      for (const m of modelData) {
-        byModel[m.model] = {
-          cost: m._sum.costEur || 0,
-          requests: m._count,
+      for (const provider of providerData) {
+        if (!provider.provider) continue;
+        byProvider[provider.provider] = {
+          cost: provider._sum.costEur || 0,
+          requests: provider._count,
         };
       }
     } catch {
@@ -134,7 +135,7 @@ export async function GET(request: NextRequest) {
       recommendations.push('🚨 Contactez le support pour augmenter votre limite IA');
     }
 
-    if (usage.totalCost > 0 && !byModel['ollama']) {
+    if (usage.totalCost > 0 && !byProvider['ollama']) {
       recommendations.push('💡 Installez Ollama sur votre serveur pour réduire les coûts à 0€');
     }
 
@@ -174,7 +175,8 @@ export async function GET(request: NextRequest) {
         willExceed: projectedCost > budgetLimit,
       },
       breakdown: {
-        byModel,
+        byModel: {},
+        byProvider,
         daily: dailyUsage,
       },
       plan: {
@@ -208,7 +210,6 @@ function getBudgetLimit(planName: string): number {
   };
   return limits[planName] || 5;
 }
-
 
 
 

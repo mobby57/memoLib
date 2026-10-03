@@ -1,5 +1,7 @@
-﻿'use client';
+'use client';
+import { useRouter } from 'next/navigation';
 
+import { useClerk } from '@clerk/nextjs';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -130,6 +132,13 @@ const navigationItems: NavItem[] = [
 ];
 
 export function Navigation() {
+  const router = useRouter();
+  const { signOut } = useClerk();
+  const handleSignout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await signOut({ redirectUrl: '/' });
+  };
+
   const { user, isAuthenticated } = useAuth();
   const pathname = usePathname();
   const currentPath = pathname ?? '';
@@ -271,13 +280,10 @@ export function Navigation() {
 
       {/* Footer - Fixed at bottom */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700 shrink-0 bg-white dark:bg-gray-900">
-        <Link
-          href="/api/auth/signout"
-          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-        >
+        <button type="button" onClick={handleSignout}>
           <Settings className="w-5 h-5" />
           Se deconnecter
-        </Link>
+        </button>
       </div>
       </nav>
     </>

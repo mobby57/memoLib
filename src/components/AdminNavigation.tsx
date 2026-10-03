@@ -1,11 +1,20 @@
-﻿'use client';
+'use client';
+import { useRouter } from 'next/navigation';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useClerk } from '@clerk/nextjs';
 
 export default function AdminNavigation() {
+  const router = useRouter();
   const pathname = usePathname() ?? '';
   const locale = pathname.split('/')[1] || 'fr';
+  const { signOut } = useClerk();
+
+  const handleSignout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await signOut({ redirectUrl: '/' });
+  };
   const lhref = (path: string) => `/${locale}${path}`;
 
   return (
@@ -73,12 +82,9 @@ export default function AdminNavigation() {
             <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full text-sm font-semibold">
               ADMIN
             </span>
-            <Link
-              href="/api/auth/signout"
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold transition-colors"
-            >
+            <button type="button" onClick={handleSignout}>
               Deconnexion
-            </Link>
+            </button>
           </div>
         </div>
       </div>

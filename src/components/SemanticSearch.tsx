@@ -1,10 +1,12 @@
 'use client';
+
 /**
  * Composant de Recherche Semantique
  * Interface de recherche intelligente avec IA
  * 
  * Innovation: Recherche par sens, pas juste mots-cles
  */
+
 
 
 import React, { useState } from 'react';

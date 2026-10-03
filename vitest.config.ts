@@ -5,11 +5,18 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
 
+// Variables d'environnement minimales pour les tests Vitest.
+// Elles ne doivent jamais contenir de secrets de production.
+process.env.CLERK_SECRET_KEY ??= 'test_clerk_secret_key';
+process.env.NEXT_PUBLIC_APP_URL ??= 'http://localhost:3000';
+
+
 const dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
     test: {
         globals: true,
+        setupFiles: ['./vitest.setup.ts'],
         environment: 'node',
         include: ['tests/**/*.test.ts', 'src/__tests__/**/*.test.{ts,tsx}'],
         exclude: [
@@ -32,14 +39,11 @@ export default defineConfig({
             'tests/integration/legifrance-api.test.ts',
             // Tests avec mock @prisma/client constructeur (à migrer vers @/lib/prisma mock)
             'src/__tests__/api/factures.test.ts',
-            'src/__tests__/api/legal-deadlines.test.ts',
             'src/__tests__/api/emails/incoming-route.integration.test.ts',
-            'src/__tests__/api/emails/incoming-route.test.ts',
             'src/__tests__/api/auth/auth.test.ts',
             'src/__tests__/api/auth/register.test.ts',
             'src/__tests__/api/client/client.test.ts',
             'src/__tests__/api/dossiers/dossiers.test.ts',
-            'src/__tests__/lib/cron/deadline-alerts.test.ts',
             'src/__tests__/lib/auth/auth.test.ts',
             'src/__tests__/services/dossier.service.test.ts',
             'src/__tests__/lib/services/dossier.service.test.ts',
@@ -53,6 +57,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
+            'server-only': resolve(dirname, 'src/test/mocks/server-only.ts'),
             // Keep alias resolution aligned with tsconfig.json paths (@/* -> src/*)
             '@': resolve(dirname, 'src')
         }
