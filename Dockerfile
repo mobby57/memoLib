@@ -1,11 +1,14 @@
 FROM node:22-slim AS deps
 WORKDIR /app
 COPY package*.json ./
+COPY prisma ./prisma
 RUN apt-get update && apt-get install -y python3 python3-pip openssl && rm -rf /var/lib/apt/lists/*
 RUN npm ci --legacy-peer-deps
 
 FROM node:22-slim AS builder
 WORKDIR /app
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build

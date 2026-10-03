@@ -13,6 +13,8 @@ export default defineConfig({
         environment: 'node',
         include: ['tests/**/*.test.ts', 'src/__tests__/**/*.test.{ts,tsx}'],
         exclude: [
+            // Tests de composants/pages React (.tsx) → vitest.components.config.ts (jsdom + transform JSX)
+            'tests/components/**',
             // React hooks/components → vitest.components.config.ts (jsdom)
             'src/__tests__/hooks/**/*.test.tsx',
             'src/__tests__/hooks/useAuth.test.ts',

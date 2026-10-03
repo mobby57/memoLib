@@ -6,6 +6,11 @@ import { logger } from '@/lib/logger';
 import { checkFeatureAccess } from '@/lib/billing/features';
 import { searchCache } from '@/lib/cache/cache-service';
 import { withRateLimit } from '@/lib/middleware/rate-limit';
+import {
+  normalizeArticleKey,
+  buildPostgresSearch,
+  filterFallbackRefs,
+} from '@/lib/legal/jurisprudence-search';
 
 export const GET = withRateLimit(
   async (req: NextRequest) => {
@@ -29,6 +34,10 @@ export const GET = withRateLimit(
   const query = req.nextUrl.searchParams.get('q');
   const type = req.nextUrl.searchParams.get('type') || 'all';
   const source = req.nextUrl.searchParams.get('source') || 'auto'; // auto | postgres | judilibre | fallback
+  // Filtre optionnel par article CESEDA (ex: "R431-2") : ne retient que les
+  // décisions liées à cet article (colonne relatedArticles).
+  const articleRaw = req.nextUrl.searchParams.get('article');
+  const article = articleRaw ? normalizeArticleKey(articleRaw) : null;
   const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '10'), 50);
   const page = Math.max(parseInt(req.nextUrl.searchParams.get('page') || '1'), 1);
   const offset = (page - 1) * limit;
@@ -38,13 +47,14 @@ export const GET = withRateLimit(
   // Cache des recherches (données juridiques publiques, non tenant-spécifiques) :
   // évite de re-solliciter Judilibre/Postgres pour des requêtes identiques répétées
   // par plusieurs avocats (ex: "OQTF", "titre de séjour") — réponse quasi-instantanée.
-  const cacheKey = `jurisprudence:${source}:${type}:${query.toLowerCase().trim()}:${limit}:${page}`;
+  // La clé inclut `article` pour ne pas confondre résultats filtrés et non filtrés.
+  const cacheKey = `jurisprudence:${source}:${type}:${article ?? '-'}:${query.toLowerCase().trim()}:${limit}:${page}`;
   const cached = await searchCache.get<Record<string, unknown>>(cacheKey);
   if (cached) {
     return NextResponse.json({ ...cached, cached: true });
   }
 
-  const payload = await resolveSearch(query, type, source, limit, page, offset);
+  const payload = await resolveSearch(query, type, source, limit, page, offset, article);
   if (!('error' in payload)) {
     await searchCache.set(cacheKey, payload);
   }
@@ -59,33 +69,34 @@ async function resolveSearch(
   source: string,
   limit: number,
   page: number,
-  offset: number
+  offset: number,
+  article: string | null = null,
 ): Promise<Record<string, unknown>> {
   // Source priority: postgres → judilibre → fallback
   if (source === 'auto') {
     // 1. Try PostgreSQL (indexed decisions)
     const count = await prisma.jurisprudence.count();
     if (count > 0) {
-      return searchPostgres(query, type, limit, offset);
+      return searchPostgres(query, type, limit, offset, article);
     }
 
     // 2. Try Judilibre API
     if (judilibreClient.isAvailable()) {
       try {
-        return await searchJudilibre(query, type, limit, page);
+        return await searchJudilibre(query, type, limit, page, article);
       } catch (error) {
         logger.warn('[Jurisprudence] Judilibre indisponible, fallback local', { error });
       }
     }
 
     // 3. Fallback static
-    const results = searchFallback(query, type);
+    const results = searchFallback(query, type, article);
     return { results, source: 'fallback', total: results.length, page };
   }
 
   // Explicit source selection
   if (source === 'postgres') {
-    return searchPostgres(query, type, limit, offset);
+    return searchPostgres(query, type, limit, offset, article);
   }
 
   if (source === 'judilibre') {
@@ -95,11 +106,11 @@ async function resolveSearch(
         status: 503,
       };
     }
-    return searchJudilibre(query, type, limit, page);
+    return searchJudilibre(query, type, limit, page, article);
   }
 
   // fallback
-  const results = searchFallback(query, type);
+  const results = searchFallback(query, type, article);
   return { results, source: 'fallback', total: results.length, page };
 }
 
@@ -107,26 +118,26 @@ async function resolveSearch(
 // SOURCE: POSTGRESQL (données indexées localement)
 // ============================================
 
-async function searchPostgres(query: string, type: string, limit: number, offset: number) {
+async function searchPostgres(query: string, type: string, limit: number, offset: number, article: string | null = null) {
   const tsQuery = query.trim();
-  const themeFilter = type !== 'all' ? [type.toUpperCase()] : undefined;
+
+  // Construction paramétrée (anti-injection) déléguée à la logique pure testée.
+  const { where, params, limitIdx, offsetIdx } = buildPostgresSearch(tsQuery, type, article);
 
   const results: any[] = await prisma.$queryRawUnsafe(`
-    SELECT id, "externalId", titre, date, juridiction, numero, chambre, solution, resume, url, themes,
+    SELECT id, "externalId", titre, date, juridiction, numero, chambre, solution, resume, url, themes, "relatedArticles",
            ts_rank("searchVector", plainto_tsquery('french', $1)) as rank
     FROM "Jurisprudence"
-    WHERE "searchVector" @@ plainto_tsquery('french', $1)
-    ${themeFilter ? `AND $2 = ANY(themes)` : ''}
+    WHERE ${where}
     ORDER BY rank DESC, date DESC
-    LIMIT $${themeFilter ? '3' : '2'}
-    OFFSET $${themeFilter ? '4' : '3'}
-  `, tsQuery, ...(themeFilter ? [themeFilter[0], limit, offset] : [limit, offset]));
+    LIMIT $${limitIdx}
+    OFFSET $${offsetIdx}
+  `, ...params, limit, offset);
 
   const total: any[] = await prisma.$queryRawUnsafe(`
     SELECT COUNT(*)::int as count FROM "Jurisprudence"
-    WHERE "searchVector" @@ plainto_tsquery('french', $1)
-    ${themeFilter ? `AND $2 = ANY(themes)` : ''}
-  `, tsQuery, ...(themeFilter ? [themeFilter[0]] : []));
+    WHERE ${where}
+  `, ...params);
 
   return {
     results: results.map(r => ({
@@ -140,12 +151,14 @@ async function searchPostgres(query: string, type: string, limit: number, offset
       resume: r.resume?.slice(0, 300),
       url: r.url,
       themes: r.themes,
+      relatedArticles: r.relatedArticles,
       rank: r.rank,
     })),
     source: 'postgresql',
     total: total[0]?.count || 0,
     page: Math.floor(offset / limit) + 1,
     pages: Math.ceil((total[0]?.count || 0) / limit),
+    ...(article ? { article } : {}),
   };
 }
 
@@ -153,9 +166,12 @@ async function searchPostgres(query: string, type: string, limit: number, offset
 // SOURCE: JUDILIBRE (API Cour de cassation)
 // ============================================
 
-async function searchJudilibre(query: string, type: string, limit: number, page: number) {
+async function searchJudilibre(query: string, type: string, limit: number, page: number, article: string | null = null) {
+  // Judilibre n'expose pas de filtre "article CESEDA" structuré : on enrichit la
+  // requête plein texte avec la référence d'article (best-effort).
+  const effectiveQuery = article ? `${query} ${article}` : query;
   const result = await judilibreClient.search({
-    query,
+    query: effectiveQuery,
     page_size: limit,
     page: page - 1, // Judilibre pages start at 0
     sort: 'score',
@@ -186,6 +202,7 @@ async function searchJudilibre(query: string, type: string, limit: number, page:
     page,
     pages: Math.ceil(result.total / limit),
     took: result.took,
+    ...(article ? { article } : {}),
   };
 }
 
@@ -193,24 +210,8 @@ async function searchJudilibre(query: string, type: string, limit: number, page:
 // SOURCE: FALLBACK (données statiques CESEDA)
 // ============================================
 
-function searchFallback(query: string, type: string) {
-  const CESEDA_REFS = [
-    { id: 'L511-1', titre: 'OQTF - Obligation de quitter le territoire', date: '2024-01-01', juridiction: 'CESEDA', numero: 'L511-1', resume: "L'autorité administrative peut obliger un étranger à quitter le territoire français lorsque...", url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042776905', themes: ['OQTF'] },
-    { id: 'L313-11', titre: 'Carte de séjour temporaire - Vie privée et familiale', date: '2024-01-01', juridiction: 'CESEDA', numero: 'L313-11', resume: "La carte de séjour temporaire portant la mention 'vie privée et familiale' est délivrée de plein droit...", url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042776832', themes: ['TITRE_SEJOUR'] },
-    { id: 'L431-2', titre: 'Titre de séjour - Renouvellement', date: '2024-01-01', juridiction: 'CESEDA', numero: 'L431-2', resume: "Le renouvellement du titre de séjour est subordonné au respect des conditions prévues pour sa délivrance...", url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042776780', themes: ['TITRE_SEJOUR'] },
-    { id: 'L521-1', titre: 'Expulsion - Conditions', date: '2024-01-01', juridiction: 'CESEDA', numero: 'L521-1', resume: "L'expulsion peut être prononcée si la présence en France d'un étranger constitue une menace grave pour l'ordre public...", url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042776900', themes: ['EXPULSION'] },
-    { id: 'L741-1', titre: "Demande d'asile - Procédure", date: '2024-01-01', juridiction: 'CESEDA', numero: 'L741-1', resume: "Tout étranger présent sur le territoire français et souhaitant demander l'asile se présente en personne...", url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042776700', themes: ['ASILE'] },
-    { id: 'L421-1', titre: 'Regroupement familial - Conditions', date: '2024-01-01', juridiction: 'CESEDA', numero: 'L421-1', resume: "Le ressortissant étranger qui séjourne régulièrement en France depuis au moins dix-huit mois peut demander à bénéficier du regroupement familial...", url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042776850', themes: ['REGROUPEMENT_FAMILIAL'] },
-    { id: 'L823-1', titre: 'Naturalisation - Conditions', date: '2024-01-01', juridiction: 'CESEDA', numero: 'L823-1', resume: "Nul ne peut être naturalisé s'il ne justifie d'une résidence habituelle en France pendant les cinq années qui précèdent le dépôt de sa demande...", url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042776600', themes: ['NATURALISATION'] },
-  ];
-
-  const q = query.toLowerCase();
-  return CESEDA_REFS.filter(r =>
-    r.titre.toLowerCase().includes(q) ||
-    r.resume.toLowerCase().includes(q) ||
-    r.numero.toLowerCase().includes(q) ||
-    r.themes.some(t => t.toLowerCase().includes(q))
-  ).slice(0, 10);
+function searchFallback(query: string, type: string, article: string | null = null) {
+  return filterFallbackRefs(query, type, article);
 }
 
 

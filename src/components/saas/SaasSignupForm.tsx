@@ -336,9 +336,11 @@ export function SaasSignupForm({ defaultPlan, defaultCabinet, source }: { defaul
               />
               <span className="text-sm text-gray-600">
                 J&apos;accepte les{' '}
-                <a href="/fr/legal/avocat" className="text-blue-600 underline">conditions générales</a>
-                {' '}et la{' '}
-                <a href="/fr/privacy" className="text-blue-600 underline">politique de confidentialité</a>.
+                <a href="/fr/legal/cgu" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">CGU/CGV</a>
+                , la{' '}
+                <a href="/fr/legal/confidentialite" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">politique de confidentialité (RGPD)</a>
+                {' '}et les{' '}
+                <a href="/fr/legal/mentions-legales" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">mentions légales</a>.
               </span>
             </label>
 

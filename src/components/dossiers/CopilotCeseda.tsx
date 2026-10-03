@@ -1,7 +1,29 @@
 'use client';
 
 import { useState } from "react"
-import { Brain, Shield, AlertTriangle, CheckCircle, FileText, Clock, Zap, TrendingUp, TrendingDown, Lock, Loader2, ChevronDown, ChevronRight, Scale } from "lucide-react"
+import { Brain, Shield, AlertTriangle, CheckCircle, FileText, Clock, Zap, TrendingUp, TrendingDown, Lock, Loader2, ChevronDown, ChevronRight, Scale, ExternalLink } from "lucide-react"
+
+interface CesedaArticle {
+  reference: string
+  objet: string
+  source?: "corpus" | "fallback"
+  texte?: string
+  version?: string
+  validFrom?: string
+  validUntil?: string | null
+  legifranceUrl?: string
+  eurlexUrl?: string
+}
+
+interface CesedaJurisprudence {
+  reference: string
+  principe: string
+  source?: "linked" | "fallback"
+  date?: string
+  juridiction?: string
+  numero?: string | null
+  url?: string | null
+}
 
 interface CopilotAnalysis {
   disclaimer: string
@@ -9,7 +31,14 @@ interface CopilotAnalysis {
   strengths: { label: string; explanation: string; confidence: number }[]
   weaknesses: { label: string; explanation: string; confidence: number }[]
   completeness: { score: number; missing: string[]; recommendation: string }
-  cesedaAnalysis: { procedure: string; articles: { reference: string; objet: string }[]; jurisprudences: { reference: string; principe: string }[]; recours: { type: string; juridiction: string; delai: string; conseil: string }[] }
+  cesedaAnalysis: {
+    procedure: string
+    articles: CesedaArticle[]
+    jurisprudences: CesedaJurisprudence[]
+    recours: { type: string; juridiction: string; delai: string; conseil: string }[]
+    referenceDate?: string
+    corpusUsed?: boolean
+  }
   deadlines: { label: string; daysRemaining?: number; riskLevel: string; explanation: string }[]
   blockages: { cause: string; severity: string; solution: string }[]
   actions: { priority: number; action: string; reason: string; type: string }[]
@@ -100,16 +129,67 @@ export default function CopilotCeseda({ dossierId }: { dossierId: string }) {
 
       {/* CESEDA */}
       <Card title="Analyse CESEDA" icon={Scale} color="purple">
+        {(analysis.cesedaAnalysis.referenceDate || analysis.cesedaAnalysis.corpusUsed !== undefined) && (
+          <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
+            {analysis.cesedaAnalysis.referenceDate && (
+              <span className="text-gray-500">
+                Règles au <span className="font-medium text-gray-700">{fmtDate(analysis.cesedaAnalysis.referenceDate)}</span>
+              </span>
+            )}
+            {analysis.cesedaAnalysis.corpusUsed
+              ? <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Corpus versionné</span>
+              : <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold">Références indicatives</span>}
+          </div>
+        )}
         {analysis.cesedaAnalysis.articles.length > 0 && (
           <div className="mb-3">
             <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Articles applicables</p>
-            {analysis.cesedaAnalysis.articles.slice(0, 5).map((a, i) => <div key={i} className="text-sm py-1 border-b border-gray-100 last:border-0"><span className="font-medium text-indigo-700">{a.reference}</span> — {a.objet}</div>)}
+            {analysis.cesedaAnalysis.articles.slice(0, 5).map((a, i) => (
+              <div key={i} className="text-sm py-1.5 border-b border-gray-100 last:border-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-indigo-700">{a.reference}</span>
+                  <SourceBadge source={a.source} />
+                  {a.version && <span className="text-[10px] text-gray-400">v{a.version}</span>}
+                  {a.legifranceUrl && (
+                    <a href={a.legifranceUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-600 hover:underline inline-flex items-center gap-0.5">
+                      Légifrance <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  )}
+                  {a.eurlexUrl && (
+                    <a href={a.eurlexUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-600 hover:underline inline-flex items-center gap-0.5">
+                      EUR-Lex <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  )}
+                </div>
+                <span className="text-gray-600">{a.objet}</span>
+                {(a.validFrom || a.validUntil !== undefined) && a.source === "corpus" && (
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    En vigueur {a.validFrom ? `du ${fmtDate(a.validFrom)}` : ""}{" "}
+                    {a.validUntil ? `au ${fmtDate(a.validUntil)}` : "(version courante)"}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         )}
         {analysis.cesedaAnalysis.jurisprudences.length > 0 && (
           <div className="mb-3">
             <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Jurisprudence pertinente</p>
-            {analysis.cesedaAnalysis.jurisprudences.slice(0, 3).map((j, i) => <div key={i} className="text-sm py-1 border-b border-gray-100 last:border-0"><span className="font-medium">{j.reference}</span><br /><span className="text-gray-600 text-xs">{j.principe}</span></div>)}
+            {analysis.cesedaAnalysis.jurisprudences.slice(0, 5).map((j, i) => (
+              <div key={i} className="text-sm py-1.5 border-b border-gray-100 last:border-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium">{j.reference}</span>
+                  <JurisSourceBadge source={j.source} />
+                  {j.date && <span className="text-[10px] text-gray-400">{fmtDate(j.date)}</span>}
+                  {j.url && (
+                    <a href={j.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-600 hover:underline inline-flex items-center gap-0.5">
+                      Décision <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  )}
+                </div>
+                <span className="text-gray-600 text-xs">{j.principe}</span>
+              </div>
+            ))}
           </div>
         )}
         {analysis.cesedaAnalysis.recours.length > 0 && (
@@ -218,4 +298,34 @@ function ActionBadge({ type }: { type: string }) {
   }
   const c = config[type] || config.verification
   return <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${c.color}`}>{c.label}</span>
+}
+
+// ─── PROVENANCE (corpus versionné vs références indicatives) ──
+
+function SourceBadge({ source }: { source?: "corpus" | "fallback" }) {
+  if (source === "corpus") {
+    return <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase" title="Texte issu du corpus juridique versionné (Légifrance)">Corpus</span>
+  }
+  if (source === "fallback") {
+    return <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 text-[9px] font-bold uppercase" title="Référence indicative locale — à vérifier sur Légifrance">Indicatif</span>
+  }
+  return null
+}
+
+function JurisSourceBadge({ source }: { source?: "linked" | "fallback" }) {
+  if (source === "linked") {
+    return <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase" title="Décision réelle liée à l'article (base de jurisprudence)">Liée</span>
+  }
+  if (source === "fallback") {
+    return <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 text-[9px] font-bold uppercase" title="Jurisprudence de référence indicative — à vérifier">Indicatif</span>
+  }
+  return null
+}
+
+/** Formate une date ISO en JJ/MM/AAAA (locale fr), robuste aux valeurs invalides. */
+function fmtDate(iso?: string | null): string {
+  if (!iso) return ""
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ""
+  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })
 }

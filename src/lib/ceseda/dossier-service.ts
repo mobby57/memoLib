@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { calendarDaysUntil } from '@/lib/services/deadlineExtractor'
 
 export type TypeDossier = 'OQTF' | 'ASILE' | 'TITRE_SEJOUR' | 'NATURALISATION' | 'VISA'
 export type Priorite = 'CRITIQUE' | 'HAUTE' | 'NORMALE'
@@ -61,9 +62,9 @@ export class CesedaService {
     if (!echeance) return 'NORMALE'
 
     const now = new Date()
-    const msPerDay = 1000 * 60 * 60 * 24
     const msPerHour = 1000 * 60 * 60
-    const daysUntilDeadline = Math.ceil((echeance.getTime() - now.getTime()) / msPerDay)
+    // Jours calendaires restants (deterministe, insensible a l'heure et au DST).
+    const daysUntilDeadline = calendarDaysUntil(echeance, now)
     const hoursUntilDeadline = Math.ceil((echeance.getTime() - now.getTime()) / msPerHour)
 
     switch (type) {

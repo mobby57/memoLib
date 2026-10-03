@@ -9,6 +9,8 @@ vi.mock('@prisma/client', () => ({
       findUnique: vi.fn().mockResolvedValue(null),
       update: vi.fn().mockResolvedValue({}),
     };
+    // Middleware API Prisma 5 (utilisee par createRealClient dans src/lib/prisma.ts)
+    $use = vi.fn();
     $disconnect = vi.fn();
   },
 }));

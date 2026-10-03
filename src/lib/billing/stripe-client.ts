@@ -5,11 +5,15 @@
 
 import Stripe from 'stripe';
 
-if (process.env.NEXT_PHASE !== 'phase-production-build' && !process.env.STRIPE_SECRET_KEY) {
-  console.warn('STRIPE_SECRET_KEY non définie : paiements désactivés.');
+const stripeSecret = process.env.STRIPE_SECRET_KEY?.trim();
+const canUseStripePlaceholder =
+  process.env.NEXT_PHASE === 'phase-production-build' || process.env.NODE_ENV === 'test';
+
+if (!stripeSecret && !canUseStripePlaceholder) {
+  throw new Error('STRIPE_SECRET_KEY est obligatoire hors des builds et tests.');
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_dummy', {
+export const stripe = new Stripe(stripeSecret ?? 'sk_test_placeholder', {
   apiVersion: '2026-02-25.clover',
   typescript: true,
 });
@@ -174,4 +178,3 @@ export async function createStripeProduct(params: {
     metadata: params.metadata,
   });
 }
-

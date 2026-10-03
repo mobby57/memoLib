@@ -127,11 +127,56 @@ interface CompletenessAnalysis {
   recommendation: string;
 }
 
+interface CesedaArticleItem {
+  reference: string;
+  objet: string;
+  pertinence: string;
+  /**
+   * Provenance de l'article :
+   * - 'corpus'   : texte issu du corpus versionné (LegalReference), à jour à la date demandée.
+   * - 'fallback' : constante locale (aucun corpus ingéré pour cet article).
+   */
+  source?: 'corpus' | 'fallback';
+  /** Texte intégral en vigueur à la date de référence (si disponible via le corpus). */
+  texte?: string;
+  /** Version du corpus (ex: "2026-10-01"). */
+  version?: string;
+  /** Début de validité (ISO) de la version retenue. */
+  validFrom?: string;
+  /** Fin de validité (ISO) de la version retenue (null = encore en vigueur). */
+  validUntil?: string | null;
+  /** URL Légifrance de l'article. */
+  legifranceUrl?: string;
+  /** URL EUR-Lex (textes européens liés, ex: Pacte migration/asile). */
+  eurlexUrl?: string;
+}
+
+interface CesedaJurisprudenceItem {
+  reference: string;
+  principe: string;
+  pertinence: string;
+  /** 'linked' : décision réelle liée via relatedArticles ; 'fallback' : constante locale. */
+  source?: 'linked' | 'fallback';
+  /** Articles CESEDA concernés par la décision (clés normalisées). */
+  articles?: string[];
+  date?: string;
+  juridiction?: string;
+  numero?: string | null;
+  url?: string | null;
+}
+
 interface CesedaArticleAnalysis {
   procedure: string;
-  articles: { reference: string; objet: string; pertinence: string }[];
-  jurisprudences: { reference: string; principe: string; pertinence: string }[];
+  articles: CesedaArticleItem[];
+  jurisprudences: CesedaJurisprudenceItem[];
   recours: { type: string; juridiction: string; delai: string; conseil: string }[];
+  /**
+   * Date de référence utilisée pour sélectionner la version des articles.
+   * Permet à l'avocat de savoir "à quelle date" la règle citée s'applique.
+   */
+  referenceDate?: string;
+  /** true si au moins un article provient du corpus versionné. */
+  corpusUsed?: boolean;
 }
 
 interface DeadlineRisk {
@@ -199,6 +244,167 @@ export function analyzeDossier(dossier: DossierInput): CopilotAnalysis {
     actions: agentActions(dossier, type),
     confidence: computeGlobalConfidence(dossier),
   };
+}
+
+// ─── ENRICHISSEMENT PAR LE CORPUS VERSIONNÉ ──────────────────
+//
+// `analyzeDossier` reste SYNCHRONE et repose sur les constantes locales
+// (comportement historique inchangé). `analyzeDossierWithCorpus` est la
+// variante ASYNCHRONE qui, en plus, consulte le corpus juridique versionné
+// (LegalReference) pour :
+//   1. remplacer le texte/URL des articles par la version EN VIGUEUR à la date
+//      pertinente du dossier (date de l'événement / de la demande),
+//   2. tracer la provenance (corpus vs fallback) et la fenêtre de validité.
+//
+// Si le corpus est vide (non ingéré) ou indisponible, on retombe proprement
+// sur l'analyse par constantes : aucune régression.
+
+/** Normalise une référence type "Art. L611-1 CESEDA" vers la clé corpus "L611-1". */
+export function extractArticleKey(reference: string): string | null {
+  // Capture les formes L611-1, R431-2, D123-4, éventuellement avec points/espaces.
+  const match = reference.match(/\b([LRD])\.?\s?(\d+)\s?-\s?(\d+)\b/i);
+  if (!match) return null;
+  return `${match[1].toUpperCase()}${match[2]}-${match[3]}`;
+}
+
+/**
+ * Détermine la date de référence pour sélectionner la version des articles.
+ * Priorité : date de création du dossier (proxy de la date des faits/demande),
+ * sinon maintenant. L'appelant peut forcer une date explicite.
+ */
+function resolveReferenceDate(dossier: DossierInput, explicit?: Date): Date {
+  if (explicit) return explicit;
+  const created = dossier.dateCreation ? new Date(dossier.dateCreation) : null;
+  if (created && !Number.isNaN(created.getTime())) return created;
+  return new Date();
+}
+
+/**
+ * Enrichit une CesedaArticleAnalysis avec le corpus versionné.
+ * Importé dynamiquement pour ne pas coupler le module synchrone à Prisma.
+ */
+export async function enrichCesedaAnalysisWithCorpus(
+  base: CesedaArticleAnalysis,
+  referenceDate: Date,
+): Promise<CesedaArticleAnalysis> {
+  const { getArticlesAtDate } = await import('@/lib/legal/legal-reference-service');
+
+  // Mappe chaque référence d'article vers sa clé corpus.
+  const keyByReference = new Map<string, string>();
+  for (const item of base.articles) {
+    const key = extractArticleKey(item.reference);
+    if (key) keyByReference.set(item.reference, key);
+  }
+
+  const keys = [...new Set(keyByReference.values())];
+  const corpusVersions = await getArticlesAtDate(keys, { at: referenceDate });
+  const byKey = new Map(corpusVersions.map((v) => [v.article, v]));
+
+  let corpusUsed = false;
+  const articles: CesedaArticleItem[] = base.articles.map((item) => {
+    const key = keyByReference.get(item.reference);
+    const version = key ? byKey.get(key) : undefined;
+    if (!version) {
+      return { ...item, source: 'fallback' as const };
+    }
+    corpusUsed = true;
+    return {
+      ...item,
+      source: 'corpus' as const,
+      objet: version.summary || item.objet,
+      texte: version.content,
+      version: version.version ?? undefined,
+      validFrom: version.validFrom?.toISOString(),
+      validUntil: version.validUntil ? version.validUntil.toISOString() : null,
+      legifranceUrl: version.legifranceUrl ?? undefined,
+      eurlexUrl: version.eurlexUrl ?? undefined,
+    };
+  });
+
+  // Jurisprudence réelle liée aux articles (relatedArticles), à la date du dossier.
+  const jurisprudences = await enrichJurisprudence(base, keys, referenceDate);
+
+  return {
+    ...base,
+    articles,
+    jurisprudences,
+    referenceDate: referenceDate.toISOString(),
+    corpusUsed,
+  };
+}
+
+/**
+ * Construit la liste de jurisprudences : décisions RÉELLES liées aux articles du
+ * dossier (via Jurisprudence.relatedArticles) si disponibles, sinon repli sur
+ * les constantes `JURISPRUDENCE_CLE`. Déduplique par référence.
+ */
+async function enrichJurisprudence(
+  base: CesedaArticleAnalysis,
+  articleKeys: string[],
+  referenceDate: Date,
+): Promise<CesedaJurisprudenceItem[]> {
+  const fallback: CesedaJurisprudenceItem[] = base.jurisprudences.map((j) => ({
+    ...j,
+    source: 'fallback' as const,
+  }));
+
+  if (articleKeys.length === 0) return fallback;
+
+  try {
+    const { getJurisprudenceForArticles } = await import('@/lib/legal/jurisprudence-service');
+    const byArticle = await getJurisprudenceForArticles(articleKeys, { at: referenceDate, limit: 3 });
+    if (byArticle.size === 0) return fallback;
+
+    const seen = new Set<string>();
+    const linked: CesedaJurisprudenceItem[] = [];
+    for (const [articleKey, decisions] of byArticle) {
+      for (const d of decisions) {
+        const ref = d.numero ? `${d.juridiction} ${d.numero}` : d.titre;
+        if (seen.has(ref)) continue;
+        seen.add(ref);
+        linked.push({
+          reference: ref,
+          principe: d.solution || d.resume || d.titre,
+          pertinence: `Cite l'article ${articleKey}`,
+          source: 'linked',
+          articles: d.relatedArticles,
+          date: d.date.toISOString(),
+          juridiction: d.juridiction,
+          numero: d.numero,
+          url: d.url,
+        });
+      }
+    }
+
+    // Si rien de concret n'a pu être construit, on garde le fallback.
+    return linked.length > 0 ? linked : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Variante asynchrone de `analyzeDossier` qui consulte le corpus versionné pour
+ * la section CESEDA. Le reste de l'analyse est identique à `analyzeDossier`.
+ *
+ * @param dossier Données du dossier.
+ * @param options.referenceDate Force la date de sélection des versions
+ *   (défaut : date de création du dossier, proxy de la date des faits).
+ */
+export async function analyzeDossierWithCorpus(
+  dossier: DossierInput,
+  options: { referenceDate?: Date } = {},
+): Promise<CopilotAnalysis> {
+  const base = analyzeDossier(dossier);
+  const referenceDate = resolveReferenceDate(dossier, options.referenceDate);
+
+  try {
+    const enriched = await enrichCesedaAnalysisWithCorpus(base.cesedaAnalysis, referenceDate);
+    return { ...base, cesedaAnalysis: enriched };
+  } catch {
+    // Corpus indisponible : on renvoie l'analyse par constantes, inchangée.
+    return base;
+  }
 }
 
 // ─── AGENT : RÉSUMÉ STRATÉGIQUE ─────────────────────────────
