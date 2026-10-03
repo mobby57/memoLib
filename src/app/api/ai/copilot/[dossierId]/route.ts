@@ -1,7 +1,7 @@
 import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { analyzeDossier, type DossierInput } from '@/lib/ai/copilot/copilot-ceseda';
+import { analyzeDossierWithCorpus, type DossierInput } from '@/lib/ai/copilot/copilot-ceseda';
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { sanitizePromptForAI } from '@/lib/ai/prompt-sanitizer';
 import { z } from 'zod';
@@ -67,7 +67,10 @@ export const GET = withAIRateLimit(async (
     documents: dossier.documents.map(d => ({ name: d.name || '', type: d.type || '' })),
   };
 
-  const analysis = analyzeDossier(input);
+  // Analyse enrichie par le corpus versionné (LegalReference) : la section
+  // CESEDA cite la version des articles en vigueur à la date du dossier.
+  // Fallback automatique sur les constantes locales si le corpus est vide.
+  const analysis = await analyzeDossierWithCorpus(input);
 
   return NextResponse.json(analysis);
 });

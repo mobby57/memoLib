@@ -1,7 +1,3 @@
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Middleware Feature Gate — MemoLib
  *

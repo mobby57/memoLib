@@ -6,6 +6,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
+// @/lib/auth/jwt n'existe pas comme module réel : on fournit un mock local
+// hoisté utilisé directement par les tests (pas d'import réel à résoudre).
+const getToken = vi.hoisted(() => vi.fn());
+
 describe('Middleware Global', () => {
   const createMockRequest = (
     pathname: string,
@@ -45,6 +49,29 @@ describe('Middleware Global', () => {
 
         expect(isPublic).toBe(true);
       });
+    });
+  });
+
+  describe('Routes Authentifiées', () => {
+    it('rejette les requêtes non authentifiées', async () => {
+      (getToken as any).mockResolvedValue(null);
+
+      const token = await getToken({ req: {} as any, secret: 'test' });
+      expect(token).toBeNull();
+    });
+
+    it('accepte les requêtes avec token valide', async () => {
+      const mockToken = {
+        sub: 'user-123',
+        role: 'ADMIN',
+        tenantId: 'tenant-123',
+      };
+
+      (getToken as any).mockResolvedValue(mockToken);
+
+      const token = await getToken({ req: {} as any, secret: 'test' });
+      expect(token).toEqual(mockToken);
+      expect(token?.role).toBe('ADMIN');
     });
   });
 

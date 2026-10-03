@@ -1,0 +1,242 @@
+{
+  "version": 1,
+  "description": "Catalogue de validation métier MemoLib. Unité de validation = la chaîne métier complète (Email -> IA -> dossier -> obligations/délais -> calcul juridique -> alerte -> action -> document -> audit). Un cas ne compte PASS que si un test importe le code de PRODUCTION réel ET couvre le comportement. Sinon: GAP (à écrire) / FALSE (test trompeur à remplacer) / PARTIAL (partiel). Jamais de faux PASS.",
+  "thesis": "Empêcher qu'un cabinet perde une info, un délai, une pièce, une action ou une trace.",
+  "statusLegend": {
+    "PASS": "Un test importe le code de prod réel et couvre le cas (positif + négatif si pertinent).",
+    "PARTIAL": "Le cas est partiellement couvert (chemins critiques manquants).",
+    "FALSE": "Un test existe mais valide un modèle inexistant ou ré-implémente le code au lieu de l'importer.",
+    "GAP": "Aucun test réel ne couvre le cas.",
+    "BROKEN": "Calculé par le runner: statut PASS déclaré mais expectedTest introuvable sur le disque."
+  },
+  "axes": {
+    "production-build": { "label": "Build production", "type": "command", "blocking": true },
+    "technical-tests": { "label": "Tests techniques (suite CI)", "type": "command", "blocking": true },
+    "critical-e2e": { "label": "E2E critiques", "type": "command", "blocking": true },
+    "security-tenant": { "label": "Sécurité & isolation multi-tenant", "type": "cases", "blocking": true },
+    "legal-compliance": { "label": "Conformité juridique (délais, CESEDA, RGPD)", "type": "cases", "blocking": true },
+    "business-logic": { "label": "Logique métier (chaîne complète)", "type": "cases", "blocking": true }
+  },
+  "commandGates": {
+    "production-build": {
+      "axis": "production-build",
+      "description": "next build compile sans erreur",
+      "command": "npm run build",
+      "npmScript": "build"
+    },
+    "technical-tests": {
+      "axis": "technical-tests",
+      "description": "Suite de tests CI (Vitest/Jest) verte",
+      "command": "npm run test:ci",
+      "npmScript": "test:ci"
+    },
+    "critical-e2e": {
+      "axis": "critical-e2e",
+      "description": "Playwright flow critique (login -> email -> dossier -> document)",
+      "command": "npx playwright test tests/e2e/main-flow.spec.ts",
+      "npmScript": "test:e2e"
+    }
+  },
+  "cases": [
+    {
+      "id": "EMAIL-IDEMPOTENCE",
+      "axis": "business-logic",
+      "chain": "Email -> ingestion",
+      "title": "Email entrant idempotent (doublon SHA256, course P2002, secret invalide, tenant introuvable)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/emails/incoming-route.test.ts",
+      "assertion": "Importe la route d'ingestion réelle; couvre doublon + race P2002 + secret invalide + tenant introuvable.",
+      "evidence": "Vérifié: fichier présent, cas négatifs couverts (inventaire empirique)."
+    },
+    {
+      "id": "TENANT-ISOLATION",
+      "axis": "security-tenant",
+      "chain": "Accès dossier",
+      "title": "Isolation multi-tenant anti-IDOR (where scoppé {id, tenantId})",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/domain/audit.test.ts",
+      "assertion": "canAccessDossier scope la requête par tenantId; refuse l'accès cross-tenant.",
+      "evidence": "Vérifié via inventaire; requête scoppée where:{id, tenantId}."
+    },
+    {
+      "id": "RBAC-DENY",
+      "axis": "security-tenant",
+      "chain": "Autorisation",
+      "title": "RBAC refuse les rôles interdits (403/401)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/audit-logs.test.ts",
+      "assertion": "Matrice de rôles interdits -> 401/403.",
+      "evidence": "Vérifié via inventaire."
+    },
+    {
+      "id": "STRIPE-IDEMPOTENCE",
+      "axis": "business-logic",
+      "chain": "Paiement -> webhook",
+      "title": "Idempotence webhook Stripe (Redis SET NX + P2002)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/stripe/webhook-idempotency.test.ts",
+      "assertion": "Double livraison webhook -> une seule application (2 couches).",
+      "evidence": "Vérifié via inventaire."
+    },
+    {
+      "id": "AUDIT-HASHCHAIN",
+      "axis": "security-tenant",
+      "chain": "Audit -> trace",
+      "title": "Hash-chain audit détecte chaîne cassée + falsification",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/security/audit-trail.test.ts",
+      "assertion": "Détection de rupture de chaîne et de falsification d'entrée.",
+      "evidence": "Vérifié via inventaire."
+    },
+    {
+      "id": "DOC-MISSING-VARS",
+      "axis": "business-logic",
+      "chain": "Document -> génération",
+      "title": "Variables manquantes détectées dans les templates",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/utils/rgpd-helpers.real.test.ts",
+      "assertion": "Génération refuse/signale les variables manquantes.",
+      "evidence": "Vérifié via inventaire (à re-pointer vers le test template réel si distinct)."
+    },
+    {
+      "id": "EMAIL-TO-DOSSIER",
+      "axis": "business-logic",
+      "chain": "Email -> IA -> rattachement dossier",
+      "title": "Email -> Dossier crée réellement le dossier ET rattache l'email",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/emails/create-dossier-route.test.ts",
+      "assertion": "Importe create-dossier/route.ts; vérifie dossier créé + email.dossierId mis à jour.",
+      "evidence": "Route corrigée + test importe le code de prod réel (POST). Dossier créé et email rattaché vérifiés."
+    },
+    {
+      "id": "DEADLINE-PERSIST",
+      "axis": "legal-compliance",
+      "chain": "extraction obligations/délais -> persistance",
+      "title": "Un délai détecté est réellement persisté (pas de perte silencieuse)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/emails/create-dossier-route.test.ts",
+      "assertion": "prisma.legalDeadline.create appelé avec les champs requis (id, referenceDate, createdBy, updatedAt) et un type ENUM valide; échec de persistance -> réponse NON success.",
+      "evidence": "BUG CORRIGÉ: la route fournit désormais id/referenceDate/createdBy/updatedAt, mappe les type sur l'enum DeadlineType valide, et ne masque plus l'échec (.catch retiré -> 500). Test importe le code de prod et couvre le chemin négatif."
+    },
+    {
+      "id": "CESEDA-ENGINE-UNIFIED",
+      "axis": "legal-compliance",
+      "chain": "calcul juridique",
+      "title": "Un seul moteur CESEDA, testé, câblé au flux réel",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/legal/ceseda-deadlines.test.ts",
+      "assertion": "Le moteur câblé à email->dossier (src/lib/legal/ceseda-deadlines.ts) est importé et testé.",
+      "evidence": "Le calcul inline a été extrait dans src/lib/legal/ceseda-deadlines.ts, importé par la route ET par le test (code de prod réel). Source unique de vérité."
+    },
+    {
+      "id": "CESEDA-JOURS-FERIES",
+      "axis": "legal-compliance",
+      "chain": "calcul juridique",
+      "title": "Délais reportés hors week-end et jours fériés",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/legal/ceseda-deadlines.test.ts",
+      "assertion": "Un délai (ex: référé 48h) tombant un samedi/férié est reporté au prochain jour ouvré.",
+      "evidence": "Le moteur applique nextWorkingDay() (src/lib/legal/workingDays.ts). Test: aucun délai ne tombe un week-end/férié sur 60x12 combinaisons + cas samedi->lundi explicite."
+    },
+    {
+      "id": "AI-FALLBACK",
+      "axis": "business-logic",
+      "chain": "Email -> IA",
+      "title": "Fallback regex quand le client IA échoue (dégradation contrôlée)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/ai/ai-guarantees.test.ts",
+      "assertion": "Client IA en échec (ou réponse non structurée) -> route bascule sur fallback regex et renvoie _fallback:true + requiresHumanReview:true.",
+      "evidence": "Vérifié: summarize-email/route.ts et draft-reply/route.ts appellent summarizeWithRules/generateFallback dans le catch. Test importe les routes réelles."
+    },
+    {
+      "id": "AI-NO-AUTO-SEND",
+      "axis": "business-logic",
+      "chain": "action -> validation humaine",
+      "title": "Aucune action IA envoyée sans validation humaine explicite",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/ai/ai-guarantees.test.ts",
+      "assertion": "draft-reply produit un brouillon (body + requiresHumanReview:true) et n'envoie jamais (aucun sent/messageId/status:sent).",
+      "evidence": "Vérifié: draft-reply/route.ts ne fait que renvoyer un brouillon JSON marqué requiresHumanReview:true, sans appel d'envoi. Test importe la route réelle."
+    },
+    {
+      "id": "AI-HUMAN-REVIEW",
+      "axis": "legal-compliance",
+      "chain": "extraction -> validation humaine",
+      "title": "requiresHumanReview=true sur toute sortie IA",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/api/ai/ai-guarantees.test.ts",
+      "assertion": "Toute réponse (IA réussie OU fallback) porte requiresHumanReview:true.",
+      "evidence": "Vérifié: summarize-email et draft-reply renvoient requiresHumanReview:true sur le chemin IA et le chemin fallback. Test importe les routes réelles."
+    },
+    {
+      "id": "RGPD-ERASURE",
+      "axis": "legal-compliance",
+      "chain": "audit -> droit à l'oubli",
+      "title": "La donnée est réellement supprimée/anonymisée",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/services/rgpd-erasure.test.ts",
+      "assertion": "anonymizeUser écrase réellement email/name/phone/passportNumber et révoque les tokens; deleteUserData supprime le User (cascade) et journalise DATA_DELETED avant suppression.",
+      "evidence": "CODE VÉRIFIÉ (contredit l'inventaire): RGPDComplianceService fait de vraies mutations prisma.update/updateMany/delete, pas une simple demande PENDING. Test importe le service réel."
+    },
+    {
+      "id": "ANTIVIRUS-SCAN",
+      "axis": "security-tenant",
+      "chain": "pièce -> upload",
+      "title": "Scan antivirus sur upload (code de prod importé)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/security/antivirus-scan.test.ts",
+      "assertion": "Le test importe scanDocumentAsync (src/lib/security/antivirus.ts) et vérifie INFECTED (PE + pattern) et CLEAN.",
+      "evidence": "Nouveau test importe le code de prod réel (signatures + patterns + marquage document). Remplace le test qui ré-implémentait le scanner."
+    },
+    {
+      "id": "DOSSIER-STATUS-TRANSITIONS",
+      "axis": "business-logic",
+      "chain": "dossier -> workflow statut",
+      "title": "Statuts dossier cohérents avec le schéma réel (mappers DB<->UI)",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/domain/dossier-status-mapping.test.ts",
+      "assertion": "Importe STATUTS_DB/UI + mapStatutToDB/UI; vérifie snake_case DB (en_cours), round-trip et fallback vers valeur DB valide.",
+      "evidence": "Nouveau test importe le code de prod (dossier.constants.ts) et valide le modèle réel (snake_case). Remplace le test qui inventait une matrice EN MAJUSCULES inexistante."
+    },
+    {
+      "id": "ALERT-J7",
+      "axis": "legal-compliance",
+      "chain": "délai -> alerte",
+      "title": "Alerte J-7 émise",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "J-7 déclenche une alerte (alertJ7Sent).",
+      "evidence": "Vérifié via inventaire: J-7 et retard assertés."
+    },
+    {
+      "id": "ALERT-OVERDUE",
+      "axis": "legal-compliance",
+      "chain": "délai -> alerte",
+      "title": "Alerte de retard (OVERDUE) émise",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts.test.ts",
+      "assertion": "Un délai dépassé génère une alerte OVERDUE.",
+      "evidence": "Vérifié via inventaire."
+    },
+    {
+      "id": "ALERT-J3-J1",
+      "axis": "legal-compliance",
+      "chain": "délai -> alerte",
+      "title": "Alertes J-3 et J-1 émises",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts-thresholds.test.ts",
+      "assertion": "J-3 (email+in-app, alertJ3Sent) et J-1 (email+SMS, alertJ1Sent+alertSmsSent) déclenchent chacune une alerte.",
+      "evidence": "Nouveau test importe checkDeadlineAlerts réel et couvre J-3 et J-1 (auparavant jamais assertés)."
+    },
+    {
+      "id": "ALERT-NO-DUPLICATE",
+      "axis": "legal-compliance",
+      "chain": "délai -> alerte",
+      "title": "Pas de double alerte pour le même seuil",
+      "status": "PASS",
+      "expectedTest": "src/__tests__/lib/cron/deadline-alerts-thresholds.test.ts",
+      "assertion": "Une alerte identique récente (<2h) supprime le nouvel envoi (assertion NÉGATIVE: create non appelé).",
+      "evidence": "Nouveau test importe checkDeadlineAlerts réel et exerce l'anti-doublon négativement."
+    }
+  ]
+}

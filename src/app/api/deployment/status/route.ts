@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * Phase 6 Status: Production Deployment Ready
  *

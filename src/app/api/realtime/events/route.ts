@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route pour les événements en temps réel (SSE)
  * Permet aux clients de recevoir des mises à jour en temps réel

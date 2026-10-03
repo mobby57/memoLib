@@ -1,5 +1,3 @@
-// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
 /**
  * Tests unitaires pour l'authentification NextAuth
  * Couvre les callbacks, la validation des credentials

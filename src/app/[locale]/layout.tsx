@@ -1,4 +1,5 @@
 import { getBaseUrl, SITE_DESCRIPTION, SITE_NAME } from '@/lib/metadata';
+import { ClerkProvider } from '@clerk/nextjs';
 import { Providers } from './providers';
 import { LayoutWrapper } from '@/components/LayoutWrapper';
 import ConsentBanner from '@/components/compliance/ConsentBanner';
@@ -35,10 +36,12 @@ export default async function LocaleLayout({
           __html: JSON.stringify(structuredData),
         }}
       />
-      <Providers>
-        <LayoutWrapper>{children}</LayoutWrapper>
-        <ConsentBanner />
-      </Providers>
+      <ClerkProvider>
+        <Providers>
+          <LayoutWrapper>{children}</LayoutWrapper>
+          <ConsentBanner />
+        </Providers>
+      </ClerkProvider>
     </>
   );
 }

@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { logger } from '@/lib/logger';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { createContextualNotification } from '@/lib/workflows/notification-engine';

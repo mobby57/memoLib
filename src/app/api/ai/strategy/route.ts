@@ -1,6 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { NextRequest, NextResponse } from 'next/server';
 import { withAIRateLimit } from '@/lib/middleware/rate-limit';
 import { z } from 'zod';

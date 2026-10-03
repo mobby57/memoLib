@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/hooks/useAuth';
 
-
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useMemo, useState } from 'react';

@@ -7,7 +7,6 @@ import { useAuth } from '@/hooks/useAuth';
  */
 
 
-
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 

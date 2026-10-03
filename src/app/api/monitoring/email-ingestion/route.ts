@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { getEmailIngestionMetricsSnapshot, resetEmailIngestionMetrics } from '@/lib/email/ingestion-metrics';
 import { NextRequest, NextResponse } from 'next/server';
 

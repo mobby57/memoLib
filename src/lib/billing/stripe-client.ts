@@ -5,13 +5,39 @@
 
 import Stripe from 'stripe';
 
-if (process.env.NEXT_PHASE !== 'phase-production-build' && !process.env.STRIPE_SECRET_KEY) {
-  console.warn('STRIPE_SECRET_KEY non définie : paiements désactivés.');
+// Instanciation PARESSEUSE du client Stripe.
+//
+// Pourquoi : importer ce module ne doit PAS construire un client Stripe. Sinon,
+// la simple presence de l'import (ex. dans /api/billing/checkout) instancie le
+// client pendant la collecte page-data de `next build`, ce qui echoue quand
+// STRIPE_SECRET_KEY n'est pas disponible au build (Vercel) :
+//   "Neither apiKey nor config.authenticator provided".
+//
+// Le vrai client n'est construit qu'au PREMIER acces a une propriete (premiere
+// requete au runtime), ou la variable d'environnement est bien presente.
+function createRealStripe(): Stripe {
+  const stripeSecret = process.env.STRIPE_SECRET_KEY?.trim();
+  const isBuildOrTest =
+    process.env.NEXT_PHASE === 'phase-production-build' || process.env.NODE_ENV === 'test';
+
+  if (!stripeSecret && !isBuildOrTest) {
+    throw new Error('STRIPE_SECRET_KEY est obligatoire hors des builds et tests.');
+  }
+
+  return new Stripe(stripeSecret || 'sk_test_placeholder', {
+    apiVersion: '2026-02-25.clover',
+    typescript: true,
+  });
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_dummy', {
-  apiVersion: '2026-02-25.clover',
-  typescript: true,
+let stripeInstance: Stripe | null = null;
+
+export const stripe: Stripe = new Proxy({} as Stripe, {
+  get(_target, prop, receiver) {
+    stripeInstance ??= createRealStripe();
+    const value = Reflect.get(stripeInstance as object, prop, receiver);
+    return typeof value === 'function' ? value.bind(stripeInstance) : value;
+  },
 });
 
 /**
@@ -174,4 +200,3 @@ export async function createStripeProduct(params: {
     metadata: params.metadata,
   });
 }
-

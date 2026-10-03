@@ -422,6 +422,13 @@ export class RGPDComplianceService {
 
     const deletedRecords: { [tableName: string]: number } = {};
 
+    // Email de l'utilisateur (avant suppression) pour purger les demandes
+    // d'intake associées (clés par email, pas par userId).
+    const userForEmail = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+
     // Compter avant suppression
     const chatMessages = await prisma.chatMessage.count({ where: { userId } });
     const chatSessions = await prisma.chatSession.count({ where: { userId } });
@@ -462,6 +469,19 @@ export class RGPDComplianceService {
     });
 
     deletedRecords['users'] = 1;
+
+    // Purge RGPD des demandes d'intake liées à l'email (droit à l'oubli).
+    // Non bloquant : un échec ici ne doit pas annuler la suppression du compte.
+    if (userForEmail?.email) {
+      try {
+        const { purgeIntakeByClientEmail } = await import('@/lib/services/intake.service');
+        const intakePurge = await purgeIntakeByClientEmail(tenantId, userForEmail.email, requestedBy);
+        deletedRecords['intake_requests'] = intakePurge.purgedRequests;
+        deletedRecords['intake_files'] = intakePurge.purgedFiles;
+      } catch {
+        deletedRecords['intake_requests'] = 0;
+      }
+    }
 
     const totalDeleted = Object.values(deletedRecords).reduce((a, b) => a + b, 0);
 

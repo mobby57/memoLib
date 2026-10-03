@@ -54,9 +54,9 @@ describe('types/cesda - Types et constantes CESDA', () => {
       expect(ProcedureType.NATURALISATION).toBe('NATURALISATION');
     });
 
-    test('a 6 types de procédures', () => {
+    test('a 8 types de procédures', () => {
       const types = Object.values(ProcedureType);
-      expect(types.length).toBe(6);
+      expect(types.length).toBe(8);
     });
   });
 

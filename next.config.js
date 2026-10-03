@@ -13,6 +13,12 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  eslint: {
+    // Le lint est execute par le job CI dedie ("Build & Test"). On le desactive
+    // pendant `next build` pour eviter que la detection de config ESLint (flat
+    // config + Next 15) ne bloque le deploiement Vercel. Le type-check reste strict.
+    ignoreDuringBuilds: true,
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

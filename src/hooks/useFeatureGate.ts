@@ -1,6 +1,4 @@
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement import useSession
+'use client';
 /**
  * Hook React — Feature Gate Client
  *
@@ -15,7 +13,6 @@
  *   }
  */
 
-'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';

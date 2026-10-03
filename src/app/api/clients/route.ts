@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { cacheDelete, cacheInvalidatePattern, cacheThrough, TTL_TIERS } from '@/lib/cache';
 import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';

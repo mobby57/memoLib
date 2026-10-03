@@ -124,11 +124,20 @@ describe('emailService.ts — Full Coverage', () => {
 
   describe('sendEmail', () => {
     it('should simulate sending and return true', async () => {
-      const result = await sendEmail({
-        to: [{ email: 'test@test.com', name: 'Test' }],
-        template: { subject: 'Test', htmlBody: '<p>Hello</p>', textBody: 'Hello' },
-      });
-      expect(result).toBe(true);
+      // Mode simulation deterministe : pas de cle Resend, hors production.
+      // On neutralise toute variable heritee de l'environnement machine/CI
+      // pour que le test valide bien le chemin "simulation".
+      vi.stubEnv('NODE_ENV', 'test');
+      vi.stubEnv('RESEND_API_KEY', '');
+      try {
+        const result = await sendEmail({
+          to: [{ email: 'test@test.com', name: 'Test' }],
+          template: { subject: 'Test', htmlBody: '<p>Hello</p>', textBody: 'Hello' },
+        });
+        expect(result).toBe(true);
+      } finally {
+        vi.unstubAllEnvs();
+      }
     });
   });
 });

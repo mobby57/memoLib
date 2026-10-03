@@ -162,6 +162,9 @@ security-backup-*/
 /cookie.txt
 /memolib-audit.zip
 /semgrep-*.sarif
+
+# Generated validation/maturity reports (reproducible via scripts/*.js)
+/reports/
 /.agents/
 /.claude/
 /.kiro/
@@ -187,3 +190,6 @@ gen-*.sh
 
 # Fichiers Next.js
 .next/
+
+# Git worktrees (ne pas committer comme sous-module)
+.worktrees/

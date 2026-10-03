@@ -13,6 +13,7 @@ import { Download, Trash2, History, Tag, Filter } from 'lucide-react'
 import { Button } from '@/components/forms/Button'
 import { useToast } from '@/hooks'
 import { Modal } from '@/components/forms/Modal'
+import { Alert } from '@/components/ui/Alert'
 
 export default function DocumentsPage() {
   const [files, setFiles] = useState<StoredFile[]>([])
@@ -20,6 +21,8 @@ export default function DocumentsPage() {
   const [selectedFile, setSelectedFile] = useState<StoredFile | null>(null)
   const [selectedFileVersions, setSelectedFileVersions] = useState<StoredFile[]>([])
   const [showVersions, setShowVersions] = useState(false)
+  const [filePendingDeletion, setFilePendingDeletion] = useState<StoredFile | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [loading, setLoading] = useState(true)
   const { showToast } = useToast()
 
@@ -91,12 +94,13 @@ export default function DocumentsPage() {
     void loadFiles()
   }
 
-  const handleDelete = async (fileId: string) => {
-    if (!confirm('ÃƒÆ’Ã…Â tes-vous sÃƒÆ’Ã‚Â»r de vouloir supprimer ce fichier ?')) return
+  const handleDelete = async () => {
+    if (!filePendingDeletion) return
 
     try {
+      setDeleting(true)
       const response = await fetch(
-        `/api/documents/${encodeURIComponent(fileId)}`,
+        `/api/documents/${encodeURIComponent(filePendingDeletion.id)}`,
         {
           method: 'DELETE',
           credentials: 'include',
@@ -109,9 +113,12 @@ export default function DocumentsPage() {
 
       await loadFiles()
       showToast('Fichier supprimÃƒÆ’Ã‚Â© avec succÃƒÆ’Ã‚Â¨s', 'success')
+      setFilePendingDeletion(null)
     } catch (error) {
       console.error('Erreur suppression:', error)
       showToast('Erreur lors de la suppression', 'error')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -199,6 +206,7 @@ export default function DocumentsPage() {
     { value: 'template', label: 'Templates', count: stats.byCategory['template'] || 0 },
     { value: 'autre', label: 'Autres', count: stats.byCategory['autre'] || 0 },
   ]
+  const dossierId = getDossierId()
 
   return (
     <div className="p-6 space-y-6">
@@ -248,20 +256,29 @@ export default function DocumentsPage() {
         </Card>
       </div>
 
-      {/* Upload */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Uploader des fichiers
-        </h2>
-        <FileUploader
-          options={{
-            dossierId: getDossierId() || undefined,
-            description: 'Document uploade via l\'interface',
-            category: 'piece_jointe',
-          }}
-          onUploadComplete={() => refreshFiles()}
-        />
-      </Card>
+      {!dossierId ? (
+        <Alert variant="info" title="Sélectionnez un dossier avant d'ajouter des documents">
+          Les documents doivent être rattachés à un dossier pour préserver leur contexte,
+          leurs droits d'accès et leur traçabilité.{' '}
+          <a href="/dossiers" className="font-medium underline hover:no-underline">
+            Accéder aux dossiers
+          </a>
+        </Alert>
+      ) : (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+            Uploader des fichiers
+          </h2>
+          <FileUploader
+            options={{
+              dossierId,
+              description: 'Document uploade via l\'interface',
+              category: 'piece_jointe',
+            }}
+            onUploadComplete={() => refreshFiles()}
+          />
+        </Card>
+      )}
 
       {/* GÃƒÆ’Ã‚Â©nÃƒÆ’Ã‚Â©ration DOCX juridique */}
       <Card className="p-6">
@@ -300,7 +317,9 @@ export default function DocumentsPage() {
         {filteredFiles.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400">
-              Aucun fichier trouve
+              {dossierId
+                ? 'Aucun fichier trouvé pour ce dossier.'
+                : 'Sélectionnez un dossier pour consulter ses documents.'}
             </p>
           </div>
         ) : (
@@ -345,6 +364,7 @@ export default function DocumentsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleDownload(file)}
+                    aria-label={`Télécharger ${file.originalName}`}
                   >
                     <Download className="w-4 h-4" />
                   </Button>
@@ -352,13 +372,15 @@ export default function DocumentsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleViewVersions(file)}
+                    aria-label={`Voir les versions de ${file.originalName}`}
                   >
                     <History className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDelete(file.id)}
+                    onClick={() => setFilePendingDeletion(file)}
+                    aria-label={`Supprimer ${file.originalName}`}
                   >
                     <Trash2 className="w-4 h-4 text-red-600" />
                   </Button>
@@ -411,10 +433,40 @@ export default function DocumentsPage() {
           </div>
         </Modal>
       )}
+
+      {filePendingDeletion && (
+        <Modal
+          isOpen
+          onClose={() => {
+            if (!deleting) setFilePendingDeletion(null)
+          }}
+          title="Supprimer ce document ?"
+          size="sm"
+        >
+          <div className="space-y-5">
+            <p className="text-sm text-gray-600">
+              <span className="font-medium text-gray-900">{filePendingDeletion.originalName}</span>{' '}
+              sera supprimé définitivement de ce dossier.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setFilePendingDeletion(null)}
+                disabled={deleting}
+              >
+                Annuler
+              </Button>
+              <Button type="button" variant="danger" onClick={handleDelete} isLoading={deleting}>
+                Supprimer définitivement
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }
-
 
 
 

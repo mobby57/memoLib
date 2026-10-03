@@ -1,6 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 /**
  * API Route: Obtenir les informations du compte GitHub de l'utilisateur
  * GET /api/github/user

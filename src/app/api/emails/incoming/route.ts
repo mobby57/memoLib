@@ -14,13 +14,22 @@ import { eventLogService } from '@/lib/services/event-log.service';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { filterRuleService } from '@/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { IncomingEmailPayloadSchema, normalizeIncomingEmailPayload } from '@/lib/email/ingestion';
 import { recordEmailIngestion } from '@/lib/email/ingestion-metrics';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookRequest } from '@/lib/security/webhook-verification';
 import { createEmailActionProposal } from '@/lib/services/action-proposal.service';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
+
+/** Détecte une erreur Prisma connue par duck-typing (portable entre versions Prisma). */
+function isPrismaKnownError(error: unknown, code: string): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code?: unknown }).code === code
+  );
+}
 
 const MAX_WEBHOOK_BODY_BYTES = 1_100_000;
 
@@ -225,7 +234,7 @@ export async function POST(request: NextRequest) {
       });
     } catch (error) {
       // Handle race conditions on unique messageId inserts with an idempotent response.
-      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (isPrismaKnownError(error, 'P2002')) {
         const existing = await findDuplicateEmail(tenant.id, normalized);
         if (existing) {
           return NextResponse.json({

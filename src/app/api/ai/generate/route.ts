@@ -1,8 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { canAccessDossier } from '@/lib/auth/dossier-access';
 import { sanitizePromptForAI, sanitizeStructuredDataForAI } from '@/lib/ai/prompt-sanitizer';
 import { logger } from '@/lib/logger';

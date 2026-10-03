@@ -1,10 +1,5 @@
 'use client';
 
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement import useSession
-
-
 /**
  * SessionTimeoutMonitor - Composant de securite pour gerer l'expiration de session
  * 

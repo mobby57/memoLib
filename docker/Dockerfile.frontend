@@ -19,6 +19,8 @@ RUN apk add --no-cache python3 make g++ && \
 
 # Stage: Builder
 FROM base AS builder
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate

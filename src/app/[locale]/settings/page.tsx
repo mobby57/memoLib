@@ -6,458 +6,93 @@ export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Breadcrumb, Card, Alert, Tabs, useToast } from '@/components/ui';
-import { User, Bell, Shield, Palette } from 'lucide-react';
+import { Breadcrumb, Alert, Card } from '@/components/ui';
+import { Building2, Bell, Shield, User } from 'lucide-react';
+import { SettingsLayout, type SettingsSectionDef } from '@/components/settings/SettingsLayout';
+import { CabinetSettingsSection } from '@/components/settings/CabinetSettingsSection';
+import { usePermissions, RBAC_PERMISSIONS } from '@/hooks/usePermissions';
 
+/**
+ * Page Paramètres — refonte Incrément 3.
+ *
+ * Navigation responsive (SettingsLayout) : sidebar desktop / sélecteur mobile.
+ * La section "Cabinet" est branchée sur la vraie config (useSettings) avec
+ * dirty-state ("modifications non enregistrées"). Les sections héritées
+ * (profil, sécurité) restent accessibles.
+ */
 export default function SettingsPage() {
-  const { addToast } = useToast();
   const { locale } = useParams<{ locale: string }>();
+  const { can } = usePermissions();
+  const [activeId, setActiveId] = useState('cabinet');
+
   const securitySettingsPath = `/${encodeURIComponent(locale)}/settings/security`;
-  const [settings, setSettings] = useState({
-    // Profil
-    nom: 'Jean Dupont',
-    email: 'jean.dupont@cabinet-exemple.fr',
-    téléphone: '01 23 45 67 89',
-    poste: 'Avocat associe',
 
-    // Notifications
-    emailNotifications: true,
-    pushNotifications: false,
-    dossiersNotifications: true,
-    facturesNotifications: true,
-
-    // Affichage
-    langue: 'fr',
-    timezone: 'Europe/Paris',
-    dateFormat: 'DD/MM/YYYY',
-  });
-
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-
-  const handleSave = async (section: string) => {
-    try {
-      if (section === 'profil') {
-        const res = await fetch('/api/user/profile', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: settings.nom,
-            email: settings.email,
-            language: settings.langue,
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Erreur');
-        }
-      } else if (section === 'mot de passe') {
-        const res = await fetch('/api/auth/change-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            currentPassword: passwordForm.currentPassword,
-            newPassword: passwordForm.newPassword,
-            confirmPassword: passwordForm.confirmPassword,
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Erreur');
-        }
-        // Reset password fields
-        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      } else if (section === 'notifications') {
-        // TODO: persist notification preferences server-side
-      }
-
-      addToast({
-        variant: 'success',
-        title: 'Paramètres sauvegardés',
-        message: `Les paramètres de ${section} ont été mis à jour avec succès.`,
-      });
-    } catch (error) {
-      addToast({
-        variant: 'error',
-        title: 'Erreur',
-        message: error instanceof Error ? error.message : 'Impossible de sauvegarder.',
-      });
-    }
-  };
+  const sections: SettingsSectionDef[] = [
+    {
+      id: 'cabinet',
+      label: 'Cabinet',
+      icon: <Building2 className="h-4 w-4" />,
+      visible: can(RBAC_PERMISSIONS.SETTINGS_READ),
+    },
+    { id: 'profile', label: 'Profil', icon: <User className="h-4 w-4" /> },
+    { id: 'notifications', label: 'Notifications', icon: <Bell className="h-4 w-4" /> },
+    { id: 'security', label: 'Sécurité', icon: <Shield className="h-4 w-4" /> },
+  ];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Breadcrumb */}
+    <div className="space-y-6 p-6">
       <Breadcrumb items={[{ label: 'Paramètres' }]} />
 
-      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Paramètres</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Configurez votre compte et vos préférences
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Paramètres</h1>
+        <p className="mt-1 text-slate-600 dark:text-slate-400">
+          Configurez votre cabinet et vos préférences
         </p>
       </div>
 
-      {/* Settings Tabs */}
-      <Tabs
-        variant="pills"
-        defaultTab="profile"
-        tabs={[
-          {
-            id: 'profile',
-            label: 'Profil',
-            icon: <User className="w-4 h-4" />,
-            content: (
-              <div className="space-y-6 pt-6">
-                <Card>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Informations personnelles
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Nom complet
-                        </label>
-                        <input
-                          type="text"
-                          value={settings.nom}
-                          onChange={e => setSettings({ ...settings, nom: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Poste
-                        </label>
-                        <input
-                          type="text"
-                          value={settings.poste}
-                          onChange={e => setSettings({ ...settings, poste: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
+      <SettingsLayout sections={sections} activeId={activeId} onSelect={setActiveId}>
+        {activeId === 'cabinet' && <CabinetSettingsSection />}
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        value={settings.email}
-                        onChange={e => setSettings({ ...settings, email: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      />
-                    </div>
+        {activeId === 'profile' && (
+          <Card className="p-6">
+            <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">Profil</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              La gestion du profil personnel est disponible dans votre espace compte.
+            </p>
+          </Card>
+        )}
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Téléphone
-                      </label>
-                      <input
-                        type="tel"
-                        value={settings.téléphone}
-                        onChange={e => setSettings({ ...settings, téléphone: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      />
-                    </div>
+        {activeId === 'notifications' && (
+          <Card className="p-6">
+            <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
+              Notifications
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Les préférences de notifications du cabinet se règlent dans la section « Cabinet ».
+              Les préférences personnelles arriveront prochainement.
+            </p>
+          </Card>
+        )}
 
-                    <button
-                      onClick={() => handleSave('profil')}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      Enregistrer les modifications
-                    </button>
-                  </div>
-                </Card>
-
-                <Card>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Mot de passe
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Mot de passe actuel
-                      </label>
-                      <input
-                        type="password"
-                        value={passwordForm.currentPassword}
-                        onChange={e =>
-                          setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Nouveau mot de passe
-                      </label>
-                      <input
-                        type="password"
-                        value={passwordForm.newPassword}
-                        onChange={e =>
-                          setPasswordForm({ ...passwordForm, newPassword: e.target.value })
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Confirmer le nouveau mot de passe
-                      </label>
-                      <input
-                        type="password"
-                        value={passwordForm.confirmPassword}
-                        onChange={e =>
-                          setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      />
-                    </div>
-                    <button
-                      onClick={() => handleSave('mot de passe')}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      Changer le mot de passe
-                    </button>
-                  </div>
-                </Card>
-              </div>
-            ),
-          },
-          {
-            id: 'notifications',
-            label: 'Notifications',
-            icon: <Bell className="w-4 h-4" />,
-            content: (
-              <div className="pt-6">
-                <Card>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Préférences de notifications
-                  </h3>
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          Notifications par email
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Recevoir des notifications par email
-                        </p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={settings.emailNotifications}
-                          onChange={e =>
-                            setSettings({ ...settings, emailNotifications: e.target.checked })
-                          }
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          Notifications push
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Recevoir des notifications dans le navigateur
-                        </p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={settings.pushNotifications}
-                          onChange={e =>
-                            setSettings({ ...settings, pushNotifications: e.target.checked })
-                          }
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                      <h4 className="font-medium text-gray-900 dark:text-white mb-4">
-                        Notifications spécifiques
-                      </h4>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              Nouveaux dossiers
-                            </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              Alertes pour les nouveaux dossiers
-                            </p>
-                          </div>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={settings.dossiersNotifications}
-                              onChange={e =>
-                                setSettings({
-                                  ...settings,
-                                  dossiersNotifications: e.target.checked,
-                                })
-                              }
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                          </label>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-white">Factures</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              Alertes pour les factures en retard
-                            </p>
-                          </div>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={settings.facturesNotifications}
-                              onChange={e =>
-                                setSettings({
-                                  ...settings,
-                                  facturesNotifications: e.target.checked,
-                                })
-                              }
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleSave('notifications')}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      Enregistrer les préférences
-                    </button>
-                  </div>
-                </Card>
-              </div>
-            ),
-          },
-          {
-            id: 'display',
-            label: 'Affichage',
-            icon: <Palette className="w-4 h-4" />,
-            content: (
-              <div className="pt-6">
-                <Card>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Préférences d'affichage
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Langue
-                      </label>
-                      <select
-                        value={settings.langue}
-                        onChange={e => setSettings({ ...settings, langue: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      >
-                        <option value="fr">Francais</option>
-                        <option value="en">English</option>
-                        <option value="es">Espaeol</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Fuseau horaire
-                      </label>
-                      <select
-                        value={settings.timezone}
-                        onChange={e => setSettings({ ...settings, timezone: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      >
-                        <option value="Europe/Paris">Europe/Paris (GMT+1)</option>
-                        <option value="Europe/London">Europe/London (GMT)</option>
-                        <option value="America/New_York">America/New York (GMT-5)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Format de date
-                      </label>
-                      <select
-                        value={settings.dateFormat}
-                        onChange={e => setSettings({ ...settings, dateFormat: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      >
-                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                      </select>
-                    </div>
-
-                    <button
-                      onClick={() => handleSave('affichage')}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      Enregistrer les préférences
-                    </button>
-                  </div>
-                </Card>
-              </div>
-            ),
-          },
-          {
-            id: 'security',
-            label: 'Sécurité',
-            icon: <Shield className="w-4 h-4" />,
-            content: (
-              <div className="pt-6 space-y-6">
-                <Alert variant="info" title="Sécurité de votre compte">
-                  Gérez vos passkeys, l’authentification à deux facteurs et vos sessions dans Clerk.
-                </Alert>
-
-                <Card>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Gestion de la sécurité
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          Méthodes de connexion et sessions
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Ajoutez ou supprimez des passkeys et configurez les options de sécurité de
-                          votre compte.
-                        </p>
-                      </div>
-                    </div>
-                    <Link
-                      href={securitySettingsPath}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      Ouvrir les réglages de sécurité
-                    </Link>
-                  </div>
-                </Card>
-              </div>
-            ),
-          },
-        ]}
-      />
+        {activeId === 'security' && (
+          <div className="space-y-6">
+            <Alert variant="info" title="Sécurité de votre compte">
+              Gérez vos passkeys, l’authentification à deux facteurs et vos sessions dans Clerk.
+            </Alert>
+            <Card className="p-6">
+              <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+                Gestion de la sécurité
+              </h3>
+              <Link
+                href={securitySettingsPath}
+                className="inline-flex rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
+              >
+                Ouvrir les réglages de sécurité
+              </Link>
+            </Card>
+          </div>
+        )}
+      </SettingsLayout>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { DeadlineAlerts } from '@/components/dashboard/DeadlineAlerts';
 import { TodayFocus } from '@/components/dashboard/TodayFocus';
 import MorningBrief from '@/components/dashboard/MorningBrief';
 import { MyDay } from '@/components/dashboard/MyDay';
+import { IntakeNeedsHelpWidget } from '@/components/intake/IntakeNeedsHelpWidget';
 import { AIDisclaimer } from '@/components/legal/AIDisclaimer';
 import { LegalFooter } from '@/components/legal/LegalFooter';
 import {
@@ -537,6 +538,10 @@ export default function DashboardPage() {
 
       {/* === SECTION 4: DEADLINES CRITIQUES === */}
       <DeadlineAlerts tenantId={user?.tenantId} />
+
+      {/* === SECTION 4b: DEMANDES CLIENTS À TRAITER (intake) === */}
+      <IntakeNeedsHelpWidget />
+
 
       {/* === SECTION 5: WELCOME COMPACT + STATS === */}
       <div className="flex items-center justify-between bg-white rounded-xl border border-gray-100 p-4">
