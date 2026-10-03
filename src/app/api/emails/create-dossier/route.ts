@@ -1,11 +1,8 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getCesedaDeadlines } from '@/lib/legal/ceseda-deadlines';
 export async function POST(req: NextRequest) {
   const { user } = await auth();
     const session = user ? { user } : null;
@@ -87,7 +84,9 @@ export async function POST(req: NextRequest) {
       await prisma.email.update({
         where: { id: emailId },
         data: { dossierId: dossier.id, clientId: client?.id },
-      }).catch(() => {});
+      }).catch((err) => {
+        console.error('[EMAIL→DOSSIER] Échec rattachement email au dossier:', err);
+      });
     }
 
     // 5. Créer deadline si détectée
@@ -96,32 +95,41 @@ export async function POST(req: NextRequest) {
       if (parsed) {
         await prisma.legalDeadline.create({
           data: {
+            id: crypto.randomUUID(),
             tenantId,
             dossierId: dossier.id,
-            clientId: client?.id,
+            clientId: client?.id || '',
             type: 'CUSTOM',
             label: `Échéance détectée par IA — ${summary.objet}`,
+            referenceDate: new Date(),
             dueDate: parsed,
             status: 'PENDING',
+            createdBy: user.id,
+            updatedAt: new Date(),
           },
-        }).catch(() => {});
+        });
       }
     }
 
     // 6. Auto-créer les délais CESEDA selon le type de dossier
-    const cesedaDeadlines = getCesedaDeadlines(summary.typeDossier, new Date());
+    const now = new Date();
+    const cesedaDeadlines = getCesedaDeadlines(summary.typeDossier, now);
     for (const dl of cesedaDeadlines) {
       await prisma.legalDeadline.create({
         data: {
+          id: crypto.randomUUID(),
           tenantId,
           dossierId: dossier.id,
-          clientId: client?.id,
+          clientId: client?.id || '',
           type: dl.type,
           label: dl.label,
+          referenceDate: now,
           dueDate: dl.dueDate,
           status: 'PENDING',
+          createdBy: user.id,
+          updatedAt: new Date(),
         },
-      }).catch(() => {});
+      });
     }
 
     // 7. Trouver un template communautaire pertinent
@@ -162,61 +170,6 @@ function parseDate(str: string): Date | null {
   return isNaN(natural.getTime()) ? null : natural;
 }
 
-interface CesedaDeadline {
-  type: string;
-  label: string;
-  dueDate: Date;
-}
-
-function getCesedaDeadlines(typeDossier: string, fromDate: Date): CesedaDeadline[] {
-  const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
-
-  const deadlines: Record<string, CesedaDeadline[]> = {
-    OQTF: [
-      { type: 'OQTF_DEPART', label: 'Délai de départ volontaire (30 jours)', dueDate: addDays(fromDate, 30) },
-      { type: 'OQTF_RECOURS_TA', label: 'Recours TA contre OQTF (30 jours)', dueDate: addDays(fromDate, 30) },
-    ],
-    OQTF_SANS_DELAI: [
-      { type: 'OQTF_48H', label: '⚠️ URGENT — Recours OQTF sans délai (48h)', dueDate: addDays(fromDate, 2) },
-      { type: 'OQTF_REFERE_LIBERTE', label: '⚠️ URGENT — Référé-liberté (48h)', dueDate: addDays(fromDate, 2) },
-    ],
-    IRTF: [
-      { type: 'IRTF_RECOURS', label: '⚠️ URGENT — Recours IRTF (48h si OQTF sans délai)', dueDate: addDays(fromDate, 2) },
-    ],
-    Asile: [
-      { type: 'ASILE_OFPRA', label: 'Dépôt demande OFPRA (21 jours)', dueDate: addDays(fromDate, 21) },
-      { type: 'ASILE_CNDA', label: 'Recours CNDA (1 mois)', dueDate: addDays(fromDate, 30) },
-    ],
-    Asile_accelere: [
-      { type: 'ASILE_ACCEL_CNDA', label: '⚠️ URGENT — Recours CNDA procédure accélérée (15 jours)', dueDate: addDays(fromDate, 15) },
-    ],
-    TitreSejour: [
-      { type: 'TS_RECOURS_GRACIEUX', label: 'Recours gracieux préfecture (2 mois)', dueDate: addDays(fromDate, 60) },
-      { type: 'TS_RECOURS_TA', label: 'Recours TA (2 mois)', dueDate: addDays(fromDate, 60) },
-    ],
-    Naturalisation: [
-      { type: 'NAT_RECOURS', label: 'Recours contre refus (2 mois)', dueDate: addDays(fromDate, 60) },
-    ],
-    AppelDecision: [
-      { type: 'APPEL_CAA', label: 'Appel CAA (2 mois)', dueDate: addDays(fromDate, 60) },
-    ],
-    RegroupementFamilial: [
-      { type: 'RF_RECOURS', label: 'Recours contre refus (2 mois)', dueDate: addDays(fromDate, 60) },
-    ],
-    Refere_suspension: [
-      { type: 'REFERE_SUSP', label: '⚠️ URGENT — Référé-suspension (avant exécution)', dueDate: addDays(fromDate, 3) },
-    ],
-    Refere_liberte: [
-      { type: 'REFERE_LIB', label: '⚠️ URGENT — Référé-liberté (48h)', dueDate: addDays(fromDate, 2) },
-    ],
-    Retention: [
-      { type: 'RETENTION_JLD', label: '⚠️ URGENT — Saisine JLD rétention (48h)', dueDate: addDays(fromDate, 2) },
-      { type: 'RETENTION_APPEL', label: '⚠️ URGENT — Appel ordonnance JLD (24h)', dueDate: addDays(fromDate, 1) },
-    ],
-  };
-
-  return deadlines[typeDossier] || [];
-}
 
 
 

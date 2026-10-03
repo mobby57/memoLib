@@ -1,4 +1,5 @@
 'use client';
+// components/payments/SubscriptionCard.tsx
 
 // components/payments/SubscriptionCard.tsx
 

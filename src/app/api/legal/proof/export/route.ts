@@ -1,6 +1,4 @@
 import { auth } from '@/lib/clerk-auth';
-// CLERK-MIGRATION: Remplacement auth() -> auth()
-// CLERK-MIGRATION: Remplacement auth() -> auth()
 import { legalProofService } from '@/lib/services/legal-proof.service';
 import { ProofFormat } from '@/types/legal-proof';
 import { NextRequest, NextResponse } from 'next/server';

@@ -1,11 +1,17 @@
 import type { Metadata } from 'next';
-import { ClerkProvider } from '@clerk/nextjs';
 
 import { defaultMetadata } from '@/lib/metadata';
 import CrispChat from '@/components/support/CrispChat';
 
 export const metadata: Metadata = defaultMetadata;
 
+// NOTE: ClerkProvider intentionally lives in the `[locale]` layout, NOT here.
+// Under Next 16, keeping ClerkProvider at the root caused it to be evaluated
+// during the static prerender of synthetic routes (/_global-error, /_not-found)
+// and the `/` redirect page, where there is no request context. React then threw
+// "Cannot read properties of null (reading 'useContext')" and failed the
+// production build. The real application lives under `[locale]`, which is where
+// Clerk's auth context is actually needed, so the provider is scoped there.
 export default function RootLayout({
   children,
 }: {
@@ -14,10 +20,8 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="antialiased">
-        <ClerkProvider>
-          {children}
-          <CrispChat />
-        </ClerkProvider>
+        {children}
+        <CrispChat />
       </body>
     </html>
   );

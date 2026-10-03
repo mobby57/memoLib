@@ -80,7 +80,7 @@ Pages déjà en place :
 ## 2. Parcours de conversion
 
 ### Étape 1 — Landing page
-**URL :** https://memolib-wybq.onrender.com/fr/landing
+**URL :** https://memolib.space/fr/landing
 
 - Hero avec proposition de valeur claire
 - "Wow moment" (analyse email IA en direct)
@@ -88,7 +88,7 @@ Pages déjà en place :
 - Formulaire inscription beta
 
 ### Étape 2 — Démo interactive (sans inscription)
-**URL :** https://memolib-wybq.onrender.com/fr/demo
+**URL :** https://memolib.space/fr/demo
 
 - Le prospect teste l'IA sans créer de compte
 - Il voit le résultat immédiat sur un email type OQTF
@@ -135,7 +135,7 @@ Pages déjà en place :
 
 ## 4. Actions immédiates (cette semaine)
 
-- [ ] Partager le lien démo au client actuel : https://memolib-wybq.onrender.com/fr/demo
+- [ ] Partager le lien démo au client actuel : https://memolib.space/fr/demo
 - [ ] Publier 1 post LinkedIn avec capture d'écran du "Wow moment"
 - [ ] Envoyer la landing page à 5 avocats de ton réseau
 - [ ] Rejoindre 3 groupes LinkedIn d'avocats en droit des étrangers
@@ -160,8 +160,8 @@ Pages déjà en place :
 
 | Page | URL | Usage |
 |------|-----|-------|
-| Landing page | https://memolib-wybq.onrender.com/fr/landing | Acquisition (pub, SEO) |
-| Démo interactive | https://memolib-wybq.onrender.com/fr/demo | Conversion (après intérêt) |
-| Pricing | https://memolib-wybq.onrender.com/fr/pricing | Comparaison plans |
-| Login client test | https://memolib-wybq.onrender.com/fr/auth/login | Test fonctionnel |
-| Page d'accueil | https://memolib-wybq.onrender.com | Vue générale |
+| Landing page | https://memolib.space/fr/landing | Acquisition (pub, SEO) |
+| Démo interactive | https://memolib.space/fr/demo | Conversion (après intérêt) |
+| Pricing | https://memolib.space/fr/pricing | Comparaison plans |
+| Login client test | https://memolib.space/fr/auth/login | Test fonctionnel |
+| Page d'accueil | https://memolib.space | Vue générale |

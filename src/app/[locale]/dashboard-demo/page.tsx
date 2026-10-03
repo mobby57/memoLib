@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/hooks/useAuth';
 
-
 export const dynamic = 'force-dynamic';
 
 import { Calendar, CheckCircle, DollarSign, FileText, Users } from 'lucide-react';

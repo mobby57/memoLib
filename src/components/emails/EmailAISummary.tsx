@@ -63,6 +63,14 @@ export function EmailAISummary({ emailId, subject, body, from, onCreateDossier }
     setLoading(false);
   };
 
+  if (error) {
+    return (
+      <button onClick={analyze} className="text-xs text-red-600 hover:underline">
+        Erreur — Réessayer
+      </button>
+    );
+  }
+
   if (!summary && !loading) {
     return (
       <button
@@ -81,14 +89,6 @@ export function EmailAISummary({ emailId, subject, body, from, onCreateDossier }
         <Loader2 className="w-3.5 h-3.5 animate-spin" />
         Analyse en cours...
       </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <button onClick={analyze} className="text-xs text-red-600 hover:underline">
-        Erreur — Réessayer
-      </button>
     );
   }
 

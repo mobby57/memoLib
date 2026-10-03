@@ -1,12 +1,5 @@
 'use client';
 
-// CLERK-MIGRATION: Remplacement session.user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement user -> user (vérifier)
-// CLERK-MIGRATION: Remplacement useAuth() -> useAuth()
-// CLERK-MIGRATION: Remplacement import useSession
-
-
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

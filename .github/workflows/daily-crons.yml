@@ -1,62 +1,93 @@
-name: Daily Cron Jobs
+name: Scheduled Cron Jobs
+
+# Railway does NOT run the crons declared in vercel.json. This workflow is the
+# scheduler for production. Each job hits a /api/cron/* endpoint with the shared
+# CRON_SECRET bearer token. All endpoints accept GET.
+#
+# NOTE on cadence: GitHub Actions scheduled runs are best-effort and the minimum
+# reliable interval is ~15 min (often delayed under load). The high-frequency
+# jobs (email-sync every 5 min, workflows every 15 min) are included here at a
+# best-effort cadence, but for production SLAs they should run on Railway's
+# native cron service instead. Daily/weekly/hourly jobs are reliable here.
+#
+# Schedules are in UTC. France is UTC+1 (winter) / UTC+2 (summer); the local
+# target times below assume CEST (UTC+2), matching the original vercel.json.
 
 on:
   schedule:
-    # Tous les jours à 8h (UTC+2 = 6h UTC)
-    - cron: '0 6 * * *'
-  workflow_dispatch: # Manual trigger for testing
+    - cron: '*/15 * * * *'   # high-frequency: email-sync + workflows
+    - cron: '0 * * * *'      # hourly: escalation
+    - cron: '0 5 * * *'      # 07:00 CEST: rappel-audiences
+    - cron: '0 6 * * *'      # 08:00 CEST: deadline-alerts + deadline-email-alerts
+    - cron: '0 7 * * *'      # 09:00 CEST: cost-alerts + trial-expiry
+    - cron: '0 7 * * 1'      # 09:00 CEST Monday: relance-pieces
+    - cron: '0 8 * * *'      # 10:00 CEST: invoice-reminders
+  workflow_dispatch:
+    inputs:
+      endpoint:
+        description: 'Single endpoint to trigger (e.g. deadline-alerts). Leave blank to run all due jobs.'
+        required: false
+        default: ''
+
+env:
+  BASE_URL: https://memolib.space
 
 jobs:
-  deadline-alerts:
-    name: Check Deadline Alerts
+  cron:
+    name: Trigger scheduled cron endpoints
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger deadline alerts
+      - name: Select endpoints for this schedule
+        id: select
         run: |
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            "https://memolib.space/api/cron/deadline-alerts" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json")
-          
-          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-          BODY=$(echo "$RESPONSE" | head -n -1)
-          
-          echo "HTTP $HTTP_CODE"
-          echo "$BODY"
-          
-          if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "❌ Deadline alerts check failed"
+          CRON='${{ github.event.schedule }}'
+          MANUAL='${{ github.event.inputs.endpoint }}'
+          declare -a jobs=()
+
+          if [ -n "$MANUAL" ]; then
+            jobs+=("$MANUAL")
+          else
+            case "$CRON" in
+              '*/15 * * * *') jobs+=("email-sync" "workflows") ;;
+              '0 * * * *')    jobs+=("escalation") ;;
+              '0 5 * * *')    jobs+=("rappel-audiences") ;;
+              '0 6 * * *')    jobs+=("deadline-alerts" "deadline-email-alerts") ;;
+              '0 7 * * *')    jobs+=("cost-alerts" "trial-expiry") ;;
+              '0 7 * * 1')    jobs+=("relance-pieces") ;;
+              '0 8 * * *')    jobs+=("invoice-reminders") ;;
+              *)              jobs+=("deadline-alerts") ;;  # manual-dispatch default
+            esac
+          fi
+
+          echo "jobs=${jobs[*]}" >> "$GITHUB_OUTPUT"
+          echo "Selected: ${jobs[*]}"
+
+      - name: Call endpoints
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET repository secret is not set"
             exit 1
           fi
-          echo "✅ Deadline alerts checked successfully"
 
-  cost-alerts:
-    name: Check Cost Alerts
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger cost alerts
-        run: |
-          curl -s -X POST \
-            "https://memolib.space/api/cron/cost-alerts" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json" || true
-
-  escalation:
-    name: Run Escalation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger escalation
-        run: |
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            "https://memolib.space/api/cron/escalation" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json")
-          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-          BODY=$(echo "$RESPONSE" | head -n -1)
-          echo "HTTP $HTTP_CODE"
-          echo "$BODY"
-          if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "❌ Escalation failed"
-            exit 1
-          fi
-          echo "✅ Escalation completed"
+          FAIL=0
+          for job in ${{ steps.select.outputs.jobs }}; do
+            URL="${BASE_URL}/api/cron/${job}"
+            echo "→ GET ${URL}"
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "$URL" \
+              -H "Authorization: Bearer ${CRON_SECRET}" \
+              -H "Content-Type: application/json")
+            HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+            echo "HTTP ${HTTP_CODE}"
+            echo "${BODY}"
+            # 200 OK; 207 is used by some endpoints for partial success.
+            if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "207" ]; then
+              echo "::error::${job} returned HTTP ${HTTP_CODE}"
+              FAIL=1
+            else
+              echo "✅ ${job} ok"
+            fi
+          done
+          exit $FAIL
