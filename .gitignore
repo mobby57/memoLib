@@ -190,3 +190,6 @@ gen-*.sh
 
 # Fichiers Next.js
 .next/
+
+# Git worktrees (ne pas committer comme sous-module)
+.worktrees/
