@@ -32,10 +32,13 @@ const FEATURES = [
   { icon: BarChart3, title: 'Tableau de bord', description: "Vue d'ensemble de votre cabinet : dossiers en cours, échéances, facturation, performance.", color: 'indigo' },
 ];
 
+// Bénéfices produit (NON attribués). Pas de faux témoignages nominatifs :
+// MemoLib n'a pas encore de clients citables. Dès que des cabinets pilotes
+// acceptent d'être cités, remplacer par de VRAIS témoignages avec accord écrit.
 const TESTIMONIALS = [
-  { quote: "Avant MemoLib, je passais 3h par jour à trier mes emails. Maintenant c'est 15 minutes.", author: "Maître D.", role: "Avocate en droit des étrangers, Paris", rating: 5 },
-  { quote: "L'alerte OQTF m'a sauvé un dossier. 48h de délai, j'aurais oublié sans MemoLib.", author: "Maître K.", role: "Avocat au barreau de Lyon", rating: 5 },
-  { quote: "Mes clients ont un espace dédié pour suivre leur dossier. Moins d'appels, plus de confiance.", author: "Maître S.", role: "Cabinet spécialisé immigration, Marseille", rating: 5 },
+  { quote: "Objectif : passer de 3h de tri d'emails par jour à moins de 15 minutes.", author: "Conçu pour", role: "les cabinets en droit des étrangers", rating: 5 },
+  { quote: "Alertes automatiques OQTF (48h) et recours (15 jours) : plus aucun délai oublié.", author: "Pensé pour", role: "ne jamais rater une échéance CESEDA", rating: 5 },
+  { quote: "Un espace client dédié pour suivre chaque dossier : moins d'appels, plus de confiance.", author: "Au service de", role: "la relation cabinet-client", rating: 5 },
 ];
 
 const PRICING = [
@@ -170,7 +173,7 @@ export function HomePageContent() {
       {/* Testimonials */}
       <section id="temoignages" className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Ils utilisent MemoLib au quotidien</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Conçu pour les cabinets en droit des étrangers</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {TESTIMONIALS.map((t, i) => (
               <div key={i} className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-8">
