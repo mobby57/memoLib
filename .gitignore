@@ -36,6 +36,15 @@ node_modules/
 .env.production
 .env.staging
 .env*.local
+# Variantes de config/secrets a ne jamais committer (hygiene securite)
+.env.vercel.candidat
+.env.docker
+.env.security
+.env.legal-integrations
+.env.vercel*
+# Catch-all : tout .env.* SAUF le modele .env.example (force-inclus plus bas)
+.env.*
+!.env.example
 appsettings.Development.json
 appsettings.Production.json
 secrets.json
