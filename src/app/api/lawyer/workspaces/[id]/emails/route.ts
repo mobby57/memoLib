@@ -7,6 +7,7 @@ import { auth } from '@/lib/clerk-auth';
 
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { assertWorkspaceAccess } from '@/lib/auth/workspace-access';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -18,6 +19,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const session = user ? { user } : null;
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -52,8 +57,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         return NextResponse.json({ error: 'Action invalide' }, { status: 400 });
     }
 
+    const existing = await prisma.workspaceEmail.findFirst({
+      where: { id: emailId, workspaceId: params.id },
+      select: { id: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'Email non trouvé' }, { status: 404 });
+    }
     const email = await prisma.workspaceEmail.update({
-      where: { id: emailId },
+      where: { id: existing.id },
       data: updateData,
     });
 
@@ -79,6 +91,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const session = user ? { user } : null;
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -131,6 +147,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+    const tenantId = (user as any).tenantId as string;
+    if (!tenantId || !(await assertWorkspaceAccess(params.id, tenantId))) {
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
+    }
 
     const body = await request.json();
     const { emailId, action } = body;
@@ -166,8 +186,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         return NextResponse.json({ error: 'Action invalide' }, { status: 400 });
     }
 
+    const existing = await prisma.workspaceEmail.findFirst({
+      where: { id: emailId, workspaceId: params.id },
+      select: { id: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'Email non trouvé' }, { status: 404 });
+    }
     const email = await prisma.workspaceEmail.update({
-      where: { id: emailId },
+      where: { id: existing.id },
       data: updateData,
     });
 

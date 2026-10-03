@@ -1,10 +1,20 @@
 import { auth } from '@/lib/clerk-auth';
+import { authorizeWorkspaceAccess } from '@/lib/auth/workspace-access';
+import { RBAC_PERMISSIONS, requireApiPermission } from '@/lib/auth/rbac';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { existsSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
+import { z } from 'zod';
+
+const documentMetadataSchema = z
+  .object({
+    documentType: z.string().trim().min(1).max(100),
+    description: z.string().trim().max(2_000).optional(),
+  })
+  .strict();
 
 /**
  * GET /api/lawyer/workspaces/[id]/documents
@@ -17,6 +27,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+    const permission = requireApiPermission({ user }, RBAC_PERMISSIONS.DOCUMENTS_READ);
+    if (!permission.ok) return permission.response;
+    const workspaceAccess = await authorizeWorkspaceAccess(params.id, user);
+    if (!workspaceAccess.ok) return workspaceAccess.response;
 
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get('filter') || 'all';
@@ -81,15 +95,25 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+    const permission = requireApiPermission({ user }, RBAC_PERMISSIONS.DOCUMENTS_MANAGE);
+    if (!permission.ok) return permission.response;
+    const workspaceAccess = await authorizeWorkspaceAccess(params.id, user);
+    if (!workspaceAccess.ok) return workspaceAccess.response;
 
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const documentType = formData.get('documentType') as string;
-    const description = (formData.get('description') as string) || undefined;
+    const file = formData.get('file');
+    const parsedMetadata = documentMetadataSchema.safeParse({
+      documentType: formData.get('documentType'),
+      description: formData.get('description') || undefined,
+    });
 
-    if (!file) {
-      return NextResponse.json({ error: 'Fichier manquant' }, { status: 400 });
+    if (!(file instanceof File) || !parsedMetadata.success) {
+      return NextResponse.json(
+        { error: 'Fichier ou métadonnées invalides' },
+        { status: 400 }
+      );
     }
+    const { documentType, description } = parsedMetadata.data;
 
     // Validation taille (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
@@ -127,7 +151,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     // Créer document dans la base
     const document = await prisma.workspaceDocument.create({
       data: {
-        tenantId: (user as any).tenantId,
+        tenantId: workspaceAccess.workspace.tenantId,
         workspaceId: params.id,
         filename,
         originalName: file.name,

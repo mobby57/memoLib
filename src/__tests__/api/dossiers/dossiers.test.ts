@@ -6,9 +6,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
  * Endpoints de gestion des dossiers
  */
 
-// Mock NextAuth
-vi.mock('@/lib/auth', () => ({
-  getServerSession: vi.fn(),
+// Mock Clerk auth
+vi.mock('@/lib/clerk-auth', () => ({
+  auth: vi.fn(),
 }));
 
 // Mock Prisma
@@ -46,8 +46,12 @@ describe('API /api/dossiers', () => {
 
   describe('GET /api/dossiers', () => {
     it('retourne 401 si non authentifié', async () => {
-      const { getServerSession } = require('@/lib/auth');
-      getServerSession.mockResolvedValue(null);
+      vi.mocked(auth).mockResolvedValue({
+        isAuthenticated: false,
+        clerkUserId: null,
+        orgId: null,
+        user: null,
+      });
 
       // Simulation de la logique de la route
       const { user } = await auth();
@@ -153,7 +157,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { tenantId: 'tenant_A' } };
       const dossier = { id: 'dos_123', tenantId: 'tenant_B' };
 
-      const hasAccess = dossier.tenantId === user.tenantId;
+      const hasAccess = dossier.tenantId === session.user.tenantId;
 
       expect(hasAccess).toBe(false);
     });
@@ -217,7 +221,7 @@ describe('API /api/dossiers', () => {
       const client = await mockPrisma.client.findFirst({
         where: {
           id: 'cli_123',
-          tenantId: user.tenantId,
+          tenantId: session.user.tenantId,
         },
       });
 
@@ -284,7 +288,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { role: 'CLIENT' } };
 
       const canDelete = ['ADMIN', 'AVOCAT', 'SUPER_ADMIN'].includes(
-        user.role
+        session.user.role
       );
 
       expect(canDelete).toBe(false);
@@ -294,7 +298,7 @@ describe('API /api/dossiers', () => {
       const session = { user: { role: 'ADMIN' } };
 
       const canDelete = ['ADMIN', 'AVOCAT', 'SUPER_ADMIN'].includes(
-        user.role
+        session.user.role
       );
 
       expect(canDelete).toBe(true);

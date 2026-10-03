@@ -15,7 +15,7 @@ vi.mock('@/lib/compliance/gdpr', () => ({
     getDeletionRequests: vi.fn(),
   },
 }));
-vi.mock('@/lib/logger', () => ({ logger: { error: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() } }));
 
 import { auth } from '@/lib/clerk-auth';
 import { GDPRCompliance } from '@/lib/compliance/gdpr';
@@ -43,21 +43,40 @@ describe('compliance routes', () => {
     });
   });
 
-  it('requires authentication before recording consent', async () => {
-    mockedAuth.mockResolvedValue({ isAuthenticated: false, clerkUserId: null, orgId: null, user: null });
+    it('accepts anonymous consent (RGPD) and does NOT require auth', async () => {
+    // Force l'état anonyme (override le beforeEach)
+    const clerk = await import('@clerk/nextjs/server');
+    vi.mocked(clerk.auth).mockResolvedValueOnce({
+      userId: null,
+      sessionId: null,
+      orgId: null,
+      isAuthenticated: false,
+    } as any);
 
-    const response = await createConsent(
-      new NextRequest('http://localhost/api/compliance/consent', {
-        method: 'POST',
-        body: JSON.stringify({ consents: [] }),
-      })
-    );
+    const request = new NextRequest('http://localhost/api/compliance/consent', {
+      method: 'POST',
+      body: JSON.stringify({
+        consents: [{ type: 'analytics', granted: false, policyVersion: '2026-10-01' }],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-    expect(response.status).toBe(401);
+    const response = await createConsent(request);
+
+    expect(response.status).toBe(200);
     expect(gdpr.recordConsents).not.toHaveBeenCalled();
   });
 
   it('records only validated, versioned consent against the local user id', async () => {
+    // Simule un user connecté pour forcer recordConsents
+    const clerk = await import('@clerk/nextjs/server');
+    vi.mocked(clerk.auth).mockResolvedValueOnce({
+      userId: 'user-1',
+      sessionId: 'sess_test',
+      orgId: null,
+      isAuthenticated: true,
+    } as any);
+
     const response = await createConsent(
       new NextRequest('http://localhost/api/compliance/consent', {
         method: 'POST',

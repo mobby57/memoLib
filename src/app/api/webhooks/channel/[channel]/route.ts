@@ -241,47 +241,14 @@ async function validateWebhookAuth(
         ? { valid: true }
         : { valid: false, reason: 'Invalid Twilio signature' };
 
-    case 'TEAMS':
-      /* eslint-disable no-unreachable -- retained legacy verification is bypassed by the configured secret check below. */
-      const teamsAuth = headersList.get('authorization');
-      return safeEqual(teamsAuth || '', `Bearer ${secret}`)
-        ? { valid: true }
-        : { valid: false, reason: 'Invalid Teams auth' };
-      if (teamsAuth !== `Bearer ${secret}`) {
-        return { valid: false, reason: 'Missing Teams auth' };
+      case 'TEAMS': {
+        const teamsAuth = headersList.get('authorization');
+        return safeEqual(teamsAuth || '', `Bearer ${secret}`)
+          ? { valid: true }
+          : { valid: false, reason: 'Invalid Teams auth' };
       }
-
-      function parseWebhookPayload(rawBody: string, channel: ChannelType): Record<string, unknown> {
-        if (channel === 'SMS' || channel === 'VOICE') {
-          return Object.fromEntries(new URLSearchParams(rawBody));
-        }
-
-        return JSON.parse(rawBody) as Record<string, unknown>;
-      }
-
-      function verifyTwilioSignature(rawBody: string, signature: string, authToken: string): boolean {
-        const webhookUrl = process.env.TWILIO_WEBHOOK_URL;
-        if (!webhookUrl) {
-          return false;
-        }
-
-        const params = new URLSearchParams(rawBody);
-        let canonicalPayload = webhookUrl;
-        for (const key of Array.from(new Set(params.keys())).sort()) {
-          for (const value of params.getAll(key).sort()) {
-            canonicalPayload += `${key}${value}`;
-          }
-        }
-
-        const expected = createHmac('sha1', authToken)
-          .update(canonicalPayload, 'utf8')
-          .digest('base64');
-        return safeEqual(signature, expected);
-      }
-      return { valid: true };
 
     default:
-      /* eslint-enable no-unreachable */
       // Pour les autres canaux, vérifier un token API simple
       const apiKey = headersList.get('x-api-key');
       if (apiKey === secret) {

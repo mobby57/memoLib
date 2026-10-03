@@ -1,0 +1,1189 @@
+
+============================================================
+MEMOLIB — AUDIT LINUX / WSL
+============================================================
+Date: 2026-09-21T21:12:40+02:00
+Dépôt: /home/moros/projects/memoLib
+Utilisateur: moros
+Kernel: Linux moroAdmin 6.18.33.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+
+============================================================
+1. SYSTÈME
+============================================================
+
+$ bash --version
+GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+
+This is free software; you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+$ lsb_release -a
+Distributor ID:	Ubuntu
+Description:	Ubuntu 24.04.4 LTS
+Release:	24.04
+Codename:	noble
+
+$ df -h /home/moros/projects/memoLib
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sdd       1007G   45G  912G   5% /
+
+$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           6.7Gi       719Mi       5.7Gi        16Mi       453Mi       6.0Gi
+Swap:          2.0Gi          0B       2.0Gi
+
+============================================================
+2. GIT
+============================================================
+
+$ git status --short --branch
+## main...origin/main
+ M .github/workflows/ci-cd.yml
+D  audit.json
+D  code-report.txt
+ M next-env.d.ts
+ M public/sitemap.xml
+ M src/__tests__/api/action-proposals-route.test.ts
+ M src/__tests__/api/audit-logs.coverage.test.ts
+ M src/__tests__/api/audit-logs.test.ts
+D  src/__tests__/api/auth/credentials-authorize.test.ts
+ M src/__tests__/api/client/client.test.ts
+ M src/__tests__/api/dossiers/dossier-members.test.ts
+ M src/__tests__/api/dossiers/dossiers.test.ts
+ M src/__tests__/api/factures.test.ts
+ M src/__tests__/api/information-units.test.ts
+ M src/__tests__/api/lawyer/workspace-emails-route.test.ts
+ M src/__tests__/api/legal-deadlines.test.ts
+ M src/__tests__/api/notifications-stream.test.ts
+ M src/__tests__/api/notifications.test.ts
+ M src/__tests__/api/proofs.test.ts
+ M src/__tests__/api/teams/team-detail.test.ts
+ M src/__tests__/api/teams/team-members.test.ts
+ M src/__tests__/api/teams/teams.test.ts
+ M src/__tests__/compliance/gdpr.coverage.test.ts
+ M src/__tests__/lib/legal/dateValidator.test.ts
+ M src/__tests__/lib/postgres.config.test.ts
+ M src/__tests__/middleware.test.ts
+ M src/__tests__/middleware/middleware.test.ts
+ M src/__tests__/services/emailService.coverage.test.ts
+ M src/__tests__/services/emailService.test.ts
+ M src/app/api/client/ai-usage/route.ts
+ M src/app/api/cron/relance-pieces/route.ts
+ M src/app/api/lawyer/workspaces/[id]/documents/[docId]/route.ts
+ M src/app/api/lawyer/workspaces/[id]/documents/route.ts
+ M src/app/api/lawyer/workspaces/[id]/notes/[noteId]/route.ts
+ M src/app/api/lawyer/workspaces/[id]/notes/route.ts
+ M src/app/api/notifications/client-update/route.ts
+ M src/components/SemanticSearch.tsx
+ M src/components/SmartSuggestions.tsx
+ M src/components/WebVitalsReporter.tsx
+ M src/components/audit/AuditTimeline.tsx
+ M src/components/payments/PaymentForm.tsx
+ M src/components/payments/SubscriptionCard.tsx
+ M src/components/ui/Toast.tsx
+ M src/lib/billing/cost-guard.ts
+ M src/lib/services/deadlineExtractor.ts
+ M tests/legal/matrix.test.ts
+ M tests/legal/scenarios/asile.json
+ M tests/legal/scenarios/contentieux.json
+ M tests/legal/scenarios/oqtf.json
+ M tests/unit/ai-resilience.test.ts
+ M vitest.config.ts
+?? audit.json
+?? ops-reports/
+?? src/lib/auth/workspace-access.ts
+?? src/test/
+
+$ git remote -v
+origin	https://github.com/mobby57/memoLib.git (fetch)
+origin	https://github.com/mobby57/memoLib.git (push)
+
+$ git branch --show-current
+main
+
+$ git log -1 --oneline --decorate
+b0fab1d0 (HEAD -> main, origin/main, origin/HEAD) fix: use Railway IaC for websocket service
+
+$ git rev-parse HEAD
+b0fab1d0e0824be06e7f1dc950793e72c8a654dc
+
+$ git diff --stat
+ .github/workflows/ci-cd.yml                        |   2 +
+ next-env.d.ts                                      |   4 +-
+ public/sitemap.xml                                 |  36 +++---
+ src/__tests__/api/action-proposals-route.test.ts   |  29 +++--
+ src/__tests__/api/audit-logs.coverage.test.ts      |  51 ++++----
+ src/__tests__/api/audit-logs.test.ts               |  28 +++--
+ src/__tests__/api/client/client.test.ts            |  20 +--
+ src/__tests__/api/dossiers/dossier-members.test.ts |  66 ++++++++--
+ src/__tests__/api/dossiers/dossiers.test.ts        |  22 ++--
+ src/__tests__/api/factures.test.ts                 |  21 ++--
+ src/__tests__/api/information-units.test.ts        |  28 +++--
+ .../api/lawyer/workspace-emails-route.test.ts      | 137 ++++++++++++++-------
+ src/__tests__/api/legal-deadlines.test.ts          |  21 ++--
+ src/__tests__/api/notifications-stream.test.ts     |  29 ++++-
+ src/__tests__/api/notifications.test.ts            |  33 ++++-
+ src/__tests__/api/proofs.test.ts                   |  28 +++--
+ src/__tests__/api/teams/team-detail.test.ts        |  62 +++++++---
+ src/__tests__/api/teams/team-members.test.ts       |  70 ++++++++---
+ src/__tests__/api/teams/teams.test.ts              |  76 +++++++++---
+ src/__tests__/compliance/gdpr.coverage.test.ts     |  73 ++++++++---
+ src/__tests__/lib/legal/dateValidator.test.ts      |   4 +
+ src/__tests__/lib/postgres.config.test.ts          |   2 +-
+ src/__tests__/middleware.test.ts                   |  28 -----
+ src/__tests__/middleware/middleware.test.ts        |  16 +--
+ .../services/emailService.coverage.test.ts         |   6 +-
+ src/__tests__/services/emailService.test.ts        |   4 +-
+ src/app/api/client/ai-usage/route.ts               |  23 ++--
+ src/app/api/cron/relance-pieces/route.ts           |  31 +++--
+ .../workspaces/[id]/documents/[docId]/route.ts     |  61 +++++++--
+ .../api/lawyer/workspaces/[id]/documents/route.ts  |  36 +++++-
+ .../lawyer/workspaces/[id]/notes/[noteId]/route.ts |  67 +++++++---
+ src/app/api/lawyer/workspaces/[id]/notes/route.ts  |  32 ++++-
+ src/app/api/notifications/client-update/route.ts   |  52 +++++---
+ src/components/SemanticSearch.tsx                  |   2 +-
+ src/components/SmartSuggestions.tsx                |   2 +-
+ src/components/WebVitalsReporter.tsx               |   2 +-
+ src/components/audit/AuditTimeline.tsx             |   2 +-
+ src/components/payments/PaymentForm.tsx            |   2 +-
+ src/components/payments/SubscriptionCard.tsx       |   2 +-
+ src/components/ui/Toast.tsx                        |  10 +-
+ src/lib/billing/cost-guard.ts                      |   2 +
+ src/lib/services/deadlineExtractor.ts              |   2 +-
+ tests/legal/matrix.test.ts                         |  11 +-
+ tests/legal/scenarios/asile.json                   |   2 +-
+ tests/legal/scenarios/contentieux.json             |   4 +-
+ tests/legal/scenarios/oqtf.json                    |   4 +-
+ tests/unit/ai-resilience.test.ts                   |  12 --
+ vitest.config.ts                                   |   7 ++
+ 48 files changed, 876 insertions(+), 388 deletions(-)
+
+Branches locales:
+audit/cleanup-dead-code-removal
+backup/main-avant-sync
+backup/main-before-release
+backup/v1.1.1-before-artifact-cleanup
+backup/v5-before-sync
+feature/audit-trail-ia
+feature/docs-regles
+feature/fallback-ia
+feature/validate-dates
+fix/nodemailer-next-auth
+main
+release/v1.1.1-clean
+staging
+
+============================================================
+3. NODE / NPM
+============================================================
+
+$ node -v
+v24.20.0
+
+$ npm -v
+11.19.0
+
+============================================================
+4. PROJET
+============================================================
+package.json:
+{
+  "name": "memolib",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev --webpack",
+    "dev:turbo": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev --turbo",
+    "dev:legacy": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev",
+    "dev:debug": "cross-env NODE_OPTIONS=--inspect --max-old-space-size=8192 next dev --webpack",
+    "prebuild": "node generate-seo.js",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next build",
+    "postbuild": "node generate-seo.js",
+    "build:turbo": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next build --turbo",
+    "build:fast": "cross-env NODE_OPTIONS=--max-old-space-size=8192 NEXT_TELEMETRY_DISABLED=1 next build --turbo",
+    "start": "next start",
+    "start:prod": "cross-env NODE_ENV=production next start -p 3000",
+    "preview": "npm run build && npm run start",
+    "lint": "eslint src --max-warnings 50",
+    "lint:fix": "eslint src --fix",
+    "lint:strict": "eslint src --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --exclude='**/integration/**' --exclude='**/e2e/**' --exclude='**/saas-db*' --exclude='**/legifrance*'",
+    "test:integration": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest __testPathPatterns=integration --coverage --passWithNoTests --maxWorkers=2",
+    "test:unit": "vitest run tests/unit src/__tests__/lib src/__tests__/domain src/__tests__/utils src/__tests__/types src/__tests__/constants",
+    "test:e2e": "playwright test tests/e2e",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:advanced": "node scripts/run-advanced-tests.js",
+    "test:vitest": "vitest run",
+    "test:vitest:watch": "vitest --ui",
+    "test:components": "vitest run --config vitest.components.config.ts",
+    "test:scenarios": "npx playwright test tests/e2e/advanced-scenarios.spec.ts",
+    "test:performance": "npx playwright test tests/performance/load-testing.spec.ts --project=chromium",
+    "test:security": "npx playwright test tests/security/security-advanced.spec.ts --project=chromium",
+    "coverage:check": "jest --coverage --coverageThreshold='{\"global\":{\"lines\":30,\"branches\":30,\"functions\":30,\"statements\":30}}'",
+    "coverage:report": "jest --coverage --coverageReporters=html && start coverage/lcov-report/index.html",
+    "test:smoke": "node scripts/smoke-tests.js",
+    "test:health": "node scripts/health-check.js",
+    "analyze": "cross-env ANALYZE=true NEXT_TELEMETRY_DISABLED=1 next build",
+    "analyze:bundle": "npm run analyze",
+    "analyze:maps": "ANALYZE=true npm run build && npx source-map-explorer '.next/static/chunks/*.js' --html --output bundle-report.html",
+    "type-check": "cross-env NODE_OPTIONS=--max-old-space-size=16384 tsc --noEmit --incremental --skipLibCheck",
+    "type-check:safe": "bash scripts/type-check-safe.sh",
+    "type-check:changed": "bash scripts/type-check-changed.sh",
+    "type-check:diagnostic": "bash scripts/typescript-diagnostic.sh",
+    "type-check:watch": "cross-env NODE_OPTIONS=--max-old-space-size=16384 tsc --noEmit --watch",
+    "clean": "rimraf .next out dist .turbo node_modules/.cache",
+    "clean:all": "rimraf .next out dist .turbo node_modules/.cache coverage test-results playwright-report .jest-cache .swc .wrangler .open-next",
+    "clean:project": "node -e \"console.log('Use: .\\\\clean-project.ps1 (Windows) or ./clean-project.sh (Linux/Mac)')\"",
+    "fresh": "npm run clean && npm install && npm run build",
+    "figma": "node scripts/figma-cli.js",
+    "figma:sync": "tsx scripts/figma-sync.ts",
+    "figma:icons": "tsx scripts/figma-icons.ts",
+    "figma:all": "npm run figma:sync && npm run figma:icons",
+    "hooks:install": "powershell -ExecutionPolicy Bypass -File ./scripts/install-git-hooks.ps1",
+    "commit:snapshot": "powershell -ExecutionPolicy Bypass -File ./scripts/git-snapshot.ps1",
+    "commit:snapshot:push": "powershell -ExecutionPolicy Bypass -File ./scripts/git-snapshot.ps1 -Push",
+    "tag:version": "powershell -ExecutionPolicy Bypass -File ./scripts/git-tag-version.ps1",
+    "tag:version:minor": "powershell -ExecutionPolicy Bypass -File ./scripts/git-tag-version.ps1 -Bump minor",
+    "tag:version:major": "powershell -ExecutionPolicy Bypass -File ./scripts/git-tag-version.ps1 -Bump major",
+    "tag:version:push": "powershell -ExecutionPolicy Bypass -File ./scripts/git-tag-version.ps1 -Push",
+    "prepare": "echo Skipping husky install",
+    "postinstall": "prisma generate",
+    "db:reset": "node scripts/reset-db.js",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:seed:demo": "tsx prisma/seed-demo-client.ts",
+    "db:seed:complete": "tsx prisma/seed-complete.ts",
+    "db:studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:pull": "prisma db pull",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:prod": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:optimize": "tsx scripts/db-optimize.ts",
+    "db:health": "tsx scripts/db-health.ts",
+    "db:benchmark": "tsx scripts/db-benchmark.ts",
+    "db:backup": "tsx scripts/db-backup.ts",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css,scss}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css,scss}\"",
+    "validate": "npm run type-check && npm run lint && npm run test",
+    "validate:full": "npm run type-check && npm run lint:strict && npm run test:ci",
+    "validate:project": "bash scripts/validate-project.sh",
+    "predeploy:vercel": "npm run type-check && npm run build",
+    "deploy:vercel": "vercel --prod",
+    "deploy:vercel:preview": "vercel",
+    "deploy:vercel:safe": "npm run predeploy:vercel && vercel build --prod && vercel deploy --prebuilt --prod",
+    "deploy:vercel:preview:safe": "npm run predeploy:vercel && vercel build && vercel deploy --prebuilt",
+    "email:monitor": "tsx scripts/start-gmail-monitor.ts",
+    "email:monitor:integrated": "tsx scripts/email-monitor-integrated.ts",
+    "email:stats": "tsx scripts/email-stats.ts",
+    "email:export": "tsx scripts/email-export.ts",
+    "email:setup": "tsx scripts/email-setup.ts",
+    "email:to-workspace": "tsx scripts/email-to-workspace.ts",
+    "email:to-workspace:ai": "tsx scripts/email-to-workspace-ai.ts",
+    "email:test": "tsx scripts/test-email-processing.ts",
+    "email:test:demo": "npm test -- src/__tests__/api/emails/incoming-route.test.ts src/__tests__/api/lawyer/workspace-emails-route.test.ts",
+    "email:test:integration-db": "cross-env REAL_DB_TESTS=1 USE_REAL_DB_FOR_TESTS=1 vitest run --config vitest.email-integration.config.ts",
+    "email:test:load": "tsx scripts/test-email-ingestion-load.ts",
+    "email:thread": "tsx scripts/test-email-threading.ts",
+    "gmail:auth": "node scripts/gmail-auth.js",
+    "ai:test": "tsx scripts/ai-test.ts",
+    "ai:test:ceseda": "tsx scripts/ai-test-ceseda.ts",
+    "seed:demo": "tsx prisma/seeds/demo-workspaces.ts",
+    "security:scan": "ggshield secret scan path .",
+    "security:precommit": "ggshield secret scan pre-commit",
+    "security:ci": "ggshield secret scan ci",
+    "security:staged": "ggshield secret scan pre-receive",
+    "security:install": "ggshield install -m local",
+    "security:check": "ggshield secret scan path . --exit-zero",
+    "security:audit": "npm audit && node scripts/security-monitor.js",
+    "security:fix": "npm audit fix --force",
+    "security:report": "node scripts/security-monitor.js",
+    "pre-push": "npm run validate",
+    "check-quality": "node scripts/check-quality.js",
+    "deps:check": "npm outdated",
+    "deps:update": "npm update",
+    "deps:audit": "npm audit",
+    "deps:unused": "npx depcheck --ignores='@types/*,eslint-*,@testing-library/*'",
+    "deps:clean": "npm prune && npm dedupe",
+    "dx:setup": "npm install && npx prisma generate && npm run dev",
+    "dx:reset": "npm run clean && npm run dx:setup",
+    "dx:check": "npm run lint && npm run type-check && npm run test",
+    "dx:health": "node -e 'console.log(\"✅ Node:\", process.version)'",
+    "monitor:prod": "tsx scripts/monitor-production.ts",
+    "monitor:loop": "tsx scripts/monitor-loop.ts",
+    "demo:script": "tsx scripts/demo-script.ts",
+    "demo:run": "npm run dev",
+    "demo:all": "tsx scripts/demo-all-features.ts",
+    "api:e2e:onboarding": "powershell -ExecutionPolicy Bypass -File ./scripts/e2e-onboarding.ps1",
+    "api:e2e:onboarding:base": "powershell -ExecutionPolicy Bypass -Command \"param([string]$u='http://localhost:8091'); & ./scripts/e2e-onboarding.ps1 -BaseUrl $u\"",
+    "demo:client:sarrab:check": "node scripts/validate-demo-client-config.js",
+    "demo:client:sarrab:run": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab.ps1",
+    "demo:client:sarrab:monitor": "npm run demo:client:sarrab:check && npm run email:monitor:integrated",
+    "demo:client:sarrab:full": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab-full.ps1",
+    "test:storage": "vitest run src/lib/storage/storageService.smoke.test.ts",
+    "requirements:check": "node scripts/check-release-requirements.js",
+    "requirements:release": "node scripts/check-release-requirements.js --release"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.5.0",
+    "@azure/keyvault-secrets": "^4.9.0",
+    "@azure/storage-blob": "^12.32.0",
+    "@clerk/nextjs": "^7.8.2",
+    "@headlessui/react": "^2.2.9",
+    "@hookform/resolvers": "^5.2.2",
+    "@neondatabase/serverless": "^1.0.2",
+    "@octokit/app": "^16.1.2",
+    "@octokit/core": "^7.0.6",
+    "@octokit/rest": "^22.0.1",
+    "@otplib/preset-default": "^12.0.1",
+    "@prisma/client": "^5.22.0",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@semantic-release/commit-analyzer": "^13.0.0",
+    "@semantic-release/npm": "^12.0.0",
+    "@sendgrid/mail": "^8.1.6",
+    "@sentry/nextjs": "^10.71.0",
+    "@sentry/node": "^10.38.0",
+    "@stripe/react-stripe-js": "^5.6.0",
+    "@stripe/stripe-js": "^8.7.0",
+    "@tanstack/react-query": "^5.90.16",
+    "@tiptap/extension-link": "^3.20.4",
+    "@tiptap/extension-underline": "^3.20.4",
+    "@tiptap/react": "^3.20.4",
+    "@tiptap/starter-kit": "^3.20.4",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.2",
+    "@vercel/blob": "^2.0.1",
+    "bcryptjs": "^3.0.3",
+    "brace-expansion": "^5.0.9",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "docx": "^9.5.1",
+    "exceljs": "^4.4.0",
+    "googleapis": "^169.0.0",
+    "handlebars": "^4.7.8",
+    "imapflow": "^1.0.171",
+    "ip-address": "^10.3.1",
+    "jspdf": "^4.0.0",
+    "jspdf-autotable": "^5.0.2",
+    "lucide-react": "^0.562.0",
+    "mailparser": "^3.9.1",
+    "mammoth": "^1.11.0",
+    "minimatch": "^10.2.6",
+    "next": "^16.2.11",
+    "next-intl": "^4.8.2",
+    "node-cron": "^4.2.1",
+    "openai": "^6.15.0",
+    "otplib": "^13.0.0",
+    "papaparse": "^5.5.3",
+    "pdf-parse": "^2.4.5",
+    "pdf2json": "^4.0.0",
+    "pg": "^8.18.0",
+    "picomatch": "^4.0.4",
+    "prisma": "^5.22.0",
+    "qrcode": "^1.5.4",
+    "railway": "^3.11.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.69.0",
+    "react-is": "^19.2.3",
+    "recharts": "^3.6.0",
+    "redis": "^5.11.0",
+    "regression": "^2.0.1",
+    "resend": "^6.24.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
+    "ssh2": "^1.17.0",
+    "stripe": "^20.2.0",
+    "swr": "^2.3.8",
+    "tailwind-merge": "^3.4.0",
+    "tar": "^7.5.22",
+    "twilio": "^5.12.0",
+
+Lockfiles:
+./package-lock.json
+
+============================================================
+5. ROUTES NEXT.JS
+============================================================
+Pages:
+src/app/[locale]/admin/ai-usage/page.tsx
+src/app/[locale]/admin/analytics/page.tsx
+src/app/[locale]/admin/analytics/search/page.tsx
+src/app/[locale]/admin/backup/restore/page.tsx
+src/app/[locale]/admin/billing/devis/[id]/page.tsx
+src/app/[locale]/admin/billing/devis/page.tsx
+src/app/[locale]/admin/billing/page.tsx
+src/app/[locale]/admin/billing/portefeuille/page.tsx
+src/app/[locale]/admin/billing/rapports/page.tsx
+src/app/[locale]/admin/billing/relances/page.tsx
+src/app/[locale]/admin/billing/tarification/page.tsx
+src/app/[locale]/admin/billing/virement/page.tsx
+src/app/[locale]/admin/clients/[id]/edit/page.tsx
+src/app/[locale]/admin/clients/[id]/historique/page.tsx
+src/app/[locale]/admin/clients/[id]/notes/page.tsx
+src/app/[locale]/admin/clients/[id]/page.tsx
+src/app/[locale]/admin/clients/[id]/rgpd/page.tsx
+src/app/[locale]/admin/clients/[id]/signatures/page.tsx
+src/app/[locale]/admin/clients/page.tsx
+src/app/[locale]/admin/compliance/page.tsx
+src/app/[locale]/admin/comptabilite/page.tsx
+src/app/[locale]/admin/costs/page.tsx
+src/app/[locale]/admin/dashboard/page.tsx
+src/app/[locale]/admin/documents/[id]/metadata/page.tsx
+src/app/[locale]/admin/documents/[id]/ocr/page.tsx
+src/app/[locale]/admin/documents/[id]/preview/page.tsx
+src/app/[locale]/admin/documents/[id]/share/page.tsx
+src/app/[locale]/admin/documents/[id]/sign/page.tsx
+src/app/[locale]/admin/documents/[id]/versions/page.tsx
+src/app/[locale]/admin/documents/page.tsx
+src/app/[locale]/admin/dossiers/[id]/budget/page.tsx
+src/app/[locale]/admin/dossiers/[id]/chat/page.tsx
+src/app/[locale]/admin/dossiers/[id]/edit/page.tsx
+src/app/[locale]/admin/dossiers/[id]/jalons/page.tsx
+src/app/[locale]/admin/dossiers/[id]/page.tsx
+src/app/[locale]/admin/dossiers/[id]/parties/page.tsx
+src/app/[locale]/admin/dossiers/[id]/stats/page.tsx
+src/app/[locale]/admin/dossiers/archives/page.tsx
+src/app/[locale]/admin/dossiers/nouveau/page.tsx
+src/app/[locale]/admin/dossiers/page.tsx
+src/app/[locale]/admin/email-monitoring/page.tsx
+src/app/[locale]/admin/equipes/[id]/page.tsx
+src/app/[locale]/admin/equipes/page.tsx
+src/app/[locale]/admin/inbox/page.tsx
+src/app/[locale]/admin/integration/page.tsx
+src/app/[locale]/admin/integrations/docusign/page.tsx
+src/app/[locale]/admin/integrations/gmail/page.tsx
+src/app/[locale]/admin/integrations/google-calendar/page.tsx
+src/app/[locale]/admin/integrations/google-drive/page.tsx
+src/app/[locale]/admin/integrations/onedrive/page.tsx
+src/app/[locale]/admin/integrations/outlook/page.tsx
+src/app/[locale]/admin/integrations/page.tsx
+src/app/[locale]/admin/integrations/salesforce/page.tsx
+src/app/[locale]/admin/integrations/yousign/page.tsx
+src/app/[locale]/admin/legal-proofs/page.tsx
+src/app/[locale]/admin/messages/archives/page.tsx
+src/app/[locale]/admin/messages/page.tsx
+src/app/[locale]/admin/multichannel/page.tsx
+src/app/[locale]/admin/page.tsx
+src/app/[locale]/admin/parametres/page.tsx
+src/app/[locale]/admin/rapports/couts/page.tsx
+src/app/[locale]/admin/rapports/fermeture/page.tsx
+src/app/[locale]/admin/rapports/previsions/page.tsx
+src/app/[locale]/admin/rapports/satisfaction/page.tsx
+src/app/[locale]/admin/rapports/temps/page.tsx
+src/app/[locale]/admin/sector-rules/page.tsx
+src/app/[locale]/admin/taches/[id]/page.tsx
+src/app/[locale]/admin/taches/assignation/page.tsx
+src/app/[locale]/admin/taches/dependances/page.tsx
+src/app/[locale]/admin/taches/kanban/page.tsx
+src/app/[locale]/admin/taches/page.tsx
+src/app/[locale]/admin/taches/timeline/page.tsx
+src/app/[locale]/admin/team/page.tsx
+src/app/[locale]/admin/workflows/config/page.tsx
+src/app/[locale]/advanced-features/page.tsx
+src/app/[locale]/advanced/page.tsx
+src/app/[locale]/ai-assistant/page.tsx
+src/app/[locale]/analytics/page.tsx
+src/app/[locale]/auth/error/page.tsx
+src/app/[locale]/auth/forgot-password/page.tsx
+src/app/[locale]/auth/login/page.tsx
+src/app/[locale]/auth/register/page.tsx
+src/app/[locale]/auth/reset-password/page.tsx
+src/app/[locale]/auth/verify-email/page.tsx
+src/app/[locale]/billing/page.tsx
+src/app/[locale]/calendrier/blocages/page.tsx
+src/app/[locale]/calendrier/dates-cles/page.tsx
+src/app/[locale]/calendrier/integrations/page.tsx
+src/app/[locale]/calendrier/page.tsx
+src/app/[locale]/calendrier/rappels-sms/page.tsx
+src/app/[locale]/calendrier/recurrence/page.tsx
+src/app/[locale]/charte-ia/page.tsx
+src/app/[locale]/client-dashboard-demo/page.tsx
+src/app/[locale]/client-dashboard/page.tsx
+src/app/[locale]/client/documents/page.tsx
+src/app/[locale]/client/dossiers/[id]/page.tsx
+src/app/[locale]/client/dossiers/nouveau/page.tsx
+src/app/[locale]/client/dossiers/page.tsx
+src/app/[locale]/client/messages/page.tsx
+src/app/[locale]/client/nouveau-dossier/page.tsx
+src/app/[locale]/client/page.tsx
+src/app/[locale]/client/profil/page.tsx
+src/app/[locale]/clients/[id]/page.tsx
+src/app/[locale]/clients/page.tsx
+src/app/[locale]/comptable/page.tsx
+src/app/[locale]/contact/page.tsx
+src/app/[locale]/dashboard-demo/page.tsx
+src/app/[locale]/dashboard/calendar/page.tsx
+src/app/[locale]/dashboard/documents/page.tsx
+src/app/[locale]/dashboard/factures/page.tsx
+src/app/[locale]/dashboard/page.tsx
+src/app/[locale]/demo/auto-login/page.tsx
+src/app/[locale]/demo/avocat/page.tsx
+src/app/[locale]/demo/blanvillain/page.tsx
+src/app/[locale]/demo/boudhane/page.tsx
+src/app/[locale]/demo/complete/page.tsx
+src/app/[locale]/demo/email-simulator/page.tsx
+src/app/[locale]/demo/legal-proof/page.tsx
+src/app/[locale]/demo/page.tsx
+src/app/[locale]/demo/workspace-reasoning/page.tsx
+src/app/[locale]/documents/[id]/page.tsx
+src/app/[locale]/documents/page.tsx
+src/app/[locale]/dossiers/[id]/chat/page.tsx
+src/app/[locale]/dossiers/[id]/membres/page.tsx
+src/app/[locale]/dossiers/[id]/page.tsx
+src/app/[locale]/dossiers/nouveau/page.tsx
+src/app/[locale]/dossiers/page.tsx
+src/app/[locale]/dossiers/rapide/page.tsx
+src/app/[locale]/drafts/[id]/page.tsx
+src/app/[locale]/emails/[id]/page.tsx
+src/app/[locale]/emails/page.tsx
+src/app/[locale]/exports/page.tsx
+src/app/[locale]/factures/[id]/page.tsx
+src/app/[locale]/factures/page.tsx
+src/app/[locale]/faq/page.tsx
+src/app/[locale]/gestion-cabinet-avocat/page.tsx
+src/app/[locale]/landing/page.tsx
+src/app/[locale]/lawyer/advanced/page.tsx
+src/app/[locale]/lawyer/forms/dashboard/page.tsx
+src/app/[locale]/lawyer/forms/page.tsx
+src/app/[locale]/lawyer/integrations/page.tsx
+src/app/[locale]/lawyer/monitoring/page.tsx
+src/app/[locale]/lawyer/notifications/page.tsx
+src/app/[locale]/lawyer/workspace/[id]/page.tsx
+src/app/[locale]/lawyer/workspace/new/page.tsx
+src/app/[locale]/lawyer/workspaces/[id]/page.tsx
+src/app/[locale]/lawyer/workspaces/page.tsx
+src/app/[locale]/legal/avocat/page.tsx
+src/app/[locale]/legal/cgu/page.tsx
+src/app/[locale]/legal/confidentialite/page.tsx
+src/app/[locale]/legal/cookies/page.tsx
+src/app/[locale]/legal/mentions-legales/page.tsx
+src/app/[locale]/legal/privacy/page.tsx
+src/app/[locale]/logiciel-avocat/page.tsx
+src/app/[locale]/login/page.tsx
+src/app/[locale]/oqtf-delais-recours/page.tsx
+src/app/[locale]/page.tsx
+src/app/[locale]/pricing/page.tsx
+src/app/[locale]/privacy-policy/page.tsx
+src/app/[locale]/privacy/page.tsx
+src/app/[locale]/project-status/page.tsx
+src/app/[locale]/rendez-vous/page.tsx
+src/app/[locale]/search/page.tsx
+src/app/[locale]/secretaire/page.tsx
+src/app/[locale]/settings/billing/page.tsx
+src/app/[locale]/settings/emails/imap/page.tsx
+src/app/[locale]/settings/emails/page.tsx
+src/app/[locale]/settings/notifications/page.tsx
+src/app/[locale]/settings/notifications/preferences/page.tsx
+src/app/[locale]/settings/page.tsx
+src/app/[locale]/settings/security/[[...rest]]/page.tsx
+src/app/[locale]/settings/security/api-keys/page.tsx
+src/app/[locale]/settings/webhooks/page.tsx
+src/app/[locale]/sign-in/[[...sign-in]]/page.tsx
+src/app/[locale]/sign-up/[[...sign-up]]/page.tsx
+src/app/[locale]/signup/page.tsx
+src/app/[locale]/super-admin/analytics/page.tsx
+src/app/[locale]/super-admin/dashboard-demo/page.tsx
+src/app/[locale]/super-admin/dashboard/page.tsx
+src/app/[locale]/super-admin/emails/page.tsx
+src/app/[locale]/super-admin/page.tsx
+src/app/[locale]/super-admin/plans/page.tsx
+src/app/[locale]/super-admin/settings/page.tsx
+src/app/[locale]/super-admin/support/page.tsx
+src/app/[locale]/super-admin/system/page.tsx
+src/app/[locale]/super-admin/tenants/[id]/page.tsx
+src/app/[locale]/super-admin/tenants/nouveau/page.tsx
+src/app/[locale]/super-admin/tenants/page.tsx
+src/app/[locale]/super-admin/users/page.tsx
+src/app/[locale]/templates/clauses/page.tsx
+src/app/[locale]/templates/contrats/page.tsx
+src/app/[locale]/templates/generateur/page.tsx
+src/app/[locale]/templates/lettres/page.tsx
+src/app/[locale]/templates/page.tsx
+src/app/[locale]/theme/page.tsx
+src/app/[locale]/time-tracking/page.tsx
+src/app/[locale]/workflows/page.tsx
+src/app/[locale]/workspaces/[id]/page.tsx
+src/app/[locale]/workspaces/new/page.tsx
+src/app/[locale]/workspaces/page.tsx
+src/app/auth/login/page.tsx
+src/app/auth/register/page.tsx
+src/app/oauth/callback/page.tsx
+src/app/page.tsx
+
+API routes:
+src/app/[locale]/api/auth/register/route.ts
+src/app/[locale]/api/auth/verify-email/route.ts
+src/app/api/action-proposals/[id]/approve/route.ts
+src/app/api/action-proposals/[id]/reject/route.ts
+src/app/api/action-proposals/route.ts
+src/app/api/admin/clients/[id]/route.ts
+src/app/api/admin/clients/route.ts
+src/app/api/admin/compliance/deletions/route.ts
+src/app/api/admin/compliance/exports/route.ts
+src/app/api/admin/compliance/stats/route.ts
+src/app/api/admin/costs/route.ts
+src/app/api/admin/create-dossier-from-email/route.ts
+src/app/api/admin/documents/[id]/download/route.ts
+src/app/api/admin/documents/route.ts
+src/app/api/admin/dossiers/[id]/route.ts
+src/app/api/admin/dossiers/route.ts
+src/app/api/admin/email-monitor/route.ts
+src/app/api/admin/messages/mark-read/route.ts
+src/app/api/admin/messages/route.ts
+src/app/api/admin/profil/password/route.ts
+src/app/api/admin/profil/route.ts
+src/app/api/admin/team/route.ts
+src/app/api/ai/analyze-dossier/route.ts
+src/app/api/ai/analyze/route.ts
+src/app/api/ai/chat/route.ts
+src/app/api/ai/copilot/[dossierId]/route.ts
+src/app/api/ai/copilot/morning-brief/route.ts
+src/app/api/ai/draft-reply/route.ts
+src/app/api/ai/feedback/route.ts
+src/app/api/ai/form-suggestions/route.ts
+src/app/api/ai/generate-recours/route.ts
+src/app/api/ai/generate/route.ts
+src/app/api/ai/health/route.ts
+src/app/api/ai/predict-outcome/route.ts
+src/app/api/ai/prepare-ofpra/route.ts
+src/app/api/ai/risk-analysis/[dossierId]/route.ts
+src/app/api/ai/strategy/route.ts
+src/app/api/ai/summarize-email/route.ts
+src/app/api/ai/translate/route.ts
+src/app/api/aide-juridictionnelle/eligibilite/route.ts
+src/app/api/analytics/abandon/route.ts
+src/app/api/analytics/ai/route.ts
+src/app/api/analytics/emails/route.ts
+src/app/api/analytics/engagement/route.ts
+src/app/api/analytics/metrics/route.ts
+src/app/api/analytics/revenue/route.ts
+src/app/api/analytics/web-vitals/route.ts
+src/app/api/appointments/route.ts
+src/app/api/audit-logs/route.ts
+src/app/api/audit/dashboard/route.ts
+src/app/api/audit/timeline/[entityType]/[entityId]/route.ts
+src/app/api/audit/trail/route.ts
+src/app/api/audit/verify-all/route.ts
+src/app/api/audit/verify/[eventId]/route.ts
+src/app/api/auth/signout/route.ts
+src/app/api/azure/keyvault/secret/route.ts
+src/app/api/azure/storage/list/route.ts
+src/app/api/azure/storage/upload/route.ts
+src/app/api/beta-signup/route.ts
+src/app/api/billing/ai-costs/route.ts
+src/app/api/billing/checkout/route.ts
+src/app/api/billing/features/route.ts
+src/app/api/billing/manage/route.ts
+src/app/api/billing/plans/route.ts
+src/app/api/billing/portal/route.ts
+src/app/api/billing/quotas/route.ts
+src/app/api/billing/subscription/route.ts
+src/app/api/calendar/google-sync/route.ts
+src/app/api/calendar/ics/route.ts
+src/app/api/calendar/route.ts
+src/app/api/calendar/sync/route.ts
+src/app/api/chat/[dossierId]/messages/route.ts
+src/app/api/client-portal/shares/route.ts
+src/app/api/client/[clientId]/dashboard/route.ts
+src/app/api/client/ai-usage/route.ts
+src/app/api/client/demandes/route.ts
+src/app/api/client/documents/[id]/download/route.ts
+src/app/api/client/documents/route.ts
+src/app/api/client/documents/upload/route.ts
+src/app/api/client/dossiers/[id]/checklist/route.ts
+src/app/api/client/dossiers/[id]/route.ts
+src/app/api/client/dossiers/[id]/upload/route.ts
+src/app/api/client/dossiers/route.ts
+src/app/api/client/factures/[id]/download/route.ts
+src/app/api/client/messages/mark-read/route.ts
+src/app/api/client/messages/route.ts
+src/app/api/client/my-dossiers/route.ts
+src/app/api/client/my-factures/route.ts
+src/app/api/client/profil/password/route.ts
+src/app/api/client/profil/route.ts
+src/app/api/clients/[id]/route.ts
+src/app/api/clients/route.ts
+src/app/api/community-templates/[id]/vote/route.ts
+src/app/api/community-templates/route.ts
+src/app/api/compliance/consent/route.ts
+src/app/api/compliance/delete/route.ts
+src/app/api/compliance/export/route.ts
+src/app/api/comptabilite/balance/route.ts
+src/app/api/comptabilite/banque/rapprocher/route.ts
+src/app/api/comptabilite/banque/route.ts
+src/app/api/comptabilite/carpa/route.ts
+src/app/api/comptabilite/dashboard/route.ts
+src/app/api/comptabilite/ecritures/route.ts
+src/app/api/comptabilite/ecritures/valider/route.ts
+src/app/api/comptabilite/grand-livre/route.ts
+src/app/api/comptabilite/plan-comptable/route.ts
+src/app/api/comptabilite/resultat/route.ts
+src/app/api/comptabilite/tva/route.ts
+src/app/api/conflicts/check/route.ts
+src/app/api/contact/route.ts
+src/app/api/cron/cost-alerts/route.ts
+src/app/api/cron/deadline-alerts/route.ts
+src/app/api/cron/deadline-email-alerts/route.ts
+src/app/api/cron/email-sync/route.ts
+src/app/api/cron/escalation/route.ts
+src/app/api/cron/invoice-reminders/route.ts
+src/app/api/cron/rappel-audiences/route.ts
+src/app/api/cron/relance-pieces/route.ts
+src/app/api/cron/trial-expiry/route.ts
+src/app/api/cron/workflows/route.ts
+src/app/api/dashboard/monthly-data/route.ts
+src/app/api/dashboard/recent-activities/route.ts
+src/app/api/dashboard/stats/route.ts
+src/app/api/delais/route.ts
+src/app/api/demo/route.ts
+src/app/api/demo/seed/route.ts
+src/app/api/deployment/final-report/route.ts
+src/app/api/deployment/phase6-production/route.ts
+src/app/api/deployment/status/route.ts
+src/app/api/dev/ai-stats/route.ts
+src/app/api/dev/health/route.ts
+src/app/api/dev/metrics/route.ts
+src/app/api/dev/workflow-stats/route.ts
+src/app/api/documents/[id]/route.ts
+src/app/api/documents/convention-honoraires/route.ts
+src/app/api/documents/download/[id]/route.ts
+src/app/api/documents/download/route.ts
+src/app/api/documents/generate-docx/route.ts
+src/app/api/documents/generate/route.ts
+src/app/api/documents/route.ts
+src/app/api/documents/upload/route.ts
+src/app/api/dossiers/[id]/checklist/route.ts
+src/app/api/dossiers/[id]/confidential/route.ts
+src/app/api/dossiers/[id]/honoraires/route.ts
+src/app/api/dossiers/[id]/members/route.ts
+src/app/api/dossiers/[id]/outcome/route.ts
+src/app/api/dossiers/[id]/route.ts
+src/app/api/dossiers/[id]/timeline/route.ts
+src/app/api/dossiers/export/route.ts
+src/app/api/dossiers/route.ts
+src/app/api/dossiers/timeline/route.ts
+src/app/api/drafts/[id]/reject/route.ts
+src/app/api/drafts/[id]/validate/route.ts
+src/app/api/drafts/route.ts
+src/app/api/email/connect/gmail/callback/route.ts
+src/app/api/email/connect/gmail/route.ts
+src/app/api/email/connect/outlook/callback/route.ts
+src/app/api/email/connect/outlook/route.ts
+src/app/api/emails/[id]/integrate/route.ts
+src/app/api/emails/connect/route.ts
+src/app/api/emails/create-dossier/route.ts
+src/app/api/emails/fetch/route.ts
+src/app/api/emails/incoming/route.ts
+src/app/api/emails/paste/route.ts
+src/app/api/emails/route.ts
+src/app/api/emails/send/route.ts
+src/app/api/emails/simulate/route.ts
+src/app/api/exports/fec/route.ts
+src/app/api/factures/[id]/pdf/route.ts
+src/app/api/factures/[id]/route.ts
+src/app/api/factures/route.ts
+src/app/api/forms/approvals/route.ts
+src/app/api/forms/resource-request/route.ts
+src/app/api/forms/risk-assessment/route.ts
+src/app/api/forms/risks/route.ts
+src/app/api/forms/stats/route.ts
+src/app/api/forms/strategic-decision/route.ts
+src/app/api/forms/submissions/route.ts
+src/app/api/github/issues/create/route.ts
+src/app/api/github/sync-dossier/route.ts
+src/app/api/github/user/route.ts
+src/app/api/health/live/route.ts
+src/app/api/health/route.ts
+src/app/api/import-export/csv/route.ts
+src/app/api/inbox/prioritized/route.ts
+src/app/api/information-units/route.ts
+src/app/api/intake/route.ts
+src/app/api/integrations/sync/route.ts
+src/app/api/jurisprudence/search/route.ts
+src/app/api/lawyer/workspace/[id]/execute-action/route.ts
+src/app/api/lawyer/workspace/[id]/execute-reasoning/route.ts
+src/app/api/lawyer/workspace/[id]/export/route.ts
+src/app/api/lawyer/workspace/[id]/resolve-missing/route.ts
+src/app/api/lawyer/workspace/[id]/route.ts
+src/app/api/lawyer/workspaces/[id]/documents/[docId]/download/route.ts
+src/app/api/lawyer/workspaces/[id]/documents/[docId]/route.ts
+src/app/api/lawyer/workspaces/[id]/documents/route.ts
+src/app/api/lawyer/workspaces/[id]/emails/route.ts
+src/app/api/lawyer/workspaces/[id]/notes/[noteId]/route.ts
+src/app/api/lawyer/workspaces/[id]/notes/route.ts
+src/app/api/lawyer/workspaces/[id]/procedures/[procId]/checklist/route.ts
+src/app/api/lawyer/workspaces/[id]/procedures/[procId]/route.ts
+src/app/api/lawyer/workspaces/[id]/procedures/route.ts
+src/app/api/lawyer/workspaces/[id]/route.ts
+src/app/api/lawyer/workspaces/route.ts
+src/app/api/legal-deadlines/[id]/acknowledge/route.ts
+src/app/api/legal-deadlines/[id]/suspend/route.ts
+src/app/api/legal-deadlines/route.ts
+src/app/api/legal/cookies/route.ts
+src/app/api/legal/privacy/route.ts
+src/app/api/legal/proof/export/route.ts
+src/app/api/legal/proof/generate/route.ts
+src/app/api/legal/proof/sign/route.ts
+src/app/api/legal/proof/verify/route.ts
+src/app/api/legal/tos/route.ts
+src/app/api/legifrance/search/route.ts
+src/app/api/metrics/route.ts
+src/app/api/monitoring/email-ingestion/route.ts
+src/app/api/monitoring/metrics-dashboard/route.ts
+src/app/api/monitoring/release-health/route.ts
+src/app/api/monitoring/sentry-test/route.ts
+src/app/api/multichannel/messages/route.ts
+src/app/api/multichannel/rgpd/route.ts
+src/app/api/multichannel/stats/route.ts
+src/app/api/notifications/client-update/route.ts
+src/app/api/notifications/route.ts
+src/app/api/notifications/sms/route.ts
+src/app/api/notifications/stream/route.ts
+src/app/api/notifications/test-email/route.ts
+src/app/api/oauth/authorize/route.ts
+src/app/api/oauth/callback/route.ts
+src/app/api/oauth/gmail/callback/route.ts
+src/app/api/oauth/gmail/connect/route.ts
+src/app/api/oauth/tokens/route.ts
+src/app/api/ocr/extract/route.ts
+src/app/api/onboarding/status/route.ts
+src/app/api/payments/create-checkout/route.ts
+src/app/api/payments/invoices/route.ts
+src/app/api/payments/methods/route.ts
+src/app/api/payments/webhook/route.ts
+src/app/api/pending-actions/[id]/approve/route.ts
+src/app/api/pending-actions/[id]/reject/route.ts
+src/app/api/pending-actions/[id]/route.ts
+src/app/api/pending-actions/bulk-approve/route.ts
+src/app/api/pending-actions/bulk-reject/route.ts
+src/app/api/pending-actions/route.ts
+src/app/api/preferences/route.ts
+src/app/api/proofs/route.ts
+src/app/api/questionnaire/case/[caseId]/responses/route.ts
+src/app/api/questionnaire/for-event/[eventId]/route.ts
+src/app/api/questionnaire/response/route.ts
+src/app/api/realtime/events/route.ts
+src/app/api/reports/route.ts
+src/app/api/saas/signup/route.ts
+src/app/api/search/analytics/route.ts
+src/app/api/search/route.ts
+src/app/api/search/suggestions/route.ts
+src/app/api/sentry-example-api/route.ts
+src/app/api/signatures/request/route.ts
+src/app/api/subscriptions/cancel/route.ts
+src/app/api/subscriptions/create/route.ts
+src/app/api/subscriptions/current/route.ts
+src/app/api/super-admin/emails/route.ts
+src/app/api/super-admin/plans/route.ts
+src/app/api/super-admin/stats/route.ts
+src/app/api/super-admin/support/route.ts
+src/app/api/super-admin/tenants/route.ts
+src/app/api/super-admin/users/route.ts
+src/app/api/super-admin/workflows/route.ts
+src/app/api/tax/calculate/route.ts
+src/app/api/teams/[id]/members/route.ts
+src/app/api/teams/[id]/route.ts
+src/app/api/teams/route.ts
+src/app/api/tenant/[tenantId]/analytics/route.ts
+src/app/api/tenant/[tenantId]/clients/[clientId]/dossiers/route.ts
+src/app/api/tenant/[tenantId]/clients/with-stats/route.ts
+src/app/api/tenant/[tenantId]/dashboard/monthly-data/route.ts
+src/app/api/tenant/[tenantId]/dashboard/recent-activities/route.ts
+src/app/api/tenant/[tenantId]/dashboard/stats/route.ts
+src/app/api/tenant/[tenantId]/dossiers/all/route.ts
+src/app/api/tenant/[tenantId]/emails/route.ts
+src/app/api/tenant/[tenantId]/learning/route.ts
+src/app/api/tenant/[tenantId]/predictions/route.ts
+src/app/api/tenant/[tenantId]/quick-actions/route.ts
+src/app/api/tenant/[tenantId]/semantic-search/route.ts
+src/app/api/tenant/[tenantId]/suggestions/route.ts
+src/app/api/test-email/route.ts
+src/app/api/test/ceseda-analysis/route.ts
+src/app/api/time-entries/route.ts
+src/app/api/tools/dedup-check/route.ts
+src/app/api/tribunal-stats/route.ts
+src/app/api/user/delete/route.ts
+src/app/api/user/export/route.ts
+src/app/api/user/profile/route.ts
+src/app/api/version/route.ts
+src/app/api/voice/transcribe/route.ts
+src/app/api/webhooks/channel/[channel]/route.ts
+src/app/api/webhooks/email-inbound/route.ts
+src/app/api/webhooks/email/route.ts
+src/app/api/webhooks/github/route.ts
+src/app/api/webhooks/inbox/route.ts
+src/app/api/webhooks/manage/route.ts
+src/app/api/webhooks/route.ts
+src/app/api/webhooks/stripe/route.ts
+src/app/api/webhooks/test-multichannel/phase4/route.ts
+src/app/api/webhooks/test-multichannel/route.ts
+src/app/api/workflows/config/preset/[name]/route.ts
+src/app/api/workflows/config/route.ts
+src/app/api/workflows/trigger/route.ts
+src/app/api/workspace-reasoning/[id]/actions/[actionId]/route.ts
+src/app/api/workspace-reasoning/[id]/contexts/[contextId]/route.ts
+src/app/api/workspace-reasoning/[id]/extract/route.ts
+src/app/api/workspace-reasoning/[id]/facts/route.ts
+src/app/api/workspace-reasoning/[id]/missing/[missingId]/route.ts
+src/app/api/workspace-reasoning/[id]/route.ts
+src/app/api/workspace-reasoning/[id]/transition/route.ts
+src/app/api/workspace-reasoning/[id]/validate/route.ts
+src/app/api/workspace-reasoning/create/route.ts
+src/app/api/workspaces/route.ts
+
+============================================================
+6. CONFIGURATION
+============================================================
+PRESENT: Dockerfile
+ABSENT : railway.json
+PRESENT: vercel.json
+PRESENT: next.config.js
+ABSENT : next.config.mjs
+ABSENT : next.config.ts
+PRESENT: tsconfig.json
+PRESENT: prisma/schema.prisma
+PRESENT: .github/workflows/ci-cd.yml
+
+============================================================
+7. ENVIRONNEMENT — NOMS UNIQUEMENT
+============================================================
+PRESENT: .env (valeurs NON affichées)
+PRESENT: .env.local (valeurs NON affichées)
+PRESENT: .env.production (valeurs NON affichées)
+
+Variables importantes présentes dans le shell (valeurs NON affichées):
+NOT SET: NODE_ENV
+NOT SET: PORT
+NOT SET: DATABASE_URL
+NOT SET: CLERK_SECRET_KEY
+NOT SET: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+NOT SET: GOOGLE_CLIENT_ID
+NOT SET: GOOGLE_CLIENT_SECRET
+NOT SET: RESEND_API_KEY
+NOT SET: SENTRY_DSN
+
+============================================================
+8. PRISMA
+============================================================
+
+$ npx prisma --version
+Environment variables loaded from .env
+prisma                  : 5.22.0
+@prisma/client          : 5.22.0
+Computed binaryTarget   : debian-openssl-3.0.x
+Operating System        : linux
+Architecture            : x64
+Node.js                 : v24.20.0
+Query Engine (Node-API) : libquery-engine 605197351a3c8bdd595af2d2a9bc3025bca48ea2 (at node_modules/@prisma/engines/libquery_engine-debian-openssl-3.0.x.so.node)
+Schema Engine           : schema-engine-cli 605197351a3c8bdd595af2d2a9bc3025bca48ea2 (at node_modules/@prisma/engines/schema-engine-debian-openssl-3.0.x)
+Schema Wasm             : @prisma/prisma-schema-wasm 5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2
+Default Engines Hash    : 605197351a3c8bdd595af2d2a9bc3025bca48ea2
+Studio                  : 0.503.0
+npm notice
+npm notice New major version of npm available! 11.19.0 -> 12.0.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+npm notice To update run: npm install -g npm@12.0.2
+npm notice
+
+$ npx prisma migrate status
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database
+Error: Prisma schema validation - (get-config wasm)
+Error code: P1012
+error: Error validating datasource `db`: You must provide a nonempty URL. The environment variable `DATABASE_URL` resolved to an empty string.
+  -->  prisma/schema.prisma:8
+   | 
+ 7 |   provider = "postgresql"
+ 8 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[Context: getConfig]
+
+Prisma CLI Version : 5.22.0
+[INFO] commande non disponible ou retour non nul
+
+============================================================
+9. DOCKER
+============================================================
+
+$ docker --version
+Docker version 29.7.2, build a7dcaa6
+
+$ docker info
+Client: Docker Engine - Community
+ Version:    29.7.2
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.36.1
+    Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v5.5.0
+    Path:     /usr/libexec/docker/cli-plugins/docker-compose
+  mcp: Docker MCP Plugin (Docker Inc.)
+    Version:  v0.26.0
+    Path:     /home/moros/.docker/cli-plugins/docker-mcp
+
+Server:
+ Containers: 1
+  Running: 0
+  Paused: 0
+  Stopped: 1
+ Images: 1
+ Server Version: 29.7.2
+ Storage Driver: overlayfs
+  driver-type: io.containerd.snapshotter.v1
+ Logging Driver: json-file
+ Cgroup Driver: systemd
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+ CDI spec directories:
+  /etc/cdi
+  /var/run/cdi
+ Swarm: inactive
+ Runtimes: io.containerd.runc.v2 runc
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: db8809540e1a7a9da5d518876894933ff55692ab
+ runc version: v1.4.3-0-gbb14dabe
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 6.18.33.2-microsoft-standard-WSL2
+ Operating System: Ubuntu 24.04.4 LTS
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 12
+ Total Memory: 6.694GiB
+ Name: moroAdmin
+ ID: 6f393421-41d4-4145-8d5f-ad7f556607bc
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ Experimental: false
+ Insecure Registries:
+  ::1/128
+  127.0.0.0/8
+ Live Restore Enabled: false
+ Firewall Backend: iptables
+  EnableUserlandProxy: true
+  UserlandProxyPath: /usr/bin/docker-proxy
+
+
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+============================================================
+10. PORTS LOCAUX
+============================================================
+
+$ ss -tulpn
+Netid State  Recv-Q Send-Q  Local Address:Port  Peer Address:PortProcess
+udp   UNCONN 0      0          127.0.0.54:53         0.0.0.0:*          
+udp   UNCONN 0      0       127.0.0.53%lo:53         0.0.0.0:*          
+udp   UNCONN 0      0      10.255.255.254:53         0.0.0.0:*          
+udp   UNCONN 0      0           127.0.0.1:323        0.0.0.0:*          
+udp   UNCONN 0      0               [::1]:323           [::]:*          
+tcp   LISTEN 0      4096        127.0.0.1:27017      0.0.0.0:*          
+tcp   LISTEN 0      511         127.0.0.1:6379       0.0.0.0:*          
+tcp   LISTEN 0      4096    127.0.0.53%lo:53         0.0.0.0:*          
+tcp   LISTEN 0      511           0.0.0.0:80         0.0.0.0:*          
+tcp   LISTEN 0      4096        127.0.0.1:11434      0.0.0.0:*          
+tcp   LISTEN 0      1000   10.255.255.254:53         0.0.0.0:*          
+tcp   LISTEN 0      4096       127.0.0.54:53         0.0.0.0:*          
+tcp   LISTEN 0      200         127.0.0.1:5433       0.0.0.0:*          
+tcp   LISTEN 0      511              [::]:80            [::]:*          
+tcp   LISTEN 0      511             [::1]:6379          [::]:*          
+
+============================================================
+11. PROCESSUS NODE
+============================================================
+root         109  0.0  0.0 152948  1588 ?        Ssl  20:59   0:00 snapfuse /var/lib/snapd/snaps/core24_1587.snap /snap/core24/1587 -o ro,nodev,allow_other,suid
+root         115  0.0  0.0 152948  1536 ?        Ssl  20:59   0:00 snapfuse /var/lib/snapd/snaps/snapd_27710.snap /snap/snapd/27710 -o ro,nodev,allow_other,suid
+root         120  0.0  0.0 153080  1844 ?        Ssl  20:59   0:00 snapfuse /var/lib/snapd/snaps/core24_1643.snap /snap/core24/1643 -o ro,nodev,allow_other,suid
+root         124  0.0  0.0 153080  1848 ?        Ssl  20:59   0:00 snapfuse /var/lib/snapd/snaps/snapd_27738.snap /snap/snapd/27738 -o ro,nodev,allow_other,suid
+root         131  0.0  0.0 227844  1704 ?        Ssl  20:59   0:00 snapfuse /var/lib/snapd/snaps/terraform_938.snap /snap/terraform/938 -o ro,nodev,allow_other,suid
+root         134  0.0  0.0 152948  1580 ?        Ssl  20:59   0:00 snapfuse /var/lib/snapd/snaps/terraform_933.snap /snap/terraform/933 -o ro,nodev,allow_other,suid
+
+============================================================
+12. OUTILS DE RECHERCHE
+============================================================
+ripgrep (rg) non installé
+
+============================================================
+13. GITHUB ACTIONS
+============================================================
+5:    branches: [main, develop]
+8:      - 'prisma/**'
+13:      - 'docker/**'
+14:      - 'docker-compose.prod.yml'
+15:      - '.dockerignore'
+16:      - 'railway.toml'
+19:    branches: [main]
+22:      - 'prisma/**'
+27:      - 'docker/**'
+28:      - 'docker-compose.prod.yml'
+29:      - '.dockerignore'
+30:      - 'railway.toml'
+35:  NODE_VERSION: '20'
+54:          node-version: ${{ env.NODE_VERSION }}
+57:        run: npm ci
+59:        run: npx prisma generate
+61:        run: npm run lint
+63:        run: npm run type-check
+65:        run: npm run test:ci
+71:        run: npm run build
+84:  docker-build:
+91:        run: docker build --file docker/Dockerfile.frontend --target runner --tag memolib:ci .
+93:        run: docker compose -f docker-compose.prod.yml config --quiet
+108:    needs: [build-and-test, docker-build]
+131:    needs: [build-and-test, docker-build, security-scan]
+136:          DOCKER_RESULT="${{ needs.docker-build.result }}"
+139:          echo "docker-build   : $DOCKER_RESULT"
+
+============================================================
+14. DOCKERFILE — POINTS CLÉS
+============================================================
+1:FROM node:22-bookworm-slim AS builder
+10:COPY prisma ./prisma/
+12:RUN npm ci
+13:RUN npx prisma generate
+19:RUN npm run build
+22:FROM node:22-bookworm-slim AS runner
+33:ENV PORT=3000
+42:COPY --from=builder /app/prisma ./prisma
+46:EXPOSE 3000
+
+============================================================
+15. CHECKS AUTOMATIQUES NON DESTRUCTIFS
+============================================================
+$ npm run type-check
+
+> memolib@0.1.0 type-check
+> cross-env NODE_OPTIONS=--max-old-space-size=16384 tsc --noEmit --incremental --skipLibCheck
+
+
+============================================================
+FIN AUDIT
+Rapport: /home/moros/projects/memoLib/ops-reports/linux-audit-20260921-211240.txt
+AUCUNE modification Git/remote n'a été effectuée.
+============================================================
