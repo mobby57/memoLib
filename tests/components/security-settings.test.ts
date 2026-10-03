@@ -1,6 +1,11 @@
 import type { ReactElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
+// Note: ce test importe une page Next.js (.tsx). Il vit dans tests/components/
+// car la config vitest "node" (vitest.config.ts) n'a pas de transform JSX
+// (tsconfig utilise jsx: "preserve" requis par Next.js). La config components
+// (vitest.components.config.ts, environnement jsdom) transforme bien le JSX.
+
 vi.mock('@clerk/nextjs', () => ({
   UserProfile: 'clerk-user-profile',
 }));

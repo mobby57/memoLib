@@ -90,7 +90,7 @@ ${days <= 1 ? '⚠️ ACTION IMMÉDIATE REQUISE' : 'Pensez à préparer les él�
 
 ---
 MemoLib — Ne ratez plus jamais une échéance
-https://memolib-wybq.onrender.com/fr/dashboard
+${process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.space'}/fr/dashboard
         `.trim();
 
         // Envoyer l'email via le service d'email

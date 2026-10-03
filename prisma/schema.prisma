@@ -758,6 +758,7 @@ model Jurisprudence {
   texte        String
   url          String?
   themes       String[]
+  relatedArticles String[]              @default([])
   source       String                   @default("huggingface")
   searchVector Unsupported("tsvector")?
   createdAt    DateTime                 @default(now())
@@ -766,6 +767,7 @@ model Jurisprudence {
   @@index([juridiction])
   @@index([searchVector], map: "Jurisprudence_search_idx", type: Gin)
   @@index([themes])
+  @@index([relatedArticles], map: "Jurisprudence_relatedArticles_idx", type: Gin)
 }
 
 model LegalDeadline {

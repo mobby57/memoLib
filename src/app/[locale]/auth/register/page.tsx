@@ -403,13 +403,33 @@ export default function RegisterPage() {
                   />
                   <span className="text-sm text-gray-600">
                     J&apos;accepte les{' '}
-                    <a href="/cgu" className="text-blue-600 underline">
-                      Conditions Générales d&apos;Utilisation
-                    </a>{' '}
-                    et la{' '}
-                    <a href="/privacy" className="text-blue-600 underline">
-                      Politique de Confidentialité
+                    <a
+                      href={`/${locale}/legal/cgu`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      Conditions Générales d&apos;Utilisation et de Vente (CGU/CGV)
                     </a>
+                    , la{' '}
+                    <a
+                      href={`/${locale}/legal/confidentialite`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      Politique de Confidentialité (RGPD)
+                    </a>{' '}
+                    et les{' '}
+                    <a
+                      href={`/${locale}/legal/mentions-legales`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      Mentions légales
+                    </a>
+                    .
                   </span>
                 </label>
 
@@ -422,13 +442,23 @@ export default function RegisterPage() {
                   />
                   <span className="text-sm text-gray-600">
                     J&apos;ai lu et j&apos;accepte la{' '}
-                    <a href="/charte-ia" className="text-blue-600 underline">
+                    <a
+                      href={`/${locale}/charte-ia`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
                       Charte IA
                     </a>{' '}
                     qui définit les règles d&apos;utilisation de l&apos;IA et garantit que
                     les décisions critiques restent sous contrôle humain.
                   </span>
                 </label>
+
+                <p className="flex items-center gap-2 text-xs text-gray-400 pt-2">
+                  <Shield size={14} className="text-gray-400" />
+                  Chiffrement AES-256 · Hébergement UE · Conforme RGPD · Secret professionnel (art. 66-5)
+                </p>
               </div>
             </FormSection>
           )}

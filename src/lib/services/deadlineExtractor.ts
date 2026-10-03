@@ -551,12 +551,24 @@ async function extractTextFromDOCX(buffer: Buffer): Promise<string> {
 }
 
 /**
+ * Nombre de jours calendaires entre aujourd'hui et une echeance.
+ *
+ * Compare les dates a minuit (heure locale) pour un resultat deterministe,
+ * insensible a l'heure de la journee et aux changements d'heure (DST).
+ * Exemple: une echeance "dans 30 jours" renvoie toujours 30, jamais 31.
+ */
+export function calendarDaysUntil(dateEcheance: Date, from: Date = new Date()): number {
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+  const diffMs = startOfDay(dateEcheance).getTime() - startOfDay(from).getTime();
+  return Math.round(diffMs / MS_PER_DAY);
+}
+
+/**
  * Calcule le statut d'une echeance en fonction de la date
  */
 export function calculateDeadlineStatus(dateEcheance: Date): string {
-  const now = new Date();
-  const diffMs = dateEcheance.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  const diffDays = calendarDaysUntil(dateEcheance);
 
   if (diffDays < 0) return 'depasse';
   if (diffDays === 0) return 'urgent'; // Aujourd'hui
@@ -569,9 +581,9 @@ export function calculateDeadlineStatus(dateEcheance: Date): string {
  * Calcule la priorite automatique en fonction du delai restant
  */
 export function calculateDeadlinePriority(dateEcheance: Date, type: string): string {
-  const now = new Date();
-  const diffMs = dateEcheance.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  // Nombre de jours calendaires restants (minuit a minuit) pour un calcul
+  // deterministe, insensible a l'heure de la journee et aux changements d'heure (DST).
+  const diffDays = calendarDaysUntil(dateEcheance);
 
   // Delais OQTF/expulsion sont toujours critiques
   if (type.includes('oqtf') || type.includes('expulsion')) {
