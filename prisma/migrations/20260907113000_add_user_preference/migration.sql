@@ -23,6 +23,18 @@ ON "UserPreference"("userId");
 CREATE INDEX IF NOT EXISTS "UserPreference_tenantId_idx"
 ON "UserPreference"("tenantId");
 
-ALTER TABLE "UserPreference"
-ADD CONSTRAINT "UserPreference_userId_fkey"
-FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- Contrainte FK rendue idempotente : la table UserPreference peut avoir ete
+-- creee par une migration anterieure (20260831_add_ai_decision) qui ajoutait
+-- deja cette contrainte. Sur la shadow DB, le rejeu sequentiel echouait sinon
+-- (P3006: la contrainte existe deja). PostgreSQL n'a pas ADD CONSTRAINT IF NOT
+-- EXISTS -> bloc conditionnel.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'UserPreference_userId_fkey'
+  ) THEN
+    ALTER TABLE "UserPreference"
+    ADD CONSTRAINT "UserPreference_userId_fkey"
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
