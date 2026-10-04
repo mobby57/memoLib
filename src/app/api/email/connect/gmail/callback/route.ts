@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { EncryptionService } from '@/lib/security/encryption';
 
 /**
  * GET /api/email/connect/gmail/callback
@@ -65,6 +66,13 @@ export async function GET(request: NextRequest) {
 
     const tokens = await tokenRes.json();
 
+    // EMAIL-SEC-001: chiffrer les tokens au repos (AES-256-GCM) avant stockage.
+    // Le refreshToken en clair = acces durable a la boite -> jamais en clair en base.
+    const encAccess = EncryptionService.encrypt(tokens.access_token);
+    const encRefresh = tokens.refresh_token
+      ? EncryptionService.encrypt(tokens.refresh_token)
+      : null;
+
     // Récupérer l'email Google de l'utilisateur
     const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
@@ -84,8 +92,8 @@ export async function GET(request: NextRequest) {
       },
       update: {
         provider: 'gmail',
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || undefined,
+        accessToken: encAccess,
+        refreshToken: encRefresh || undefined,
         tokenExpiry: tokens.expires_in
           ? new Date(Date.now() + tokens.expires_in * 1000)
           : undefined,
@@ -98,8 +106,8 @@ export async function GET(request: NextRequest) {
         userId,
         email: gmailAddress,
         provider: 'gmail',
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || null,
+        accessToken: encAccess,
+        refreshToken: encRefresh,
         tokenExpiry: tokens.expires_in
           ? new Date(Date.now() + tokens.expires_in * 1000)
           : null,
