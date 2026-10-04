@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { SaasSignupForm } from '@/components/saas/SaasSignupForm';
+import { SignUp } from '@clerk/nextjs';
 
 export const metadata: Metadata = {
   title: 'Inscription — MemoLib | Gestion de cabinet d\'avocat par IA',
@@ -29,7 +29,7 @@ export default async function SignupPage({ searchParams }: Props) {
       </div>
 
       {/* Signup Form */}
-      <SaasSignupForm defaultPlan={preselectedPlan as 'SOLO' | 'CABINET' | 'ENTERPRISE'} defaultCabinet={cabinetName} source={source} />
+      <SignUp unsafeMetadata={{ plan: preselectedPlan, cabinet: cabinetName, source }} />
 
       {/* Footer trust */}
       <div className="text-center mt-12 text-sm text-gray-500">
