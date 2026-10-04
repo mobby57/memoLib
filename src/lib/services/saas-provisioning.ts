@@ -357,6 +357,70 @@ function primaryEmail(data: UserJSON): string | null {
 }
 
 /**
+ * Provisioning d'un CLIENT invité (P3.1). Rattache l'utilisateur au cabinet
+ * existant de l'avocat. NE crée NI tenant, NI subscription, NI client Stripe
+ * (un client final n'est pas un abonné). role = CLIENT (lecture seule RBAC).
+ *
+ * NOTE pilote : modèle "1 client = 1 cabinet". Le multi-cabinet (1 client chez N
+ * avocats) relève de Clerk Organizations — voir SPEC_CLERK_ORGANIZATIONS.md,
+ * à implémenter APRÈS le pilote. Ici on refuse proprement si le client existe déjà.
+ */
+export async function provisionClientFromClerk(params: {
+  clerkUserId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  tenantId?: string;
+  clientId?: string;
+}): Promise<void> {
+  const { clerkUserId, email, firstName, lastName, tenantId, clientId } = params;
+
+  if (!tenantId) {
+    logger.warn('provisionClientFromClerk: tenantId manquant dans l_invitation', { email });
+    return;
+  }
+
+  // Vérifier que le cabinet existe (sécurité : pas de rattachement à un tenant fantôme).
+  const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true } });
+  if (!tenant) {
+    logger.warn('provisionClientFromClerk: tenant introuvable', { tenantId, email });
+    return;
+  }
+
+  // Si clientId fourni, vérifier qu'il appartient bien à CE cabinet (anti-fuite inter-cabinets).
+  if (clientId) {
+    const client = await prisma.client.findFirst({
+      where: { id: clientId, tenantId },
+      select: { id: true },
+    });
+    if (!client) {
+      logger.warn('provisionClientFromClerk: clientId hors du cabinet, rattachement refusé', {
+        clientId,
+        tenantId,
+      });
+      return;
+    }
+  }
+
+  await prisma.user.create({
+    data: {
+      id: crypto.randomUUID(),
+      email,
+      clerkUserId,
+      name: `${firstName} ${lastName}`.trim() || email,
+      role: 'CLIENT', // RBAC lecture seule — PAS avocat, PAS de cabinet créé
+      tenantId,
+      clientId: clientId ?? null,
+      status: 'active',
+      emailVerified: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  logger.info('provisionClientFromClerk: client rattaché au cabinet', { tenantId, clientId });
+}
+
+/**
  * Provisioning declenche par le webhook Clerk 'user.created'.
  * IDEMPOTENT : si un user avec ce clerkUserId OU cet email existe deja, ne recree rien
  * (et backfill clerkUserId sur les comptes legacy relies par email).
@@ -378,6 +442,29 @@ export async function provisionFromClerk(data: UserJSON): Promise<void> {
       await prisma.user.update({ where: { id: existing.id }, data: { clerkUserId } });
       logger.info('provisionFromClerk: backfill clerkUserId sur compte legacy', { email });
     }
+    return;
+  }
+
+  // GARDE-FOU AVOCAT vs CLIENT (P3.1).
+  // publicMetadata.accountType === 'client' => compte CLIENT invité par un avocat :
+  // on le rattache au cabinet existant, on NE crée PAS de nouveau tenant.
+  // Sinon => inscription libre d'un AVOCAT (crée son cabinet).
+  // publicMetadata est défini côté serveur (invitation Clerk), non modifiable par
+  // l'utilisateur — contrairement à unsafeMetadata. C'est la source de confiance.
+  const publicMeta = (data.public_metadata ?? {}) as {
+    accountType?: string;
+    tenantId?: string;
+    clientId?: string;
+  };
+  if (publicMeta.accountType === 'client') {
+    await provisionClientFromClerk({
+      clerkUserId,
+      email,
+      firstName: data.first_name ?? '',
+      lastName: data.last_name ?? '',
+      tenantId: publicMeta.tenantId,
+      clientId: publicMeta.clientId,
+    });
     return;
   }
 
