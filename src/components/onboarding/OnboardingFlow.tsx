@@ -16,6 +16,7 @@ import {
 
 interface OnboardingSteps {
   accountCreated: boolean;
+  emailConnected: boolean;
   firstClient: boolean;
   firstEmail: boolean;
   firstDossier: boolean;
@@ -58,6 +59,15 @@ export function OnboardingFlow({ steps, userName, onComplete, onDismiss }: Props
       completed: steps.firstClient,
       href: `${prefix}/clients`,
       icon: UserPlus,
+    },
+    {
+      id: 'email-connect',
+      title: 'Connecter votre messagerie (Gmail / Outlook)',
+      description:
+        'Connexion sécurisée en lecture seule via OAuth — aucun mot de passe conservé, chiffrement des accès, déconnexion à tout moment. MemoLib analyse vos emails pour en proposer des dossiers, sous votre contrôle.',
+      completed: steps.emailConnected,
+      href: `/api/email/connect/gmail`,
+      icon: ShieldCheck,
     },
     {
       id: 'email',

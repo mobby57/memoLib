@@ -127,6 +127,7 @@ export default function DashboardPage() {
   const [metricsData, setMetricsData] = useState<MetricsData | null>(null);
   const [onboardingSteps, setOnboardingSteps] = useState<{
     accountCreated: boolean;
+    emailConnected: boolean;
     firstClient: boolean;
     firstEmail: boolean;
     firstDossier: boolean;

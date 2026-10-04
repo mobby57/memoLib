@@ -10,6 +10,7 @@ import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 
 const incompleteSteps = {
   accountCreated: true,
+  emailConnected: false,
   firstClient: false,
   firstEmail: false,
   firstDossier: false,
@@ -39,7 +40,7 @@ describe('OnboardingFlow', () => {
   it('présente un statut final prudent après les étapes', () => {
     render(
       <OnboardingFlow
-        steps={{ accountCreated: true, firstClient: true, firstEmail: true, firstDossier: true }}
+        steps={{ accountCreated: true, emailConnected: true, firstClient: true, firstEmail: true, firstDossier: true }}
         onComplete={vi.fn()}
         onDismiss={vi.fn()}
       />

@@ -118,9 +118,9 @@ export async function GET(request: NextRequest) {
 
     logger.info(`[Gmail Connect] Boîte connectée: ${gmailAddress} pour tenant ${tenantId}`);
 
-    // Redirection vers les paramètres email avec succès
+    // Redirection vers le dashboard (dans le funnel d'onboarding) avec succès.
     return NextResponse.redirect(
-      `${baseUrl}/fr/settings/emails?success=gmail_connected&email=${encodeURIComponent(gmailAddress)}`
+      `${baseUrl}/fr/dashboard?connected=email&provider=gmail`
     );
   } catch (error) {
     logger.error('[Gmail Connect] Erreur callback', error);
