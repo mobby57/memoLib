@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
     logger.info(`[Outlook Connect] Boîte connectée: ${outlookEmail} pour tenant ${tenantId}`);
 
     return NextResponse.redirect(
-      `${baseUrl}/fr/settings/emails?success=outlook_connected&email=${encodeURIComponent(outlookEmail)}`
+      `${baseUrl}/fr/dashboard?connected=email&provider=outlook`
     );
   } catch (error) {
     logger.error('[Outlook Connect] Erreur callback', error);
