@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.space';
   
   if (!user?.tenantId) {
-    return NextResponse.redirect(`${baseUrl}/fr/auth/login`);
+    return NextResponse.redirect(`${baseUrl}/fr/sign-in`);
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID;

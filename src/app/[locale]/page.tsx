@@ -170,13 +170,13 @@ export default function LandingPage() {
             <a href="#temoignages" className="hidden lg:inline hover:text-gray-900 dark:hover:text-white transition-colors">Témoignages</a>
             <Link href="/fr/demo" className="hidden md:inline hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
             <Link
-              href="/fr/auth/login"
+              href="/fr/sign-in"
               className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors font-medium"
             >
               Connexion
             </Link>
             <Link
-              href="/fr/auth/register?plan=PILOT"
+              href="/fr/sign-up"
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
             >
               Essai gratuit
