@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { EncryptionService } from '@/lib/security/encryption';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -47,7 +48,11 @@ export async function GET(req: NextRequest) {
     for (const account of accounts) {
       try {
         // Vérifier/rafraîchir le token si expiré
-        let accessToken = account.accessToken;
+        // EMAIL-SEC-001: tokens chiffrés au repos -> déchiffrer à la lecture.
+        // decrypt() tolère les tokens legacy en clair (retourne tel quel si pas de ':').
+        let accessToken = account.accessToken
+          ? EncryptionService.decrypt(account.accessToken)
+          : account.accessToken;
         if (account.tokenExpiry && new Date(account.tokenExpiry) < new Date()) {
           accessToken = await refreshOAuthToken(account);
         }
@@ -314,6 +319,9 @@ async function refreshOAuthToken(account: {
 }): Promise<string | null> {
   if (!account.refreshToken) return null;
 
+  // EMAIL-SEC-001: déchiffrer le refreshToken (tolère le legacy en clair).
+  const refreshToken = EncryptionService.decrypt(account.refreshToken);
+
   let tokenUrl: string;
   let body: Record<string, string>;
 
@@ -322,7 +330,7 @@ async function refreshOAuthToken(account: {
     body = {
       client_id: process.env.GOOGLE_CLIENT_ID || '',
       client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
-      refresh_token: account.refreshToken,
+      refresh_token: refreshToken,
       grant_type: 'refresh_token',
     };
   } else {
@@ -331,7 +339,7 @@ async function refreshOAuthToken(account: {
     body = {
       client_id: process.env.MICROSOFT_CLIENT_ID || '',
       client_secret: process.env.MICROSOFT_CLIENT_SECRET || '',
-      refresh_token: account.refreshToken,
+      refresh_token: refreshToken,
       grant_type: 'refresh_token',
     };
   }
@@ -358,13 +366,15 @@ async function refreshOAuthToken(account: {
     const newAccessToken = data.access_token;
     const expiresIn = data.expires_in || 3600;
 
-    // Mettre à jour les tokens en DB
+    // Mettre à jour les tokens en DB — chiffrés au repos (EMAIL-SEC-001).
     await prisma.emailAccount.update({
       where: { id: account.id },
       data: {
-        accessToken: newAccessToken,
+        accessToken: EncryptionService.encrypt(newAccessToken),
         tokenExpiry: new Date(Date.now() + expiresIn * 1000),
-        ...(data.refresh_token ? { refreshToken: data.refresh_token } : {}),
+        ...(data.refresh_token
+          ? { refreshToken: EncryptionService.encrypt(data.refresh_token) }
+          : {}),
       },
     });
 
