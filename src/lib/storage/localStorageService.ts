@@ -9,9 +9,10 @@ import type {
 } from "./types";
 
 function getRoot(): string {
-  return path.resolve(
-    process.env.VAULT_STORAGE_ROOT || ".vault"
-  );
+  // Next 16 / Turbopack : scoper le chemin sous cwd et ignorer le tracing
+  // statique (sinon tout le projet est inclus dans l'output du build).
+  const root = process.env.VAULT_STORAGE_ROOT || ".vault";
+  return path.resolve(/*turbopackIgnore: true*/ process.cwd(), root);
 }
 
 function safeKey(key: string): string {

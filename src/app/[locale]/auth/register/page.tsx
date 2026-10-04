@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 // M3 — unification auth : /auth/register (legacy) redirige vers la route Clerk /sign-up.
 export default async function LegacyRegisterRedirect({
   params,

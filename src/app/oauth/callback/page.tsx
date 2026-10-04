@@ -3,6 +3,10 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
+// Page de callback OAuth : rendu runtime uniquement (contexte client requis).
+// Évite l'erreur de prerender statique "useContext null" sous Next 16.
+export const dynamic = 'force-dynamic';
+
 export default function OAuthCallbackPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" /></div>}>

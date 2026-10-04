@@ -1,6 +1,10 @@
+// Le callback OAuth ne doit jamais être prérendu statiquement (contexte client
+// runtime requis). `dynamic` est défini ICI (layout = Server Component) car la
+// directive route-segment est IGNORÉE dans un fichier 'use client' (la page).
+export const dynamic = 'force-dynamic';
+
 export default function OAuthLayout({ children }: { children: React.ReactNode }) {
-  // A nested App Router layout must NOT render <html>/<body> (only the root
-  // layout may). Rendering them here breaks static generation of the error
-  // pages under Next 15 ("<Html> should not be imported outside pages/_document").
+  // Un layout App Router imbriqué ne doit PAS rendre <html>/<body> (seul le
+  // layout racine le fait).
   return <>{children}</>;
 }

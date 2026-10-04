@@ -1,28 +1,16 @@
 'use client';
 
-import { useEffect } from 'react';
-
-// IMPORTANT: do NOT statically import Sentry here — report lazily at runtime so
-// nothing Sentry-related runs during the `/_global-error` prerender.
+// Global error boundary (Next 16). Volontairement MINIMAL : aucun hook, aucun
+// effet, aucun import tiers au niveau module — pour que le prerender de la route
+// synthetique /_global-error ne tente pas d'evaluer un contexte runtime absent
+// ("Cannot read properties of null (reading 'useContext')").
 export default function GlobalError({
   error,
+  reset,
 }: {
   error: Error & { digest?: string };
+  reset: () => void;
 }) {
-  useEffect(() => {
-    let cancelled = false;
-    import('@sentry/nextjs')
-      .then((Sentry) => {
-        if (!cancelled) Sentry.captureException(error);
-      })
-      .catch(() => {
-        /* Sentry unavailable — swallow, the UI below still renders. */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [error]);
-
   return (
     <html lang="fr">
       <body
@@ -50,21 +38,22 @@ export default function GlobalError({
               ID: {error.digest}
             </p>
           )}
-          <a
-            href="/"
+          <button
+            type="button"
+            onClick={() => reset()}
             style={{
-              display: 'inline-block',
               marginTop: '1rem',
               backgroundColor: '#2563eb',
               color: 'white',
               padding: '0.5rem 1.25rem',
               borderRadius: '0.375rem',
-              textDecoration: 'none',
+              border: 'none',
               fontWeight: 500,
+              cursor: 'pointer',
             }}
           >
-            Retour à l&apos;accueil
-          </a>
+            Réessayer
+          </button>
         </div>
       </body>
     </html>
