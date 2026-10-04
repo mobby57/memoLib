@@ -1181,7 +1181,8 @@ model User {
   id               String          @id
   email            String          @unique
   name             String
-  password         String
+  password         String?
+  clerkUserId      String?         @unique
   role             String
   tenantId         String?
   clientId         String?         @unique
@@ -1211,6 +1212,7 @@ model User {
 
   @@index([role])
   @@index([status])
+  @@index([clerkUserId])
   @@index([tenantId, email])
 }
 
