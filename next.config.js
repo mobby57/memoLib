@@ -75,7 +75,10 @@ const nextConfig = {
 
 const { withSentryConfig } = require('@sentry/nextjs/config');
 
-module.exports = withSentryConfig(nextConfig, {
+// DISABLE_SENTRY=1 permet un build sans le wrapper Sentry (diagnostic).
+// Confirmé: Sentry n'est PAS la cause de BUILD-001 (l'erreur /500 persiste sans lui).
+// Flag conservé car inoffensif (comportement normal inchangé sans la variable).
+const sentryOptions = {
   org: 'ms-conseils',
   project: 'javascript-nextjs-w2',
   silent: !process.env.CI,
@@ -87,4 +90,9 @@ module.exports = withSentryConfig(nextConfig, {
       removeDebugLogging: true,
     },
   },
-});
+};
+
+module.exports =
+  process.env.DISABLE_SENTRY === '1'
+    ? nextConfig
+    : withSentryConfig(nextConfig, sentryOptions);
