@@ -360,12 +360,12 @@ function environmentSetupGuide() {
       },
       {
         name: 'CLERK_SECRET_KEY',
-        description: 'NextAuth secret (generate with: openssl rand -base64 32)',
+        description: 'Clerk backend secret key (from Clerk dashboard)',
         sensitive: true,
       },
       {
         name: 'NEXT_PUBLIC_APP_URL',
-        description: 'NextAuth callback URL',
+        description: 'Clerk callback / app base URL',
         format: 'https://your-production-domain.com',
         sensitive: false,
       },
@@ -373,7 +373,7 @@ function environmentSetupGuide() {
     setupSteps: [
       '1. Create environment variables file on production platform',
       '2. Copy all REQUIRED variables from .env.example',
-      '3. Generate CLERK_SECRET_KEY: openssl rand -base64 32',
+      '3. Copy CLERK_SECRET_KEY and NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY from the Clerk dashboard',
       '4. Configure NEXT_PUBLIC_APP_URL to match production domain',
       '5. Set DATABASE_URL to production PostgreSQL',
       '6. Create Sentry project and configure DSN',

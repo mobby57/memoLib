@@ -225,13 +225,13 @@ export const DeploymentGuide = {
       },
       {
         name: 'NEXT_PUBLIC_APP_URL',
-        description: 'NextAuth callback URL',
+        description: 'Clerk callback / app base URL',
         example: 'https://your-production-domain.com',
         sensitive: false,
       },
       {
         name: 'CLERK_SECRET_KEY',
-        description: 'NextAuth encryption secret',
+        description: 'Clerk backend secret key',
         generate: 'openssl rand -base64 32',
         sensitive: true,
       },
