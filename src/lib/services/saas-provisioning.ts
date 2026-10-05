@@ -398,10 +398,22 @@ export async function provisionFromClerk(data: UserJSON): Promise<void> {
   const subdomain = generateSubdomain(cabinetName);
 
   const result = await prisma.$transaction(async (tx) => {
-    const dbPlan = await tx.plan.findFirst({
+    // Cherche le plan par nom exact ; sinon fallback sur le plan actif le moins
+    // cher. Evite l'echec de provisioning si la nomenclature des plans en base
+    // differe (ex: starter/pro au lieu de solo/cabinet) -> le cabinet est TOUJOURS
+    // cree, sinon l'utilisateur reste sans tenant et l'UI casse.
+    let dbPlan = await tx.plan.findFirst({
       where: { OR: [{ name: planConfig.dbName }, { name: plan.toLowerCase() }, { name: plan }] },
     });
-    if (!dbPlan) throw new Error(`Plan "${plan}" introuvable (npx prisma db seed).`);
+    if (!dbPlan) {
+      logger.warn('provisionFromClerk: plan exact introuvable, fallback plan actif le moins cher', {
+        demande: plan,
+      });
+      dbPlan = await tx.plan.findFirst({ orderBy: { priceMonthly: 'asc' } });
+    }
+    if (!dbPlan) {
+      throw new Error('Aucun plan en base. Lancer le seed des plans.');
+    }
 
     const tenant = await tx.tenant.create({
       data: {
