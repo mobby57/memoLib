@@ -7,7 +7,7 @@ import { logger } from '@/lib/logger';
  * GET /api/email/connect/gmail
  * 
  * Redirige vers Google OAuth pour autoriser l'accès Gmail (lecture emails).
- * Flow séparé de l'auth NextAuth — sert uniquement à connecter la boîte mail.
+ * Flow séparé de l'authentification Clerk — sert uniquement à connecter la boîte mail.
  */
 export async function GET(request: NextRequest) {
   const { user } = await auth();

@@ -3,9 +3,9 @@
 [![CI/CD Pipeline](https://github.com/mobby57/memoLib/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/ci-cd.yml)
 [![Security — Semgrep](https://github.com/mobby57/memoLib/actions/workflows/sast-semgrep.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/sast-semgrep.yml)
 [![Trivy Scan](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml)
-[![Tests](https://img.shields.io/badge/tests-4463_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791)](https://www.postgresql.org/)
+[![Tests](https://img.shields.io/badge/tests-4870_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-336791)](https://www.postgresql.org/)
 [![Vercel](https://img.shields.io/badge/Vercel-deployed-black)](https://vercel.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -75,37 +75,37 @@
 
 ## 🛠️ Stack Technique
 
-| Composant       | Technologie                                      |
-| --------------- | ------------------------------------------------ |
-| Frontend + API  | Next.js 16, React 19, TypeScript, Tailwind CSS   |
-| Base de données | PostgreSQL 17 (Neon serverless)                  |
-| ORM             | Prisma 5                                         |
-| Auth            | NextAuth (Credentials, Google, GitHub, Azure AD) |
-| IA              | Ollama (local) + fallback regex                  |
-| Email           | ImapFlow (IMAP), webhook inbound                 |
-| Paiements       | Stripe (subscriptions + usage)                   |
-| Monitoring      | Sentry (server + client + replay)                |
-| CI/CD           | GitHub Actions (8 workflows)                     |
-| Déploiement     | Vercel                                           |
+| Composant       | Technologie                                             |
+| --------------- | ------------------------------------------------------- |
+| Frontend + API  | Next.js 15.5, React 19, TypeScript, Tailwind CSS        |
+| Base de données | PostgreSQL (Neon serverless)                            |
+| ORM             | Prisma 5                                                |
+| Auth            | Clerk (sessions, OAuth, webhooks)                       |
+| IA              | Hybride : Ollama (local) + OpenAI/cloud, fallback regex |
+| Email           | ImapFlow (IMAP), webhook inbound                        |
+| Paiements       | Stripe (subscriptions + usage)                          |
+| Monitoring      | Sentry (server + client + replay)                       |
+| CI/CD           | GitHub Actions (8 workflows)                            |
+| Déploiement     | Vercel                                                  |
 
 ---
 
 ## 🛡️ Engineering Excellence
 
-| Pratique              | Détail                                                           |
-| --------------------- | ---------------------------------------------------------------- |
-| **CI/CD**             | 8 workflows GitHub Actions (build, test, security, release)      |
-| **Quality Gate**      | Tests + type-check + lint bloquants (branch protection)          |
-| **Tests**             | 4463 tests (Jest 4384 + Vitest 79) — TypeScript 0 errors         |
+| Pratique              | Détail                                                          |
+| --------------------- | --------------------------------------------------------------- |
+| **CI/CD**             | 8 workflows GitHub Actions (build, test, security, release)     |
+| **Quality Gate**      | Tests + type-check + lint bloquants (branch protection)         |
+| **Tests**             | 4870 tests (Vitest) — TypeScript 0 errors                       |
 | **Security Scanning** | Semgrep SAST, Trivy (bloquant), TruffleHog secrets, CodeQL v4   |
-| **Environments**      | Preview → Staging → Production (Vercel native + Neon branches)   |
-| **Semantic Release**  | Versioning automatique + changelog                               |
-| **Dependency Review** | Dependabot + audit automatique                                   |
-| **Monitoring**        | Sentry (errors + performance + session replay)                   |
-| **RGPD**              | Audit trail chaîné (hash chain), anonymisation, droit à l'oubli  |
-| **Antivirus**         | Scan ClamAV sur chaque upload                                    |
-| **Rate Limiting**     | Upstash Redis + brute force protection                           |
-| **RBAC**              | 9 rôles, permissions granulaires, multi-tenant                   |
+| **Environments**      | Preview → Staging → Production (Vercel native + Neon branches)  |
+| **Semantic Release**  | Versioning automatique + changelog                              |
+| **Dependency Review** | Dependabot + audit automatique                                  |
+| **Monitoring**        | Sentry (errors + performance + session replay)                  |
+| **RGPD**              | Audit trail chaîné (hash chain), anonymisation, droit à l'oubli |
+| **Antivirus**         | Scan ClamAV sur chaque upload                                   |
+| **Rate Limiting**     | Upstash Redis + brute force protection                          |
+| **RBAC**              | 9 rôles, permissions granulaires, multi-tenant                  |
 
 ---
 
@@ -222,9 +222,13 @@ POST /api/webhooks/stripe         # Paiements Stripe
 ### Auth
 
 ```
-POST /api/auth/[...nextauth]     # NextAuth (login, register, OAuth)
+POST /api/auth/register          # Inscription (provisioning après signup Clerk)
+POST /api/auth/verify-email      # Vérification d'email
+POST /api/webhooks/clerk         # Webhook Clerk (sync utilisateurs)
 GET  /api/onboarding/status      # Statut onboarding utilisateur
 ```
+
+> 🔐 L'authentification (login, sessions, OAuth) est gérée par **Clerk** via `clerkMiddleware` (`src/middleware.ts`), pas par un endpoint applicatif.
 
 ### Cron
 
@@ -266,13 +270,16 @@ MemoLib/
 # Base de données
 DATABASE_URL="postgresql://user:password@localhost:5432/memolib"
 
-# Auth
-NEXTAUTH_SECRET="votre-secret"
-NEXTAUTH_URL="http://localhost:3000"
+# Auth (Clerk — obligatoire)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+CLERK_WEBHOOK_SECRET="whsec_..."
 
 # IA (optionnel — fallback regex si absent)
+# Hybride : Ollama local et/ou OpenAI cloud
 OLLAMA_URL="http://localhost:11434"
 OLLAMA_MODEL="llama3.2:latest"
+OPENAI_API_KEY=""
 
 # Jurisprudence (optionnel — fallback local si absent)
 PISTE_CLIENT_ID=""
@@ -300,6 +307,7 @@ CLAMAV_PORT="3310"
 ### Frontend → Vercel (automatique)
 
 Vercel déploie automatiquement via l'intégration GitHub native :
+
 - **Preview** : chaque PR
 - **Staging** : push sur `develop`
 - **Production** : push sur `main`
@@ -328,7 +336,7 @@ Les migrations sont exécutées automatiquement par le CI/CD lors d'un push sur 
 - [x] Landing page beta
 - [x] Conformité RGPD + audit trail chaîné
 - [x] CI/CD (8 workflows GitHub Actions)
-- [x] Tests (Jest + Vitest + Playwright)
+- [x] Tests (Vitest + Playwright E2E)
 
 ### 🚧 En cours
 
