@@ -148,14 +148,18 @@ export function tenantWhere<T extends { tenantId?: string }>(
   context: TenantContext,
   additionalWhere?: Partial<T>
 ): T {
-  // Super Admin can query all tenants if no tenantId specified
-  if (context.role === 'SUPER_ADMIN' && !additionalWhere?.tenantId) {
+  // Super Admin can query all tenants: respecte un tenantId cible s'il est
+  // fourni, sinon aucune restriction de tenant.
+  if (context.role === 'SUPER_ADMIN') {
     return { ...additionalWhere } as T;
   }
 
-  // All other users are scoped to their tenant
+  // All other users are scoped to their tenant.
+  // SECURITE (TENANT-ISO-001): le tenantId du contexte est applique APRES le
+  // spread, afin qu'un additionalWhere malveillant ne puisse JAMAIS l'ecraser
+  // et acceder aux donnees d'un autre cabinet.
   return {
-    tenantId: context.tenantId,
     ...additionalWhere,
+    tenantId: context.tenantId,
   } as T;
 }

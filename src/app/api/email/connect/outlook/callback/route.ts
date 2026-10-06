@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { EncryptionService } from '@/lib/security/encryption';
 
 /**
  * GET /api/email/connect/outlook/callback
@@ -70,6 +71,12 @@ export async function GET(request: NextRequest) {
     const profile = await profileRes.json();
     const outlookEmail = profile.mail || profile.userPrincipalName;
 
+    // EMAIL-SEC-001: chiffrer les tokens au repos (AES-256-GCM).
+    const encAccess = EncryptionService.encrypt(tokens.access_token);
+    const encRefresh = tokens.refresh_token
+      ? EncryptionService.encrypt(tokens.refresh_token)
+      : null;
+
     // Stocker la connexion en base
     await prisma.emailAccount.upsert({
       where: {
@@ -80,8 +87,8 @@ export async function GET(request: NextRequest) {
       },
       update: {
         provider: 'outlook',
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || undefined,
+        accessToken: encAccess,
+        refreshToken: encRefresh || undefined,
         tokenExpiry: tokens.expires_in
           ? new Date(Date.now() + tokens.expires_in * 1000)
           : undefined,
@@ -94,8 +101,8 @@ export async function GET(request: NextRequest) {
         userId,
         email: outlookEmail,
         provider: 'outlook',
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || null,
+        accessToken: encAccess,
+        refreshToken: encRefresh,
         tokenExpiry: tokens.expires_in
           ? new Date(Date.now() + tokens.expires_in * 1000)
           : null,
@@ -107,7 +114,7 @@ export async function GET(request: NextRequest) {
     logger.info(`[Outlook Connect] Boîte connectée: ${outlookEmail} pour tenant ${tenantId}`);
 
     return NextResponse.redirect(
-      `${baseUrl}/fr/settings/emails?success=outlook_connected&email=${encodeURIComponent(outlookEmail)}`
+      `${baseUrl}/fr/dashboard?connected=email&provider=outlook`
     );
   } catch (error) {
     logger.error('[Outlook Connect] Erreur callback', error);

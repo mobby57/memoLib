@@ -16,6 +16,7 @@ import { createStripeCustomer, createCheckoutSession } from '@/lib/billing/strip
 import { getStripePriceId } from '@/lib/billing/plans';
 import { logger } from '@/lib/logger';
 import { sendEmail } from '@/lib/email/email-service';
+import type { UserJSON, DeletedObjectJSON } from '@clerk/nextjs/server';
 
 // ============================================
 // TYPES
@@ -341,4 +342,192 @@ async function sendWelcomeEmail(params: {
       </div>
     `,
   });
+}
+
+
+// ============================================
+// PROVISIONING VIA WEBHOOK CLERK (M1 — tout-Clerk)
+// ============================================
+
+function primaryEmail(data: UserJSON): string | null {
+  const primaryId = data.primary_email_address_id;
+  const match =
+    data.email_addresses?.find((e) => e.id === primaryId) ?? data.email_addresses?.[0];
+  return match?.email_address?.toLowerCase() ?? null;
+}
+
+/**
+ * Provisioning declenche par le webhook Clerk 'user.created'.
+ * IDEMPOTENT : si un user avec ce clerkUserId OU cet email existe deja, ne recree rien
+ * (et backfill clerkUserId sur les comptes legacy relies par email).
+ */
+export async function provisionFromClerk(data: UserJSON): Promise<void> {
+  const clerkUserId = data.id;
+  const email = primaryEmail(data);
+  if (!clerkUserId || !email) {
+    logger.warn('provisionFromClerk: payload incomplet (id/email manquant)', { clerkUserId });
+    return;
+  }
+
+  const existing = await prisma.user.findFirst({
+    where: { OR: [{ clerkUserId }, { email }] },
+    select: { id: true, clerkUserId: true },
+  });
+  if (existing) {
+    if (!existing.clerkUserId) {
+      await prisma.user.update({ where: { id: existing.id }, data: { clerkUserId } });
+      logger.info('provisionFromClerk: backfill clerkUserId sur compte legacy', { email });
+    }
+    return;
+  }
+
+  const meta = (data.unsafe_metadata ?? {}) as {
+    plan?: string;
+    cabinet?: string;
+    billingPeriod?: string;
+  };
+  const plan = (['SOLO', 'CABINET', 'ENTERPRISE'].includes(meta.plan ?? '')
+    ? meta.plan
+    : 'SOLO') as 'SOLO' | 'CABINET' | 'ENTERPRISE';
+  const planConfig = PLAN_CONFIG[plan];
+  const firstName = data.first_name ?? '';
+  const lastName = data.last_name ?? '';
+  const cabinetName =
+    meta.cabinet?.trim() || `${firstName} ${lastName}`.trim() || 'Mon cabinet';
+  const billingPeriod = meta.billingPeriod === 'yearly' ? 'yearly' : 'monthly';
+  const subdomain = generateSubdomain(cabinetName);
+
+  const result = await prisma.$transaction(async (tx) => {
+    // Cherche le plan par nom exact ; sinon fallback sur le plan actif le moins
+    // cher. Evite l'echec de provisioning si la nomenclature des plans en base
+    // differe (ex: starter/pro au lieu de solo/cabinet) -> le cabinet est TOUJOURS
+    // cree, sinon l'utilisateur reste sans tenant et l'UI casse.
+    let dbPlan = await tx.plan.findFirst({
+      where: { OR: [{ name: planConfig.dbName }, { name: plan.toLowerCase() }, { name: plan }] },
+    });
+    if (!dbPlan) {
+      logger.warn('provisionFromClerk: plan exact introuvable, fallback plan actif le moins cher', {
+        demande: plan,
+      });
+      dbPlan = await tx.plan.findFirst({ orderBy: { priceMonthly: 'asc' } });
+    }
+    if (!dbPlan) {
+      throw new Error('Aucun plan en base. Lancer le seed des plans.');
+    }
+
+    const tenant = await tx.tenant.create({
+      data: {
+        id: crypto.randomUUID(),
+        name: cabinetName,
+        subdomain,
+        planId: dbPlan.id,
+        status: 'active',
+        updatedAt: new Date(),
+      },
+    });
+
+    const user = await tx.user.create({
+      data: {
+        id: crypto.randomUUID(),
+        email,
+        clerkUserId,
+        name: `${firstName} ${lastName}`.trim() || email,
+        role: 'AVOCAT',
+        tenantId: tenant.id,
+        status: 'active',
+        emailVerified: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+
+    await tx.tenantSettings.create({
+      data: {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        maxDossiers: planConfig.maxDossiers,
+        maxUsers: planConfig.maxUsers,
+        storageLimit: planConfig.storageGb * 1024,
+        ollamaEnabled: false,
+        ollamaUrl: '',
+        ollamaModel: '',
+        emailEnabled: true,
+        updatedAt: new Date(),
+      },
+    });
+
+    const trialEnd = new Date();
+    trialEnd.setDate(trialEnd.getDate() + planConfig.trialDays);
+    await tx.subscription.create({
+      data: {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        planId: dbPlan.id,
+        status: 'trialing',
+        trialEnd,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: trialEnd,
+        pricePerMonth: dbPlan.priceMonthly,
+        billingCycle: billingPeriod,
+        updatedAt: new Date(),
+      },
+    });
+
+    return { tenant, user };
+  });
+
+  try {
+    const stripeCustomer = await createStripeCustomer({
+      email,
+      name: `${firstName} ${lastName}`.trim() || email,
+      tenantId: result.tenant.id,
+      metadata: { userId: result.user.id, plan, cabinetName },
+    });
+    await prisma.tenant.update({
+      where: { id: result.tenant.id },
+      data: { stripeCustomerId: stripeCustomer.id },
+    });
+  } catch (error) {
+    logger.warn('provisionFromClerk: Stripe setup echoue, trial continue', { error, email });
+  }
+
+  try {
+    await sendWelcomeEmail({
+      email,
+      firstName,
+      cabinetName,
+      plan,
+      dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fr/dashboard`,
+    });
+  } catch (error) {
+    logger.warn('provisionFromClerk: welcome email echoue', { error, email });
+  }
+
+  logger.info('provisionFromClerk: compte provisionne', {
+    userId: result.user.id,
+    tenantId: result.tenant.id,
+    plan,
+  });
+}
+
+/** 'user.updated' — synchronise nom/email depuis Clerk (source de verite identite). */
+export async function syncFromClerk(data: UserJSON): Promise<void> {
+  const clerkUserId = data.id;
+  const email = primaryEmail(data);
+  if (!clerkUserId) return;
+  const name = `${data.first_name ?? ''} ${data.last_name ?? ''}`.trim();
+  await prisma.user.updateMany({
+    where: { clerkUserId },
+    data: { ...(email ? { email } : {}), ...(name ? { name } : {}), updatedAt: new Date() },
+  });
+}
+
+/** 'user.deleted' — desactivation (soft) ; ne supprime pas les donnees (RGPD/retention). */
+export async function softDeleteFromClerk(data: DeletedObjectJSON): Promise<void> {
+  const clerkUserId = data.id;
+  if (!clerkUserId) return;
+  await prisma.user.updateMany({
+    where: { clerkUserId },
+    data: { status: 'disabled', updatedAt: new Date() },
+  });
+  logger.info('softDeleteFromClerk: user desactive', { clerkUserId });
 }

@@ -8,8 +8,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { LegifranceConfig } from '@/lib/legifrance/api-client';
 
 describe('Legifrance API Integration', () => {
-  let warnSpy: jest.SpyInstance;
-  let logSpy: jest.SpyInstance;
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+  let logSpy: ReturnType<typeof vi.spyOn>;
   let legifranceApi: (typeof import('@/lib/legifrance/api-client'))['legifranceApi'];
 
   const hasApiKeys = Boolean(

@@ -7,7 +7,7 @@ import { logger } from '@/lib/logger';
  * GET /api/email/connect/gmail
  * 
  * Redirige vers Google OAuth pour autoriser l'accès Gmail (lecture emails).
- * Flow séparé de l'auth NextAuth — sert uniquement à connecter la boîte mail.
+ * Flow séparé de l'authentification Clerk — sert uniquement à connecter la boîte mail.
  */
 export async function GET(request: NextRequest) {
   const { user } = await auth();
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.space';
   
   if (!user?.tenantId) {
-    return NextResponse.redirect(`${baseUrl}/fr/auth/login`);
+    return NextResponse.redirect(`${baseUrl}/fr/sign-in`);
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID;

@@ -127,6 +127,7 @@ export default function DashboardPage() {
   const [metricsData, setMetricsData] = useState<MetricsData | null>(null);
   const [onboardingSteps, setOnboardingSteps] = useState<{
     accountCreated: boolean;
+    emailConnected: boolean;
     firstClient: boolean;
     firstEmail: boolean;
     firstDossier: boolean;
@@ -183,7 +184,7 @@ export default function DashboardPage() {
     // Ne pas rediriger immédiatement — laisser 2s pour que la session se charge
     if (!isAuthenticated) {
       const timeout = setTimeout(() => {
-        window.location.href = '/fr/auth/login';
+        window.location.href = '/fr/sign-in';
       }, 2000);
       return () => clearTimeout(timeout);
     }
