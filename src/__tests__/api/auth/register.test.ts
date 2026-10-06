@@ -15,7 +15,7 @@ vi.mock('@/lib/middleware/rate-limit', () => ({
 
 vi.mock('@/lib/middleware/parse-json', () => ({
   parseJsonBody: vi.fn(async (req: NextRequest) => {
-    const { NextResponse: ActualNextResponse } = jest.requireActual('next/server') as typeof import('next/server');
+    const { NextResponse: ActualNextResponse } = (await vi.importActual('next/server')) as typeof import('next/server');
     try {
       const data = await req.json();
       return { success: true, data };

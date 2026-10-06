@@ -3,7 +3,6 @@ import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
-import jest from 'eslint-plugin-jest';
 import globals from 'globals';
 
 export default [
@@ -88,16 +87,11 @@ export default [
         afterEach: 'readonly',
         beforeAll: 'readonly',
         afterAll: 'readonly',
-        jest: 'readonly',
+        vi: 'readonly',
       },
-    },
-    plugins: {
-      jest,
     },
     rules: {
       'no-console': 'off',
-      'jest/no-disabled-tests': 'warn',
-      'jest/no-focused-tests': 'warn',
     },
   },
 ];
