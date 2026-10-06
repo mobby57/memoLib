@@ -18,6 +18,6 @@ module.exports = {
   
   // Test files - run relevant tests
   '**/*.test.{ts,tsx}': [
-    'jest --bail --findRelatedTests',
+    'vitest related --run',
   ],
 };
