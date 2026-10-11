@@ -105,7 +105,11 @@ function getCachedHolidaysForYear(year: number): Set<string> {
  */
 export function isFrenchHoliday(date: Date): boolean {
   const year = date.getFullYear();
-  const dateStr = date.toISOString().split('T')[0];
+  // Fix : utiliser l'heure locale, pas UTC (bug C7/N4)
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const dateStr = `${y}-${m}-${d}`;
   const holidays = getCachedHolidaysForYear(year);
   return holidays.has(dateStr);
 }
