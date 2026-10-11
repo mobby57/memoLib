@@ -117,3 +117,9 @@ $null
 
 sftp_host_key
 sftp_host_key.pub
+
+# Cookies et tokens (ne JAMAIS commiter)
+cookie*.txt
+render_cookie*.txt
+rc*.txt
+*_cookie*.txt
