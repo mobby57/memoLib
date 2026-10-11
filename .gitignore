@@ -202,3 +202,9 @@ gen-*.sh
 
 # Git worktrees (ne pas committer comme sous-module)
 .worktrees/
+
+# Backups locaux
+*.before-*
+*.before-utc-fix
+copilot-debug-logs-*.tgz
+Modelfile.memolibdev
