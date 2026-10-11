@@ -208,3 +208,9 @@ gen-*.sh
 *.before-utc-fix
 copilot-debug-logs-*.tgz
 Modelfile.memolibdev
+
+# Backups locaux
+*.before-*
+*.before-utc-fix
+copilot-debug-logs-*.tgz
+Modelfile.memolibdev
