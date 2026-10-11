@@ -1,142 +1,70 @@
-# Security Policy
+﻿# Politique de sécurité — MemoLib
 
-## 🔒 Supported Versions
+**Dernière mise à jour :** 11 octobre 2026
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+## Signalements de vulnérabilités
 
-## 🚨 Reporting a Vulnerability
+Merci d'envoyer tout signalement à **security@memolib.space** (à confirmer) ou via GitHub Security Advisories (onglet Security → Report a vulnerability).
 
-**DO NOT** open a public issue for security vulnerabilities.
+Nous accuserons réception sous 72 h et fournirons une évaluation sous 7 jours.
 
-Instead, please email: **security@memolib.com**
+## Vulnérabilités connues et acceptées
 
-Include:
-- Description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Suggested fix (if any)
+### Dépendances de développement (`devDependencies`)
 
-We will respond within **48 hours** and provide a timeline for a fix.
+Les alertes Dependabot HIGH/MODERATE actuelles proviennent **exclusivement** de la chaîne :
 
-## 🛡️ Security Measures
+    semantic-release
+      ├── @semantic-release/*
+      ├── npm (comme dépendance transitive)
+      ├── @sigstore/*
+      └── micromatch
 
-### Authentication
-- NextAuth.js with secure session management
-- 2FA support (TOTP)
-- Password hashing with bcrypt
-- JWT tokens with expiration
-- Rate limiting on auth endpoints
+**Évaluation du risque :**
 
-### Data Protection
-- Encryption at rest for sensitive data
-- HTTPS only in production
-- Secure headers (CSP, HSTS, X-Frame-Options)
-- Input validation and sanitization
-- SQL injection prevention (Prisma ORM)
-- XSS protection
+| Critère | Statut |
+| --- | --- |
+| Runtime de production (Next.js) | **Non affecté** |
+| Code applicatif (`src/`) | **Non affecté** |
+| Utilisateurs finaux | **Non affecté** |
+| Workflow de release GitHub Actions | **Affecté** (environnement isolé) |
+| Machine de développement locale | **Affecté** si compromis local |
 
-### Access Control
-- Role-based access control (RBAC)
-- Tenant isolation (multi-tenancy)
-- API rate limiting (Upstash)
-- CORS configuration
-- Zero-trust architecture
+**Décision :** accepter temporairement ces alertes.
 
-### Monitoring
-- Sentry error tracking
-- Audit logs (EventLog immutable)
-- Security event logging
-- Automated vulnerability scanning (GitGuardian)
+**Justification :**
+- Ces dépendances ne sont jamais exécutées en production.
+- L'exécution se limite au workflow GitHub Actions `release.yml` (environnement éphémère).
+- Le repo `mobby57/memoLib` est [public/privé] et les PR de fork n'exécutent pas les workflows sans approbation.
 
-### Dependencies
-- Automated dependency updates (Dependabot)
-- Regular security audits (`npm audit`)
-- Minimal dependency footprint
-- Verified packages only
+**Plan de remédiation :**
+- **Ticket :** #XXX (à créer)
+- **Action :** migrer de `semantic-release` vers `release-please` (Google) qui élimine cette chaîne.
+- **Échéance cible :** Q4 2026
+- **Responsable :** mobby57
 
-## 🔐 Best Practices for Contributors
+### Suivi
 
-1. **Never commit secrets**
-   - Use `.env.local` for local development
-   - Use platform secrets for production
-   - Check with GitGuardian before pushing
+| Date | Action | Statut |
+| --- | --- | --- |
+| 11/10/2026 | Documentation des vulnérabilités acceptées | ✅ |
+| À venir | Création du ticket de migration | ⏳ |
+| À venir | Migration vers `release-please` | ⏳ |
 
-2. **Validate all inputs**
-   - Use Zod schemas for validation
-   - Sanitize user inputs
-   - Escape outputs
+## Ce que nous ne considérons PAS comme des vulnérabilités
 
-3. **Follow OWASP Top 10**
-   - Injection prevention
-   - Broken authentication prevention
-   - Sensitive data exposure prevention
-   - XML external entities prevention
-   - Broken access control prevention
-   - Security misconfiguration prevention
-   - XSS prevention
-   - Insecure deserialization prevention
-   - Using components with known vulnerabilities prevention
-   - Insufficient logging & monitoring prevention
+- Alertes provenant de dépendances de **développement uniquement**.
+- Alertes provenant d'outils de **build ou de release** qui ne sont jamais exécutés en production.
+- Faux positifs de Dependabot sur des dépendances transitives non exécutées.
 
-4. **Code Review**
-   - All PRs require security review
-   - Automated security checks in CI/CD
-   - Manual review for sensitive changes
+## Bonnes pratiques
 
-## 🔍 Security Checklist
+- Les secrets ne sont **jamais** commités (voir `.gitignore`).
+- Les workflows GitHub Actions utilisent des secrets chiffrés.
+- `npm audit` est exécuté avant chaque release majeure.
+- Les tokens CSRF et cookies de session sont invalidés via rotation régulière de `NEXTAUTH_SECRET`.
 
-- [ ] No hardcoded credentials
-- [ ] Environment variables used correctly
-- [ ] Input validation implemented
-- [ ] Output sanitization implemented
-- [ ] Authentication required for protected routes
-- [ ] Authorization checks in place
-- [ ] Rate limiting configured
-- [ ] HTTPS enforced
-- [ ] Secure headers configured
-- [ ] CORS properly configured
-- [ ] Error messages don't leak sensitive info
-- [ ] Logging doesn't include sensitive data
-- [ ] Dependencies up to date
-- [ ] Security tests passing
+## Historique
 
-## 📋 Compliance
-
-### RGPD/GDPR
-- Data minimization
-- Right to access
-- Right to erasure
-- Data portability
-- Consent management
-- Privacy by design
-
-### Audit Trail
-- Immutable event log
-- User action tracking
-- Data access logging
-- Change history
-
-## 🚀 Security Updates
-
-We release security patches as soon as possible after discovery.
-
-Subscribe to security advisories:
-- GitHub Security Advisories
-- Email notifications (security@memolib.com)
-
-## 📞 Contact
-
-- **Security Team**: security@memolib.com
-- **General Support**: support@memolib.com
-
-## 🙏 Acknowledgments
-
-We thank security researchers who responsibly disclose vulnerabilities.
-
-Hall of Fame: (to be added)
-
----
-
-**Last Updated**: February 2026
+- **11/10/2026 :** Ajout des règles d'ignorance pour les fichiers cookies/tokens (commit `cd85aef6`, `996c6fad`).
+- **11/10/2026 :** Correction du bug UTC dans `isFrenchHoliday` (commit `367d6116`).
