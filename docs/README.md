@@ -7,6 +7,11 @@ Ce dossier contient les documents fondateurs de Memolib pour cadrer la V1.
 - Limites (ce que Memolib ne fera pas): [limits.md](limits.md)
 - Doctrine (traitement assisté responsable): [doctrine.md](doctrine.md)
 - Checklist de validation: [phase0-checklist.md](phase0-checklist.md)
+- Etude concurrentielle MemoLibDev: [MEMOLIBDEV_COMPETITIVE_STRATEGY.md](MEMOLIBDEV_COMPETITIVE_STRATEGY.md)
+- Validation marche MemoLibDev: [MEMOLIBDEV_DISCOVERY_PLAN.md](MEMOLIBDEV_DISCOVERY_PLAN.md)
+- Specification MVP MemoLibDev: [MEMOLIBDEV_MVP_SPEC.md](MEMOLIBDEV_MVP_SPEC.md)
+- Hypotheses tarifaires MemoLibDev: [MEMOLIBDEV_PRICING_EXPERIMENT.md](MEMOLIBDEV_PRICING_EXPERIMENT.md)
+- Architecture de l'API locale MemoLibDev: [MEMOLIBDEV_LOCAL_API_ARCHITECTURE.md](MEMOLIBDEV_LOCAL_API_ARCHITECTURE.md)
 
 ## Objectifs de la Phase 0
 - Définir clairement la promesse et la valeur.
