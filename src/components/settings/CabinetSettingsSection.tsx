@@ -88,7 +88,7 @@ export function CabinetSettingsSection() {
       });
     }
     // form.commit est stable (useCallback) ; on ne dépend que de data.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [data]);
 
   const handleSave = async () => {
