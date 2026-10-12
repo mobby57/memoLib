@@ -108,7 +108,7 @@ export function useWorkflowAbandonment({ workflow, userId, tenantId }: Options) 
         }
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [workflow, userId, tenantId]);
 
   // Détecte l'abandon via visibilitychange (changement d'onglet / mise en veille)

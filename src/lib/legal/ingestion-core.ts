@@ -230,7 +230,7 @@ export async function ingestArticleVersion(
 
 /** randomUUID isolé pour permettre un fallback si crypto global absent. */
 function cryptoRandomUUID(): string {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+   
   const nodeCrypto = require('crypto') as typeof import('crypto');
   return nodeCrypto.randomUUID();
 }
