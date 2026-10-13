@@ -25,12 +25,15 @@ on:
   workflow_dispatch:
     inputs:
       endpoint:
-        description: 'Single endpoint to trigger (e.g. deadline-alerts). Leave blank to run all due jobs.'
+        description: 'Optional single endpoint to trigger. Must be one of the allowlisted cron endpoints.'
         required: false
         default: ''
 
 env:
   BASE_URL: https://memolib.space
+
+# This workflow only makes outbound HTTP requests and does not need GITHUB_TOKEN.
+permissions: {}
 
 jobs:
   cron:
@@ -39,15 +42,26 @@ jobs:
     steps:
       - name: Select endpoints for this schedule
         id: select
+        env:
+          # Keep event-controlled values out of the generated shell script.
+          CRON_SCHEDULE: ${{ github.event.schedule }}
+          MANUAL_ENDPOINT: ${{ inputs.endpoint }}
         run: |
-          CRON='${{ github.event.schedule }}'
-          MANUAL='${{ github.event.inputs.endpoint }}'
+          set -euo pipefail
           declare -a jobs=()
 
-          if [ -n "$MANUAL" ]; then
-            jobs+=("$MANUAL")
+          if [[ -n "$MANUAL_ENDPOINT" ]]; then
+            case "$MANUAL_ENDPOINT" in
+              email-sync|workflows|escalation|rappel-audiences|deadline-alerts|deadline-email-alerts|cost-alerts|trial-expiry|relance-pieces|invoice-reminders)
+                jobs+=("$MANUAL_ENDPOINT")
+                ;;
+              *)
+                echo "::error::Unsupported endpoint. Choose one of the documented cron endpoints."
+                exit 1
+                ;;
+            esac
           else
-            case "$CRON" in
+            case "$CRON_SCHEDULE" in
               '*/15 * * * *') jobs+=("email-sync" "workflows") ;;
               '0 * * * *')    jobs+=("escalation") ;;
               '0 5 * * *')    jobs+=("rappel-audiences") ;;
@@ -59,35 +73,39 @@ jobs:
             esac
           fi
 
-          echo "jobs=${jobs[*]}" >> "$GITHUB_OUTPUT"
-          echo "Selected: ${jobs[*]}"
+          printf 'jobs=%s\n' "${jobs[*]}" >> "$GITHUB_OUTPUT"
+          printf 'Selected endpoints: %s\n' "${jobs[*]}"
 
       - name: Call endpoints
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          JOBS: ${{ steps.select.outputs.jobs }}
         run: |
-          if [ -z "$CRON_SECRET" ]; then
+          set -euo pipefail
+          if [[ -z "$CRON_SECRET" ]]; then
             echo "::error::CRON_SECRET repository secret is not set"
             exit 1
           fi
 
           FAIL=0
-          for job in ${{ steps.select.outputs.jobs }}; do
+          for job in $JOBS; do
             URL="${BASE_URL}/api/cron/${job}"
-            echo "→ GET ${URL}"
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "$URL" \
-              -H "Authorization: Bearer ${CRON_SECRET}" \
-              -H "Content-Type: application/json")
-            HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-            BODY=$(echo "$RESPONSE" | sed '$d')
+            echo "Calling ${URL}"
+            if ! HTTP_CODE=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+              --request GET "$URL" \
+              --header "Authorization: Bearer ${CRON_SECRET}" \
+              --header "Content-Type: application/json"); then
+              echo "::error::${job} request failed"
+              FAIL=1
+              continue
+            fi
             echo "HTTP ${HTTP_CODE}"
-            echo "${BODY}"
-            # 200 OK; 207 is used by some endpoints for partial success.
-            if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "207" ]; then
+            # Do not print endpoint response bodies to Actions logs.
+            if [[ "$HTTP_CODE" != "200" && "$HTTP_CODE" != "207" ]]; then
               echo "::error::${job} returned HTTP ${HTTP_CODE}"
               FAIL=1
             else
               echo "✅ ${job} ok"
             fi
           done
-          exit $FAIL
+          exit "$FAIL"
