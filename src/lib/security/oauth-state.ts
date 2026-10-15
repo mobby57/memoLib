@@ -27,7 +27,7 @@ export function createOAuthState(payload: OAuthStatePayload): string {
   };
   const bodyB64 = Buffer.from(JSON.stringify(body)).toString('base64url');
   const sig = crypto
-    .createHmac('sha256', SECRET!)
+    .createHmac('sha256', getSecret())
     .update(bodyB64)
     .digest('base64url');
   return `${bodyB64}.${sig}`;
@@ -40,7 +40,7 @@ export function verifyOAuthState(state: string): OAuthStatePayload {
   }
   const [bodyB64, sigReceived] = parts;
   const sigExpected = crypto
-    .createHmac('sha256', SECRET!)
+    .createHmac('sha256', getSecret())
     .update(bodyB64)
     .digest('base64url');
   if (
