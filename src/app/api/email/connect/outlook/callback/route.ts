@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-<<<<<<< HEAD
-=======
 import { EncryptionService } from '@/lib/security/encryption';
 import { verifyOAuthState } from '@/lib/security/oauth-state';
->>>>>>> e9b626d8 (fix(security): signe le state OAuth (P0) - HMAC-SHA256 + expiration 10min)
 
 /**
  * GET /api/email/connect/outlook/callback
