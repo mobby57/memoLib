@@ -10,10 +10,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
 export async function GET(req: NextRequest) {
+  const _authError = requireCronSecret(req);
+  if (_authError) return _authError;
+
   // Vérifier l'authentification cron
   const authHeader = req.headers.get('authorization');
   if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {

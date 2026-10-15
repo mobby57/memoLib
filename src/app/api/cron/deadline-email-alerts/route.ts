@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,9 @@ export const dynamic = 'force-dynamic';
  * - J-0 : "AUJOURD'HUI — Deadline atteinte"
  */
 export async function GET(request: Request) {
+
+  const _authError = requireCronSecret(request as any);
+  if (_authError) return _authError;
   // Vérifier le token cron (sécurité)
   const url = new URL(request.url);
   const token = url.searchParams.get('token');
