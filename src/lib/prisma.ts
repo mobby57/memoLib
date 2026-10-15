@@ -140,9 +140,28 @@ function createRealClient() {
 //
 // Le client réel n'est construit qu'au PREMIER accès à une propriété
 // (première requête au runtime). Le stub de test reste inchangé.
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+  realTestPrisma?: PrismaClient;
+};
+
+function shouldUseRealDbForTests(): boolean {
+  return (
+    process.env.NODE_ENV === 'test' &&
+    process.env.REAL_DB_TESTS === '1' &&
+    process.env.USE_REAL_DB_FOR_TESTS === '1' &&
+    typeof process.env.DATABASE_URL === 'string' &&
+    /^(postgres|postgresql):\/\//i.test(process.env.DATABASE_URL)
+  );
+}
 
 function getClient(): PrismaClient {
+  // Integration tests opt into a separate real client explicitly. Keeping it
+  // separate prevents a stub created by another test from being reused here.
+  if (shouldUseRealDbForTests()) {
+    return (globalForPrisma.realTestPrisma ??= createRealClient());
+  }
+
   if (process.env.NODE_ENV === 'test') {
     return (globalForPrisma.prisma ??= createTestStub());
   }
