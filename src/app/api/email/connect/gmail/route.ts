@@ -2,6 +2,7 @@ import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { createOAuthState } from '@/lib/security/oauth-state';
 
 /**
  * GET /api/email/connect/gmail
@@ -35,10 +36,10 @@ export async function GET(request: NextRequest) {
   ].join(' ');
 
   // State = tenantId + userId (pour retrouver l'utilisateur au callback)
-  const state = Buffer.from(JSON.stringify({
+  const state = createOAuthState({
     tenantId: user.tenantId,
     userId: user.id,
-  })).toString('base64url');
+  });
 
   const params = new URLSearchParams({
     client_id: clientId,
