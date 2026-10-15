@@ -61,28 +61,28 @@ model AIDecision {
 ///  - Les métadonnées non sensibles (statut, type, complétude) restent en clair
 ///    pour permettre le requêtage et l'agrégation ("demandes à aider").
 model IntakeRequest {
-  id                String   @id @default(cuid())
-  tenantId          String
-  clientId          String?
+  id       String  @id @default(cuid())
+  tenantId String
+  clientId String?
 
-  type              String   // OQTF | Asile | TitreSejour | ...
-  status            String   @default("PENDING") // PENDING|IN_PROGRESS|COMPLETE|NEEDS_HELP
-  origin            String   @default("manual")   // googlesheet|email|manual
-  sourceRef         String?  // ex: n° de ligne / id de la ligne Google Sheet
+  type      String // OQTF | Asile | TitreSejour | ...
+  status    String  @default("PENDING") // PENDING|IN_PROGRESS|COMPLETE|NEEDS_HELP
+  origin    String  @default("manual") // googlesheet|email|manual
+  sourceRef String? // ex: n° de ligne / id de la ligne Google Sheet
 
-  clientEmailEnc    String?  // email chiffré (payload JSON)
-  clientEmailHash   String?  // SHA-256 pour dédup/recherche
+  clientEmailEnc  String? // email chiffré (payload JSON)
+  clientEmailHash String? // SHA-256 pour dédup/recherche
 
-  encryptedData     String?  // réponses du formulaire, chiffrées (payload JSON)
+  encryptedData String? // réponses du formulaire, chiffrées (payload JSON)
 
-  requiredFields    Json?    // champs attendus (schéma du formulaire)
-  requiredDocuments Json?    // documents attendus
-  providedDocuments Json?    // documents fournis (labels cochés)
-  uploadedFiles     Json?    // fichiers réellement déposés (métadonnées, réf. de stockage chiffré)
-  completeness      Int      @default(0) // 0..100
+  requiredFields    Json? // champs attendus (schéma du formulaire)
+  requiredDocuments Json? // documents attendus
+  providedDocuments Json? // documents fournis (labels cochés)
+  uploadedFiles     Json? // fichiers réellement déposés (métadonnées, réf. de stockage chiffré)
+  completeness      Int   @default(0) // 0..100
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([tenantId, origin, sourceRef])
   @@index([tenantId, status])
@@ -375,17 +375,17 @@ model Document {
 }
 
 model Dossier {
-  id                 String           @id
+  id                 String            @id
   tenantId           String
   numero             String
   clientId           String
   typeDossier        String
   articleCeseda      String?
   categorieJuridique String?
-  statut             String           @default("en_cours")
-  priorite           String           @default("normale")
-  phase              String           @default("instruction")
-  dateCreation       DateTime         @default(now())
+  statut             String            @default("en_cours")
+  priorite           String            @default("normale")
+  phase              String            @default("instruction")
+  dateCreation       DateTime          @default(now())
   dateOuverture      DateTime?
   dateEcheance       DateTime?
   dateProchaineEtape DateTime?
@@ -399,21 +399,21 @@ model Dossier {
   objet              String?
   description        String?
   notes              String?
-  createdAt          DateTime         @default(now())
+  createdAt          DateTime          @default(now())
   updatedAt          DateTime
   inboxEmail         String?
-  checklistComplete  Boolean?         @default(false)
-  checklistTotal     Int?             @default(0)
-  checklistReceived  Int?             @default(0)
+  checklistComplete  Boolean?          @default(false)
+  checklistTotal     Int?              @default(0)
+  checklistReceived  Int?              @default(0)
   outcome            String?
   outcomeDate        DateTime?
   outcomeNotes       String?
-  confidentialMode   Boolean          @default(false)
+  confidentialMode   Boolean           @default(false)
   ActionProposal     ActionProposal[]
   CalendarEvent      CalendarEvent[]
   Document           Document[]
-  Client             Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  Tenant             Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Client             Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Tenant             Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   Draft              Draft[]
   Email              Email[]
   Facture            Facture[]
@@ -424,7 +424,7 @@ model Dossier {
   ChannelMessage     ChannelMessage[]
   DossierMember      DossierMember[]
   InformationUnit    InformationUnit[]
-  Team               Team?            @relation(fields: [teamId], references: [id])
+  Team               Team?             @relation(fields: [teamId], references: [id])
 
   @@unique([tenantId, numero])
   @@index([clientId])
@@ -736,8 +736,8 @@ model InformationUnit {
   Dossier                  Dossier?                   @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   Proof                    Proof[]
 
-  @@index([contentHash])
   @@unique([tenantId, contentHash])
+  @@index([contentHash])
   @@index([currentStatus])
   @@index([tenantId, currentStatus])
   @@index([tenantId])
@@ -745,23 +745,23 @@ model InformationUnit {
 }
 
 model Jurisprudence {
-  id           String                   @id
-  externalId   String                   @unique
-  titre        String
-  date         DateTime
-  juridiction  String
-  numero       String?
-  chambre      String?
-  formation    String?
-  solution     String?
-  resume       String?
-  texte        String
-  url          String?
-  themes       String[]
-  relatedArticles String[]              @default([])
-  source       String                   @default("huggingface")
-  searchVector Unsupported("tsvector")?
-  createdAt    DateTime                 @default(now())
+  id              String                   @id
+  externalId      String                   @unique
+  titre           String
+  date            DateTime
+  juridiction     String
+  numero          String?
+  chambre         String?
+  formation       String?
+  solution        String?
+  resume          String?
+  texte           String
+  url             String?
+  themes          String[]
+  relatedArticles String[]                 @default([])
+  source          String                   @default("huggingface")
+  searchVector    Unsupported("tsvector")?
+  createdAt       DateTime                 @default(now())
 
   @@index([date])
   @@index([juridiction])
@@ -1060,57 +1060,58 @@ model TemplateVote {
 }
 
 model Tenant {
-  id                String              @id
-  name              String
-  subdomain         String              @unique
-  domain            String?             @unique
-  planId            String
-  status            String              @default("active")
-  trialEndsAt       DateTime?
-  billingEmail      String?
-  billingAddress    String?
-  vatNumber         String?
-  currentWorkspaces Int                 @default(0)
-  currentDossiers   Int                 @default(0)
-  currentClients    Int                 @default(0)
-  currentStorageGb  Float               @default(0)
-  currentUsers      Int                 @default(0)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime
-  stripeCustomerId  String?             @unique
-  AIUsageLog        AIUsageLog[]
-  ActionProposal    ActionProposal[]
-  ArchivePolicy     ArchivePolicy[]
-  AuditLog          AuditLog[]
-  CalendarEvent     CalendarEvent[]
-  Client            Client[]
-  ChannelMessage    ChannelMessage[]
-  CompteComptable   CompteComptable[]
-  DeclarationTVA    DeclarationTVA[]
+  id                 String               @id
+  name               String
+  subdomain          String               @unique
+  domain             String?              @unique
+  planId             String
+  status             String               @default("active")
+  trialEndsAt        DateTime?
+  billingEmail       String?
+  billingAddress     String?
+  vatNumber          String?
+  currentWorkspaces  Int                  @default(0)
+  currentDossiers    Int                  @default(0)
+  currentClients     Int                  @default(0)
+  currentStorageGb   Float                @default(0)
+  currentUsers       Int                  @default(0)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  stripeCustomerId   String?              @unique
+  AIUsageLog         AIUsageLog[]
+  ActionProposal     ActionProposal[]
+  ArchivePolicy      ArchivePolicy[]
+  AuditLog           AuditLog[]
+  CalendarEvent      CalendarEvent[]
+  Client             Client[]
+  ChannelMessage     ChannelMessage[]
+  CompteComptable    CompteComptable[]
+  DeclarationTVA     DeclarationTVA[]
   DataSubjectRequest DataSubjectRequest[]
-  Document          Document[]
-  Dossier           Dossier[]
-  Draft             Draft[]
-  Ecriture          Ecriture[]
-  Email             Email[]
-  EmailAccount      EmailAccount[]
-  Facture           Facture[]
-  InformationUnit   InformationUnit[]
-  Journal           Journal[]
-  LegalDeadline     LegalDeadline[]
-  MouvementBancaire MouvementBancaire[]
-  MouvementCARPA    MouvementCARPA[]
-  Proof             Proof[]
-  QuotaEvent        QuotaEvent[]
-  Report            Report[]
-  Subscription      Subscription?
-  Plan              Plan                @relation(fields: [planId], references: [id])
-  TenantSettings    TenantSettings?
-  TimeEntry         TimeEntry[]
-  UsageRecord       UsageRecord[]
-  User              User[]
-  WorkflowExecution WorkflowExecution[]
-  Team              Team[]
+  Document           Document[]
+  Dossier            Dossier[]
+  Draft              Draft[]
+  Ecriture           Ecriture[]
+  Email              Email[]
+  EmailAccount       EmailAccount[]
+  Facture            Facture[]
+  InformationUnit    InformationUnit[]
+  Journal            Journal[]
+  LegalDeadline      LegalDeadline[]
+  MouvementBancaire  MouvementBancaire[]
+  MouvementCARPA     MouvementCARPA[]
+  Proof              Proof[]
+  QuotaEvent         QuotaEvent[]
+  Report             Report[]
+  Subscription       Subscription?
+  Plan               Plan                 @relation(fields: [planId], references: [id])
+  TenantSettings     TenantSettings?
+  TimeEntry          TimeEntry[]
+  UsageRecord        UsageRecord[]
+  Webhook            Webhook[]
+  User               User[]
+  WorkflowExecution  WorkflowExecution[]
+  Team               Team[]
 
   @@index([planId])
   @@index([status])
@@ -1151,14 +1152,14 @@ model TenantSettings {
   deadlineNotifications Boolean @default(true)
 
   // Fonctionnalités toggables par le cabinet (feature flags par tenant)
-  ocrEnabled       Boolean @default(false)
-  aiEnabled        Boolean @default(true)
+  ocrEnabled Boolean @default(false)
+  aiEnabled  Boolean @default(true)
 
   // Configuration documents / uploads
   maxUploadSizeMb   Int @default(10)
   maxFilesPerUpload Int @default(5)
 
-  Tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 model UsageRecord {
@@ -1256,19 +1257,19 @@ model UserPreference {
 /// Demande d'exercice d'un droit par la personne concernée. La résolution est
 /// manuelle afin de vérifier les obligations de conservation et le périmètre.
 model DataSubjectRequest {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   tenantId     String
   userId       String
   requestType  String
-  status       String   @default("PENDING_REVIEW")
-  requestedAt  DateTime @default(now())
+  status       String    @default("PENDING_REVIEW")
+  requestedAt  DateTime  @default(now())
   scheduledFor DateTime?
   cancelledAt  DateTime?
   completedAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  Tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  User         User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  Tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  User         User      @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([tenantId, userId, requestType, status])
   @@index([status, scheduledFor])
@@ -1294,6 +1295,26 @@ model DossierMember {
   @@index([tenantId])
   @@index([dossierId])
   @@index([userId])
+}
+
+/// Webhooks sortants d'un cabinet. Chaque webhook est signe par un
+/// secret HMAC (chiffre AES-256-GCM au repos, comme les tokens OAuth).
+model Webhook {
+  id           String    @id
+  tenantId     String
+  url          String
+  events       String
+  secret       String
+  description  String?
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  lastDelivery DateTime?
+  lastError    String?
+  Tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, active])
 }
 
 enum DossierMemberRole {
