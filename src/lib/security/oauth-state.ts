@@ -1,12 +1,17 @@
 import crypto from 'crypto';
 
-const SECRET = process.env.OAUTH_STATE_SECRET;
 const TTL_MS = 10 * 60 * 1000; // 10 minutes
 
-if (!SECRET) {
-  throw new Error(
-    "OAUTH_STATE_SECRET manquant dans les variables d'environnement",
-  );
+// Read the secret when OAuth state is used, not at module import time.
+// Next.js imports route modules during build, when runtime secrets may not exist.
+function getSecret(): string {
+  const secret = process.env.OAUTH_STATE_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error(
+      "OAUTH_STATE_SECRET manquant ou trop court dans les variables d'environnement",
+    );
+  }
+  return secret;
 }
 
 export interface OAuthStatePayload {
