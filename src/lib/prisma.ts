@@ -1,5 +1,6 @@
 // src/lib/prisma.ts
 
+import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 
 // ============================================
@@ -97,6 +98,44 @@ function createTestStub(): any {
 // 3. CLIENT PRISMA RÉEL
 // ============================================
 
+// ============================================
+// MIDDLEWARE : ID AUTO-INJECTION
+// ============================================
+//
+// Le schéma Prisma n'a PAS de @default sur les champs `id` (convention projet).
+// Resultat : chaque prisma.X.create() doit fournir un id, sinon
+// PrismaClientValidationError "Argument id is missing".
+//
+// Ce middleware injecte un id si absent, pour tous les modeles, pour create
+// et createMany. Il n'ecrase JAMAIS un id deja fourni.
+//
+// Pourquoi middlewares : le projet compte 60+ appels create() et 55+ modeles
+// sans @default. Une injection centrale evite 60+ corrections individuelles
+// et protege contre les futurs oublis.
+
+function applyIdAutoInjection(client: PrismaClient) {
+  client.$use(async (params, next) => {
+    if (params.action === 'create' && params.args?.data) {
+      if (!params.args.data.id) {
+        params.args.data.id = crypto.randomUUID();
+      }
+    }
+
+    if (params.action === 'createMany' && params.args?.data) {
+      const rows = Array.isArray(params.args.data)
+        ? params.args.data
+        : [params.args.data];
+      for (const row of rows) {
+        if (row && typeof row === 'object' && !row.id) {
+          row.id = crypto.randomUUID();
+        }
+      }
+    }
+
+    return next(params);
+  });
+}
+
 function createRealClient() {
   const client = new PrismaClient({
     log:
@@ -105,7 +144,10 @@ function createRealClient() {
         : ['error'],
   });
 
-  // Middleware Prisma pour mesurer les requêtes lentes
+  // Middleware 1 : injecte un id si absent (avant toute requete)
+  applyIdAutoInjection(client);
+
+  // Middleware 2 : mesure les requetes lentes
   client.$use(async (params, next) => {
     const start = Date.now();
 
