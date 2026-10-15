@@ -155,16 +155,16 @@ describe('POST /api/emails/incoming (integration db)', () => {
     const email = await prisma.email.findUnique({
       where: { id: payload.emailId },
       include: {
-        attachments: true,
-        workflows: true,
+        EmailAttachment: true,
+        WorkflowExecution: true,
       },
     });
 
     expect(email).toBeTruthy();
     expect(email.tenantId).toBe(tenantId);
     expect(email.hasAttachments).toBe(true);
-    expect(email.attachments).toHaveLength(2);
-    expect(email.workflows.length).toBeGreaterThan(0);
+    expect(email.EmailAttachment).toHaveLength(2);
+    expect(email.WorkflowExecution.length).toBeGreaterThan(0);
   });
 
   it('prevents duplicates with same messageId and keeps one email row', async () => {

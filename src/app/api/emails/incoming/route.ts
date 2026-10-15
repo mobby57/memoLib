@@ -1,4 +1,5 @@
 ﻿/**
+import crypto from 'crypto';
  * API Route - Reception Email Entrant (Webhook)
  * POST /api/emails/incoming - Recoit un email et declenche le workflow
  * 
@@ -130,7 +131,7 @@ export async function POST(request: NextRequest) {
     // Trouver le tenant destinataire base sur l'email "to"
     const tenant = await prisma.tenant.findFirst({
       where: {
-        users: {
+        User: {
           some: {
             email: { in: normalized.tenantLookupRecipients },
             role: { in: ['ADMIN', 'LAWYER', 'USER'] },
@@ -208,6 +209,8 @@ export async function POST(request: NextRequest) {
     try {
       email = await prisma.email.create({
         data: {
+          id: crypto.randomUUID(),
+          updatedAt: new Date(),
           tenantId: tenant.id,
           messageId,
           providerMessageId: normalized.providerMessageId,
@@ -336,6 +339,7 @@ export async function POST(request: NextRequest) {
       try {
         await prisma.emailAttachment.createMany({
           data: attachments.map(att => ({
+            id: crypto.randomUUID(),
             emailId: email.id,
             filename: att.filename,
             mimeType: att.mimeType,
@@ -366,6 +370,8 @@ export async function POST(request: NextRequest) {
     try {
       const workflow = await prisma.workflowExecution.create({
         data: {
+          id: crypto.randomUUID(),
+          updatedAt: new Date(),
           tenantId: tenant.id,
           workflowId: `email-${category}`,
           workflowName: getWorkflowName(category),
@@ -387,8 +393,10 @@ export async function POST(request: NextRequest) {
 
       // Simuler l'execution du workflow (etapes)
       await executeWorkflowSteps(workflow.id, email, category, urgency);
-    } catch {
-      logger.error('[EMAIL] Workflow best-effort failed');
+    } catch (workflowError) {
+      logger.error('[EMAIL] Workflow best-effort failed', {
+        error: workflowError instanceof Error ? workflowError.message : String(workflowError),
+      });
     }
 
     recordEmailIngestion({
