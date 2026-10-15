@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
 import { runIntakePurge } from '@/lib/cron/intake-purge';
 import { logger } from '@/lib/logger';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,8 @@ export const dynamic = 'force-dynamic';
  */
 async function handleCron(request: NextRequest) {
   try {
+    const _authError = requireCronSecret(request);
+    if (_authError) return _authError;
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
