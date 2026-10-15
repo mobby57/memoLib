@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { timingSafeEqual } from 'node:crypto';
 import { runIntakePurge } from '@/lib/cron/intake-purge';
 import { logger } from '@/lib/logger';
 import { requireCronSecret } from '@/lib/security/cron-auth';
@@ -8,31 +7,16 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Cron — purge RGPD des demandes d'intake expirées (rétention).
- * Sécurisé par CRON_SECRET (Bearer / token / header Vercel), comme les autres crons.
+ * En production, l'accès exige CRON_SECRET (Bearer ou ?token=).
+ * En développement uniquement, l'authentification est désactivée.
  *
  * Query params optionnels : ?days=365&dryRun=1
  */
 async function handleCron(request: NextRequest) {
   try {
-    const _authError = requireCronSecret(request);
-    if (_authError) return _authError;
-    const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
-
-    if (process.env.NODE_ENV === 'development') {
-      // OK, pas d'auth en dev
-    } else if (!cronSecret) {
-      return NextResponse.json({ error: 'CRON_SECRET non configuré' }, { status: 503 });
-    } else {
-      if (!hasValidCronAuthorization(authHeader, cronSecret)) {
-        return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-      }
-
-      const token = request.nextUrl.searchParams.get('token');
-      const vercelCronHeader = request.headers.get('x-vercel-cron');
-      if (authHeader !== `Bearer ${cronSecret}` && token !== cronSecret && !vercelCronHeader) {
-        return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-      }
+    if (process.env.NODE_ENV !== 'development') {
+      const authError = requireCronSecret(request);
+      if (authError) return authError;
     }
 
     const daysParam = Number(request.nextUrl.searchParams.get('days'));
@@ -53,15 +37,6 @@ async function handleCron(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-function hasValidCronAuthorization(authHeader: string | null, cronSecret: string): boolean {
-  const expected = `Bearer ${cronSecret}`;
-  if (!authHeader || authHeader.length !== expected.length) {
-    return false;
-  }
-
-  return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
 }
 
 export const GET = handleCron;
