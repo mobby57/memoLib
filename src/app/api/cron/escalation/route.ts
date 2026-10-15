@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runEscalation } from '@/lib/cron/escalation.service';
 import { logger } from '@/lib/logger';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 async function handleCron(request: NextRequest) {
+
+  const _authError = requireCronSecret(request);
+  if (_authError) return _authError;
   const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
   const token = request.nextUrl.searchParams.get('token');

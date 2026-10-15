@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 /**
  * GET /api/cron/rappel-audiences
@@ -7,6 +8,9 @@ import { prisma } from '@/lib/prisma';
  * Inclut un resume du dossier.
  */
 export async function GET(request: NextRequest) {
+  const _authError = requireCronSecret(request);
+  if (_authError) return _authError;
+
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
   if (token !== process.env.CRON_SECRET) {

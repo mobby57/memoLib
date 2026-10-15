@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { runMonitors } from '@/lib/workflows/monitors';
 import { logger } from '@/lib/logger';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 /**
  *  API Cron: Execution periodique des moniteurs
@@ -9,6 +10,9 @@ import { logger } from '@/lib/logger';
  */
 
 export async function GET(request: NextRequest) {
+  const _authError = requireCronSecret(request);
+  if (_authError) return _authError;
+
   try {
     // Verifier le token de securite
     const authHeader = request.headers.get('authorization');

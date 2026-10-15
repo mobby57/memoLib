@@ -1,9 +1,13 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { checkDeadlineAlerts } from '@/lib/cron/deadline-alerts';
 import { logger } from '@/lib/logger';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 async function handleCron(request: NextRequest) {
   try {
+
+    const _authError = requireCronSecret(request);
+    if (_authError) return _authError;
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
