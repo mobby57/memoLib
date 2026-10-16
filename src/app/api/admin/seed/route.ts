@@ -6,6 +6,37 @@ import { logger } from '@/lib/logger';
  * Endpoint temporaire : cree les plans en base si absents.
  * Protege par CRON_SECRET. A supprimer apres usage.
  */
+
+async function applySchemaFix() {
+  const fixes = [
+    // TenantSettings - colonnes cabinet config
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "cabinetName" TEXT`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "cabinetLogo" TEXT`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "cabinetAddress" TEXT`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "cabinetPhone" TEXT`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "cabinetEmail" TEXT`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "defaultLanguage" TEXT NOT NULL DEFAULT 'fr'`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "defaultTimezone" TEXT NOT NULL DEFAULT 'Europe/Paris'`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "dateFormat" TEXT NOT NULL DEFAULT 'DD/MM/YYYY'`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "emailNotifications" BOOLEAN NOT NULL DEFAULT true`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "deadlineNotifications" BOOLEAN NOT NULL DEFAULT true`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "ocrEnabled" BOOLEAN NOT NULL DEFAULT false`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "aiEnabled" BOOLEAN NOT NULL DEFAULT true`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "maxUploadSizeMb" INTEGER NOT NULL DEFAULT 10`,
+    `ALTER TABLE "TenantSettings" ADD COLUMN IF NOT EXISTS "maxFilesPerUpload" INTEGER NOT NULL DEFAULT 5`,
+  ];
+  const results: string[] = [];
+  for (const sql of fixes) {
+    try {
+      await prisma.$executeRawUnsafe(sql);
+      results.push(`OK: ${sql.split(' ').slice(0, 5).join(' ')}...`);
+    } catch (e) {
+      results.push(`ERR: ${sql} - ${e instanceof Error ? e.message : 'unknown'}`);
+    }
+  }
+  return results;
+}
+
 export async function POST(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
@@ -16,6 +47,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
   }
 
+  // 1. Fix schema drift (colonnes manquantes)
+  const schemaResults = await applySchemaFix();
+
+  // 2. Creer les plans
   const plans = [
     { name: 'solo', displayName: 'Solo', priceMonthly: 29, priceYearly: 290, maxDossiers: 50, maxUsers: 1 },
     { name: 'cabinet', displayName: 'Cabinet', priceMonthly: 69, priceYearly: 690, maxDossiers: 500, maxUsers: 10 },
@@ -45,5 +80,5 @@ export async function POST(request: NextRequest) {
   }
 
   logger.info('[SEED] Plans crees', { results });
-  return NextResponse.json({ success: true, results });
+  return NextResponse.json({ success: true, schema: schemaResults, results });
 }
