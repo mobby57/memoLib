@@ -16,6 +16,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
+    // Cette route expose les stats IA du CABINET (tenant-level).
+    // Elle ne doit PAS etre accessible aux CLIENTS (qui verraient la conso
+    // de tous les autres clients du cabinet). Reservee aux roles admin.
+    const userRole = String((user as any).role || '').toUpperCase();
+    const adminRoles = new Set(['ADMIN', 'LAWYER', 'SUPER_ADMIN', 'SECRETARY']);
+    if (!adminRoles.has(userRole)) {
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+    }
+
     const tenantId = user.tenantId;
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 400 });
