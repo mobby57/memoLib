@@ -21,11 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     const client = await prisma.client.findFirst({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
+      where: { userId },
     });
 
     if (!client) {
@@ -90,11 +86,7 @@ export async function PUT(request: NextRequest) {
     });
 
     const updatedClient = await prisma.client.updateMany({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
+      where: { userId },
       data: allowedFields,
     });
 

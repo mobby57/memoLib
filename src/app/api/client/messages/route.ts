@@ -20,8 +20,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Recuperer les messages du client
+    const tenantId = (user as any).tenantId;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Compte non provisionne' }, { status: 403 });
+    }
+
     const messages = await prisma.message.findMany({
       where: {
+        tenantId,
         OR: [
           { senderId: userId },
           { recipientId: userId },
@@ -47,7 +53,7 @@ export async function GET(request: NextRequest) {
       senderName: msg.sender.name,
       senderRole: msg.sender.role,
       createdAt: msg.createdAt,
-      read: msg.isRead,
+      read: msg.read,
     }));
 
     return NextResponse.json({ messages: formattedMessages });
@@ -112,7 +118,7 @@ export async function POST(request: NextRequest) {
         senderId: userId,
         recipientId: avocat.id,
         tenantId: dbUser.tenantId,
-        isRead: false,
+        read: false,
       },
       include: {
         sender: {
@@ -135,7 +141,7 @@ export async function POST(request: NextRequest) {
         senderName: message.sender.name,
         senderRole: message.sender.role,
         createdAt: message.createdAt,
-        read: message.isRead,
+        read: message.read,
       },
     });
   } catch (error) {
