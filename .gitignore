@@ -202,3 +202,5 @@ gen-*.sh
 
 # Git worktrees (ne pas committer comme sous-module)
 .worktrees/
+
+# Template Railway (contient uniquement des cles vides)
