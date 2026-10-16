@@ -72,9 +72,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: message }, { status: 409 });
     }
 
+    // DEBUG TEMPORAIRE - expose l'erreur reelle pour diagnostic
     console.error('SaaS signup error:', error);
     return NextResponse.json(
-      { error: 'Une erreur est survenue lors de la création de votre compte. Veuillez réessayer.' },
+      {
+        error: 'Une erreur est survenue lors de la création de votre compte. Veuillez réessayer.',
+        _debug_message: message,
+        _debug_name: error instanceof Error ? error.name : 'unknown',
+        _debug_stack: error instanceof Error ? error.stack?.split('\n').slice(0, 5).join(' | ') : undefined,
+      },
       { status: 500 }
     );
   }
