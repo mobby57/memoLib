@@ -12,17 +12,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const userId = (user as any).id;
     const userRole = (user as any).role;
+    const clientId = (user as any).clientId;
+    const tenantId = (user as any).tenantId;
 
     if (userRole !== 'CLIENT') {
       return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
-    // Recuperer les dossiers du client
+    if (!clientId || !tenantId) {
+      return NextResponse.json(
+        { error: 'Compte client non provisionne' },
+        { status: 403 },
+      );
+    }
+
+    // Recuperer les dossiers du client, isoles par tenant
     const dossiers = await prisma.dossier.findMany({
       where: {
-        clientId: userId,
+        clientId,
+        tenantId,
       },
       orderBy: {
         createdAt: 'desc',
