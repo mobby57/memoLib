@@ -1109,6 +1109,7 @@ model Tenant {
   TimeEntry          TimeEntry[]
   UsageRecord        UsageRecord[]
   Webhook            Webhook[]
+  Message            Message[]
   User               User[]
   WorkflowExecution  WorkflowExecution[]
   Team               Team[]
@@ -1179,36 +1180,38 @@ model UsageRecord {
 }
 
 model User {
-  id               String          @id
-  email            String          @unique
-  name             String
-  password         String
-  role             String
-  tenantId         String?
-  clientId         String?         @unique
-  avatar           String?
-  phone            String?
-  status           String          @default("active")
-  lastLogin        DateTime?
-  language         String          @default("fr")
-  timezone         String          @default("Europe/Paris")
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime
-  resetToken       String?
-  resetTokenExpiry DateTime?
-  emailVerified    DateTime?
-  CalendarEvent    CalendarEvent[]
-  Document         Document[]
-  EmailAccount     EmailAccount[]
-  Notification     Notification[]
-  TimeEntry        TimeEntry[]
-  Client           Client?         @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  Tenant           Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  DossierMember    DossierMember[]
-  TeamMember       TeamMember[]
-  UserConsent      UserConsent[]
-  UserPreference   UserPreference[]
+  id                 String               @id
+  email              String               @unique
+  name               String
+  password           String
+  role               String
+  tenantId           String?
+  clientId           String?              @unique
+  avatar             String?
+  phone              String?
+  status             String               @default("active")
+  lastLogin          DateTime?
+  language           String               @default("fr")
+  timezone           String               @default("Europe/Paris")
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  emailVerified      DateTime?
+  CalendarEvent      CalendarEvent[]
+  Document           Document[]
+  EmailAccount       EmailAccount[]
+  Notification       Notification[]
+  TimeEntry          TimeEntry[]
+  Client             Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Tenant             Tenant?              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  DossierMember      DossierMember[]
+  TeamMember         TeamMember[]
+  UserConsent        UserConsent[]
+  UserPreference     UserPreference[]
   DataSubjectRequest DataSubjectRequest[]
+  sentMessages       Message[]            @relation("MessageSender")
+  receivedMessages   Message[]            @relation("MessageRecipient")
 
   @@index([role])
   @@index([status])
@@ -1315,6 +1318,31 @@ model Webhook {
 
   @@index([tenantId])
   @@index([tenantId, active])
+}
+
+/// Message interne client <-> cabinet (messagerie de dossier).
+/// Distinct de ChannelMessage (canaux externes : email, SMS, WhatsApp...).
+model Message {
+  id          String    @id
+  tenantId    String
+  senderId    String
+  recipientId String
+  subject     String?
+  content     String
+  read        Boolean   @default(false)
+  readAt      DateTime?
+  attachments String[]  @default([])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+
+  Tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sender    User   @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User   @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([recipientId, read])
+  @@index([senderId])
+  @@index([createdAt])
 }
 
 enum DossierMemberRole {
