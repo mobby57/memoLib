@@ -81,7 +81,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     const tenantId = user.tenantId;
 
     try {
-      const newSocket = io({
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || undefined;
+      const newSocket = io(wsUrl, {
         path: '/api/socket',
         transports: ['websocket', 'polling'],
         reconnection: reconnect,
