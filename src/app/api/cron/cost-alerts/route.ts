@@ -14,11 +14,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runCostAlertCheck } from '@/lib/billing/cost-alerts';
 import { logger } from '@/lib/logger';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 // Clé secrète pour protéger le cron
 const CRON_SECRET = process.env.CRON_SECRET;
 
 export async function GET(request: NextRequest) {
+  const _authError = requireCronSecret(request);
+  if (_authError) return _authError;
+
   // Vérifier l'autorisation
   const authHeader = request.headers.get('authorization');
   const cronHeader = request.headers.get('x-vercel-cron');

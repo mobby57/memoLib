@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { requireCronSecret } from '@/lib/security/cron-auth';
 
 /**
  * GET /api/cron/relance-pieces
@@ -8,6 +9,9 @@ import { logger } from '@/lib/logger';
  * Appele par Vercel Cron ou manuellement.
  */
 export async function GET(request: NextRequest) {
+  const _authError = requireCronSecret(request);
+  if (_authError) return _authError;
+
   const cronSecret = process.env.CRON_SECRET;
   const authorization = request.headers.get('authorization');
 
