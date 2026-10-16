@@ -111,7 +111,7 @@ export default function ConfidentialitePage() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
                 <p className="text-blue-800 font-medium">🤖 Garanties IA</p>
                 <ul className="text-blue-700 text-sm mt-1 space-y-1">
-                  <li>• Les données sont <strong>anonymisées</strong> avant traitement IA</li>
+                  <li>• Le traitement IA par défaut s'effectue <strong>en local via Ollama</strong>, sur l'infrastructure du cabinet, sans envoi de données à l'extérieur. Les fonctionnalités optionnelles utilisant des services cloud appliquent une anonymisation préalable</li>
                   <li>• L&apos;IA <strong>ne prend aucune décision</strong> — elle assiste l&apos;avocat</li>
                   <li>• Le traitement est effectué <strong>en local</strong> (Ollama) quand possible</li>
                   <li>• Aucune donnée n&apos;est utilisée pour entraîner des modèles tiers</li>

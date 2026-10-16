@@ -23,6 +23,13 @@ ON "UserPreference"("userId");
 CREATE INDEX IF NOT EXISTS "UserPreference_tenantId_idx"
 ON "UserPreference"("tenantId");
 
-ALTER TABLE "UserPreference"
-ADD CONSTRAINT "UserPreference_userId_fkey"
-FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- ADD CONSTRAINT n'est pas idempotent en PostgreSQL. On l'enveloppe dans un
+-- bloc DO qui attrape l'erreur "duplicate_object" si la contrainte existe déjà.
+DO $$
+BEGIN
+  ALTER TABLE "UserPreference"
+    ADD CONSTRAINT "UserPreference_userId_fkey"
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;

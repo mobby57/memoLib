@@ -1,5 +1,6 @@
 import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { createOAuthState } from '@/lib/security/oauth-state';
 /**
  * GET /api/email/connect/outlook
  * 
@@ -33,10 +34,10 @@ export async function GET(request: NextRequest) {
   ].join(' ');
 
   // State = tenantId + userId
-  const state = Buffer.from(JSON.stringify({
+  const state = createOAuthState({
     tenantId: (user as any).tenantId,
     userId: (user as any).id,
-  })).toString('base64url');
+  });
 
   const params = new URLSearchParams({
     client_id: clientId,
