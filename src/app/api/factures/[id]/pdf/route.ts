@@ -21,8 +21,21 @@ export async function GET(
 
     const { id } = await params;
 
+    // IDOR : un CLIENT ne doit acceder qu'a SES propres factures.
+    // Les roles admin (ADMIN, LAWYER, SUPER_ADMIN) peuvent acceder a
+    // toutes les factures du tenant.
+    const userRole = String((user as any).role || '').toUpperCase();
+    const isClient = userRole === 'CLIENT';
+    const clientId = (user as any).clientId;
+
+    if (isClient && !clientId) {
+      return NextResponse.json({ error: 'Compte client non provisionne' }, { status: 403 });
+    }
+
     const facture = await prisma.facture.findFirst({
-      where: { id, tenantId },
+      where: isClient
+        ? { id, tenantId, clientId }
+        : { id, tenantId },
       include: {
         client: { select: { firstName: true, lastName: true, email: true, address: true } },
         lignes: { orderBy: { ordre: 'asc' } },
