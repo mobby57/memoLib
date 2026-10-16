@@ -53,7 +53,7 @@ export default function AIUsagePage() {
   const loadUsage = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/client/ai-usage?month=${selectedMonth}&year=${selectedYear}`);
+      const res = await fetch(`/api/admin/ai-usage?month=${selectedMonth}&year=${selectedYear}`);
       if (res.ok) {
         setData(await res.json());
       }
