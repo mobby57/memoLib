@@ -26,8 +26,16 @@ const consentRequestSchema = z
   .strict();
 
 export async function POST(request: NextRequest) {
-  // Lit la session SANS exiger qu'elle existe (RGPD anonyme autorisé)
-  const { userId } = await clerkAuth();
+  // Lit la session SANS exiger qu'elle existe (RGPD anonyme autorisé).
+  // Cette route est exclue du matcher Clerk -> clerkAuth() peut planter.
+  // On capture l'erreur pour continuer en mode anonyme (userId = null).
+  let userId: string | null = null;
+  try {
+    const session = await clerkAuth();
+    userId = session.userId ?? null;
+  } catch {
+    userId = null;
+  }
 
   const parsed = consentRequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
@@ -73,7 +81,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  const { userId } = await clerkAuth();
+  let userId: string | null = null;
+  try {
+    const session = await clerkAuth();
+    userId = session.userId ?? null;
+  } catch {
+    userId = null;
+  }
   if (!userId) {
     return NextResponse.json({ consents: [] });
   }
