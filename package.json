@@ -127,7 +127,7 @@
     "dx:setup": "npm install && npx prisma generate && npm run dev",
     "dx:reset": "npm run clean && npm run dx:setup",
     "dx:check": "npm run lint && npm run type-check && npm run test",
-    "dx:health": "node -e 'console.log(\"✅ Node:\", process.version)'",
+    "dx:health": "node -e 'console.log(\"\u2705 Node:\", process.version)'",
     "monitor:prod": "tsx scripts/monitor-production.ts",
     "monitor:loop": "tsx scripts/monitor-loop.ts",
     "demo:script": "tsx scripts/demo-script.ts",
@@ -197,6 +197,7 @@
     "next": "^15.5.27",
     "next-intl": "^4.8.2",
     "node-cron": "^4.2.1",
+    "nodemailer": "^10.1.2",
     "openai": "^6.15.0",
     "otplib": "^13.0.0",
     "papaparse": "^5.5.3",
@@ -301,7 +302,8 @@
   "overrides": {
     "exceljs": {
       "uuid": "11.1.0"
-    }
+    },
+    "nodemailer": "^10.1.2"
   },
   "optionalDependencies": {
     "@rolldown/binding-linux-x64-gnu": "1.2.7"
