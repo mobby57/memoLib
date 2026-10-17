@@ -43,6 +43,9 @@ export async function GET(request: NextRequest) {
         phone: true,
         address: true,
         createdAt: true,
+        User: {
+          select: { id: true },
+        },
         _count: {
           select: {
             dossiers: true,
