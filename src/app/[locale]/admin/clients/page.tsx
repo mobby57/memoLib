@@ -18,6 +18,7 @@ interface Client {
   nationality?: string;
   status: string;
   createdAt: string;
+  User?: { id: string };
   _count?: {
     dossiers: number;
   };
@@ -31,6 +32,8 @@ export default function ClientsAdmin() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [invitingId, setInvitingId] = useState<string | null>(null);
+  const [inviteMessage, setInviteMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -53,6 +56,25 @@ export default function ClientsAdmin() {
     } catch (error) {
       console.error('Error fetching clients:', error);
       setLoading(false);
+    }
+  };
+
+  const handleInvite = async (clientId: string, email: string) => {
+    setInvitingId(clientId);
+    setInviteMessage(null);
+    try {
+      const res = await fetch(`/api/admin/clients/${clientId}/invite`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setInviteMessage({ type: 'success', text: `Invitation envoyée à ${email}` });
+        fetchClients();
+      } else {
+        setInviteMessage({ type: 'error', text: data.error || "Erreur lors de l'invitation" });
+      }
+    } catch {
+      setInviteMessage({ type: 'error', text: 'Erreur réseau' });
+    } finally {
+      setInvitingId(null);
     }
   };
 
@@ -154,6 +176,14 @@ export default function ClientsAdmin() {
           </div>
         </div>
 
+        {inviteMessage && (
+          <div className={`mb-4 px-4 py-3 rounded-lg font-semibold ${
+            inviteMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          }`}>
+            {inviteMessage.text}
+          </div>
+        )}
+
         {/* Liste des clients */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {filteredClients.length === 0 ? (
@@ -224,6 +254,19 @@ export default function ClientsAdmin() {
                       </td>
                       <td className="py-4 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleInvite(client.id, client.email)}
+                            disabled={invitingId === client.id || !!client.User}
+                            className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
+                              client.User
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : invitingId === client.id
+                                ? 'bg-yellow-500 text-white'
+                                : 'bg-green-500 text-white hover:bg-green-600'
+                            }`}
+                          >
+                            {client.User ? 'Invité' : invitingId === client.id ? 'Envoi...' : 'Inviter'}
+                          </button>
                           <Link
                             href={`/admin/clients/${client.id}`}
                             className="px-3 py-1 bg-blue-500 text-white rounded text-sm font-semibold hover:bg-blue-600 transition-colors"

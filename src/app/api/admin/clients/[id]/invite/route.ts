@@ -1,0 +1,92 @@
+import { auth } from '@/lib/clerk-auth';
+import { clerkClient } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
+
+/**
+ * POST /api/admin/clients/[id]/invite
+ * 
+ * Envoie une invitation Clerk au client.
+ * L'avocat doit être ADMIN ou AVOCAT et le client doit appartenir à son tenant.
+ */
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { user } = await auth();
+    if (!user) {
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
+    }
+
+    const userRole = String((user as any).role || '').toUpperCase();
+    const tenantId = (user as any).tenantId;
+
+    if (!['AVOCAT', 'ADMIN', 'LAWYER'].includes(userRole)) {
+      return NextResponse.json({ error: 'Acces reserve aux avocats' }, { status: 403 });
+    }
+
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 });
+    }
+
+    const { id } = await params;
+
+    // 1. Securite : verifier que le client appartient au tenant de l'avocat
+    const client = await prisma.client.findFirst({
+      where: {
+        id,
+        tenantId, // Isolation stricte
+      },
+      include: {
+        User: true, // Pour verifier s'il a deja un compte
+      },
+    });
+
+    if (!client) {
+      return NextResponse.json({ error: 'Client introuvable ou hors de votre cabinet' }, { status: 404 });
+    }
+
+    if (client.User) {
+      return NextResponse.json({ 
+        error: 'Ce client a deja un compte utilisateur.',
+        userId: client.User.id 
+      }, { status: 409 });
+    }
+
+    // 2. Envoyer l'invitation via Clerk
+    // On passe le tenantId et clientId dans publicMetadata pour le Webhook
+    const clerk = await clerkClient();
+    const invitation = await clerk.invitations.createInvitation({
+      emailAddress: client.email,
+      publicMetadata: {
+        tenantId: tenantId,
+        clientId: client.id,
+        role: 'CLIENT',
+      },
+      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fr/client`,
+      ignoreExisting: true,
+    });
+
+    logger.info('[INVITE] Invitation envoyee', {
+      clientId: client.id,
+      email: client.email,
+      invitationId: invitation.id,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Invitation envoyee a ${client.email}`,
+      invitationId: invitation.id,
+    });
+
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erreur inconnue';
+    logger.error('[INVITE] Erreur', { error: message });
+    return NextResponse.json(
+      { error: 'Erreur lors de l\'envoi de l\'invitation', details: message },
+      { status: 500 }
+    );
+  }
+}
