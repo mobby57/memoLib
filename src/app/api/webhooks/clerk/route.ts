@@ -53,48 +53,62 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    // Chercher un Client Prisma existant avec cet email
+    // 1. Chercher un Client Prisma existant avec cet email
     const client = await prisma.client.findFirst({
       where: { email },
     });
 
-    if (!client) {
-      logger.warn('[CLERK WEBHOOK] Aucun Client Prisma pour cet email', { email, clerkUserId });
-      return NextResponse.json({ received: true, linked: false });
-    }
+    if (client) {
+      // Cas CLIENT : lier au cabinet via clientId
+      const existingUser = await prisma.user.findUnique({ where: { email } });
 
-    // Verifier si un User existe deja avec cet email
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-
-    if (existingUser) {
-      // Lier le User existant au compte Clerk
-      await prisma.user.update({
-        where: { email },
-        data: {
-          clientId: client.id,
-          role: 'CLIENT',
-          tenantId: client.tenantId,
-          updatedAt: new Date(),
-        },
-      });
-      logger.info('[CLERK WEBHOOK] User existant lie au Client', { email, clientId: client.id });
+      if (existingUser) {
+        await prisma.user.update({
+          where: { email },
+          data: {
+            clientId: client.id,
+            role: 'CLIENT',
+            tenantId: client.tenantId,
+            updatedAt: new Date(),
+          },
+        });
+        logger.info('[CLERK WEBHOOK] User existant lie au Client', { email, clientId: client.id });
+      } else {
+        await prisma.user.create({
+          data: {
+            id: crypto.randomUUID(),
+            email,
+            name: `${data.first_name || ''} ${data.last_name || ''}`.trim() || email,
+            password: '',
+            role: 'CLIENT',
+            tenantId: client.tenantId,
+            clientId: client.id,
+            status: 'active',
+            emailVerified: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+        logger.info('[CLERK WEBHOOK] User CLIENT cree et lie', { email, clientId: client.id });
+      }
     } else {
-      // Creer le User
-      await prisma.user.create({
-        data: {
-          id: crypto.randomUUID(),
-          email,
-          name: `${data.first_name || ''} ${data.last_name || ''}`.trim() || email,
-          password: '',
-          role: 'CLIENT',
-          tenantId: client.tenantId,
-          clientId: client.id,
-          status: 'active',
-          emailVerified: new Date(),
-          updatedAt: new Date(),
-        },
-      });
-      logger.info('[CLERK WEBHOOK] User CLIENT cree et lie', { email, clientId: client.id });
+      // 2. Cas COLLABORATEUR : chercher un User pre-cree par l'avocat
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+
+      if (existingUser) {
+        // Il a ete cree par l'avocat, on lui donne juste un compte Clerk actif
+        await prisma.user.update({
+          where: { email },
+          data: {
+            status: 'active', // Passe de pending a active
+            emailVerified: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+        logger.info('[CLERK WEBHOOK] Collaborateur active', { email, role: existingUser.role });
+      } else {
+        logger.warn('[CLERK WEBHOOK] Aucun utilisateur ni client pour cet email', { email, clerkUserId });
+        return NextResponse.json({ received: true, linked: false });
+      }
     }
 
     return NextResponse.json({ received: true, linked: true });
