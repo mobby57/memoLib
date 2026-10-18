@@ -42,6 +42,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
+  if (!evt || typeof evt !== 'object') {
+    logger.error('[CLERK WEBHOOK] payload invalide');
+    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+  }
   const { type, data } = evt;
 
   if (type === 'user.created') {
