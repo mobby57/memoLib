@@ -42,7 +42,6 @@ export default function TeamPage() {
   const [inviteForm, setInviteForm] = useState({ name: '', email: '', memberRole: 'COLLABORATEUR', phone: '' });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [tempPassword, setTempPassword] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/login');
@@ -64,7 +63,6 @@ export default function TeamPage() {
     e.preventDefault();
     setSubmitting(true);
     setMessage(null);
-    setTempPassword(null);
 
     try {
       const res = await fetch('/api/admin/team', {
@@ -76,7 +74,6 @@ export default function TeamPage() {
 
       if (res.ok) {
         setMessage({ type: 'success', text: data.message });
-        setTempPassword(data.tempPassword);
         setInviteForm({ name: '', email: '', memberRole: 'COLLABORATEUR', phone: '' });
         fetchTeam();
       } else {
@@ -135,7 +132,7 @@ export default function TeamPage() {
               </div>
             </div>
             <button
-              onClick={() => { setShowInvite(!showInvite); setMessage(null); setTempPassword(null); }}
+              onClick={() => { setShowInvite(!showInvite); setMessage(null); }}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
             >
               {showInvite ? '✕ Fermer' : '+ Inviter un membre'}
@@ -164,13 +161,6 @@ export default function TeamPage() {
               </div>
             )}
 
-            {tempPassword && (
-              <div className="p-4 rounded-lg mb-4 bg-amber-50 border border-amber-200">
-                <p className="font-semibold text-amber-800">🔑 Mot de passe temporaire :</p>
-                <code className="text-lg font-mono bg-white px-3 py-1 rounded border">{tempPassword}</code>
-                <p className="text-sm text-amber-600 mt-1">Communiquez-le au membre. Il devra le changer à la première connexion.</p>
-              </div>
-            )}
 
             <form onSubmit={handleInvite} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

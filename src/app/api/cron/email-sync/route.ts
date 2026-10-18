@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { requireCronSecret } from '@/lib/security/cron-auth';
+import { decryptToken, encryptToken } from '@/lib/security/oauth-tokens';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
     for (const account of accounts) {
       try {
         // Vérifier/rafraîchir le token si expiré
-        let accessToken = account.accessToken;
+        let accessToken = account.accessToken ? decryptToken(account.accessToken) : null;
         if (account.tokenExpiry && new Date(account.tokenExpiry) < new Date()) {
           accessToken = await refreshOAuthToken(account);
         }
@@ -326,7 +327,7 @@ async function refreshOAuthToken(account: {
     body = {
       client_id: process.env.GOOGLE_CLIENT_ID || '',
       client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
-      refresh_token: account.refreshToken,
+      refresh_token: decryptToken(account.refreshToken),
       grant_type: 'refresh_token',
     };
   } else {
@@ -335,7 +336,7 @@ async function refreshOAuthToken(account: {
     body = {
       client_id: process.env.MICROSOFT_CLIENT_ID || '',
       client_secret: process.env.MICROSOFT_CLIENT_SECRET || '',
-      refresh_token: account.refreshToken,
+      refresh_token: decryptToken(account.refreshToken),
       grant_type: 'refresh_token',
     };
   }
@@ -366,9 +367,9 @@ async function refreshOAuthToken(account: {
     await prisma.emailAccount.update({
       where: { id: account.id },
       data: {
-        accessToken: newAccessToken,
+        accessToken: encryptToken(newAccessToken),
         tokenExpiry: new Date(Date.now() + expiresIn * 1000),
-        ...(data.refresh_token ? { refreshToken: data.refresh_token } : {}),
+        ...(data.refresh_token ? { refreshToken: encryptToken(data.refresh_token) } : {}),
       },
     });
 
