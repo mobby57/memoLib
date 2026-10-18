@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { requireCronSecret } from '@/lib/security/cron-auth';
-import { decryptToken } from '@/lib/security/oauth-tokens';
+import { decryptToken, encryptToken } from '@/lib/security/oauth-tokens';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -367,9 +367,9 @@ async function refreshOAuthToken(account: {
     await prisma.emailAccount.update({
       where: { id: account.id },
       data: {
-        accessToken: newAccessToken,
+        accessToken: encryptToken(newAccessToken),
         tokenExpiry: new Date(Date.now() + expiresIn * 1000),
-        ...(data.refresh_token ? { refreshToken: data.refresh_token } : {}),
+        ...(data.refresh_token ? { refreshToken: encryptToken(data.refresh_token) } : {}),
       },
     });
 

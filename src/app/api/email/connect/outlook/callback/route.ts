@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { EncryptionService } from '@/lib/security/encryption';
+import { isEncryptionMasterKeyUsable } from '@/lib/security/encryption';
 import { verifyOAuthState } from '@/lib/security/oauth-state';
+import { encryptToken } from '@/lib/security/oauth-tokens';
+import { auth } from '@/lib/clerk-auth';
 
 /**
  * GET /api/email/connect/outlook/callback
@@ -35,6 +37,24 @@ export async function GET(request: NextRequest) {
     userId = decoded.userId;
   } catch {
     return NextResponse.redirect(`${baseUrl}/fr/settings/emails?error=invalid_state`);
+  }
+
+  // Le navigateur qui revient du fournisseur doit etre celui de l'utilisateur
+  // qui a lance la connexion : le state signe ne suffit pas a le prouver.
+  const session = await auth();
+  if (
+    !session.user ||
+    session.user.id !== userId ||
+    session.user.tenantId !== tenantId
+  ) {
+    logger.warn('[Outlook Connect] Session differente de celle du state');
+    return NextResponse.redirect(`${baseUrl}/fr/settings/emails?error=session_mismatch`);
+  }
+
+  // Les jetons sont chiffres avant stockage : sans cle, on n'echange pas le code.
+  if (!isEncryptionMasterKeyUsable(process.env.ENCRYPTION_MASTER_KEY)) {
+    logger.error('[Outlook Connect] ENCRYPTION_MASTER_KEY manquante ou trop courte');
+    return NextResponse.redirect(`${baseUrl}/fr/settings/emails?error=server_error`);
   }
 
   const clientId = process.env.AZURE_CLIENT_ID!;
@@ -82,8 +102,8 @@ export async function GET(request: NextRequest) {
       },
       update: {
         provider: 'outlook',
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || undefined,
+        accessToken: encryptToken(tokens.access_token),
+        refreshToken: tokens.refresh_token ? encryptToken(tokens.refresh_token) : undefined,
         tokenExpiry: tokens.expires_in
           ? new Date(Date.now() + tokens.expires_in * 1000)
           : undefined,
@@ -96,8 +116,8 @@ export async function GET(request: NextRequest) {
         userId,
         email: outlookEmail,
         provider: 'outlook',
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || null,
+        accessToken: encryptToken(tokens.access_token),
+        refreshToken: tokens.refresh_token ? encryptToken(tokens.refresh_token) : null,
         tokenExpiry: tokens.expires_in
           ? new Date(Date.now() + tokens.expires_in * 1000)
           : null,
