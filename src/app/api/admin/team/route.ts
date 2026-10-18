@@ -1,7 +1,7 @@
 import { auth } from '@/lib/clerk-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+
 import { randomUUID } from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -87,22 +87,40 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Mot de passe temporaire — l'utilisateur devra le changer
-  const tempPassword = randomUUID().slice(0, 12);
-  const hashedPassword = await bcrypt.hash(tempPassword, 12);
-
+  // 1. Creer le membre en base (sans mot de passe, Clerk gere l'auth)
   const member = await prisma.user.create({
     data: {
       id: randomUUID(),
       email: email.toLowerCase(),
       name,
-      password: hashedPassword,
+      password: '', // Gere par Clerk
       role: memberRole,
       phone: phone || null,
-      status: 'active',
+      status: 'pending', // En attente de creation de compte Clerk
       tenantId,
     },
   });
+
+  // 2. Envoyer l'invitation Clerk (envoie l'email au collaborateur)
+  const { clerkClient } = await import('@clerk/nextjs/server');
+  const clerk = await clerkClient();
+  
+  try {
+    await clerk.invitations.createInvitation({
+      emailAddress: email.toLowerCase(),
+      publicMetadata: {
+        tenantId,
+        role: memberRole,
+        userId: member.id,
+      },
+      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fr/cabinet`,
+      ignoreExisting: true,
+    });
+  } catch (inviteError) {
+    // Si l'invitation echoue, on supprime le membre pour ne pas avoir de fantome
+    await prisma.user.delete({ where: { id: member.id } });
+    throw new Error(`Invitation Clerk echouee : ${inviteError instanceof Error ? inviteError.message : 'inconnue'}`);
+  }
 
   // Incrémenter le compteur
   await prisma.tenant.update({
@@ -118,8 +136,7 @@ export async function POST(request: NextRequest) {
       email: member.email,
       name: member.name,
       role: member.role,
-    },
-    tempPassword,
+    }
   });
 }
 
