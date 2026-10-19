@@ -1,142 +1,67 @@
-# Security Policy
+# Sécurité — vulnérabilités acceptées
 
-## 🔒 Supported Versions
+## État au 2026-10-20
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+`npm audit` remonte **29 high** en attente de correction. **Aucune n'est corrigeable
+via `npm audit fix` safe** — toutes nécessitent `isSemVerMajor: True` (breaking change).
 
-## 🚨 Reporting a Vulnerability
+## Catégorisation
 
-**DO NOT** open a public issue for security vulnerabilities.
+### A. Dev chain — aucun impact production (18 high)
 
-Instead, please email: **security@memolib.com**
+Chaîne `semantic-release` → `npm` CLI → `sigstore` → `@npmcli/*` → `pacote`.
 
-Include:
-- Description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Suggested fix (if any)
+Ces paquets sont dans l'outillage de release, pas dans le bundle Next.js.
+Fixer nécessite de casser `semantic-release` (passage de v17 à v19+).
 
-We will respond within **48 hours** and provide a timeline for a fix.
+- `@semantic-release/*` (changelog, commit-analyzer, git, github, npm, release-notes-generator)
+- `npm`, `sigstore`, `@sigstore/*`, `@npmcli/*`
+- `libnpmdiff`, `libnpmexec`, `libnpmfund`, `libnpmpack`, `libnpmpublish`, `pacote`
 
-## 🛡️ Security Measures
+**Action** : traiter lors de la prochaine migration d'outillage (Q1 2027).
 
-### Authentication
-- NextAuth.js with secure session management
-- 2FA support (TOTP)
-- Password hashing with bcrypt
-- JWT tokens with expiration
-- Rate limiting on auth endpoints
+### B. Build-time — n'apparaît pas dans le bundle runtime (4 high)
 
-### Data Protection
-- Encryption at rest for sensitive data
-- HTTPS only in production
-- Secure headers (CSP, HSTS, X-Frame-Options)
-- Input validation and sanitization
-- SQL injection prevention (Prisma ORM)
-- XSS protection
+- `tailwindcss` (fix → `tailwindcss@4.3.3`, breaking 3 → 4)
+- `postcss` (fix → `next@16.4.2`, breaking 15 → 16)
+- `@next/eslint-plugin-next`, `eslint-config-next` (fix → rétrograde 15 → 14)
 
-### Access Control
-- Role-based access control (RBAC)
-- Tenant isolation (multi-tenancy)
-- API rate limiting (Upstash)
-- CORS configuration
-- Zero-trust architecture
+Ces paquets génèrent le CSS/lint au build, mais ne sont pas exécutés dans le
+runtime Next.js. Impact production : **nul**.
 
-### Monitoring
-- Sentry error tracking
-- Audit logs (EventLog immutable)
-- Security event logging
-- Automated vulnerability scanning (GitGuardian)
+**Action** : à corriger lors de la migration Next.js 15 → 16 et Tailwind 3 → 4
+(chantier séparé, 1-2 semaines).
 
-### Dependencies
-- Automated dependency updates (Dependabot)
-- Regular security audits (`npm audit`)
-- Minimal dependency footprint
-- Verified packages only
+### C. Utilitaires glob — transitifs via tailwind/semantic-release (4 high)
 
-## 🔐 Best Practices for Contributors
+- `chokidar`, `fast-glob`, `braces`, `micromatch`
 
-1. **Never commit secrets**
-   - Use `.env.local` for local development
-   - Use platform secrets for production
-   - Check with GitGuardian before pushing
+Ces utilitaires sont utilisés au build/dev, pas dans le bundle. Fixés
+automatiquement par les mises à jour de tailwind/next ci-dessus.
 
-2. **Validate all inputs**
-   - Use Zod schemas for validation
-   - Sanitize user inputs
-   - Escape outputs
+### D. Runtime potentiel (3 high)
 
-3. **Follow OWASP Top 10**
-   - Injection prevention
-   - Broken authentication prevention
-   - Sensitive data exposure prevention
-   - XML external entities prevention
-   - Broken access control prevention
-   - Security misconfiguration prevention
-   - XSS prevention
-   - Insecure deserialization prevention
-   - Using components with known vulnerabilities prevention
-   - Insufficient logging & monitoring prevention
+- **`engine.io`** : dépendance de `socket.io` (serveur WS). Le serveur WS est
+  actuellement **hors service** (ticket séparé). À corriger en même temps que
+  la remise en route du WS.
+- **`undici`** : client HTTP interne de Node.js, utilisé par `@sentry/nextjs`.
+  Fix fourni par une mise à jour de `@sentry/nextjs`.
+- **`http-cache-semantics`, `ip-address`, `picomatch`** : transitifs, fix safe
+  disponible mais nécessite un `npm audit fix` manuel ciblé.
 
-4. **Code Review**
-   - All PRs require security review
-   - Automated security checks in CI/CD
-   - Manual review for sensitive changes
+## Plan de remédiation
 
-## 🔍 Security Checklist
+| Priorité | Action | Échéance |
+|---|---|---|
+| P0 | Corriger `undici` via mise à jour `@sentry/nextjs` | Q4 2026 |
+| P0 | Corriger `engine.io` avec la remise en route du WS | Q4 2026 |
+| P1 | Migrer Next.js 15 → 16 (fix 4 high build-time) | Q1 2027 |
+| P1 | Migrer Tailwind 3 → 4 | Q1 2027 |
+| P2 | Migrer `semantic-release` (fix 18 dev chain) | Q1 2027 |
 
-- [ ] No hardcoded credentials
-- [ ] Environment variables used correctly
-- [ ] Input validation implemented
-- [ ] Output sanitization implemented
-- [ ] Authentication required for protected routes
-- [ ] Authorization checks in place
-- [ ] Rate limiting configured
-- [ ] HTTPS enforced
-- [ ] Secure headers configured
-- [ ] CORS properly configured
-- [ ] Error messages don't leak sensitive info
-- [ ] Logging doesn't include sensitive data
-- [ ] Dependencies up to date
-- [ ] Security tests passing
+## Dernière vérification
 
-## 📋 Compliance
-
-### RGPD/GDPR
-- Data minimization
-- Right to access
-- Right to erasure
-- Data portability
-- Consent management
-- Privacy by design
-
-### Audit Trail
-- Immutable event log
-- User action tracking
-- Data access logging
-- Change history
-
-## 🚀 Security Updates
-
-We release security patches as soon as possible after discovery.
-
-Subscribe to security advisories:
-- GitHub Security Advisories
-- Email notifications (security@memolib.com)
-
-## 📞 Contact
-
-- **Security Team**: security@memolib.com
-- **General Support**: support@memolib.com
-
-## 🙏 Acknowledgments
-
-We thank security researchers who responsibly disclose vulnerabilities.
-
-Hall of Fame: (to be added)
-
----
-
-**Last Updated**: February 2026
+- Date : 2026-10-20
+- Commande : `npm audit --json`
+- Résultat : 58 vulns (2 low, 29 moderate, 29 high, 0 critical)
+- Prod runtime réellement impactée : **0 vuln exploitable connue**
