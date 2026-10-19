@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,7 @@ interface PendingActionApiItem {
 }
 
 export default function EmailMonitorPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [emails, setEmails] = useState<Email[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'processed'>('all');
@@ -264,7 +266,11 @@ export default function EmailMonitorPage() {
 
       <div className="space-y-4">
         {emails.map((email) => (
-          <Card key={email.id} className="p-4">
+          <Card
+            key={email.id}
+            className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            onClick={() => router.push(`/fr/emails/${email.id}`)}
+          >
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
@@ -320,19 +326,19 @@ export default function EmailMonitorPage() {
                 {!email.isProcessed && (
                   <>
                     <button
-                      onClick={() => openQuestionnaire(email.id)}
+                      onClick={(e) => { e.stopPropagation(); openQuestionnaire(email.id); }}
                       className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
                     >
                       Questionnaire
                     </button>
                     <button
-                      onClick={() => approvePendingAction(email.id, email.subject)}
+                      onClick={(e) => { e.stopPropagation(); approvePendingAction(email.id, email.subject); }}
                       className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
                     >
                       Approuver
                     </button>
                     <button
-                      onClick={() => rejectPendingAction(email.id)}
+                      onClick={(e) => { e.stopPropagation(); rejectPendingAction(email.id); }}
                       className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
                     >
                       Rejeter
@@ -341,7 +347,7 @@ export default function EmailMonitorPage() {
                 )}
                 {email.isProcessed && (
                   <button
-                    onClick={() => reprocessEmail(email.id)}
+                    onClick={(e) => { e.stopPropagation(); reprocessEmail(email.id); }}
                     className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
                     <RefreshCw className="w-3 h-3 inline mr-1" />
