@@ -278,7 +278,8 @@ export default function EmailMonitorPage() {
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(email.id)}
-                      onChange={() => toggleSelection(email.id)}
+                      onChange={(e) => { e.stopPropagation(); toggleSelection(email.id); }}
+                      onClick={(e) => e.stopPropagation()}
                       aria-label={`Sélectionner l'email ${email.subject}`}
                     />
                   )}
