@@ -6,7 +6,7 @@ import { Modal } from '@/components/ui';
 interface QuestionnaireQuestion {
   id: string;
   label: string;
-  type: 'text' | 'boolean' | 'date' | 'select';
+  type: 'text' | 'boolean' | 'date' | 'select' | 'dossier-select';
   required: boolean;
   options?: string[];
 }
@@ -16,6 +16,12 @@ interface QuestionnairePayload {
   title: string;
   description: string;
   questions: QuestionnaireQuestion[];
+}
+
+interface DossierOption {
+  id: string;
+  numero: string;
+  objet?: string | null;
 }
 
 interface QuestionnaireModalProps {
@@ -40,6 +46,7 @@ export default function QuestionnaireModal({
   const [error, setError] = useState<string | null>(null);
   const [questionnaire, setQuestionnaire] = useState<QuestionnairePayload | null>(null);
   const [answers, setAnswers] = useState<Record<string, string | boolean | number>>({});
+  const [dossiers, setDossiers] = useState<DossierOption[]>([]);
 
   useEffect(() => {
     if (!isOpen || !eventId) {
@@ -67,6 +74,30 @@ export default function QuestionnaireModal({
 
         const nextQuestionnaire = payload?.questionnaire as QuestionnairePayload;
         setQuestionnaire(nextQuestionnaire);
+
+        const needsDossiers = nextQuestionnaire?.questions?.some(
+          (q: QuestionnaireQuestion) => q.type === 'dossier-select'
+        );
+        if (needsDossiers) {
+          try {
+            const dres = await fetch('/api/dossiers?limit=100');
+            if (dres.ok) {
+              const ddata = await dres.json();
+              const list = Array.isArray(ddata) ? ddata : ddata.dossiers || [];
+              if (!cancelled) {
+                setDossiers(
+                  list.map((d: any) => ({
+                    id: d.id,
+                    numero: d.numero || d.id,
+                    objet: d.objet,
+                  }))
+                );
+              }
+            }
+          } catch {
+            // Non bloquant
+          }
+        }
 
         const initialAnswers: Record<string, string | boolean | number> = {};
         for (const question of nextQuestionnaire?.questions || []) {
@@ -190,6 +221,24 @@ export default function QuestionnaireModal({
           />
           Oui
         </label>
+      );
+    }
+
+    if (question.type === 'dossier-select') {
+      return (
+        <select
+          value={String(value ?? '')}
+          onChange={(event) => updateAnswer(question.id, event.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        >
+          <option value="">— Sélectionnez un dossier —</option>
+          {dossiers.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.numero}
+              {d.objet ? ` — ${d.objet}` : ''}
+            </option>
+          ))}
+        </select>
       );
     }
 

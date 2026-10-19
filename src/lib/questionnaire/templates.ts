@@ -1,7 +1,7 @@
 export interface QuestionnaireQuestion {
   id: string;
   label: string;
-  type: 'text' | 'boolean' | 'date' | 'select';
+  type: 'text' | 'boolean' | 'date' | 'select' | 'dossier-select';
   required: boolean;
   options?: string[];
 }
@@ -19,31 +19,44 @@ export const QUESTIONNAIRE_TEMPLATES: QuestionnaireTemplate[] = [
     id: 'q-email-client-cloture',
     eventType: 'email-client',
     title: 'Clôture email client',
-    description: 'Questions obligatoires avant clôture d\'un email client',
+    description: "Validez ces points avant de clôturer l'email. Le dossier lié sera réellement associé.",
     questions: [
       {
-        id: 'q1',
-        label: 'Le besoin client est-il clairement identifié ? ',
-        type: 'boolean',
+        id: 'q1_besoin',
+        label: 'Décrivez le besoin client identifié',
+        type: 'text',
         required: true,
       },
       {
-        id: 'q2',
-        label: 'Un dossier existant a-t-il été lié ? ',
-        type: 'boolean',
+        id: 'q2_dossierId',
+        label: 'Dossier à lier',
+        type: 'dossier-select',
         required: true,
       },
       {
-        id: 'q3',
+        id: 'q3_prochaineAction',
         label: 'Prochaine action planifiée',
         type: 'text',
         required: true,
       },
       {
-        id: 'q4',
+        id: 'q4_dateLimite',
         label: 'Date limite de réponse',
         type: 'date',
-        required: false,
+        required: true,
+      },
+      {
+        id: 'q5_statut',
+        label: 'Statut de clôture',
+        type: 'select',
+        required: true,
+        options: ['Résolu', 'En attente client', 'Escaladé', 'Sans suite'],
+      },
+      {
+        id: 'q6_resume',
+        label: 'Résumé de la clôture',
+        type: 'text',
+        required: true,
       },
     ],
   },
@@ -51,7 +64,7 @@ export const QUESTIONNAIRE_TEMPLATES: QuestionnaireTemplate[] = [
     id: 'q-oqtf-reception',
     eventType: 'oqtf',
     title: 'Qualification OQTF',
-    description: 'Qualification initiale d\'un événement OQTF',
+    description: "Qualification initiale d'un événement OQTF",
     questions: [
       {
         id: 'oqtf-1',
@@ -67,7 +80,7 @@ export const QUESTIONNAIRE_TEMPLATES: QuestionnaireTemplate[] = [
       },
       {
         id: 'oqtf-3',
-        label: 'Niveau d\'urgence',
+        label: "Niveau d'urgence",
         type: 'select',
         required: true,
         options: ['low', 'medium', 'high', 'critical'],
@@ -78,13 +91,8 @@ export const QUESTIONNAIRE_TEMPLATES: QuestionnaireTemplate[] = [
 
 export function getTemplateForEvent(eventType: string): QuestionnaireTemplate {
   const normalized = eventType.toLowerCase();
-  const exact = QUESTIONNAIRE_TEMPLATES.find(template => template.eventType === normalized);
-
+  const exact = QUESTIONNAIRE_TEMPLATES.find((t) => t.eventType === normalized);
   if (exact) return exact;
-
-  if (normalized.includes('oqtf')) {
-    return QUESTIONNAIRE_TEMPLATES[1];
-  }
-
+  if (normalized.includes('oqtf')) return QUESTIONNAIRE_TEMPLATES[1];
   return QUESTIONNAIRE_TEMPLATES[0];
 }

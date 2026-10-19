@@ -83,9 +83,38 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    if (payload.eventId) {
+      const dossierId =
+        typeof payload.answers['q2_dossierId'] === 'string'
+          ? payload.answers['q2_dossierId']
+          : null;
+
+      if (dossierId) {
+        const targetDossier = await prisma.dossier.findFirst({
+          where: { id: dossierId, tenantId: sessionTenantId },
+          select: { id: true },
+        });
+        if (!targetDossier) {
+          return NextResponse.json(
+            { error: 'Dossier non trouvé dans ce cabinet' },
+            { status: 404 }
+          );
+        }
+      }
+
+      await prisma.email.update({
+        where: { id: payload.eventId },
+        data: {
+          dossierId: dossierId || undefined,
+          isProcessed: true,
+          processedAt: new Date(),
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Réponses enregistrées',
+      message: 'Réponses enregistrées et email clôturé',
       responseId: execution.id,
       workflow: execution,
     });
