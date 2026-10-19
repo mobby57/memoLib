@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { simpleParser } from 'mailparser';
 import { ollama } from '@/lib/ai/ollama-client';
 import { normalizeIncomingEmailPayload } from '@/lib/email/ingestion';
+import { encryptEmailBody } from '@/lib/security/email-body';
 
 interface EmailClassification {
   clientEmail?: string;
@@ -137,8 +138,10 @@ export class EmailMonitorService {
         referenceIds: normalized.referenceIds,
         subject: normalized.subject,
         body: normalized.body,
+        bodyEncrypted: encryptEmailBody(normalized.body),
         bodyText: normalized.bodyText,
         htmlBody: normalized.htmlBody || undefined,
+        htmlBodyEncrypted: encryptEmailBody(normalized.htmlBody),
         preview: normalized.preview,
         hasAttachments: normalized.hasAttachments,
         rawFormat: normalized.rawFormat,
