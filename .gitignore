@@ -202,3 +202,9 @@ gen-*.sh
 
 # Git worktrees (ne pas committer comme sous-module)
 .worktrees/
+
+# Scripts d'audit locaux (one-shot, non versionnés)
+scripts/audit-rbac*.sh
+scripts/lot4-status.sh
+scripts/verify-lot4.sh
+scripts/verify-ui.sh
