@@ -1,4 +1,5 @@
 ﻿// @ts-nocheck
+import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { simpleParser } from 'mailparser';
 import { ollama } from '@/lib/ai/ollama-client';
@@ -118,6 +119,7 @@ export class EmailMonitorService {
     // Stocker l'email brut en état RECEIVED — l'humain décidera
     const email = await prisma.email.create({
       data: {
+        id: crypto.randomUUID(),
         tenantId,
         messageId: normalized.messageId,
         providerMessageId: deliveryId || normalized.providerMessageId,
@@ -160,6 +162,7 @@ export class EmailMonitorService {
     if (normalized.attachments.length > 0) {
       await prisma.emailAttachment.createMany({
         data: normalized.attachments.map(attachment => ({
+          id: crypto.randomUUID(),
           emailId: email.id,
           filename: attachment.filename,
           mimeType: attachment.mimeType,
