@@ -57,8 +57,14 @@ export async function POST(
   try {
     const { emailId, action, dossierId, clientId } = await req.json();
 
+    if (typeof emailId !== 'string' || !emailId.trim()) {
+      return NextResponse.json({ error: 'Identifiant email invalide' }, { status: 400 });
+    }
+
     if (action === 'reprocess') {
-      const email = await prisma.email.findUnique({ where: { id: emailId } });
+      const email = await prisma.email.findFirst({
+        where: { id: emailId, tenantId: params.tenantId },
+      });
       if (!email) {
         return NextResponse.json({ error: 'Email introuvable' }, { status: 404 });
       }
@@ -69,10 +75,49 @@ export async function POST(
     }
 
     if (action === 'link') {
-      await prisma.email.update({
-        where: { id: emailId },
-        data: { dossierId, clientId, isProcessed: true }
+      if (dossierId != null && typeof dossierId !== 'string') {
+        return NextResponse.json({ error: 'Identifiant dossier invalide' }, { status: 400 });
+      }
+      if (clientId != null && typeof clientId !== 'string') {
+        return NextResponse.json({ error: 'Identifiant client invalide' }, { status: 400 });
+      }
+
+      const email = await prisma.email.findFirst({
+        where: { id: emailId, tenantId: params.tenantId },
+        select: { id: true },
       });
+      if (!email) {
+        return NextResponse.json({ error: 'Email introuvable' }, { status: 404 });
+      }
+
+      if (dossierId) {
+        const dossier = await prisma.dossier.findFirst({
+          where: { id: dossierId, tenantId: params.tenantId },
+          select: { id: true },
+        });
+        if (!dossier) {
+          return NextResponse.json({ error: 'Dossier introuvable dans ce cabinet' }, { status: 404 });
+        }
+      }
+
+      if (clientId) {
+        const client = await prisma.client.findFirst({
+          where: { id: clientId, tenantId: params.tenantId },
+          select: { id: true },
+        });
+        if (!client) {
+          return NextResponse.json({ error: 'Client introuvable dans ce cabinet' }, { status: 404 });
+        }
+      }
+
+      const updated = await prisma.email.updateMany({
+        where: { id: emailId, tenantId: params.tenantId },
+        data: { dossierId, clientId, isProcessed: true },
+      });
+      if (updated.count !== 1) {
+        return NextResponse.json({ error: 'Email introuvable' }, { status: 404 });
+      }
+
       return NextResponse.json({ success: true, message: 'Email lié' });
     }
 
