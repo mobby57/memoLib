@@ -21,6 +21,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookRequest } from '@/lib/security/webhook-verification';
 import { createEmailActionProposal } from '@/lib/services/action-proposal.service';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
+import { encryptEmailBody } from '@/lib/security/email-body';
 
 /** Détecte une erreur Prisma connue par duck-typing (portable entre versions Prisma). */
 function isPrismaKnownError(error: unknown, code: string): boolean {
@@ -230,8 +231,10 @@ export async function POST(request: NextRequest) {
           referenceIds: normalized.referenceIds,
           subject,
           body: emailBody || '',
+          bodyEncrypted: encryptEmailBody(emailBody || ''),
           bodyText: normalized.bodyText,
           htmlBody,
+          htmlBodyEncrypted: encryptEmailBody(htmlBody),
           preview: (emailBody || '').substring(0, 200),
           hasAttachments: normalized.hasAttachments,
           rawFormat: normalized.rawFormat,
