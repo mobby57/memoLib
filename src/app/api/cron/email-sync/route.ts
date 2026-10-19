@@ -12,6 +12,7 @@ import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { requireCronSecret } from '@/lib/security/cron-auth';
 import { decryptToken, encryptToken } from '@/lib/security/oauth-tokens';
+import { encryptEmailBody } from '@/lib/security/email-body';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -177,6 +178,7 @@ async function fetchGmailEmails(
           to,
           subject,
           body: body.slice(0, 10000),
+          bodyEncrypted: encryptEmailBody(body.slice(0, 10000)),
           sourceProvider: 'gmail',
           sourceChannel: 'email',
           sourceDirection: 'inbound',
@@ -290,6 +292,7 @@ async function fetchOutlookEmails(
           to,
           subject: msg.subject || '',
           body: bodyContent.slice(0, 10000),
+          bodyEncrypted: encryptEmailBody(bodyContent.slice(0, 10000)),
           sourceProvider: 'outlook',
           sourceChannel: 'email',
           sourceDirection: 'inbound',
