@@ -10,6 +10,13 @@ import { EcrituresService } from '@/lib/services/comptabilite';
 export async function POST(req: NextRequest) {
   const { user } = await auth();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  const _role = (user as any).role;
+  if (!['ADMIN', 'ASSOCIE', 'COMPTABLE', 'SUPER_ADMIN'].includes(_role)) {
+    return NextResponse.json(
+      { error: 'Accès réservé à la comptabilité' },
+      { status: 403 }
+    );
+  }
   if (!user.tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
   try {
