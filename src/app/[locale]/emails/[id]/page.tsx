@@ -10,7 +10,7 @@ export default async function EmailDetailPage({
 }: {
   params: { locale: string; id: string };
 }) {
-  const { locale, id } = params;
+  const { locale, id } = await params;
 
   const { user } = await auth();
   if (!user?.tenantId) notFound();
