@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const { user } = await auth();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   const _role = (user as any).role;
-  if (!['ADMIN', 'ASSOCIE', 'COMPTABLE', 'SUPER_ADMIN'].includes(_role)) {
+  if (!['ADMIN', 'ASSOCIE', 'AVOCAT', 'COMPTABLE', 'SUPER_ADMIN'].includes(_role)) {
     return NextResponse.json(
       { error: 'Accès réservé à la comptabilité' },
       { status: 403 }
