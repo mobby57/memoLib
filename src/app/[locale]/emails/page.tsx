@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -276,7 +277,7 @@ export default function EmailMonitorPage() {
                     />
                   )}
                   <Mail className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold">{email.subject}</h3>
+                  <Link href={`/fr/emails/${email.id}`} className="hover:underline"><h3 className="font-semibold">{email.subject}</h3></Link>
                   <Badge variant={email.isProcessed ? 'success' : 'warning'}>
                     {email.isProcessed ? 'Traité' : 'En attente'}
                   </Badge>
