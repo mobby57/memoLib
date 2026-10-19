@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/clerk-auth';
+import { decryptEmailBody } from '@/lib/security/email-body';
 
 export const metadata = { title: 'Email' };
 
@@ -25,8 +26,9 @@ export default async function EmailDetailPage({
   const date = email.receivedAt
     ? new Date(email.receivedAt).toLocaleString('fr-FR')
     : '—';
-  // plain text prioritaire — pas de dangerouslySetInnerHTML sans sanitizer
-  const body = email.bodyText ?? email.body ?? '(corps vide)';
+  // Chiffré en priorité (Phase 1/4), fallback sur clair pour les anciens emails
+  const decryptedBody = decryptEmailBody(email.bodyEncrypted);
+  const body = decryptedBody ?? email.bodyText ?? email.body ?? '(corps vide)';
 
   return (
     <main className="p-6 space-y-4">
