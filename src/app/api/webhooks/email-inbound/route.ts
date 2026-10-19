@@ -123,6 +123,7 @@ export async function POST(req: NextRequest) {
 
   const email = await prisma.email.create({
     data: {
+      id: crypto.randomUUID(),
       tenantId,
       from: validatedEmail.from,
       to: validatedEmail.to || '',
