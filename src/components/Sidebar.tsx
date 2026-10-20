@@ -15,6 +15,8 @@ import {
   Workflow, 
   FileDown, 
   Sparkles,
+  Scale,
+  BarChart3,
   ChevronRight,
   ChevronDown,
   Plus,
@@ -85,6 +87,10 @@ export default function Sidebar() {
       ? [{ name: 'Factures', href: lhref('/factures'), icon: FileText }] : []),
     ...(['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'].includes(role)
       ? [{ name: 'Assistant IA', href: lhref('/ai-assistant'), icon: Sparkles }] : []),
+    ...(['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'].includes(role)
+      ? [{ name: 'Recherche légale', href: lhref('/legal/recherche'), icon: Scale }] : []),
+    ...(['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'].includes(role)
+      ? [{ name: 'Stats tribunaux', href: lhref('/tribunal-stats'), icon: BarChart3 }] : []),
     ...(['ADMIN', 'ASSOCIE'].includes(role)
       ? [{ name: 'Analytics', href: lhref('/analytics'), icon: TrendingUp }] : []),
   ];

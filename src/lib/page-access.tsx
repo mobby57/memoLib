@@ -17,6 +17,8 @@ const PAGE_ACCESS: Record<string, string[]> = {
   '/super-admin': ['SUPER_ADMIN'],
   '/settings': ['ADMIN', 'ASSOCIE', 'AVOCAT'],
   '/ai-assistant': ['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'],
+  '/legal/recherche': ['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'],
+  '/tribunal-stats': ['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'],
   '/advanced': ['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'],
   '/exports': ['ADMIN', 'ASSOCIE', 'AVOCAT', 'COMPTABLE'],
   '/templates': ['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'],
