@@ -12,7 +12,9 @@ import {
   Users, 
   FileText, 
   DollarSign, 
-  Settings, 
+  Settings,
+  Scale,
+  BarChart3, 
   Home,
   Shield,
   Database,
@@ -95,6 +97,18 @@ const navigationItems: NavItem[] = [
     label: 'Calendrier',
     href: '/calendrier',
     icon: Calendar,
+    roles: ['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR']
+  },
+  {
+    label: 'Recherche légale',
+    href: '/legal/recherche',
+    icon: Scale,
+    roles: ['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR']
+  },
+  {
+    label: 'Stats tribunaux',
+    href: '/tribunal-stats',
+    icon: BarChart3,
     roles: ['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR']
   },
   {
