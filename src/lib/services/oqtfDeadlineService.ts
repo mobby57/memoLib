@@ -43,6 +43,8 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       'L.612-1',
       'L.613-1',
       'L.614-1',
+      'L.511-1',
+      'L.512-1',
       'L.611-1 II',
       'L.611-1 III',
       'Article L.611-1 du CESEDA'

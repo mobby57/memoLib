@@ -5,6 +5,15 @@
 
 import { logger } from '@/lib/logger';
 
+function getDaysDiff(targetDate: Date): number {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const target = new Date(targetDate);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+
 export interface ExtractedDeadline {
   type: string; // delai_recours_contentieux, audience, etc.
   titre: string;
@@ -553,12 +562,8 @@ async function extractTextFromDOCX(buffer: Buffer): Promise<string> {
  * Calcule le statut d'une echeance en fonction de la date
  */
 export function calculateDeadlineStatus(dateEcheance: Date): string {
-  const now = new Date();
-  const diffMs = dateEcheance.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
+  const diffDays = getDaysDiff(dateEcheance);
   if (diffDays < 0) return 'depasse';
-  if (diffDays === 0) return 'urgent'; // Aujourd'hui
   if (diffDays <= 3) return 'urgent';
   if (diffDays <= 7) return 'proche';
   return 'a_venir';
@@ -568,22 +573,10 @@ export function calculateDeadlineStatus(dateEcheance: Date): string {
  * Calcule la priorite automatique en fonction du delai restant
  */
 export function calculateDeadlinePriority(dateEcheance: Date, type: string): string {
-  const now = new Date();
-  const diffMs = dateEcheance.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-  // Delais OQTF/expulsion sont toujours critiques
-  if (type.includes('oqtf') || type.includes('expulsion')) {
-    return 'critique';
-  }
-
-  // Delais de recours contentieux courts = critique
-  if (type === 'delai_recours_contentieux' && diffDays <= 7) {
-    return 'critique';
-  }
-
-  // Calcul standard
-  if (diffDays < 0) return 'critique'; // Depasse
+  const diffDays = getDaysDiff(dateEcheance);
+  if (type.includes('oqtf') || type.includes('expulsion')) return 'critique';
+  if (type === 'delai_recours_contentieux' && diffDays <= 7) return 'critique';
+  if (diffDays < 0) return 'critique';
   if (diffDays <= 3) return 'critique';
   if (diffDays <= 7) return 'haute';
   if (diffDays <= 30) return 'normale';

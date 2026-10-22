@@ -61,25 +61,24 @@ export class CesedaService {
     if (!echeance) return 'NORMALE'
 
     const now = new Date()
-    const msPerDay = 1000 * 60 * 60 * 24
-    const msPerHour = 1000 * 60 * 60
-    const daysUntilDeadline = Math.ceil((echeance.getTime() - now.getTime()) / msPerDay)
-    const hoursUntilDeadline = Math.ceil((echeance.getTime() - now.getTime()) / msPerHour)
+    const nowMidnight = new Date(now)
+    nowMidnight.setHours(0, 0, 0, 0)
+    const targetMidnight = new Date(echeance)
+    targetMidnight.setHours(0, 0, 0, 0)
+    const daysUntilDeadline = Math.round((targetMidnight.getTime() - nowMidnight.getTime()) / (1000 * 60 * 60 * 24))
+    const hoursUntilDeadline = Math.ceil((echeance.getTime() - now.getTime()) / (1000 * 60 * 60))
 
     switch (type) {
       case 'OQTF':
       case 'OQTF_SANS_DELAI':
-        // OQTF sans délai = 48h de recours (Art. L.614-1 CESEDA)
         if (hoursUntilDeadline <= 48) return 'CRITIQUE'
         if (daysUntilDeadline <= 7) return 'CRITIQUE'
         if (daysUntilDeadline <= 15) return 'HAUTE'
         return 'NORMALE'
-
       case 'ASILE':
         if (daysUntilDeadline <= 15) return 'CRITIQUE'
         if (daysUntilDeadline <= 30) return 'HAUTE'
         return 'NORMALE'
-
       default:
         if (daysUntilDeadline <= 30) return 'HAUTE'
         return 'NORMALE'

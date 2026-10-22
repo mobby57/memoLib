@@ -72,7 +72,7 @@ describe('Date Formatting Utils', () => {
       now.setHours(0, 0, 0, 0);
       const target = new Date(targetDate);
       target.setHours(0, 0, 0, 0);
-      return Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return Math.round((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     };
 
     it('devrait calculer les jours restants', () => {
