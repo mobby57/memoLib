@@ -7,17 +7,16 @@
  * - Facturer les surcoûts
  */
 
-import { authOptions } from '@/lib/auth';
 import { MONTHLY_COST_LIMITS } from '@/lib/billing/cost-guard';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Liste tous les tenants avec leurs coûts
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
@@ -142,7 +141,7 @@ export async function GET(request: NextRequest) {
 // POST - Actions admin (ajuster limites, créer facture surcoût)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {

@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { ImapFlow } from 'imapflow';
 
@@ -12,7 +11,7 @@ import { ImapFlow } from 'imapflow';
  * L'app détecte le fournisseur, teste la connexion, et sauvegarde.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { email, password } = await req.json();

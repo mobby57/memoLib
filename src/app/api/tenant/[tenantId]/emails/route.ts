@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { prisma } from '@/lib/prisma';
 import { emailMonitor } from '@/lib/email/email-monitor-service';
 
@@ -10,7 +9,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { tenantId: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   
   if (!session?.user || (session.user as any).tenantId !== params.tenantId) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
@@ -47,7 +46,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { tenantId: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   
   if (!session?.user || (session.user as any).tenantId !== params.tenantId) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 // NOTE: Prisma désactivé pour build/demo sans DB générée
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getServerSessionCompat();
         if (!session?.user) {
             return NextResponse.json(
                 { error: 'Unauthorized' },

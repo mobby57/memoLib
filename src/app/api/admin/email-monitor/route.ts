@@ -1,13 +1,12 @@
-﻿import { authOptions } from '@/lib/auth';
-import { logger } from '@/lib/logger';
+﻿import { logger } from '@/lib/logger';
 import fs from 'fs';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
 
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
@@ -75,7 +74,7 @@ export async function GET(request: NextRequest) {
 // Marquer un email comme lu
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
 
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });

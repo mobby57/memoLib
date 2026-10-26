@@ -1,14 +1,12 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 /**
  * POST /api/ocr/extract
  * Recoit une image (photo de courrier) et extrait les informations structurees.
  * Utilise Ollama (local) ou fallback regex pour l'extraction.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const formData = await req.formData();

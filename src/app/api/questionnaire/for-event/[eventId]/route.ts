@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getTemplateForEvent } from '@/lib/questionnaire/templates';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 interface RouteContext {
   params: Promise<{ eventId: string }>;
 }
@@ -11,7 +9,7 @@ interface RouteContext {
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
     const { eventId } = await context.params;
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

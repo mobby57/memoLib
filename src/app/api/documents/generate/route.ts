@@ -1,8 +1,6 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 type TemplateType = 'accuse_reception' | 'mise_en_demeure' | 'recours_gracieux' | 'recours_contentieux' | 'convocation' | 'attestation';
 
 const TEMPLATES: Record<TemplateType, { title: string; generate: (vars: Record<string, string>) => string }> = {
@@ -148,7 +146,7 @@ ${v.avocat}`,
 };
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const user = session.user as any;

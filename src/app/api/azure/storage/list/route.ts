@@ -1,13 +1,12 @@
 ﻿import { NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getBlobServiceClient } from '@/lib/azure/clients';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }

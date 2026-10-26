@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { ReportingService } from '@/lib/services/comptabilite';
 import prisma from '@/lib/prisma';
 
@@ -13,7 +12,7 @@ import prisma from '@/lib/prisma';
  * Sinon, fallback sur les factures existantes (rétrocompatibilité).
  */
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
   const user = session.user as any;

@@ -3,8 +3,7 @@
  * Permet aux clients de recevoir des mises à jour en temps réel
  */
 
-import { authOptions } from '@/lib/auth/authOptions';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest } from 'next/server';
 
 // Store des connexions SSE actives par utilisateur
@@ -94,7 +93,7 @@ export function publishToTenant(
  */
 export async function GET(req: NextRequest) {
   // Vérifier l'authentification
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
 
   if (!session?.user?.id) {
     return new Response('Non autorisé', { status: 401 });
@@ -179,7 +178,7 @@ export async function GET(req: NextRequest) {
  * Handler POST pour envoyer des événements (usage interne)
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
 
   // Seulement les admins peuvent publier des événements
   if (!session?.user || !['ADMIN', 'SUPER_ADMIN'].includes(session.user.role as string)) {

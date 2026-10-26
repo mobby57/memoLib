@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -11,7 +10,7 @@ import { logger } from '@/lib/logger';
  * Flow séparé de l'auth NextAuth — sert uniquement à connecter la boîte mail.
  */
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   const baseUrl = process.env.NEXTAUTH_URL || 'https://memolib.space';
   
   if (!session?.user?.tenantId) {

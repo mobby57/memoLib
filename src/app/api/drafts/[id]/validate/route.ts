@@ -4,8 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { mapValidatedDraftToDossier } from '@/lib/mappers/draft.mapper';
 import { DossierService } from '@/lib/services/dossier.service';
 import { createAutoDeadline } from '@/lib/services/deadline-auto.service';
@@ -16,7 +15,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
     const tenantId = (session.user as any).tenantId;

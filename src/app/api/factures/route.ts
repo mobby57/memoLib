@@ -1,7 +1,6 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { authOptions } from '@/lib/auth/authOptions';
 import { logger } from '@/lib/logger';
 import { NotificationService } from '@/lib/notifications';
 import prisma from '@/lib/prisma';
@@ -34,7 +33,7 @@ const UpdateFactureSchema = z.object({
 });
 
 async function resolveAccess(requestedTenantId: string | null) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return { error: NextResponse.json({ error: 'Non autorisé' }, { status: 401 }) };
 
   const user = session.user as { id?: string; tenantId?: string; role?: string };

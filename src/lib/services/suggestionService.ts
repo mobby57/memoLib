@@ -64,7 +64,7 @@ export class SuggestionService {
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-    const staleDossiers = await prisma.dossier.findMany({
+    const staleDossiers = await prisma.Dossier.findMany({
       where: {
         tenantId,
         updatedAt: { lt: fourteenDaysAgo },
@@ -74,18 +74,18 @@ export class SuggestionService {
       orderBy: { updatedAt: 'asc' }
     });
 
-    return staleDossiers.map((Dossier: { id: string; numero: string; updatedAt: Date; clientId: string }) => ({
-      id: `stale-${dossier.id}`,
-      title: `Dossier sans activite: ${dossier.numero}`,
-      description: `Le dossier ${dossier.numero} n'a pas ete mis e jour depuis ${Math.floor((Date.now() - dossier.updatedAt.getTime()) / (1000 * 60 * 60 * 24))} jours`,
+    return staleDossiers.map((dossier: { id: string; numero: string; updatedAt: Date; clientId: string }) => ({
+      id: `stale-${(dossier as any).id}`,
+      title: `Dossier sans activite: ${(dossier as any).numero}`,
+      description: `Le dossier ${(dossier as any).numero} n'a pas ete mis e jour depuis ${Math.floor((Date.now() - (dossier as any).updatedAt.getTime()) / (1000 * 60 * 60 * 24))} jours`,
       actionType: 'GENERATE_DRAFT' as AIActionType,
       priority: 'MEDIUM',
       reasoning: 'Dossier inactif detecte. Une relance client pourrait etre necessaire.',
       suggestedAction: {
         type: 'CREATE_FOLLOWUP_EMAIL',
         data: {
-          dossierId: dossier.id,
-          clientId: dossier.clientId,
+          dossierId: (dossier as any).id,
+          clientId: (dossier as any).clientId,
           template: 'TEMPLATE_REMINDER'
         }
       },
@@ -160,7 +160,7 @@ export class SuggestionService {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     // Trouver les dossiers avec echeance proche
-    const dossiersNeedingFollowup = await prisma.dossier.findMany({
+    const dossiersNeedingFollowup = await prisma.Dossier.findMany({
       where: {
         tenantId,
         dateEcheance: {
@@ -174,26 +174,26 @@ export class SuggestionService {
       take: 5
     });
 
-    return dossiersNeedingFollowup.map((Dossier: { id: string; numero: string; dateEcheance: Date | null; clientId: string; Client: { firstName: string; lastName: string } }) => {
-      const daysUntilDeadline = dossier.dateEcheance 
-        ? Math.floor((dossier.dateEcheance.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    return dossiersNeedingFollowup.map((dossier: { id: string; numero: string; dateEcheance: Date | null; clientId: string; Client: { firstName: string; lastName: string } }) => {
+      const daysUntilDeadline = (dossier as any).dateEcheance 
+        ? Math.floor(((dossier as any).dateEcheance.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
         : 0;
 
-      const clientName = `${dossier.client.firstName} ${dossier.client.lastName}`;
+      const clientName = `${(dossier as any).client.firstName} ${(dossier as any).client.lastName}`;
 
       return {
-        id: `followup-${dossier.id}`,
+        id: `followup-${(dossier as any).id}`,
         title: `Relance client: ${clientName}`,
-        description: `echeance dans ${daysUntilDeadline} jours pour le dossier ${dossier.numero}`,
+        description: `echeance dans ${daysUntilDeadline} jours pour le dossier ${(dossier as any).numero}`,
         actionType: 'GENERATE_DRAFT' as AIActionType,
         priority: daysUntilDeadline <= 7 ? 'HIGH' : 'MEDIUM',
         reasoning: `echeance proche (${daysUntilDeadline}j). Relance recommandee.`,
         suggestedAction: {
           type: 'SEND_REMINDER',
           data: {
-            dossierId: dossier.id,
-            clientId: dossier.clientId,
-            deadline: dossier.dateEcheance
+            dossierId: (dossier as any).id,
+            clientId: (dossier as any).clientId,
+            deadline: (dossier as any).dateEcheance
           }
         },
         confidence: 0.88,
@@ -252,7 +252,7 @@ export class SuggestionService {
     const suggestions: SmartSuggestion[] = [];
 
     // 1. Dossiers avec delai anormalement long
-    const oldDossiers = await prisma.dossier.findMany({
+    const oldDossiers = await prisma.Dossier.findMany({
       where: {
         tenantId,
         statut: 'EN_COURS',
@@ -261,21 +261,21 @@ export class SuggestionService {
       take: 3
     });
 
-    oldDossiers.forEach((Dossier: { id: string; numero: string; createdAt: Date }) => {
+    oldDossiers.forEach((dossier: { id: string; numero: string; createdAt: Date }) => {
       const daysOld = Math.floor(
-        (Date.now() - dossier.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+        (Date.now() - (dossier as any).createdAt.getTime()) / (1000 * 60 * 60 * 24)
       );
 
       suggestions.push({
-        id: `anomaly-old-${dossier.id}`,
-        title: `?? Dossier anormalement ancien: ${dossier.numero}`,
+        id: `anomaly-old-${(dossier as any).id}`,
+        title: `?? Dossier anormalement ancien: ${(dossier as any).numero}`,
         description: `Dossier en cours depuis ${daysOld} jours sans cleture`,
         actionType: 'DETECT_ALERT' as AIActionType,
         priority: 'HIGH',
         reasoning: 'Duree de traitement inhabituelle. Verification recommandee.',
         suggestedAction: {
           type: 'REVIEW_CASE_STATUS',
-          data: { dossierId: dossier.id, daysOld }
+          data: { dossierId: (dossier as any).id, daysOld }
         },
         confidence: 0.91,
         estimatedTimeMinutes: 10

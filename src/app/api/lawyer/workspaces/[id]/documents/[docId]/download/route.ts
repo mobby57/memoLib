@@ -3,12 +3,11 @@
  * GET /api/lawyer/workspaces/[id]/documents/[docId]/download
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
 
@@ -17,7 +16,7 @@ export async function GET(
   { params }: { params: { id: string; docId: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
+    const session: any = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

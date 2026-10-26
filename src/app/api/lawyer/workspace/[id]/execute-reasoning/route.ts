@@ -7,7 +7,6 @@
  * le workspace à travers les états de la machine à états.
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import {
@@ -16,7 +15,7 @@ import {
   executeReasoning,
 } from '@/lib/reasoning/reasoning-service';
 import { WorkspaceState } from '@/types/workspace-reasoning';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface ExecuteReasoningBody {
@@ -29,7 +28,7 @@ interface ExecuteReasoningBody {
  */
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

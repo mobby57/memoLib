@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { analyzeDossier, type DossierInput } from '@/lib/ai/copilot/copilot-ceseda';
 
@@ -9,7 +8,7 @@ import { analyzeDossier, type DossierInput } from '@/lib/ai/copilot/copilot-cese
  * Copilote CESEDA — Analyse complète d'un dossier
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ dossierId: string }> }) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
   const { dossierId } = await params;

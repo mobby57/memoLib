@@ -164,25 +164,25 @@ export function detectAnomalies(Dossier: {
 }): string[] {
   const anomalies: string[] = [];
   const now = new Date();
-  const joursOuvert = (now.getTime() - dossier.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+  const joursOuvert = (now.getTime() - (Dossier as any).createdAt.getTime()) / (1000 * 60 * 60 * 24);
 
   // OQTF sans deadline = danger
-  if (dossier.typeDossier.includes('OQTF') && !dossier.dateEcheance) {
+  if ((Dossier as any).typeDossier.includes('OQTF') && !(Dossier as any).dateEcheance) {
     anomalies.push('⚠️ Dossier OQTF sans date d\'échéance — AJOUTEZ UNE DEADLINE IMMÉDIATEMENT');
   }
 
   // Dossier ouvert depuis > 30j sans checklist complète
-  if (joursOuvert > 30 && !dossier.checklistComplete && dossier.statut !== 'CLOS') {
+  if (joursOuvert > 30 && !(Dossier as any).checklistComplete && (Dossier as any).statut !== 'CLOS') {
     anomalies.push('📋 Dossier ouvert depuis 30+ jours avec des pièces manquantes — relancez le client');
   }
 
   // Dossier en statut "EN_COURS" depuis > 90j sans activité
-  if (joursOuvert > 90 && dossier.statut === 'EN_COURS') {
+  if (joursOuvert > 90 && (Dossier as any).statut === 'EN_COURS') {
     anomalies.push('💤 Dossier inactif depuis 90+ jours — vérifiez si une action est requise');
   }
 
   // Asile sans deadline CNDA
-  if (dossier.typeDossier === 'ASILE' && !dossier.dateEcheance) {
+  if ((Dossier as any).typeDossier === 'ASILE' && !(Dossier as any).dateEcheance) {
     anomalies.push('⚠️ Dossier Asile sans deadline CNDA — vérifiez le délai de recours (1 mois)');
   }
 

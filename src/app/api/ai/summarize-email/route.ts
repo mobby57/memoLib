@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { hybridAI } from '@/lib/ai/hybrid-client';
 import { checkFeatureAccess } from '@/lib/billing/features';
 import { checkEmailConfidential } from '@/lib/security/confidential-mode';
@@ -16,7 +15,7 @@ interface EmailSummary {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   const isDemoRequest = !session && req.headers.get('referer')?.includes('/demo');
   if (!session?.user && !isDemoRequest) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -89,7 +88,7 @@ Retourne ce JSON:
   "resumeCourt": "résumé complet en 2 phrases max"
 }`;
 
-  const user = await getServerSession(authOptions);
+  const user = await getServerSessionCompat();
   const tenantId = (user?.user as any)?.tenantId || 'demo';
 
   const aiResult = await hybridAI.generateWithCostControl(prompt, tenantId);

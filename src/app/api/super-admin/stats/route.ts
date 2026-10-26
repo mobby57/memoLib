@@ -1,22 +1,21 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifie' }, { statut: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as { role?: string };
 
     // Seul le super admin peut acceder a ces statistiques
     if (user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Acces interdit' }, { statut: 403 });
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
     }
 
     // Statistiques globales de la plateforme
@@ -72,6 +71,6 @@ export async function GET(request: NextRequest) {
     logger.error('Erreur API super admin stats', error instanceof Error ? error : undefined, {
       route: '/api/super-admin/stats',
     });
-    return NextResponse.json({ error: 'Erreur serveur' }, { statut: 500 });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

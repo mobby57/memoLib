@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete } from '@/lib/cache';
 import { logger } from '@/lib/logger';
@@ -16,7 +15,7 @@ interface RouteParams {
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
@@ -86,7 +85,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
@@ -159,7 +158,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

@@ -1,6 +1,5 @@
 ﻿import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { prisma } from '@/lib/prisma';
 
 const startTime = Date.now();
@@ -8,7 +7,7 @@ const DEMO_MODE = process.env.DEMO_MODE === '1' || process.env.DEMO_MODE === 'tr
 const AI_HEALTH_STRICT = process.env.AI_HEALTH_STRICT !== 'false';
 
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }

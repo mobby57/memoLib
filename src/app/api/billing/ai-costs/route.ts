@@ -7,8 +7,7 @@ import { logger } from '@/lib/logger';
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
 import { 
   getCostDashboard, 
@@ -19,7 +18,7 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     
     if (!session?.user?.id) {
       return NextResponse.json(

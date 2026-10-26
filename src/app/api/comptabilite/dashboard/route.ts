@@ -3,15 +3,14 @@
  * GET /api/comptabilite/dashboard — KPIs financiers temps réel
  */
 
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { ReportingService } from '@/lib/services/comptabilite';
 import { CARPAService } from '@/lib/services/comptabilite';
 import { RapprochementService } from '@/lib/services/comptabilite';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
   const user = session.user as any;

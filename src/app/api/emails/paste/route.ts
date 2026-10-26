@@ -1,7 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 /**
  * POST /api/emails/paste
  * Body: { from?, subject?, body }
@@ -10,7 +8,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
  * C'est la méthode la plus simple : copier-coller depuis Gmail/Outlook.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { from, subject, body } = await req.json();

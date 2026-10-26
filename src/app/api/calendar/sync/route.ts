@@ -1,6 +1,5 @@
 import { calendarService, type CalendarProvider } from '@/lib/calendar/calendar-service';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +8,7 @@ async function resolveTenantAccess(requestedTenantId: string | null): Promise<
   | { tenantId: string }
   | { error: NextResponse }
 > {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) {
     return { error: NextResponse.json({ error: 'Non authentifie' }, { status: 401 }) };
   }

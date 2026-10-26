@@ -15,8 +15,7 @@
 import { withCompression } from '@/lib/compression';
 import { getCacheStats, getOrCompute } from '@/lib/response-cache';
 import { getAlertsStatus, getMetricsComparison, getMetricsSnapshot } from '@/lib/sentry-metrics-dashboard';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -24,7 +23,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 60; // ISR - revalidate every 60 seconds
 
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }

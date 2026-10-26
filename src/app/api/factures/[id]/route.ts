@@ -6,8 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { prisma } from '@/lib/prisma';
 import { cacheGet, cacheSet, cacheDelete, cacheInvalidatePattern, CACHE_TTL } from '@/lib/cache';
 import { logger } from '@/lib/logger';
@@ -23,7 +22,7 @@ export async function GET(
   context: RouteContext
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
@@ -129,7 +128,7 @@ export async function PATCH(
   context: RouteContext
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
@@ -229,7 +228,7 @@ export async function DELETE(
   context: RouteContext
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }

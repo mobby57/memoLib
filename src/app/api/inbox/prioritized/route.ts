@@ -6,12 +6,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
-
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
@@ -9,7 +8,7 @@ export async function GET(
   { params }: { params: { tenantId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });

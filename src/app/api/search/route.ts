@@ -1,15 +1,14 @@
-﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { logger } from '@/lib/logger';
+﻿import { logger } from '@/lib/logger';
 import { logSearch } from '@/lib/services/searchAnalytics';
 import { SearchResultType, searchService } from '@/lib/services/searchService';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const startTime = performance.now();
 
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });

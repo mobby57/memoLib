@@ -1,12 +1,12 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 // GET: Recuperer les messages
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
 // POST: Envoyer un message
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });

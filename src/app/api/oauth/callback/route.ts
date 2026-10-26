@@ -1,6 +1,6 @@
 import { oauthService, type OAuthProvider } from '@/lib/oauth/oauth-service';
 import { oauthTokenService } from '@/lib/oauth/token-service';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'unauthorized', detail: 'No session found' },

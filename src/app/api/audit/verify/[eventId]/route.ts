@@ -8,7 +8,7 @@
  */
 
 import { eventLogService } from '@/lib/services/event-log.service';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 
 type RouteParams = {
@@ -20,7 +20,7 @@ type RouteParams = {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     // Auth check
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }

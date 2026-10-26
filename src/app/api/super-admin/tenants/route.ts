@@ -1,13 +1,12 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     const guard = requireApiPermission(session, RBAC_PERMISSIONS.TENANTS_READ);
     if (!guard.ok) {
       return guard.response;
@@ -59,7 +58,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     const guard = requireApiPermission(session, RBAC_PERMISSIONS.TENANTS_CREATE);
     if (!guard.ok) {
       return guard.response;

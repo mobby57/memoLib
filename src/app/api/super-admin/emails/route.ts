@@ -3,15 +3,14 @@
  * GET /api/super-admin/emails - Liste tous les emails de la plateforme
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });

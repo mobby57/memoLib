@@ -1,11 +1,10 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { recordUsage } from '@/lib/billing/usage-billing';
 import { scanDocumentAsync } from '@/lib/security/antivirus';
 import { randomUUID } from 'crypto';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -167,7 +166,7 @@ export const maxDuration = 30;
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -415,7 +414,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });

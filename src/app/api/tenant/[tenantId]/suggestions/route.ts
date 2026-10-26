@@ -6,9 +6,7 @@
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 interface SuggestionsParams {
   params: Promise<{ tenantId: string }>;
 }
@@ -16,7 +14,7 @@ interface SuggestionsParams {
 export async function GET(request: NextRequest, { params }: SuggestionsParams) {
   try {
     const { tenantId } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

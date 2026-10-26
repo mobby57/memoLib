@@ -7,9 +7,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { legifranceApi } from '@/lib/legifrance/api-client';
 import { logger } from '@/lib/logger';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 
 /**
  * POST /api/legifrance/search
@@ -18,7 +18,7 @@ import { logger } from '@/lib/logger';
 export async function POST(req: NextRequest) {
   try {
     // Authentification
-    const session: any = await getServerSession(authOptions as any);
+    const session: any = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non authentifie' },
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
  */
 export async function GET(req: NextRequest) {
   try {
-    const session: any = await getServerSession(authOptions as any);
+    const session: any = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non authentifie' },

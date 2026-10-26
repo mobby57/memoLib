@@ -1,7 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 
 /**
  *  API: Statistiques du systeme de formulaires
@@ -9,7 +9,7 @@ import { getServerSession } from 'next-auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }

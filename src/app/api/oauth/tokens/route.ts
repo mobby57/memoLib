@@ -1,5 +1,5 @@
 import { oauthTokenService } from '@/lib/oauth/token-service';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
@@ -28,7 +28,7 @@ export async function GET() {
  */
 export async function DELETE(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }

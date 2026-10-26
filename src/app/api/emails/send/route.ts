@@ -6,9 +6,8 @@
  * et une copie est sauvegardée dans la base pour l'historique du dossier.
  */
 
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email/email-service';
 import { z } from 'zod';
@@ -24,7 +23,7 @@ const sendEmailSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }

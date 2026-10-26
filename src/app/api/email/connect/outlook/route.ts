@@ -1,7 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 /**
  * GET /api/email/connect/outlook
  * 
@@ -9,7 +7,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
  * Scope: Mail.Read (lecture emails)
  */
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   const baseUrl = process.env.NEXTAUTH_URL || 'https://memolib.space';
 
   if (!session?.user?.tenantId) {

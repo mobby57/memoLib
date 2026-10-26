@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { PRESET_CONFIGS } from '@/lib/workflows/workflow-config';
 
 /**
@@ -12,7 +12,7 @@ export async function GET(
   { params }: { params: { name: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }

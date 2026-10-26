@@ -1,7 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
 const DEMO_EMAILS = [
   {
     from: 'Fatima Benali <fatima.benali@gmail.com>',
@@ -73,7 +71,7 @@ Préfecture du Bas-Rhin`,
  * Injecte un email démo réaliste dans le système
  */
 export async function POST() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const tenantId = (session.user as any).tenantId;

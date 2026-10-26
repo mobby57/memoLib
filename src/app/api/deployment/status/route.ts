@@ -6,11 +6,9 @@
 
 import DeploymentGuide from '@/config/deployment-guide';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }

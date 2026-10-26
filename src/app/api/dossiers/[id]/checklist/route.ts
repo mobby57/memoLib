@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { getChecklistForType, generateDossierInboxEmail } from '@/lib/dossier/checklist-templates';
 
@@ -9,7 +8,7 @@ import { getChecklistForType, generateDossierInboxEmail } from '@/lib/dossier/ch
  * Retourne la checklist du dossier avec statut de chaque piece
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { id } = await params;
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
  * Initialise la checklist depuis le template (appele a la creation du dossier)
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { id } = await params;
@@ -99,7 +98,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
  * Met a jour le statut d'un item (piece recue/validee)
  */
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
   const { id } = await params;

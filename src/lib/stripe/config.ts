@@ -11,7 +11,7 @@ if (!process.env.STRIPE_WEBHOOK_SECRET) {
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_placeholder';
 
 export const stripe = new Stripe(STRIPE_SECRET, {
-    apiVersion: '2026-01-28.clover',
+    apiVersion: '2026-02-25.clover',
 });
 
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET?.trim() || 'whsec_placeholder';

@@ -1,5 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSessionCompat();
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });

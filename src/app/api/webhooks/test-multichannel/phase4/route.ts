@@ -24,8 +24,7 @@ import { checkWebhookRateLimit } from '@/lib/webhook-rate-limit';
 import { validateWebhookPayloadSafe } from '@/lib/webhook-schemas';
 import { checkPayloadSize } from '@/lib/webhook-size-limits';
 import * as Sentry from '@sentry/nextjs';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
@@ -42,7 +41,7 @@ const retryPrismaOperation = async (fn: () => any, name: string, retries: number
 };
 
 async function ensureAdminAccess() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }

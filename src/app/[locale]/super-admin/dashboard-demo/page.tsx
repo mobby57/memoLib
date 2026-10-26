@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { BarChart3, DollarSign, Users, TrendingUp } Building2, LifeBuoy, Settings, LayoutDashboard, from 'lucide-react';
+import { BarChart3, DollarSign, Users, TrendingUp, Building2, LifeBuoy, Settings, LayoutDashboard } from 'lucide-react';
 
 export default function SuperAdminDemoDashboard() {
   const { data: session, status } = useSession();

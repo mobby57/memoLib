@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { approvePendingAction } from '@/lib/pending-actions/service';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
@@ -24,7 +22,7 @@ const bodySchema = z.object({
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

@@ -3,10 +3,9 @@
  * PATCH /api/lawyer/workspaces/[id]/procedures/[procId]/checklist - Toggle checklist item
  */
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
@@ -14,7 +13,7 @@ export async function PATCH(
   { params }: { params: { id: string; procId: string } }
 ) {
   try {
-    const session: any = await getServerSession(authOptions as any);
+    const session: any = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

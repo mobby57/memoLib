@@ -1,15 +1,14 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 
 async function resolveTenantAccess(requestedTenantId: string | null): Promise<
   | { tenantId: string; role: string; userId: string }
   | { error: NextResponse }
 > {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) {
     return { error: NextResponse.json({ error: 'Non authentifie' }, { status: 401 }) };
   }

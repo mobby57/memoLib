@@ -6,8 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { z } from 'zod';
 
 const SuspendSchema = z.object({
@@ -18,7 +17,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
   const user = session.user as { tenantId?: string; id?: string; role?: string };
@@ -67,7 +66,7 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
   const user = session.user as { tenantId?: string; role?: string };

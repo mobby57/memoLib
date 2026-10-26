@@ -1,13 +1,12 @@
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { hybridAI } from '@/lib/ai/hybrid-client';
 import { checkFeatureAccess } from '@/lib/billing/features';
 import { checkConfidentialMode } from '@/lib/security/confidential-mode';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const user = session.user as any;
@@ -92,7 +91,7 @@ Retourne UNIQUEMENT un JSON:
   "suggestedActions": ["action1", "action2"]
 }`;
 
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   const tenantId = (session?.user as any)?.tenantId || 'demo';
 
   const aiResult = await hybridAI.generateWithCostControl(prompt, tenantId);
