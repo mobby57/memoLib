@@ -10,6 +10,7 @@ const dirname = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig({
     test: {
         globals: true,
+        setupFiles: ['./src/test/clerk-mock.ts'],
         environment: 'node',
         include: ['tests/**/*.test.ts', 'src/__tests__/**/*.test.{ts,tsx}'],
         exclude: [
