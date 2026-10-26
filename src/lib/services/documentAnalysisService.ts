@@ -246,7 +246,7 @@ export async function createDeadlinesFromAnalysis(
 
         return prisma.echeance.create({
           data: {
-            dossier: { connect: { id: dossierId } },
+            Dossier: { connect: { id: dossierId } },
             tenant: { connect: { id: dossier.tenantId } },
             createdBy: 'system', // Ou passer le userId en parametre
             titre: deadline.description,

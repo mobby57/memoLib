@@ -19,6 +19,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export const revalidate = 60; // ISR - revalidate every 60 seconds
 
 async function ensureAdminAccess() {

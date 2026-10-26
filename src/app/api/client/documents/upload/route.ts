@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
 
     const storageKey = `client-quarantine/${tenantId}/${documentId}`;
     await mkdir(directory, { recursive: true });
-    await writeFile(join(directory, documentId), buffer, { flag: 'wx' });
+    await writeFile(join(/*turbopackIgnore: true*/ directory, documentId), buffer, { flag: 'wx' });
 
     await prisma.$transaction([
       prisma.document.create({

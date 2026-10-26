@@ -74,7 +74,7 @@ export class SuggestionService {
       orderBy: { updatedAt: 'asc' }
     });
 
-    return staleDossiers.map((dossier: { id: string; numero: string; updatedAt: Date; clientId: string }) => ({
+    return staleDossiers.map((Dossier: { id: string; numero: string; updatedAt: Date; clientId: string }) => ({
       id: `stale-${dossier.id}`,
       title: `Dossier sans activite: ${dossier.numero}`,
       description: `Le dossier ${dossier.numero} n'a pas ete mis e jour depuis ${Math.floor((Date.now() - dossier.updatedAt.getTime()) / (1000 * 60 * 60 * 24))} jours`,
@@ -174,7 +174,7 @@ export class SuggestionService {
       take: 5
     });
 
-    return dossiersNeedingFollowup.map((dossier: { id: string; numero: string; dateEcheance: Date | null; clientId: string; client: { firstName: string; lastName: string } }) => {
+    return dossiersNeedingFollowup.map((Dossier: { id: string; numero: string; dateEcheance: Date | null; clientId: string; Client: { firstName: string; lastName: string } }) => {
       const daysUntilDeadline = dossier.dateEcheance 
         ? Math.floor((dossier.dateEcheance.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
         : 0;
@@ -261,7 +261,7 @@ export class SuggestionService {
       take: 3
     });
 
-    oldDossiers.forEach((dossier: { id: string; numero: string; createdAt: Date }) => {
+    oldDossiers.forEach((Dossier: { id: string; numero: string; createdAt: Date }) => {
       const daysOld = Math.floor(
         (Date.now() - dossier.createdAt.getTime()) / (1000 * 60 * 60 * 24)
       );

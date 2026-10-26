@@ -68,7 +68,7 @@ export class DossierService {
         },
         _count: {
           select: {
-            documents: true,
+            Document: true,
             echeances: true,
           },
         },
@@ -117,7 +117,7 @@ export class DossierService {
         },
         _count: {
           select: {
-            documents: true,
+            Document: true,
             echeances: true,
           },
         },
@@ -149,7 +149,7 @@ export class DossierService {
         },
         _count: {
           select: {
-            documents: true,
+            Document: true,
             echeances: true,
           },
         },
@@ -182,7 +182,7 @@ export class DossierService {
         },
         _count: {
           select: {
-            documents: true,
+            Document: true,
             echeances: true,
           },
         },
@@ -214,7 +214,7 @@ export class DossierService {
         },
         _count: {
           select: {
-            documents: true,
+            Document: true,
             echeances: true,
           },
         },
@@ -263,7 +263,7 @@ export class DossierService {
         },
         _count: {
           select: {
-            documents: true,
+            Document: true,
             echeances: true,
           },
         },

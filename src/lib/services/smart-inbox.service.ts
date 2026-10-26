@@ -274,7 +274,7 @@ export class SmartInboxService {
             email: true,
           },
         },
-        dossier: {
+        Dossier: {
           select: {
             numero: true,
             objet: true,

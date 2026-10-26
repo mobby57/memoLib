@@ -533,7 +533,7 @@ Pour une analyse plus précise de votre situation, je vous recommande de consult
         user: {
           select: { id: true, name: true, email: true },
         },
-        dossier: {
+        Dossier: {
           select: { id: true, numero: true, objet: true },
         },
       },
@@ -569,7 +569,7 @@ Pour une analyse plus précise de votre situation, je vous recommande de consult
           take: 1,
           orderBy: { createdAt: 'asc' },
         },
-        dossier: {
+        Dossier: {
           select: { numero: true, objet: true },
         },
       },

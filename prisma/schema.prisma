@@ -992,6 +992,7 @@ model User {
   @@index([role])
   @@index([status])
   @@index([tenantId, email])
+  consents      UserConsent[]
 }
 
 model WorkflowExecution {
@@ -1326,4 +1327,16 @@ model VerificationToken {
   @@index([email])
   @@index([token])
   @@index([expiresAt])
+}
+
+model UserConsent {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  accepted  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

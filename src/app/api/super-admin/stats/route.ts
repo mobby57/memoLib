@@ -9,14 +9,14 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { statut: 401 });
     }
 
     const user = session.user as { role?: string };
 
     // Seul le super admin peut acceder a ces statistiques
     if (user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces interdit' }, { statut: 403 });
     }
 
     // Statistiques globales de la plateforme
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       totalWorkflows,
     ] = await Promise.all([
       prisma.tenant.count(),
-      prisma.tenant.count({ where: { status: 'active' } }),
+      prisma.tenant.count({ where: { statut: 'active' } }),
       prisma.user.count({ where: { role: { not: 'SUPER_ADMIN' } } }),
       prisma.dossier.count(),
       prisma.facture.count(),
@@ -72,6 +72,6 @@ export async function GET(request: NextRequest) {
     logger.error('Erreur API super admin stats', error instanceof Error ? error : undefined, {
       route: '/api/super-admin/stats',
     });
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json({ error: 'Erreur serveur' }, { statut: 500 });
   }
 }

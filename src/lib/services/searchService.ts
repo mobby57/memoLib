@@ -239,7 +239,7 @@ export class SearchService {
         size: true,
         mimeType: true,
         createdAt: true,
-        dossier: {
+        Dossier: {
           select: {
             numero: true,
             objet: true,

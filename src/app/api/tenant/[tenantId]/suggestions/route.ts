@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         },
       },
       include: {
-        client: {
+        Client: {
           select: { firstName: true, lastName: true },
         },
       },
@@ -80,8 +80,8 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         statut: { in: ['en_cours', 'en_attente'] },
       },
       include: {
-        documents: true,
-        client: {
+        Document: true,
+        Client: {
           select: { firstName: true, lastName: true },
         },
       },
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
     // 3. Échéances proches (< 14 jours) - utilise LegalDeadline
     const echeancesProches = await prisma.legalDeadline.findMany({
       where: {
-        dossier: {
+        Dossier: {
           tenantId,
         },
         dueDate: {
@@ -120,9 +120,9 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
         status: 'PENDING',
       },
       include: {
-        dossier: {
+        Dossier: {
           include: {
-            client: {
+            Client: {
               select: { firstName: true, lastName: true },
             },
           },

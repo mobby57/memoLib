@@ -155,7 +155,7 @@ export function canCloseDossier(checklist: {
  * Détection proactive — l'IA signale les incohérences
  * Ex: dossier OQTF sans deadline = ANORMAL
  */
-export function detectAnomalies(dossier: {
+export function detectAnomalies(Dossier: {
   typeDossier: string;
   dateEcheance: Date | null;
   checklistComplete: boolean;

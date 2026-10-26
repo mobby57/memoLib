@@ -29,14 +29,14 @@ export async function GET(
         tenantId
       },
       include: {
-        client: {
+        Client: {
           select: {
             firstName: true,
             lastName: true,
             email: true
           }
         },
-        documents: {
+        Document: {
           select: {
             id: true
           }

@@ -30,14 +30,14 @@ export async function GET(
         clientId,
       },
       include: {
-        client: {
+        Client: {
           select: {
             firstName: true,
             lastName: true,
             email: true,
           },
         },
-        documents: {
+        Document: {
           select: {
             id: true,
           },

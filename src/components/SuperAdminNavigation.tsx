@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import Link from 'next/link';
+import { LayoutDashboard, Building2, Users, LifeBuoy, Settings, Shield } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 
@@ -9,10 +10,10 @@ export default function SuperAdminNavigation() {
 
   const navItems = [
     { href: '/super-admin', label: 'Dashboard', icon: '' },
-    { href: '/super-admin/tenants', label: 'Tenants', icon: '??' },
+    { href: '/super-admin/tenants', label: 'Tenants', icon: <Building2 /> },
     { href: '/super-admin/plans', label: 'Plans', icon: '' },
     { href: '/super-admin/users', label: 'Users', icon: '' },
-    { href: '/super-admin/support', label: 'Support', icon: '??' },
+    { href: '/super-admin/support', label: 'Support', icon: <Building2 /> },
     { href: '/super-admin/settings', label: 'Settings', icon: '?' },
   ];
 

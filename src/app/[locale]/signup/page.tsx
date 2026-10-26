@@ -43,3 +43,21 @@ export default async function SignupPage({ searchParams }: Props) {
     </main>
   );
 }
+
+        {/* Mentions RGPD Obligatoires (CNIL) */}
+        <div className="mt-8 text-xs text-gray-500 max-w-md mx-auto text-justify border-t pt-4">
+          <p className="mb-2">
+            <strong>Responsable de traitement :</strong> MemoLib SAS. 
+            <strong>Finalité :</strong> Gestion de votre compte et accès au service. 
+            <strong>Base légale :</strong> Exécution du contrat.
+          </p>
+          <p className="mb-2">
+            <strong>Destinataires :</strong> Équipes MemoLib, hébergeur, Clerk (authentification). 
+            <strong>Conservation :</strong> Pendant la durée de votre compte + 3 ans.
+          </p>
+          <p>
+            Vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition. 
+            Pour l'exercer, écrivez à <a href="mailto:dpo@memolib.fr" className="text-blue-500">dpo@memolib.fr</a>. 
+            Vous pouvez introduire une réclamation auprès de la CNIL.
+          </p>
+        </div>

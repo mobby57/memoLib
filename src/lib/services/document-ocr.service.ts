@@ -269,7 +269,7 @@ Fait à Paris, le 15 janvier 2026
     const documents = await this.prisma.document.findMany({
       where,
       include: {
-        dossier: {
+        Dossier: {
           select: {
             numero: true,
             objet: true,

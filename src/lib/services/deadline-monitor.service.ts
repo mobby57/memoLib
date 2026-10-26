@@ -147,7 +147,7 @@ export class DeadlineMonitorService {
     const deadlines = await this.prisma.legalDeadline.findMany({
       where,
       include: {
-        dossier: {
+        Dossier: {
           select: { numero: true, objet: true, statut: true },
         },
         client: {
@@ -204,7 +204,7 @@ export class DeadlineMonitorService {
     const deadlines = await this.prisma.legalDeadline.findMany({
       where,
       include: {
-        dossier: {
+        Dossier: {
           select: {
             id: true,
             numero: true,

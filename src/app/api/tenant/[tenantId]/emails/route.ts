@@ -28,8 +28,8 @@ export async function GET(
         ...(status === 'processed' && { isProcessed: true })
       },
       include: {
-        client: { select: { firstName: true, lastName: true } },
-        dossier: { select: { numero: true, typeDossier: true } }
+        Client: { select: { firstName: true, lastName: true } },
+        Dossier: { select: { numero: true, typeDossier: true } }
       },
       orderBy: { receivedAt: 'desc' },
       take: limit

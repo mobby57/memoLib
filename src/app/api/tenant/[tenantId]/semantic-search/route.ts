@@ -153,10 +153,10 @@ export async function GET(
     const allDossiers = await prisma.dossier.findMany({
       where: { tenantId },
       include: {
-        client: {
+        Client: {
           select: { firstName: true, lastName: true, email: true }
         },
-        documents: {
+        Document: {
           select: { documentType: true, filename: true }
         }
       }
@@ -178,7 +178,7 @@ export async function GET(
       const similarity = calculateCosineSimilarity(query, searchText);
 
       return {
-        dossier: {
+        Dossier: {
           id: dossier.id,
           numero: dossier.numero,
           typeDossier: dossier.typeDossier,
@@ -276,10 +276,10 @@ export async function POST(
     const filteredDossiers = await prisma.dossier.findMany({
       where: whereClause,
       include: {
-        client: {
+        Client: {
           select: { firstName: true, lastName: true, email: true }
         },
-        documents: {
+        Document: {
           select: { documentType: true, filename: true }
         }
       }
@@ -299,7 +299,7 @@ export async function POST(
       const similarity = calculateCosineSimilarity(query, searchText);
 
       return {
-        dossier: {
+        Dossier: {
           id: dossier.id,
           numero: dossier.numero,
           typeDossier: dossier.typeDossier,
