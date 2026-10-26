@@ -1,56 +1,64 @@
-# Snyk policy - Vulnérabilités acceptées (documentées)
-# Ces vulns sont dans des dépendances de BUILD uniquement,
-# jamais déployées dans le bundle runtime Vercel.
-
 version: v1.25.0
 patch: {}
 ignore:
-  # npm et ses dépendances internes (build-time uniquement)
   npm:
-    - reason: "npm n'est utilisé qu'au moment du build. Non déployé en runtime."
+    - reason: "npm build-time only, non déployé en runtime."
       expires: 2027-01-01T00:00:00.000Z
   brace-expansion:
-    - reason: "Sous-dépendance de npm. Build-time uniquement."
+    - reason: "Sous-dépendance de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   picomatch:
-    - reason: "Sous-dépendance de npm (node_modules/npm/node_modules/). Build-time uniquement."
+    - reason: "Sous-dépendance de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   http-cache-semantics:
-    - reason: "Sous-dépendance de npm. Build-time uniquement."
+    - reason: "Sous-dépendance de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   ip-address:
-    - reason: "Sous-dépendance de npm. Build-time uniquement."
+    - reason: "Sous-dépendance de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   '@npmcli/arborist':
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   pacote:
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   libnpmdiff:
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   libnpmexec:
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   libnpmfund:
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   libnpmpack:
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   libnpmpublish:
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   sigstore:
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   '@sigstore/core':
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   '@sigstore/sign':
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
       expires: 2027-01-01T00:00:00.000Z
   '@sigstore/verify':
-    - reason: "Dépendance interne de npm. Build-time uniquement."
+    - reason: "Dépendance interne de npm. Build-time only."
+      expires: 2027-01-01T00:00:00.000Z
+  zod:
+    - reason: "zod v4 est un breaking change majeur. v3.24.1 sécurisée pour nos usages. Migration prévue."
+      expires: 2027-06-01T00:00:00.000Z
+  '@azure/msal-node':
+    - reason: "uuid sous-jacent non critique (buffer bounds check uniquement)."
+      expires: 2027-06-01T00:00:00.000Z
+  exceljs:
+    - reason: "uuid sous-jacent non critique (buffer bounds check uniquement)."
+      expires: 2027-06-01T00:00:00.000Z
+
+  undici:
+    - reason: "undici v5 est bundlé par @vercel/blob (dépendance transitive). Forcer v7 casse @vercel/blob. Les vulns (Set-Cookie decoding, CRLF injection) ne sont pas exploitables dans MemoLib : nous n'utilisons pas @vercel/blob pour parser du Set-Cookie venant d'un client non-fiable. Risque accepté, mitigation prévue par mise à jour @vercel/blob."
       expires: 2027-01-01T00:00:00.000Z

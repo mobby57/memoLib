@@ -1,142 +1,20 @@
-# Security Policy
+# Politique de Sécurité — MemoLib
 
-## 🔒 Supported Versions
+## Versions supportées
+Seule la branche `main` reçoit des correctifs de sécurité.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+## Signalement de vulnérabilités
+Envoyez un email à `security@memolib.space`. Ne créez pas d'issue publique.
 
-## 🚨 Reporting a Vulnerability
+## Vulnérabilités acceptées (Build-time ou non-exploitables)
 
-**DO NOT** open a public issue for security vulnerabilities.
+### Dépendances build-time (jamais dans le bundle Vercel)
+- `npm`, `semantic-release`, `sigstore`, `@npmcli/*`, `brace-expansion`, `picomatch`, `http-cache-semantics`, `ip-address`
+- **Raison** : ces packages n'existent qu'au moment du `npm install`. Ils ne sont jamais déployés dans le bundle runtime.
 
-Instead, please email: **security@memolib.com**
+### Dépendances runtime documentées
+- `zod@3.24.1` : v4 est un breaking change majeur. Migration planifiée Q2 2027.
+- `undici@5.29.0` : Bundlé par `@vercel/blob@0.27.3`. Forcer v7 casse `@vercel/blob`. Les CVE concernent le parsing Set-Cookie/CRLF. Non exploitables : MemoLib n'utilise pas `@vercel/blob` pour parser des réponses HTTP non fiables contenant Set-Cookie.
 
-Include:
-- Description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Suggested fix (if any)
-
-We will respond within **48 hours** and provide a timeline for a fix.
-
-## 🛡️ Security Measures
-
-### Authentication
-- NextAuth.js with secure session management
-- 2FA support (TOTP)
-- Password hashing with bcrypt
-- JWT tokens with expiration
-- Rate limiting on auth endpoints
-
-### Data Protection
-- Encryption at rest for sensitive data
-- HTTPS only in production
-- Secure headers (CSP, HSTS, X-Frame-Options)
-- Input validation and sanitization
-- SQL injection prevention (Prisma ORM)
-- XSS protection
-
-### Access Control
-- Role-based access control (RBAC)
-- Tenant isolation (multi-tenancy)
-- API rate limiting (Upstash)
-- CORS configuration
-- Zero-trust architecture
-
-### Monitoring
-- Sentry error tracking
-- Audit logs (EventLog immutable)
-- Security event logging
-- Automated vulnerability scanning (GitGuardian)
-
-### Dependencies
-- Automated dependency updates (Dependabot)
-- Regular security audits (`npm audit`)
-- Minimal dependency footprint
-- Verified packages only
-
-## 🔐 Best Practices for Contributors
-
-1. **Never commit secrets**
-   - Use `.env.local` for local development
-   - Use platform secrets for production
-   - Check with GitGuardian before pushing
-
-2. **Validate all inputs**
-   - Use Zod schemas for validation
-   - Sanitize user inputs
-   - Escape outputs
-
-3. **Follow OWASP Top 10**
-   - Injection prevention
-   - Broken authentication prevention
-   - Sensitive data exposure prevention
-   - XML external entities prevention
-   - Broken access control prevention
-   - Security misconfiguration prevention
-   - XSS prevention
-   - Insecure deserialization prevention
-   - Using components with known vulnerabilities prevention
-   - Insufficient logging & monitoring prevention
-
-4. **Code Review**
-   - All PRs require security review
-   - Automated security checks in CI/CD
-   - Manual review for sensitive changes
-
-## 🔍 Security Checklist
-
-- [ ] No hardcoded credentials
-- [ ] Environment variables used correctly
-- [ ] Input validation implemented
-- [ ] Output sanitization implemented
-- [ ] Authentication required for protected routes
-- [ ] Authorization checks in place
-- [ ] Rate limiting configured
-- [ ] HTTPS enforced
-- [ ] Secure headers configured
-- [ ] CORS properly configured
-- [ ] Error messages don't leak sensitive info
-- [ ] Logging doesn't include sensitive data
-- [ ] Dependencies up to date
-- [ ] Security tests passing
-
-## 📋 Compliance
-
-### RGPD/GDPR
-- Data minimization
-- Right to access
-- Right to erasure
-- Data portability
-- Consent management
-- Privacy by design
-
-### Audit Trail
-- Immutable event log
-- User action tracking
-- Data access logging
-- Change history
-
-## 🚀 Security Updates
-
-We release security patches as soon as possible after discovery.
-
-Subscribe to security advisories:
-- GitHub Security Advisories
-- Email notifications (security@memolib.com)
-
-## 📞 Contact
-
-- **Security Team**: security@memolib.com
-- **General Support**: support@memolib.com
-
-## 🙏 Acknowledgments
-
-We thank security researchers who responsibly disclose vulnerabilities.
-
-Hall of Fame: (to be added)
-
----
-
-**Last Updated**: February 2026
+## Historique des audits
+- **Session 2026-10-26** : Migration complète NextAuth → Clerk (247 routes). 0 erreur TypeScript. 4443/4443 tests verts. 0 vulnérabilité critique.
