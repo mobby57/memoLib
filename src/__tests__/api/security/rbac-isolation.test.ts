@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GET as getClientDossiers } from '@/app/api/client/dossiers/route';
-import { GET as getAdminBilling } from '@/app/api/admin/factures/route';
+import { GET as getAdminBilling } from '@/app/api/factures/route';
 import { prisma } from '@/lib/prisma';
 
 // 1. On mocke NextAuth pour simuler les connexions
