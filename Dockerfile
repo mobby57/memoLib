@@ -27,7 +27,7 @@ COPY --from=deps /app/prisma ./prisma
 COPY . .
 
 # Mémoire étendue pour Next.js build (250+ routes)
-ENV NODE_OPTIONS="--max-old-space-size=6144"
+ENV NODE_OPTIONS="--max-old-space-size=3584"
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV CI=true
 
@@ -37,7 +37,7 @@ ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
-RUN npm run build
+RUN npx next build --webpack
 
 # ═══════════════════════════════════════════════════════════
 # Stage 3 : Runtime (image finale légère)
