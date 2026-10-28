@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import SearchAnalytics from '@/components/SearchAnalytics';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
@@ -10,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SearchAnalyticsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
 
   if (!session) {
     redirect('/login');
