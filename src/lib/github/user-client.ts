@@ -1,11 +1,10 @@
-﻿/**
+/**
  * GitHub User Client - Authentication User-to-Server
  * Permet a l'application d'agir pour le compte d'un utilisateur GitHub
  */
 
 import { Octokit } from '@octokit/rest';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
 
 export interface GitHubUserClient {
@@ -18,7 +17,7 @@ export interface GitHubUserClient {
  * Obtenir le client GitHub pour l'utilisateur connecte
  */
 export async function getUserGitHubClient(): Promise<GitHubUserClient> {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
 
   if (!session?.user) {
     throw new Error('User not authenticated');
@@ -39,13 +38,13 @@ export async function getUserGitHubClient(): Promise<GitHubUserClient> {
     const { data: user } = await octokit.users.getAuthenticated();
 
     logger.debug('GitHub user client created', {
-      userId: (session.user as any).id,
+      userId: session.user.id,
       githubUsername: user.login,
     });
 
     return {
       octokit,
-      userId: (session.user as any).id,
+      userId: session.user.id,
       username: user.login,
     };
   } catch (error) {
@@ -59,7 +58,7 @@ export async function getUserGitHubClient(): Promise<GitHubUserClient> {
  */
 export async function isGitHubAuthorized(): Promise<boolean> {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     return !!session && !!(session as any).githubAccessToken;
   } catch {
     return false;
