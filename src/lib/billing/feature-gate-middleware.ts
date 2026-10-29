@@ -22,8 +22,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { Feature, checkFeatureAccess, FeatureCheckResult } from './features';
 
 interface RouteContext {
@@ -45,7 +44,7 @@ export function withFeatureGate(
 ): (request: NextRequest, context?: RouteContext) => Promise<NextResponse> {
   return async (request: NextRequest, context: RouteContext = {}) => {
     // 1. Vérifier la session
-    const session = await getServerSession(authOptions);
+    const session = await getServerSessionCompat();
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non autorisé', code: 'UNAUTHORIZED' },
@@ -104,7 +103,7 @@ export async function softFeatureCheck(
   request: NextRequest,
   feature: Feature,
 ): Promise<FeatureCheckResult & { tenantId: string | null }> {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSessionCompat();
   const tenantId = (session?.user as any)?.tenantId || null;
 
   if (!tenantId) {
