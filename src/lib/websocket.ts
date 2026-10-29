@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WebSocket Server for Real-Time Notifications
  * - Email arrivals
  * - Dossier updates
@@ -8,19 +8,15 @@
 
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
-import { NextApiRequest } from 'next';
-import { getServerSession } from 'next-auth/next';
-import type { Session } from 'next-auth';
+import { getAuth } from '@clerk/nextjs/server';
+import { logger } from '@/lib/logger';
 
 // Types for WebSocket events
 export interface SocketEvents {
-  // Client [Next] Server
   'join-tenant': (tenantId: string) => void;
   'leave-tenant': (tenantId: string) => void;
   'join-user': (userId: string) => void;
   'mark-notification-read': (notificationId: string) => void;
-
-  // Server [Next] Client
   'email-received': (data: EmailNotification) => void;
   'dossier-updated': (data: DossierNotification) => void;
   'deadline-alert': (data: DeadlineAlert) => void;
@@ -77,38 +73,38 @@ let io: SocketIOServer | null = null;
  */
 export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
   if (io) {
-    console.log('[WebSocket] Already initialized');
+    logger.debug('[WebSocket] Already initialized');
     return io;
   }
 
   io = new SocketIOServer(httpServer, {
     path: '/api/socket',
     cors: {
-      origin: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+      origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
       credentials: true,
     },
     transports: ['websocket', 'polling'],
   });
 
-  // Authentication middleware
+  // Authentication middleware avec Clerk
   io.use(async (socket, next) => {
     try {
       const req = socket.request as any;
-      const session = (await getServerSession(authOptions as any)) as Session | null;
+      // Utilisation de Clerk pour vérifier la session
+      const { userId, sessionId } = getAuth(req);
 
-      if (!session?.user) {
+      if (!userId) {
         return next(new Error('Unauthorized'));
       }
 
       // Attach user info to socket
-      socket.data.userId = (session.user as any).id;
-      socket.data.tenantId = (session.user as any).tenantId;
-      socket.data.role = (session.user as any).role;
+      socket.data.userId = userId;
+      socket.data.sessionId = sessionId;
 
-      console.log(`[WebSocket] User ${(session.user as any).email} authenticated`);
+      logger.debug(`[WebSocket] User ${userId} authenticated`);
       next();
     } catch (error) {
-      console.error('[WebSocket] Auth error:', error);
+      logger.error('[WebSocket] Auth error', error);
       next(new Error('Authentication failed'));
     }
   });
@@ -116,14 +112,12 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
   io.on('connection', socket => {
     const { userId, tenantId, role } = socket.data;
 
-    console.log(
-      `[WebSocket] Client connected: ${socket.id} (User: ${userId}, Tenant: ${tenantId})`
-    );
+    logger.debug(`[WebSocket] Client connected: ${socket.id} (User: ${userId}, Tenant: ${tenantId})`);
 
     // Auto-join user's tenant room
     if (tenantId) {
       socket.join(`tenant:${tenantId}`);
-      console.log(`[WebSocket] User ${userId} joined tenant room: ${tenantId}`);
+      logger.debug(`[WebSocket] User ${userId} joined tenant room: ${tenantId}`);
     }
 
     // Auto-join user's personal room
@@ -132,27 +126,23 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
     // Join tenant room (explicit)
     socket.on('join-tenant', (joinTenantId: string) => {
       if (tenantId !== joinTenantId) {
-        console.warn(
-          `[WebSocket] User ${userId} attempted to join different tenant ${joinTenantId}`
-        );
+        logger.warn(`[WebSocket] User ${userId} attempted to join different tenant ${joinTenantId}`);
         return;
       }
       socket.join(`tenant:${joinTenantId}`);
-      console.log(`[WebSocket] User ${userId} joined tenant ${joinTenantId}`);
+      logger.debug(`[WebSocket] User ${userId} joined tenant ${joinTenantId}`);
     });
 
     // Leave tenant room
     socket.on('leave-tenant', (leaveTenantId: string) => {
       socket.leave(`tenant:${leaveTenantId}`);
-      console.log(`[WebSocket] User ${userId} left tenant ${leaveTenantId}`);
+      logger.debug(`[WebSocket] User ${userId} left tenant ${leaveTenantId}`);
     });
 
     // Join user room
     socket.on('join-user', (joinUserId: string) => {
       if (userId !== joinUserId) {
-        console.warn(
-          `[WebSocket] User ${userId} attempted to join different user room ${joinUserId}`
-        );
+        logger.warn(`[WebSocket] User ${userId} attempted to join different user room ${joinUserId}`);
         return;
       }
       socket.join(`user:${joinUserId}`);
@@ -161,7 +151,6 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
     // Mark notification as read
     socket.on('mark-notification-read', async (notificationId: string) => {
       try {
-        // Update notification in database via Prisma
         const { PrismaClient } = await import('@prisma/client');
         const prisma = new PrismaClient();
 
@@ -170,9 +159,8 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
           data: { read: true, readAt: new Date() },
         });
 
-        console.log(`[WebSocket] Notification ${notificationId} marked as read by ${userId}`);
+        logger.debug(`[WebSocket] Notification ${notificationId} marked as read by ${userId}`);
 
-        // Emit updated count to user
         const count = await prisma.notification.count({
           where: { userId, read: false },
         });
@@ -180,20 +168,20 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
 
         await prisma.$disconnect();
       } catch (error) {
-        console.error('[WebSocket] Error marking notification read:', error);
+        logger.error('[WebSocket] Error marking notification read', error);
       }
     });
 
     socket.on('disconnect', reason => {
-      console.log(`[WebSocket] Client disconnected: ${socket.id} (Reason: ${reason})`);
+      logger.debug(`[WebSocket] Client disconnected: ${socket.id} (Reason: ${reason})`);
     });
 
     socket.on('error', error => {
-      console.error('[WebSocket] Socket error:', error);
+      logger.error('[WebSocket] Socket error', error);
     });
   });
 
-  console.log('[WebSocket] Server initialized successfully');
+  logger.info('[WebSocket] Server initialized successfully');
   return io;
 }
 
@@ -212,11 +200,11 @@ export function getIO(): SocketIOServer {
  */
 export function emitToUser(userId: string, event: string, data: any) {
   if (!io) {
-    console.warn('[WebSocket] Cannot emit, server not initialized');
+    logger.warn('[WebSocket] Cannot emit, server not initialized');
     return;
   }
   io.to(`user:${userId}`).emit(event, data);
-  console.log(`[WebSocket] Emitted ${event} to user ${userId}`);
+  logger.debug(`[WebSocket] Emitted ${event} to user ${userId}`);
 }
 
 /**
@@ -224,11 +212,11 @@ export function emitToUser(userId: string, event: string, data: any) {
  */
 export function emitToTenant(tenantId: string, event: string, data: any) {
   if (!io) {
-    console.warn('[WebSocket] Cannot emit, server not initialized');
+    logger.warn('[WebSocket] Cannot emit, server not initialized');
     return;
   }
   io.to(`tenant:${tenantId}`).emit(event, data);
-  console.log(`[WebSocket] Emitted ${event} to tenant ${tenantId}`);
+  logger.debug(`[WebSocket] Emitted ${event} to tenant ${tenantId}`);
 }
 
 /**
@@ -236,11 +224,11 @@ export function emitToTenant(tenantId: string, event: string, data: any) {
  */
 export function emitToAll(event: string, data: any) {
   if (!io) {
-    console.warn('[WebSocket] Cannot emit, server not initialized');
+    logger.warn('[WebSocket] Cannot emit, server not initialized');
     return;
   }
   io.emit(event, data);
-  console.log(`[WebSocket] Emitted ${event} to all clients`);
+  logger.debug(`[WebSocket] Emitted ${event} to all clients`);
 }
 
 /**
