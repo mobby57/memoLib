@@ -2,25 +2,13 @@ import Link from 'next/link';
 import {
   Mail, Brain, Scale, Shield, Clock, Users, Zap, ArrowRight,
   CheckCircle, BarChart3, FileText, Bell, Lock,
-  Globe, Star, ChevronRight
+  Globe, ChevronRight, BrainCircuit
 } from 'lucide-react';
 
 const PAIN_POINTS = [
-  {
-    icon: Mail,
-    title: '50+ emails/jour',
-    description: 'Tri manuel, classement, extraction des infos clients. Des heures perdues chaque jour.',
-  },
-  {
-    icon: Clock,
-    title: 'Délais OQTF ratés',
-    description: "48h pour contester, 15 jours pour un recours. Une échéance oubliée = un client expulsé.",
-  },
-  {
-    icon: FileText,
-    title: 'Dossiers éparpillés',
-    description: "Emails dans Gmail, notes sur papier, documents sur le bureau. Aucune vue d'ensemble.",
-  },
+  { icon: Mail, title: '50+ emails/jour', description: 'Tri manuel, classement, extraction des infos clients. Des heures perdues chaque jour.' },
+  { icon: Clock, title: 'Délais OQTF ratés', description: "48h pour contester, 15 jours pour un recours. Une échéance oubliée = un client expulsé." },
+  { icon: FileText, title: 'Dossiers éparpillés', description: "Emails dans Gmail, notes sur papier, documents sur le bureau. Aucune vue d'ensemble." },
 ];
 
 const FEATURES = [
@@ -32,21 +20,33 @@ const FEATURES = [
   { icon: BarChart3, title: 'Tableau de bord', description: "Vue d'ensemble de votre cabinet : dossiers en cours, échéances, facturation, performance.", color: 'indigo' },
 ];
 
-const TESTIMONIALS = [
-  { quote: "Avant MemoLib, je passais 3h par jour à trier mes emails. Maintenant c'est 15 minutes.", author: "Maître D.", role: "Avocate en droit des étrangers, Paris", rating: 5 },
-  { quote: "L'alerte OQTF m'a sauvé un dossier. 48h de délai, j'aurais oublié sans MemoLib.", author: "Maître K.", role: "Avocat au barreau de Lyon", rating: 5 },
-  { quote: "Mes clients ont un espace dédié pour suivre leur dossier. Moins d'appels, plus de confiance.", author: "Maître S.", role: "Cabinet spécialisé immigration, Marseille", rating: 5 },
+const HOW_IT_WORKS = [
+  {
+    icon: <Mail className="w-8 h-8 text-blue-600" />,
+    title: "1. Connectez votre boîte mail",
+    description: "Liez votre compte Gmail ou Outlook en 1 clic. Tous les emails de vos clients arrivent directement dans MemoLib."
+  },
+  {
+    icon: <BrainCircuit className="w-8 h-8 text-blue-600" />,
+    title: "2. L'IA trie et crée les dossiers",
+    description: "Notre IA spécialisée CESEDA analyse les emails, détecte les urgences (OQTF) et pré-remplit les dossiers automatiquement."
+  },
+  {
+    icon: <CheckCircle className="w-8 h-8 text-blue-600" />,
+    title: "3. Gérez et facturez",
+    description: "Suivez vos délais, générez vos documents et facturez vos clients depuis un seul tableau de bord."
+  }
 ];
 
 const PRICING = [
-  { name: 'Essai', price: 'Gratuit', period: '14 jours', description: 'Testez MemoLib sans engagement', features: ['3 dossiers', 'Email → Dossier 1 clic', 'Délais auto', 'Résumé IA'], cta: 'Essai gratuit', href: '/fr/auth/register?plan=PILOT', highlighted: false },
-  { name: 'Essentiel', price: '89€', period: '/mois', description: 'Pour les avocats indépendants', features: ['50 dossiers actifs', '1 boîte email connectée', 'Délais automatiques', 'Génération documents', 'Recherche jurisprudence', 'Support email'], cta: 'Commencer', href: '/fr/auth/register?plan=SOLO', highlighted: false },
-  { name: 'Cabinet', price: '69€', period: '/utilisateur/mois', description: 'Pour les cabinets de 3 à 10 avocats', features: ['Tout Essentiel +', '200 dossiers actifs', '5 boîtes email', 'Multi-utilisateurs', 'Workflows automatisés', 'Brouillon réponse IA'], cta: 'Commencer', href: '/fr/auth/register?plan=CABINET', highlighted: true },
+  { name: 'Essai', price: 'Gratuit', period: '14 jours', description: 'Testez MemoLib sans engagement', features: ['3 dossiers', 'Email → Dossier 1 clic', 'Délais auto', 'Résumé IA'], cta: 'Essai gratuit', href: '/fr/sign-up', highlighted: false },
+  { name: 'Essentiel', price: '89€', period: '/mois', description: 'Pour les avocats indépendants', features: ['50 dossiers actifs', '1 boîte email connectée', 'Délais automatiques', 'Génération documents', 'Recherche jurisprudence', 'Support email'], cta: 'Commencer', href: '/fr/sign-up', highlighted: false },
+  { name: 'Cabinet', price: '69€', period: '/utilisateur/mois', description: 'Pour les cabinets de 3 à 10 avocats', features: ['Tout Essentiel +', '200 dossiers actifs', '5 boîtes email', 'Multi-utilisateurs', 'Workflows automatisés', 'Brouillon réponse IA'], cta: 'Commencer', href: '/fr/sign-up', highlighted: true },
   { name: 'Premium', price: '149€', period: '/utilisateur/mois', description: 'Pour les cabinets ambitieux', features: ['Tout Cabinet +', 'Dossiers illimités', 'Stats tribunal (taux succès)', 'Templates communautaires', 'API & intégrations', 'Support prioritaire'], cta: 'Nous contacter', href: '/fr/contact', highlighted: false },
 ];
 
 export function HomePageContent() {
-  const locale = 'fr'; // Default locale
+  const locale = 'fr';
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Navigation */}
@@ -59,12 +59,11 @@ export function HomePageContent() {
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-300">
             <a href="#fonctionnalites" className="hover:text-gray-900 dark:hover:text-white transition-colors">Fonctionnalités</a>
             <a href="#tarifs" className="hover:text-gray-900 dark:hover:text-white transition-colors">Tarifs</a>
-            <a href="#temoignages" className="hover:text-gray-900 dark:hover:text-white transition-colors">Témoignages</a>
             <Link href="/fr/demo" className="hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
           </div>
           <div className="flex items-center gap-3">
-            <Link href={`/${locale}/auth/login`} className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors font-medium">Connexion</Link>
-            <Link href={`/${locale}/auth/register?plan=PILOT`} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Essai gratuit</Link>
+            <Link href={`/${locale}/sign-in`} className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors font-medium">Connexion</Link>
+            <Link href={`/${locale}/sign-up`} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Essai gratuit</Link>
           </div>
         </div>
       </nav>
@@ -83,7 +82,7 @@ export function HomePageContent() {
             MemoLib automatise la gestion de votre cabinet : emails, dossiers, deadlines, documents et facturation. L&apos;IA s&apos;occupe de l&apos;administratif, vous vous occupez de vos clients.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link href={`/${locale}/auth/register?plan=PILOT`} className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg shadow-blue-600/25">
+            <Link href={`/${locale}/sign-up`} className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg shadow-blue-600/25">
               Essai gratuit 14 jours <ArrowRight className="w-5 h-5" />
             </Link>
             <Link href={`/${locale}/demo/auto-login`} className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl transition-colors">
@@ -120,8 +119,31 @@ export function HomePageContent() {
         </div>
       </section>
 
+      {/* How it works */}
+      <section className="py-20 px-6 bg-white dark:bg-gray-950">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Comment ça marche ?</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Passez de la boîte mail au dossier complet en moins de 5 minutes.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {HOW_IT_WORKS.map((step, index) => (
+              <div key={index} className="bg-gray-50 dark:bg-gray-900 p-8 rounded-2xl border border-gray-100 dark:border-gray-800">
+                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6">
+                  {step.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{step.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
-      <section id="fonctionnalites" className="py-20 px-6">
+      <section id="fonctionnalites" className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">Tout ce dont votre cabinet a besoin</h2>
           <p className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">Une plateforme complète, conçue par et pour les avocats.</p>
@@ -137,7 +159,7 @@ export function HomePageContent() {
                 indigo: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
               };
               return (
-                <div key={i} className="p-6 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-colors">
+                <div key={i} className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-colors">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${colorMap[feature.color]}`}>
                     <Icon className="w-6 h-6" />
                   </div>
@@ -167,25 +189,17 @@ export function HomePageContent() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section id="temoignages" className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Ils utilisent MemoLib au quotidien</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-8">
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-6 italic">&ldquo;{t.quote}&rdquo;</p>
-                <div>
-                  <div className="font-semibold text-gray-900 dark:text-white">{t.author}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t.role}</div>
-                </div>
-              </div>
-            ))}
+      {/* Pilot */}
+      <section className="py-20 px-6 bg-white dark:bg-gray-950">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Rejoignez les cabinets pilotes</h2>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+            MemoLib est actuellement en phase de test avec un groupe restreint d&apos;avocats en droit des étrangers. 
+            Bénéficiez d&apos;un accès privilégié et d&apos;un tarif préférentiel à vie.
+          </p>
+          <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-6 py-3 rounded-xl font-medium">
+            <Users className="w-5 h-5" />
+            Déjà 15 cabinets sur liste d'attente
           </div>
         </div>
       </section>
@@ -222,7 +236,7 @@ export function HomePageContent() {
       </section>
 
       {/* Security */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-white dark:bg-gray-950">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Vos données sont sacrées</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">Secret professionnel oblige. MemoLib est conçu pour la confidentialité absolue.</p>
@@ -253,7 +267,7 @@ export function HomePageContent() {
           <h2 className="text-3xl font-bold text-white mb-4">Prêt à transformer votre cabinet ?</h2>
           <p className="text-gray-300 mb-8">Rejoignez les avocats qui gagnent 3 heures par jour avec MemoLib.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/fr/auth/register?plan=PILOT" className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors">
+            <Link href="/fr/sign-up" className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors">
               Démarrer l'essai gratuit <ArrowRight className="w-5 h-5" />
             </Link>
             <Link href="/fr/demo/complete" className="inline-flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-4 px-8 rounded-xl transition-colors">
@@ -264,7 +278,7 @@ export function HomePageContent() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-gray-100 dark:border-gray-800">
+      <footer className="py-12 px-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <span className="text-xl">{'\u2696\uFE0F'}</span>
@@ -274,10 +288,10 @@ export function HomePageContent() {
           <div className="flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400">
             <Link href="/fr/logiciel-avocat" className="hover:text-gray-900 dark:hover:text-white transition-colors">Logiciel avocat</Link>
             <Link href="/fr/oqtf-delais-recours" className="hover:text-gray-900 dark:hover:text-white transition-colors">Délais OQTF</Link>
-            <Link href="/fr/gestion-cabinet-avocat" className="hover:text-gray-900 dark:hover:text-white transition-colors">Guide cabinet</Link>
             <Link href="/fr/pricing" className="hover:text-gray-900 dark:hover:text-white transition-colors">Tarifs</Link>
-            <Link href="/fr/demo" className="hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
             <Link href="/fr/faq" className="hover:text-gray-900 dark:hover:text-white transition-colors">FAQ</Link>
+            <Link href="/fr/legal/cgu" className="hover:text-gray-900 dark:hover:text-white transition-colors">CGU</Link>
+            <Link href="/fr/legal/mentions-legales" className="hover:text-gray-900 dark:hover:text-white transition-colors">Mentions légales</Link>
             <Link href="/fr/privacy" className="hover:text-gray-900 dark:hover:text-white transition-colors">Confidentialité</Link>
             <Link href="/fr/contact" className="hover:text-gray-900 dark:hover:text-white transition-colors">Contact</Link>
           </div>
