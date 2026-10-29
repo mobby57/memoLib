@@ -1,13 +1,13 @@
 import type { OAuthProvider } from '@/lib/oauth/oauth-service';
 import { oauthTokenService } from '@/lib/oauth/token-service';
-import { getServerSession } from 'next-auth';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 
 /**
  * Middleware to ensure OAuth token is valid
  * Automatically refreshes if needed
  */
 export async function withOAuthToken(provider: OAuthProvider) {
-  const session = await getServerSession();
+  const session = await getServerSessionCompat();
 
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
