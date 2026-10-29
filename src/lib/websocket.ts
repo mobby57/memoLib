@@ -11,7 +11,6 @@ import { Server as HTTPServer } from 'http';
 import { NextApiRequest } from 'next';
 import { getServerSession } from 'next-auth/next';
 import type { Session } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // Types for WebSocket events
 export interface SocketEvents {
