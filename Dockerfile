@@ -14,7 +14,7 @@ FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY prisma ./prisma/
-RUN npm ci --legacy-peer-deps --ignore-scripts
+RUN npm install --legacy-peer-deps --ignore-scripts
 RUN npx prisma generate
 
 # ═══════════════════════════════════════════════════════════
@@ -24,6 +24,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
+COPY --from=deps /app/package-lock.json ./package-lock.json
 COPY . .
 
 # Mémoire étendue pour Next.js build (250+ routes)
@@ -63,9 +64,9 @@ COPY --from=builder /app/next.config.js ./
 USER nextjs
 EXPOSE 3000
 
-# Healthcheck
+# Healthcheck (utilise le PORT dynamique de Railway)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-3000}/api/health || exit 1
+  CMD sh -c "curl -f http://localhost:\${PORT:-3000}/api/health || exit 1"
 
 # Migrations Prisma + start
 CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
