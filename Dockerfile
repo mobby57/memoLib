@@ -69,4 +69,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD sh -c "curl -f http://localhost:\${PORT:-3000}/api/health || exit 1"
 
 # Migrations Prisma + start
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+CMD ["sh", "-c", "for i in 1 2 3 4 5 6 7 8 9 10; do echo \"Tentative $i/10...\"; npx prisma migrate deploy && break || sleep 5; done; npm start"]
