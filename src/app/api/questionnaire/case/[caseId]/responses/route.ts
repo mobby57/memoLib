@@ -1,0 +1,54 @@
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { getSecurePrisma } from '@/lib/prisma';;
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+interface RouteContext {
+  params: Promise<{ caseId: string }>;
+}
+
+export async function GET(_request: NextRequest, context: RouteContext) {
+  const prisma = await getSecurePrisma();
+  try {
+    const { caseId } = await context.params;
+    const session = await getServerSessionCompat();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
+    }
+
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'AccÃ¨s refusÃ©' }, { status: 403 });
+    }
+
+    const responses = await prisma.workflowExecution.findMany({
+      where: {
+        tenantId,
+        triggerType: 'questionnaire-response',
+        triggerData: {
+          contains: `\"caseId\":\"${caseId}\"`,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        workflowId: true,
+        workflowName: true,
+        triggerData: true,
+        result: true,
+        createdAt: true,
+        completedAt: true,
+      },
+      take: 100,
+    });
+
+    return NextResponse.json({
+      caseId,
+      count: responses.length,
+      responses,
+    });
+  } catch {
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+

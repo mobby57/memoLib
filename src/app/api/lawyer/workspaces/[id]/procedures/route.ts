@@ -1,0 +1,119 @@
+﻿/**
+ * API Route - ProcÃ©dures Workspace
+ * GET /api/lawyer/workspaces/[id]/procedures - Liste procÃ©dures
+ * POST /api/lawyer/workspaces/[id]/procedures - CrÃ©er nouvelle procÃ©dure
+ */
+
+import { logger } from '@/lib/logger';
+import { getSecurePrisma } from '@/lib/prisma';;
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  const prisma = await getSecurePrisma();
+  try {
+    const session: any = await getServerSessionCompat();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
+    }
+
+    const procedures = await prisma.procedure.findMany({
+      where: { workspaceId: params.id },
+      include: {
+        checklist: true,
+        documents: true,
+        echeances: {
+          where: { completed: false },
+          orderBy: { date: 'asc' },
+        },
+        documentDrafts: {
+          where: { status: { in: ['DRAFT', 'READY_TO_SEND'] } },
+        },
+      },
+      orderBy: [{ urgencyLevel: 'desc' }, { createdAt: 'desc' }],
+    });
+
+    return NextResponse.json({
+      success: true,
+      procedures,
+      count: procedures.length,
+    });
+  } catch (error) {
+    logger.error('Erreur rÃ©cupÃ©ration procÃ©dures', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/procedures',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+  const prisma = await getSecurePrisma();
+  try {
+    const session: any = await getServerSessionCompat();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
+    }
+
+    const user = session.user as any;
+    const body = await request.json();
+
+    // Validation
+    if (!body.procedureType || !body.title) {
+      return NextResponse.json({ error: 'procedureType et title requis' }, { status: 400 });
+    }
+
+    // CrÃ©er procÃ©dure
+    const procedure = await prisma.procedure.create({
+      data: {
+        workspaceId: params.id,
+        procedureType: body.procedureType,
+        title: body.title,
+        description: body.description,
+        reference: body.reference || `${body.procedureType}-${Date.now()}`,
+        status: body.status || 'active',
+        urgencyLevel: body.urgencyLevel || 'moyen',
+        notificationDate: body.notificationDate ? new Date(body.notificationDate) : undefined,
+        deadlineDate: body.deadlineDate ? new Date(body.deadlineDate) : undefined,
+        assignedToId: body.assignedToId || user.id,
+        metadata: body.metadata ? JSON.stringify(body.metadata) : undefined,
+      },
+      include: {
+        checklist: true,
+        echeances: true,
+      },
+    });
+
+    // CrÃ©er Ã©vÃ©nement timeline
+    await prisma.timelineEvent.create({
+      data: {
+        workspaceId: params.id,
+        eventType: 'procedure_created',
+        title: `ProcÃ©dure ${procedure.procedureType} crÃ©Ã©e`,
+        description: procedure.title,
+        actorType: 'user',
+        actorId: user.id,
+      },
+    });
+
+    // Mettre Ã  jour stats workspace
+    await prisma.workspace.update({
+      where: { id: params.id },
+      data: {
+        totalProcedures: { increment: 1 },
+        activeProcedures: procedure.status === 'active' ? { increment: 1 } : undefined,
+        lastActivityDate: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      procedure,
+    });
+  } catch (error) {
+    logger.error('Erreur crÃ©ation procÃ©dure', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/procedures',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+

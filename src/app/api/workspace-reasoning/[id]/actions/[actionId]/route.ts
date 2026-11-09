@@ -1,0 +1,98 @@
+﻿/**
+import { logger } from '@/lib/logger';
+ * API Route: POST /api/workspace-reasoning/[id]/actions/[actionId]
+ * Marque une action comme exÃ©cutÃ©e
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getSecurePrisma } from '@/lib/prisma';;
+import { logger } from '@/lib/logger';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string; actionId: string } }
+) {
+  const prisma = await getSecurePrisma();
+  try {
+    const session = await getServerSessionCompat();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Non authentifiÃ©' },
+        { status: 401 }
+      );
+    }
+
+    const { id: workspaceId, actionId } = params;
+    const body = await request.json();
+    const { result } = body;
+
+    // VÃ©rifier workspace
+    const workspace = await prisma.workspaceReasoning.findUnique({
+      where: { id: workspaceId }
+    });
+
+    if (!workspace) {
+      return NextResponse.json(
+        { error: 'Workspace non trouvÃ©' },
+        { status: 404 }
+      );
+    }
+
+    const userTenantId = (session.user as any).tenantId;
+    if (workspace.tenantId !== userTenantId) {
+      return NextResponse.json(
+        { error: 'AccÃ¨s refusÃ© - Isolation tenant' },
+        { status: 403 }
+      );
+    }
+
+    if (workspace.locked) {
+      return NextResponse.json(
+        { error: 'Workspace verrouillÃ©' },
+        { status: 403 }
+      );
+    }
+
+    const userId = (session.user as any).id;
+
+    // Marquer comme exÃ©cutÃ©e
+    const action = await prisma.proposedAction.update({
+      where: { id: actionId },
+      data: {
+        executed: true,
+        executedBy: userId,
+        executedAt: new Date(),
+        result: result || 'ExÃ©cutÃ©e manuellement',
+        updatedAt: new Date()
+      }
+    });
+
+    // Trace
+    await prisma.reasoningTrace.create({
+      data: {
+        workspaceId,
+        step: 'ACTION_EXECUTED',
+        explanation: `Action exÃ©cutÃ©e: ${action.description}`,
+        metadata: JSON.stringify({
+          actionId,
+          actionType: action.type,
+          result
+        }),
+        createdBy: userId
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      action
+    });
+
+  } catch (error) {
+    logger.error('Error executing action:', { error });
+    return NextResponse.json(
+      { error: 'Erreur serveur' },
+      { status: 500 }
+    );
+  }
+}
+

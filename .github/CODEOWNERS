@@ -1,0 +1,24 @@
+# CODEOWNERS
+
+# Définit les propriétaires de chemins pour les revues automatiques.
+
+# Global fallback
+
+- @mobby57
+
+# Frontend (Next.js)
+
+src/frontend/ @mobby57
+
+# Backend (FastAPI)
+
+src/backend/ @mobby57
+
+# Backend Flask (dev local)
+
+backend-python/ @mobby57
+
+# Docs & workflows
+
+docs/ @mobby57
+.github/ @mobby57

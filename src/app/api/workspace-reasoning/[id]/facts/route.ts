@@ -1,0 +1,102 @@
+﻿/**
+import { logger } from '@/lib/logger';
+ * API Route: POST /api/workspace-reasoning/[id]/facts
+ * Ajoute un fait au workspace
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getSecurePrisma } from '@/lib/prisma';;
+import { logger } from '@/lib/logger';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const prisma = await getSecurePrisma();
+  try {
+    const session = await getServerSessionCompat();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Non authentifiÃ©' },
+        { status: 401 }
+      );
+    }
+
+    const workspaceId = params.id;
+    const body = await request.json();
+    const { label, value, source, sourceRef } = body;
+
+    if (!label || !value || !source) {
+      return NextResponse.json(
+        { error: 'label, value et source requis' },
+        { status: 400 }
+      );
+    }
+
+    // VÃ©rifier workspace et accÃ¨s
+    const workspace = await prisma.workspaceReasoning.findUnique({
+      where: { id: workspaceId }
+    });
+
+    if (!workspace) {
+      return NextResponse.json(
+        { error: 'Workspace non trouvÃ©' },
+        { status: 404 }
+      );
+    }
+
+    const userTenantId = (session.user as any).tenantId;
+    if (workspace.tenantId !== userTenantId) {
+      return NextResponse.json(
+        { error: 'AccÃ¨s refusÃ© - Isolation tenant' },
+        { status: 403 }
+      );
+    }
+
+    if (workspace.locked) {
+      return NextResponse.json(
+        { error: 'Workspace verrouillÃ©' },
+        { status: 403 }
+      );
+    }
+
+    const userId = (session.user as any).id;
+
+    // CrÃ©er le fait
+    const fact = await prisma.fact.create({
+      data: {
+        workspaceId,
+        label,
+        value,
+        source,
+        sourceRef,
+        confidence: source === 'USER_PROVIDED' ? 0.8 : 1.0,
+        extractedBy: userId
+      }
+    });
+
+    // Trace
+    await prisma.reasoningTrace.create({
+      data: {
+        workspaceId,
+        step: 'FACT_ADDED',
+        explanation: `Fait ajoutÃ©: ${label} = ${value}`,
+        metadata: JSON.stringify({ factId: fact.id, source }),
+        createdBy: userId
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      fact
+    }, { status: 201 });
+
+  } catch (error) {
+    logger.error('Error adding fact:', { error });
+    return NextResponse.json(
+      { error: 'Erreur serveur' },
+      { status: 500 }
+    );
+  }
+}
+

@@ -1,0 +1,50 @@
+﻿import { logger } from '@/lib/logger';
+import { getSecurePrisma } from '@/lib/prisma';;
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import { NextRequest, NextResponse } from 'next/server';
+// GET all documents for admin
+export async function GET(request: NextRequest) {
+  const prisma = await getSecurePrisma();
+  try {
+    const session = await getServerSessionCompat();
+
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
+    }
+
+    const documents = await prisma.document.findMany({
+      where: {
+        dossier: {
+          client: {
+            tenantId: session.user.tenantId,
+          },
+        },
+      },
+      include: {
+        dossier: {
+          select: {
+            id: true,
+            numero: true,
+            objet: true,
+            client: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return NextResponse.json({ documents });
+  } catch (error) {
+    logger.error('Error fetching admin documents:', { error });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+

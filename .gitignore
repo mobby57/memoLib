@@ -1,0 +1,128 @@
+# MemoLib - .gitignore
+
+## === Archived code (not part of active codebase) ===
+_archive/
+
+## === Build artifacts ===
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+[Ll]ogs/
+.next/
+.turbo/
+out/
+dist/
+build/
+coverage/
+.tsbuildinfo
+tsconfig.tsbuildinfo
+
+## === Residual / generated ===
+cookies.txt
+db_url.txt
+eslint-output.json
+memolib.db
+*.pyc
+__pycache__/
+.pytest_cache/
+
+## === Dependencies ===
+node_modules/
+.pnp.*
+
+## === Environment & Secrets ===
+.env
+.env.local
+.env.production
+.env.staging
+.env*.local
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+credentials.json
+token.json
+client_secret_*.json
+prod-key.txt
+.azure-secrets.json
+.azure-demo-secrets.json
+
+## === Database ===
+*.db
+*.db-shm
+*.db-wal
+
+## === Uploaded files (RGPD) ===
+uploads/
+!uploads/.gitkeep
+
+## === Test output ===
+test-results/
+playwright-report/
+.jest-cache/
+*.tmp_*.json
+test-results*.json
+
+## === Logs ===
+*.log
+npm-debug.log*
+
+## === IDE ===
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+
+## === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+## === Python ===
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+## === Binaries & archives ===
+*.exe
+*.vsix
+*.zip
+*.tar
+*.gz
+
+## === Build output text files ===
+build-output.txt
+build_output.txt
+build_errors.txt
+type-errors.txt
+type-errors-new.txt
+lint_output.txt
+lint-output.txt
+
+## === Vercel ===
+.vercel
+
+## === Misc ===
+$null
+*.bak
+*.backup
+
+# Parquet data files
+*.parquet
+
+sftp_host_key
+sftp_host_key.pub
+
+# Secrets (Ne jamais committer)
+.env
+.env.local
+.env.*.local
+
+# Outils IA / Configs locales
+.claude/
+.kiro/

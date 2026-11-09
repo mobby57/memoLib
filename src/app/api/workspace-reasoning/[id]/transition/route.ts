@@ -1,0 +1,151 @@
+﻿/**
+ * API Route: POST /api/workspace-reasoning/[id]/transition
+ * Change l'Ã©tat du workspace avec validation
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getSecurePrisma } from '@/lib/prisma';;
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import { WorkspaceReasoningService } from '@/lib/workspace-reasoning-service';
+import { WorkspaceState } from '@/types/workspace-reasoning';
+import { logger } from '@/lib/logger';
+
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+  const prisma = await getSecurePrisma();
+  try {
+    const session = await getServerSessionCompat();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
+    }
+
+    const workspaceId = params.id;
+    const body = await request.json();
+    const { targetState, reason } = body;
+
+    if (!targetState) {
+      return NextResponse.json({ error: 'targetState requis' }, { status: 400 });
+    }
+
+    // RÃ©cupÃ©rer le workspace avec toutes les relations
+    const workspace = await prisma.workspaceReasoning.findUnique({
+      where: { id: workspaceId },
+      include: {
+        facts: true,
+        contexts: true,
+        obligations: true,
+        missingElements: true,
+        risks: true,
+        proposedActions: true,
+      },
+    });
+
+    if (!workspace) {
+      return NextResponse.json({ error: 'Workspace non trouvÃ©' }, { status: 404 });
+    }
+
+    // VÃ©rifier accÃ¨s tenant
+    const userTenantId = (session.user as any).tenantId;
+    if (workspace.tenantId !== userTenantId) {
+      return NextResponse.json({ error: 'AccÃ¨s refusÃ© - Isolation tenant' }, { status: 403 });
+    }
+
+    // VÃ©rifier si verrouillÃ©
+    if (workspace.locked) {
+      return NextResponse.json(
+        { error: 'Workspace verrouillÃ© - Aucune modification possible' },
+        { status: 403 }
+      );
+    }
+
+    // Valider la transition
+    const validation = WorkspaceReasoningService.validateStateTransition(
+      workspace.currentState as WorkspaceState,
+      targetState as WorkspaceState,
+      workspace as any
+    );
+
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.reason }, { status: 400 });
+    }
+
+    const userId = (session.user as any).id;
+
+    // Calculer nouvelles mÃ©triques
+    const metrics = WorkspaceReasoningService.updateWorkspaceMetrics(workspace as any);
+
+    // Mettre Ã  jour le workspace
+    const updatedWorkspace = await prisma.workspaceReasoning.update({
+      where: { id: workspaceId },
+      data: {
+        currentState: targetState,
+        stateChangedAt: new Date(),
+        stateChangedBy: userId,
+        uncertaintyLevel: metrics.uncertaintyLevel,
+        reasoningQuality: metrics.reasoningQuality,
+        updatedAt: new Date(),
+      },
+      include: {
+        facts: true,
+        contexts: true,
+        obligations: true,
+        missingElements: true,
+        risks: true,
+        proposedActions: true,
+        reasoningTraces: true,
+        transitions: true,
+      },
+    });
+
+    // CrÃ©er l'enregistrement de transition (audit trail)
+    await prisma.reasoningTransition.create({
+      data: {
+        workspaceId,
+        fromState: workspace.currentState,
+        toState: targetState,
+        triggeredBy: userId,
+        triggeredAt: new Date(),
+        reason: reason || `Transition vers ${targetState}`,
+        autoApproved: false,
+        stateBefore: JSON.stringify({
+          currentState: workspace.currentState,
+          uncertaintyLevel: workspace.uncertaintyLevel,
+          reasoningQuality: workspace.reasoningQuality,
+        }),
+        stateAfter: JSON.stringify({
+          currentState: targetState,
+          uncertaintyLevel: metrics.uncertaintyLevel,
+          reasoningQuality: metrics.reasoningQuality,
+        }),
+      },
+    });
+
+    // CrÃ©er trace de raisonnement
+    await prisma.reasoningTrace.create({
+      data: {
+        workspaceId,
+        step: `${workspace.currentState} â†’ ${targetState}`,
+        explanation: reason || `Transition d'Ã©tat validÃ©e`,
+        metadata: JSON.stringify({
+          previousMetrics: {
+            uncertainty: workspace.uncertaintyLevel,
+            quality: workspace.reasoningQuality,
+          },
+          newMetrics: metrics,
+        }),
+        createdBy: userId,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      workspace: updatedWorkspace,
+      metrics,
+    });
+  } catch (error) {
+    logger.error('Erreur transition workspace', error instanceof Error ? error : undefined, {
+      route: '/api/workspace-reasoning/[id]/transition',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+

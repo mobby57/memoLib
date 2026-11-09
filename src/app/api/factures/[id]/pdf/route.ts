@@ -1,0 +1,79 @@
+﻿/**
+ * GET /api/factures/[id]/pdf â€” GÃ©nÃ¨re et retourne le PDF d'une facture
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getSecurePrisma } from '@/lib/prisma';;
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import { generateFacturePDF } from '@/lib/services/facture-pdf.service';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const prisma = await getSecurePrisma();
+  try {
+    const session = await getServerSessionCompat();
+    if (!session?.user) return NextResponse.json({ error: 'Non autorisÃ©' }, { status: 401 });
+
+    const tenantId = (session.user as any).tenantId;
+    if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 403 });
+
+    const { id } = await params;
+
+    const facture = await prisma.facture.findFirst({
+      where: { id, tenantId },
+      include: {
+        client: { select: { firstName: true, lastName: true, email: true, address: true } },
+        lignes: { orderBy: { ordre: 'asc' } },
+      },
+    });
+
+    if (!facture) return NextResponse.json({ error: 'Facture non trouvÃ©e' }, { status: 404 });
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { name: true, billingAddress: true, vatNumber: true },
+    });
+
+    const pdfBuffer = generateFacturePDF({
+      numero: facture.numero,
+      dateEmission: facture.dateEmission.toISOString(),
+      dateEcheance: facture.dateEcheance.toISOString(),
+      client: {
+        firstName: facture.client.firstName,
+        lastName: facture.client.lastName,
+        email: facture.client.email,
+        address: facture.client.address || undefined,
+      },
+      cabinet: {
+        name: tenant?.name || 'Cabinet',
+        address: tenant?.billingAddress || undefined,
+        siret: tenant?.vatNumber || undefined,
+      },
+      lignes: facture.lignes.map(l => ({
+        description: l.description,
+        quantite: l.quantite,
+        prixUnitaire: l.prixUnitaire,
+        montantHT: l.montantHT,
+      })),
+      montantHT: facture.montantHT,
+      tauxTVA: facture.tauxTVA,
+      montantTVA: facture.montantTVA,
+      montantTTC: facture.montantTTC,
+      notes: facture.notes || undefined,
+      conditions: facture.conditions || undefined,
+    });
+
+    return new NextResponse(pdfBuffer as unknown as BodyInit, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="facture-${facture.numero}.pdf"`,
+      },
+    });
+  } catch (error) {
+    console.error('[FACTURES] PDF error:', error);
+    return NextResponse.json({ error: 'Erreur gÃ©nÃ©ration PDF' }, { status: 500 });
+  }
+}
+

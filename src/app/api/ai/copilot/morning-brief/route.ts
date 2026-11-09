@@ -1,0 +1,77 @@
+﻿import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import { NextRequest, NextResponse } from 'next/server';
+import { getSecurePrisma } from '@/lib/prisma';;
+
+/**
+ * GET /api/ai/copilot/morning-brief
+ * Morning Brief CESEDA â€” RÃ©sumÃ© du jour pour l'avocat
+ */
+export async function GET(req: NextRequest) {
+  const prisma = await getSecurePrisma();
+  const session = await getServerSessionCompat();
+  if (!session?.user) return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
+
+  const user = session.user as any;
+  const now = new Date();
+  const in7days = new Date(now.getTime() + 7 * 86400000);
+
+  // Dossiers Ã  risque (OQTF avec deadlines proches)
+  const dossiersAtRisk = await prisma.dossier.findMany({
+    where: {
+      tenantId: user.tenantId,
+      statut: { not: 'cloture' },
+      legalDeadlines: { some: { status: 'PENDING', dueDate: { lte: in7days, gte: now } } },
+    },
+    select: { id: true, numero: true, typeDossier: true, legalDeadlines: { where: { status: 'PENDING', dueDate: { lte: in7days } }, select: { label: true, dueDate: true } } },
+    take: 10,
+  });
+
+  // Dossiers incomplets
+  const dossiersIncomplete = await prisma.dossier.count({
+    where: { tenantId: user.tenantId, statut: { not: 'cloture' }, checklistComplete: false, checklistTotal: { gt: 0 } },
+  });
+
+  // DÃ©lais critiques (< 3 jours)
+  const in3days = new Date(now.getTime() + 3 * 86400000);
+  const criticalDeadlines = await prisma.legalDeadline.findMany({
+    where: { dossier: { tenantId: user.tenantId }, status: 'PENDING', dueDate: { lte: in3days, gte: now } },
+    include: { dossier: { select: { numero: true, typeDossier: true } } },
+    take: 5,
+  });
+
+  // Relances recommandÃ©es (dossiers en attente client > 5 jours sans email)
+  const fiveDaysAgo = new Date(now.getTime() - 5 * 86400000);
+  const pendingDossiers = await prisma.dossier.count({
+    where: {
+      tenantId: user.tenantId,
+      statut: 'en_cours',
+      checklistComplete: false,
+      emails: { none: { receivedDate: { gte: fiveDaysAgo } } },
+    },
+  });
+
+  return NextResponse.json({
+    date: now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }),
+    dossiersAtRisk: dossiersAtRisk.map(d => ({
+      numero: d.numero,
+      type: d.typeDossier,
+      deadlines: d.legalDeadlines.map(dl => ({
+        label: dl.label,
+        daysRemaining: Math.ceil((new Date(dl.dueDate).getTime() - now.getTime()) / 86400000),
+      })),
+    })),
+    stats: {
+      oqtfAtRisk: dossiersAtRisk.filter(d => d.typeDossier.includes('OQTF')).length,
+      incomplete: dossiersIncomplete,
+      criticalDeadlines: criticalDeadlines.length,
+      relancesRecommandees: pendingDossiers,
+    },
+    criticalDeadlines: criticalDeadlines.map(dl => ({
+      dossier: dl.dossier.numero,
+      type: dl.dossier.typeDossier,
+      label: dl.label,
+      daysRemaining: Math.ceil((new Date(dl.dueDate).getTime() - now.getTime()) / 86400000),
+    })),
+  });
+}
+

@@ -1,0 +1,23 @@
+⚠ `eslint` configuration in next.config.js is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+⚠ Invalid next.config.js options detected: 
+⚠     Unrecognized key(s) in object: 'eslint'
+⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+Invalid Sentry Dsn: https://your-key@sentry.io/your-project
+ [ERROR] [COMPLIANCE] ❌ Database (Neon): CRITIQUE: La base de données ne semble pas hébergée en UE. Les données sensibles (Art. 9 RGPD) DOIVENT rester en UE. { error: '[object Object]', context: undefined, stack: undefined }
+ [ERROR] [COMPLIANCE] ❌ Redis (Upstash): Redis ne semble pas en région EU. Vérifier la configuration Upstash. { error: '[object Object]', context: undefined, stack: undefined }
+ [ERROR] [COMPLIANCE] ❌ Sentry: Sentry semble en région US. Configurer Data Residency EU dans les paramètres Sentry org. { error: '[object Object]', context: undefined, stack: undefined }
+️ [WARN] [COMPLIANCE] ⚠️ Compute: Environnement local ou non détecté 
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Error: Route "/[locale]/demo/complete" used `params.locale`. `params` is a Promise and must be unwrapped with `await` or `React.use()` before accessing its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Module.generateMetadata (src\app\[locale]\demo\layout.tsx:14:20)
+  12 |       'Découvrez MemoLib en action : tri intelligent des emails, analyse IA des dossiers e...
+  13 |     path: '/demo',
+> 14 |     locale: params.locale,
+     |                    ^
+  15 |     keywords: [
+  16 |       'demo logiciel avocat',
+  17 |       'démo CRM avocat',
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled

@@ -1,0 +1,21 @@
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.146:3000
+- Environments: .env.local, .env
+✓ Ready in 1944ms
+- Experiments (use with caution):
+  · optimizePackageImports
+
+○ Compiling / ...
+ GET / 307 in 343.3min (next.js: 343.2min, application-code: 1998ms)
+○ Compiling /[locale] ...
+ GET /fr 200 in 56s (next.js: 54s, application-code: 2.0s)
+○ Compiling /[locale]/dashboard ...
+ GET /fr/dashboard 200 in 22.6s (next.js: 20.5s, application-code: 2.1s)
+○ Compiling /[locale]/demo/complete ...
+ GET /fr/demo/complete 200 in 20.6s (next.js: 17.6s, application-code: 2.9s)
+○ Compiling /[locale]/dossiers ...
+ GET /fr/dossiers 200 in 12.7s (next.js: 11.5s, application-code: 1180ms)
+ GET /api/onboarding/status 401 in 4.8s (next.js: 3.7s, application-code: 1175ms)
+✓ Finished filesystem cache database compaction in 13.7s
+✓ Finished writing to filesystem cache in 374.9min

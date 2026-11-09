@@ -1,0 +1,282 @@
+// Prisma Schema Optimisé - IA Poste Manager
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MODÈLES OPTIMISÉS
+// ============================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(CLIENT)
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  accounts  Account[]
+  sessions  Session[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  clientDossiers Dossier[] @relation("ClientDossiers")
+  adminDossiers  Dossier[] @relation("AdminDossiers")
+  factures       Facture[]
+  aiActions      AIAction[]
+
+  @@index([tenantId])
+  @@index([email, tenantId])
+  @@map("users")
+}
+
+model Tenant {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  plan        String   @default("basic")
+  isActive    Boolean  @default(true)
+  settings    Json?    @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users         User[]
+  dossiers      Dossier[]
+  factures      Facture[]
+  aiActions     AIAction[]
+  aiMetrics     AIMetrics[]
+  suggestions   Suggestion[]
+
+  @@map("tenants")
+}
+
+model Dossier {
+  id          String        @id @default(cuid())
+  numero      String        @unique
+  type        TypeDossier
+  statut      StatutDossier @default(EN_COURS)
+  priorite    Priorite      @default(NORMALE)
+  titre       String
+  description String?
+  echeance    DateTime?
+  articleCESEDA String?
+  tenantId    String
+  clientId    String
+  adminId     String?
+  metadata    Json?         @default("{}")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client      User       @relation("ClientDossiers", fields: [clientId], references: [id], onDelete: Cascade)
+  admin       User?      @relation("AdminDossiers", fields: [adminId], references: [id])
+  factures    Facture[]
+  documents   Document[]
+  aiActions   AIAction[]
+
+  @@index([tenantId])
+  @@index([clientId])
+  @@index([statut, priorite])
+  @@map("dossiers")
+}
+
+model Facture {
+  id          String       @id @default(cuid())
+  numero      String       @unique
+  montant     Float
+  statut      StatutFacture @default(BROUILLON)
+  echeance    DateTime?
+  tenantId    String
+  clientId    String
+  dossierId   String?
+  items       Json?        @default("[]")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client   User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dossier  Dossier? @relation(fields: [dossierId], references: [id])
+
+  @@index([tenantId])
+  @@index([clientId])
+  @@index([statut])
+  @@map("factures")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  filename    String
+  path        String
+  size        Int
+  mimeType    String
+  dossierId   String
+  uploadedBy  String?
+  hash        String?
+  createdAt   DateTime @default(now())
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@map("documents")
+}
+
+// ============================================
+// SYSTÈME IA AVANCÉ
+// ============================================
+
+model AIAction {
+  id               String   @id @default(cuid())
+  type             String
+  confidence       Float
+  status           String   @default("PENDING")
+  content          Json
+  tenantId         String
+  dossierId        String?
+  createdAt        DateTime @default(now())
+  validatedAt      DateTime?
+  validatedBy      String?
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  dossier Dossier? @relation(fields: [dossierId], references: [id])
+
+  @@index([tenantId, type])
+  @@index([status])
+  @@map("ai_actions")
+}
+
+model AIMetrics {
+  id              String   @id @default(cuid())
+  tenantId        String
+  period          String
+  successRate     Float
+  avgConfidence   Float
+  totalActions    Int
+  approvedActions Int
+  rejectedActions Int
+  createdAt       DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, period])
+  @@map("ai_metrics")
+}
+
+model Suggestion {
+  id          String   @id @default(cuid())
+  type        String
+  title       String
+  description String
+  confidence  Float
+  tenantId    String
+  dossierId   String?
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status])
+  @@map("suggestions")
+}
+
+model SearchEmbedding {
+  id        String   @id @default(cuid())
+  dossierId String   @unique
+  content   String
+  embedding String   // JSON array of floats
+  createdAt DateTime @default(now())
+
+  @@index([dossierId])
+  @@map("search_embeddings")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CLIENT
+}
+
+enum TypeDossier {
+  OQTF
+  NATURALISATION
+  ASILE
+  TITRE_SEJOUR
+  CARTE_RESIDENT
+}
+
+enum StatutDossier {
+  EN_COURS
+  EN_ATTENTE
+  URGENT
+  TERMINE
+  ARCHIVE
+}
+
+enum Priorite {
+  CRITIQUE
+  HAUTE
+  NORMALE
+  BASSE
+}
+
+enum StatutFacture {
+  BROUILLON
+  EN_ATTENTE
+  PAYEE
+  EN_RETARD
+  ANNULEE
+}
+
+// ============================================
+// NEXTAUTH MODELS
+// ============================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
