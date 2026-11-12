@@ -182,7 +182,7 @@ export default function NouveauDossierAvance() {
       adresse: '123 rue de la Republique',
       codePostal: '75001',
       ville: 'Paris',
-      téléphone: '+33612345678',
+      téléphone: '0612345678',
       email: 'client.anonyme@example.com',
       situationFamiliale: 'CELIBATAIRE',
     }
@@ -367,7 +367,7 @@ export default function NouveauDossierAvance() {
       0: ['typeDossier', 'objetDemande', 'priorité'],
       1: [], // CESEDA-specific fields are optional
       2: ['nom', 'prenom', 'dateNaissance', 'lieuNaissance', 'nationalite', 'sexe'],
-      3: ['téléphone', 'email', 'adresse', 'codePostal', 'ville', 'situationFamiliale'],
+      3: ['téléphone', 'email', 'adresse', 'codePostal', 'ville'],
       4: ['situationPro', 'niveauFrancais'],
       5: ['dateArrivee', 'numeroEtranger', 'prefectureRattachement'],
     }
