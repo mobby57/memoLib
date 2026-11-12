@@ -33,7 +33,7 @@ export const regroupementFamilialPack: LegalPack = {
       duration: { months: 3 },
       trigger: 'dateNotification',
       type: 'action',
-      criticality: 'high',
+      criticality: 'warning',
     },
   ],
   documents: [

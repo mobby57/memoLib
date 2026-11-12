@@ -16,7 +16,7 @@ export const irtfPack: LegalPack = {
       type: 'recours',
       court: 'TA',
       article: 'L.612-6 CESEDA',
-      criticality: 'high',
+      criticality: 'warning',
     },
     {
       id: 'demande-abrogation',
