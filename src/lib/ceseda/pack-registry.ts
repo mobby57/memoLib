@@ -5,6 +5,8 @@ import { oqtf48hPack } from './packs/eloignement/oqtf-48h.pack';
 import { irtfPack } from './packs/eloignement/irtf.pack';
 import { cndaPack } from './packs/asile/cnda.pack';
 import { regroupementFamilialPack } from './packs/regroupement-familial/ofii.pack';
+import { decretNationalitePack } from './packs/nationalite/decret.pack';
+import { visaLongSejourPack } from './packs/visas/long-sejour.pack';
 
 export const ALL_PACKS: LegalPack[] = [
   vpfPack,
@@ -13,6 +15,8 @@ export const ALL_PACKS: LegalPack[] = [
   irtfPack,
   cndaPack,
   regroupementFamilialPack,
+  decretNationalitePack,
+  visaLongSejourPack,
 ];
 
 export function getPackById(id: string): LegalPack | undefined {
