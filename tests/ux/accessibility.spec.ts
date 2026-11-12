@@ -6,8 +6,6 @@ test.describe('Accessibilité WCAG 2.1 AA', () => {
 
   for (const p of pages) {
     test(`pas de violation a11y sur ${p}`, async ({ page }, testInfo) => {
-      // Skip sur mobile (doublon des tests desktop)
-      test.skip(testInfo.project.name === 'mobile-chrome', 'A11y mobile = doublon desktop');
 
       test.setTimeout(60000);
       await page.goto(p);
@@ -20,13 +18,6 @@ test.describe('Accessibilité WCAG 2.1 AA', () => {
         .exclude('iframe')
         .disableRules(['region'])
         .analyze();
-
-      if (results.violations.length > 0) {
-        console.log(
-          'Violations restantes:',
-          results.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.length }))
-        );
-      }
 
       expect(results.violations).toEqual([]);
     });

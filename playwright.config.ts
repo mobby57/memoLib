@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+﻿import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 // Charge les variables de test
 dotenv.config({ path: path.resolve(__dirname, '.env.test.local') });
 
-// Détection du fichier d'authentification sauvegardé
+// DÃ©tection du fichier d'authentification sauvegardÃ©
 const authFile = path.join(__dirname, 'tests', 'ux', '.auth', 'user.json');
 const hasAuth = fs.existsSync(authFile);
 const storageState = hasAuth ? authFile : undefined;
@@ -40,9 +40,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run dev -- --port ${PORT}`,
+    command: `npx next dev --port ${PORT} --webpack`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
-    timeout: 180000,
+    timeout: 300000,
   },
 });
