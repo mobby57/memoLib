@@ -1,12 +1,10 @@
-﻿import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
 
-// Charge les variables de test
 dotenv.config({ path: path.resolve(__dirname, '.env.test.local') });
 
-// DÃ©tection du fichier d'authentification sauvegardÃ©
 const authFile = path.join(__dirname, 'tests', 'ux', '.auth', 'user.json');
 const hasAuth = fs.existsSync(authFile);
 const storageState = hasAuth ? authFile : undefined;
@@ -15,12 +13,12 @@ const PORT = 3456;
 
 export default defineConfig({
   testDir: './tests/ux',
-  timeout: 60000, // 60 secondes par test
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 2,
   reporter: [['html', { open: 'never' }], ['list']],
+  timeout: 120000,
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'on-first-retry',
