@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -93,6 +93,7 @@ export default function WorkspaceForm({
           </h2>
           <button
             onClick={onClose}
+            aria-label="Fermer"
             className="text-gray-400 hover:text-gray-600"
           >
             <X className="w-6 h-6" />
@@ -242,11 +243,10 @@ export default function WorkspaceForm({
             >
               Annuler
             </button>
-            <button aria-label="Rechercher"
-              type="submit"
+            <button type="submit"
               disabled={loading}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-             aria-label="Filtrer les rÃ©sultats">
+             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
