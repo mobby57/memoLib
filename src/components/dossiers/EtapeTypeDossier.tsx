@@ -1,6 +1,7 @@
 'use client'
 
 import { useFormContext } from 'react-hook-form'
+import { getPackById } from '@/lib/ceseda/pack-registry'
 import { Calendar, AlertTriangle } from 'lucide-react'
 import { Input } from '@/components/forms/Input'
 
@@ -87,6 +88,9 @@ const PRIORITES = [
 export function EtapeTypeDossier() {
   const { register, watch, setValue, formState: { errors } } = useFormContext()
   const typeSelectionne = watch('typeDossier')
+
+  const _typeInfo = TYPES_DOSSIER.find(x => x.value === typeSelectionne)
+  const packActif = _typeInfo?.packIds[0] ? (getPackById(_typeInfo.packIds[0]) ?? null) : null
   const priorite = watch('priorite')
 
   const typeInfo = TYPES_DOSSIER.find(t => t.value === typeSelectionne)
@@ -99,6 +103,14 @@ export function EtapeTypeDossier() {
       </div>
 
       {/* Selection du type */}
+      {packActif && (
+        <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 p-4">
+          <p className="text-xs font-semibold uppercase text-indigo-700">Pack juridique appliqué</p>
+          <p className="mt-1 font-medium text-indigo-900">{packActif.label} — <span className="text-indigo-700">{packActif.article}</span></p>
+          <p className="mt-1 text-sm text-indigo-800">{packActif.description}</p>
+          <p className="mt-2 text-xs text-indigo-700">📎 {packActif.documents.length} pièces · {packActif.deadlines.length} échéance{packActif.deadlines.length > 1 ? 's' : ''}</p>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {TYPES_DOSSIER.map((type) => (
           <label

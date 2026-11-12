@@ -131,3 +131,5 @@ sftp_host_key.pub
 tests/ux/.auth/
 test-results/
 playwright-report/
+
+playwright.local.config.ts
