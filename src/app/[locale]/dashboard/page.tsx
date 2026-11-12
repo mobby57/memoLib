@@ -234,7 +234,7 @@ export default function DashboardPage() {
       const baseUrl = `/api/tenant/${user?.tenantId ?? undefined}`;
 
       // DÉMO MODE: uniquement pour les vrais comptes de démo
-      const isDemoMode = !user?.tenantId ?? undefined || user.tenantId === 'demo-tenant-1';
+      const isDemoMode = !user?.tenantId || user.tenantId === 'demo-tenant-1';
 
       let statsData;
       if (isDemoMode) {

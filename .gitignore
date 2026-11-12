@@ -1,4 +1,4 @@
-# MemoLib - .gitignore
+﻿# MemoLib - .gitignore
 
 ## === Archived code (not part of active codebase) ===
 _archive/
@@ -126,3 +126,8 @@ sftp_host_key.pub
 # Outils IA / Configs locales
 .claude/
 .kiro/
+
+# Sessions Playwright (ne jamais committer)
+tests/ux/.auth/
+test-results/
+playwright-report/

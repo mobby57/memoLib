@@ -1,12 +1,14 @@
-import { useAuth } from '@clerk/nextjs';
 'use client';
 
+import { useAuth } from '@clerk/nextjs';
 import { Info, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export function DemoBanner() {
   const { isLoaded, isSignedIn, userId } = useAuth();
-  const isDemo = (null as any)?.tenantId === 'demo-tenant-1';
+  // Mode démo : uniquement pour les vrais comptes de démo
+  // TODO: remplacer par la vraie vérification une fois l'auth branchée
+  const isDemo = false;
 
   if (!isDemo) return null;
 
@@ -24,4 +26,3 @@ export function DemoBanner() {
     </div>
   );
 }
-
