@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * - Sauvegarde automatique (brouillon)
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { useForm, FormProvider, useFormContext } from 'react-hook-form'
@@ -150,6 +150,7 @@ export default function NouveauDossierAvance() {
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true)
   const [showSensitiveConsent, setShowSensitiveConsent] = useState(false)
   const [sensitiveConsent, setSensitiveConsent] = useState<Record<string, boolean> | null>(null)
+  const consentRef = useRef<Record<string, boolean> | null>(null)
 
   // Restore step from sessionStorage
   useEffect(() => {
@@ -308,9 +309,10 @@ export default function NouveauDossierAvance() {
   }
 
   const onSubmit = async (data: DossierFormData) => {
+    const consent = consentRef.current ?? sensitiveConsent;
     // Art. 9 RGPD: Consentement requis pour données sensibles (immigration, asile)
     const SENSITIVE_TYPES = ['TITRE_SEJOUR', 'RECOURS_OQTF', 'ASILE', 'REGROUPEMENT_FAMILIAL', 'NATURALISATION'];
-    if (SENSITIVE_TYPES.includes(data.typeDossier) && !sensitiveConsent) {
+    if (SENSITIVE_TYPES.includes(data.typeDossier) && !consent) {
       setShowSensitiveConsent(true);
       return;
     }
@@ -324,9 +326,9 @@ export default function NouveauDossierAvance() {
         body: JSON.stringify({
           ...data,
           // Joindre la preuve de consentement pour l'audit trail
-          sensitiveDataConsent: sensitiveConsent ? {
+          sensitiveDataConsent: consent ? {
             granted: true,
-            categories: sensitiveConsent,
+            categories: consent,
             timestamp: new Date().toISOString(),
           } : undefined,
         }),
@@ -382,6 +384,7 @@ export default function NouveauDossierAvance() {
           <SensitiveDataConsent
             clientName={`${methods.getValues('prenom')} ${methods.getValues('nom')}`}
             onConsent={(consents) => {
+                            consentRef.current = consents;  // ← mutation synchrone
               setSensitiveConsent(consents);
               setShowSensitiveConsent(false);
               // Re-déclencher la soumission maintenant que le consentement est obtenu
