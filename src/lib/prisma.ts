@@ -1,4 +1,4 @@
-﻿import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { auth } from '@clerk/nextjs/server';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -30,3 +30,5 @@ export async function getSecurePrisma() {
     },
   });
 }
+
+export default prisma;
