@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API Route: /api/time-entries
  * 
  * CRUD complet pour le suivi du temps (time tracking).
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
 
   const parsed = createTimeEntrySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
   }
 
   const data = parsed.data;
@@ -149,7 +149,7 @@ export async function PATCH(req: NextRequest) {
 
   const parsed = patchTimeEntrySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
   }
 
   const { id, ...updateData } = parsed.data;

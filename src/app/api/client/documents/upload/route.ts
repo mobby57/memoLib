@@ -1,11 +1,12 @@
 ﻿import { logger } from '@/lib/logger';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
-import { getSecurePrisma } from '@/lib/prisma';;
+import { withTenantContext, withTenantContextBatch } from '@/lib/prisma';
 import { scanDocumentAsync } from '@/lib/security/antivirus';
 import { createHash, randomUUID } from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import { auth } from '@clerk/nextjs/server';
+import { findActiveClientDossierGrant } from '@/lib/client-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -69,30 +70,13 @@ export const runtime = 'nodejs';
 export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
-  const prisma = await getSecurePrisma();
   try {
-    const session = await getServerSessionCompat();
-    const user = session?.user;
-
-    if (!user) {
+    const { userId: clerkUserId } = await auth();
+    if (!clerkUserId) {
       return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
     }
 
-    if (user.role !== 'CLIENT') {
-      return NextResponse.json({ error: 'AccÃ¨s rÃ©servÃ© aux clients' }, { status: 403 });
-    }
-
-    const userId = user.id;
-    const tenantId = user.tenantId;
-    const clientId = user.clientId;
-    if (!userId || !tenantId || !clientId) {
-      return NextResponse.json({ error: 'Compte client incomplet' }, { status: 403 });
-    }
-
-    const rateInfo = await checkRateLimit(
-      `client-vault:${userId}:${getClientIP(request)}`,
-      'default'
-    );
+    const rateInfo = await checkRateLimit(`client-vault:${clerkUserId}:${getClientIP(request)}`);
     if (!rateInfo.success) {
       return rateLimitHeaders(
         NextResponse.json({ error: 'Trop de requÃªtes. RÃ©essayez plus tard.' }, { status: 429 }),
@@ -130,10 +114,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const dossier = await prisma.dossier.findFirst({
-      where: { id: payload.data.dossierId, tenantId, clientId },
-      select: { id: true },
-    });
+    const access = await findActiveClientDossierGrant(clerkUserId, payload.data.dossierId);
+    if (!access) {
+      return rateLimitHeaders(
+        NextResponse.json({ error: 'AccÃ¨s refusÃ© ou expirÃ©' }, { status: 403 }),
+        rateInfo
+      );
+    }
+
+    const { tenantId } = access.grant;
+    const { user } = access;
+    const dossier = await withTenantContext<{ id: string } | null>(tenantId, transaction =>
+      transaction.dossier.findFirst({
+        where: { id: payload.data.dossierId, tenantId },
+        select: { id: true },
+      })
+    );
     if (!dossier) {
       return rateLimitHeaders(
         NextResponse.json({ error: 'Dossier non trouvÃ©' }, { status: 404 }),
@@ -166,12 +162,12 @@ export async function POST(request: NextRequest) {
     await mkdir(directory, { recursive: true });
     await writeFile(join(/*turbopackIgnore: true*/ directory, documentId), buffer, { flag: 'wx' });
 
-    await prisma.$transaction([
-      prisma.document.create({
+    await withTenantContextBatch(tenantId, transaction => [
+      transaction.document.create({
         data: {
           id: documentId,
           tenantId,
-          clientId,
+          clientId: user.clientId,
           dossierId: dossier.id,
           filename: safeFileName,
           originalName: file.name,
@@ -180,17 +176,17 @@ export async function POST(request: NextRequest) {
           storageKey,
           category: 'client-upload',
           description: payload.data.description || null,
-          uploadedBy: userId,
+          uploadedBy: user.id,
           sha256,
           antivirusStatus: 'PENDING',
         },
       }),
-      prisma.auditLog.create({
+      transaction.auditLog.create({
         data: {
           id: randomUUID(),
           tenantId,
-          userId,
-          userEmail: user.email ?? '',
+          userId: user.id,
+          userEmail: user.email,
           userRole: user.role,
           action: 'CREATE',
           entityType: 'DOCUMENT',
@@ -207,7 +203,17 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
-    void scanDocumentAsync({ documentId, fileName: safeFileName, mimeType: file.type, buffer });
+    void scanDocumentAsync({
+      documentId,
+      mimeType: file.type,
+      buffer,
+      tenantId,
+    }).catch(error => {
+      logger.error('[CLIENT_VAULT] Antivirus scan failed', {
+        documentId,
+        error: error instanceof Error ? error.name : 'UnknownError',
+      });
+    });
 
     logger.info('[CLIENT_VAULT] Document accepted for quarantine scan', {
       documentId,
@@ -232,7 +238,9 @@ export async function POST(request: NextRequest) {
       rateInfo
     );
   } catch (error) {
-    logger.error('[CLIENT_VAULT] Upload failed', { error });
+    logger.error('[CLIENT_VAULT] Upload failed', {
+      error: error instanceof Error ? error.name : 'UnknownError',
+    });
     return NextResponse.json({ error: 'Erreur lors du dÃ©pÃ´t sÃ©curisÃ©' }, { status: 500 });
   }
 }

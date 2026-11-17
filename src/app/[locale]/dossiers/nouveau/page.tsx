@@ -72,7 +72,7 @@ const dossierSchema = z.object({
   prefectureRattachement: z.string().optional(),
   
   // Metadonnees spécifiques CESEDA (optionnelles, stockees en JSON)
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 type DossierFormData = z.infer<typeof dossierSchema>

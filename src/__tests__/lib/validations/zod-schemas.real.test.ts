@@ -68,7 +68,7 @@ describe('dossier.validation - Schémas Zod v2', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toContain('10');
+        expect(result.error.issues[0].message).toContain('10');
       }
     });
 
@@ -147,7 +147,7 @@ describe('dossier.validation - Schémas Zod v2', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toContain('invalide');
+        expect(result.error.issues[0].message).toContain('invalide');
       }
     });
 
@@ -203,7 +203,7 @@ describe('dossier.validation - Schémas Zod v2', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.errors[0].message).toContain('20');
+        expect(result.error.issues[0].message).toContain('20');
       }
     });
 
@@ -334,7 +334,7 @@ describe('dossier.validation - Schémas Zod v2', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.errors).toBeDefined();
-        expect(result.errors.errors.length).toBeGreaterThan(0);
+        expect(result.errors.issues.length).toBeGreaterThan(0);
       }
     });
 

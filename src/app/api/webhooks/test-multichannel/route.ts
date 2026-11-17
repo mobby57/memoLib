@@ -268,7 +268,7 @@ export async function POST(req: NextRequest) {
 
     // Handle Zod validation errors
     if (error instanceof ZodError) {
-      const zodErrors = error.errors
+      const zodErrors = error.issues
         .map((err) => `${err.path.join('.')}: ${err.message}`)
         .join('; ');
 

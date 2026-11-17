@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { CustomSignOutButton } from '@/components/auth/CustomSignOutButton';
 import NavigationSearchButton from '@/components/NavigationSearchButton';
 import {
   Building,

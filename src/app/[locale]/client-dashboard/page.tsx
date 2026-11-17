@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
+import { CustomSignOutButton } from '@/components/auth/CustomSignOutButton';
 import Link from 'next/link';
 import { Card, StatCard, Badge, Breadcrumb, Alert } from '@/components/ui';
 import { FileText, Clock, CheckCircle, AlertTriangle, LogOut, Bell, User, Calendar, Euro, Download, MessageSquare, Shield } from 'lucide-react';

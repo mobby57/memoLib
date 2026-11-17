@@ -13,7 +13,7 @@
  * @author memoLib
  */
 
-import { prisma } from '@/lib/prisma';
+import { prisma, withTenantContext } from '@/lib/prisma';
 import { logger, logDossierAction, logIAUsage } from '@/lib/logger';
 import { ollama } from '../../../lib/ai/ollama-client';
 import { AutonomyLevel, ValidationLevel, AIActionType } from '@/types';
@@ -865,6 +865,8 @@ export class AdvancedWorkflowEngine {
     params: Record<string, any>,
     execution: WorkflowExecution
   ): Promise<any> {
+    params = { ...params, tenantId: execution.event.tenantId };
+
     switch (type) {
       // Communication
       case 'send_email':
@@ -992,19 +994,21 @@ export class AdvancedWorkflowEngine {
       throw new Error('workspaceId et content requis');
     }
 
-    const message = await prisma.workspaceMessage.create({
-      data: {
-        workspaceId: params.workspaceId,
-        type: params.type || 'internal_note',
-        senderId: params.senderId || 'system',
-        senderName: params.senderName || 'Systeme',
-        senderType: params.senderType || 'system',
-        subject: params.subject,
-        content: params.content,
-        priority: params.priority || 'normal',
-        visibility: params.visibility || 'team',
-      },
-    });
+    const message = await withTenantContext(params.tenantId, transaction =>
+      transaction.workspaceMessage.create({
+        data: {
+          workspaceId: params.workspaceId,
+          type: params.type || 'internal_note',
+          senderId: params.senderId || 'system',
+          senderName: params.senderName || 'Systeme',
+          senderType: params.senderType || 'system',
+          subject: params.subject,
+          content: params.content,
+          priority: params.priority || 'normal',
+          visibility: params.visibility || 'team',
+        },
+      })
+    );
 
     logger.info(' Message cree', { messageId: message.id, workspaceId: params.workspaceId });
     return message;
@@ -1015,58 +1019,65 @@ export class AdvancedWorkflowEngine {
       throw new Error('clientId et tenantId requis');
     }
 
-    const workspace = await prisma.workspace.create({
-      data: {
-        tenantId: params.tenantId,
-        clientId: params.clientId,
-        title: params.title || `Espace Client ${params.clientId}`,
-        description: params.description,
-        status: params.status || 'active',
-        createdById: params.createdById || 'system',
-      },
-    });
+    const workspace = await withTenantContext(params.tenantId, transaction =>
+      transaction.workspace.create({
+        data: {
+          tenantId: params.tenantId,
+          clientId: params.clientId,
+          title: params.title || `Espace Client ${params.clientId}`,
+          description: params.description,
+          status: params.status || 'active',
+          createdById: params.createdById || 'system',
+        },
+      })
+    );
 
-    logger.info(' Workspace cree', { workspaceId: workspace.id, clientId: params.clientId });
+    logger.info(' Workspace cree', { workspaceId: workspace.id });
     return workspace;
   }
 
   private async createProcedure(params: Record<string, any>): Promise<any> {
-    if (!params.workspaceId || !params.procedureType) {
-      throw new Error('workspaceId et procedureType requis');
+    if (!params.workspaceId || !params.procedureType || !params.tenantId) {
+      throw new Error('workspaceId, procedureType et tenantId requis');
     }
 
-    const procedure = await prisma.procedure.create({
-      data: {
-        workspaceId: params.workspaceId,
-        procedureType: params.procedureType,
-        title: params.title || `Procedure ${params.procedureType}`,
-        description: params.description,
-        status: params.status || 'active',
-        urgencyLevel: params.urgencyLevel || 'moyen',
-      },
-    });
+    const procedure = await withTenantContext(params.tenantId, transaction =>
+      transaction.procedure.create({
+        data: {
+          tenantId: params.tenantId,
+          workspaceId: params.workspaceId,
+          procedureType: params.procedureType,
+          title: params.title || `Procedure ${params.procedureType}`,
+          description: params.description,
+          status: params.status || 'active',
+          urgencyLevel: params.urgencyLevel || 'moyen',
+        },
+      })
+    );
 
     logger.info('?  Procedure creee', { procedureId: procedure.id, type: params.procedureType });
     return procedure;
   }
 
   private async createTask(params: Record<string, any>): Promise<any> {
-    logger.info(' Creation tache', { title: params.title });
+    logger.info(' Creation tache');
 
     try {
       // Créer la tâche en base si les paramètres requis sont présents
       if (params.workspaceId && params.title) {
-        const task = await prisma.task.create({
-          data: {
-            workspaceId: params.workspaceId,
-            title: params.title,
-            description: params.description || '',
-            status: params.status || 'pending',
-            priority: params.priority || 'medium',
-            dueDate: params.dueDate ? new Date(params.dueDate) : undefined,
-            assigneeId: params.assigneeId,
-          },
-        });
+        const task = await withTenantContext(params.tenantId, transaction =>
+          transaction.task.create({
+            data: {
+              workspaceId: params.workspaceId,
+              title: params.title,
+              description: params.description || '',
+              status: params.status || 'pending',
+              priority: params.priority || 'medium',
+              dueDate: params.dueDate ? new Date(params.dueDate) : undefined,
+              assigneeId: params.assigneeId,
+            },
+          })
+        );
         return { created: true, taskId: task.id, title: params.title };
       }
 
@@ -1082,15 +1093,17 @@ export class AdvancedWorkflowEngine {
       throw new Error('workspaceId requis');
     }
 
-    const alert = await prisma.workspaceAlert.create({
-      data: {
-        workspaceId: params.workspaceId,
-        alertType: params.alertType || 'deadline_critical',
-        level: params.level || 'warning',
-        title: params.title || 'Alerte',
-        message: params.message || '',
-      },
-    });
+    const alert = await withTenantContext(params.tenantId, transaction =>
+      transaction.workspaceAlert.create({
+        data: {
+          workspaceId: params.workspaceId,
+          alertType: params.alertType || 'deadline_critical',
+          level: params.level || 'warning',
+          title: params.title || 'Alerte',
+          message: params.message || '',
+        },
+      })
+    );
 
     logger.info('?  Alerte creee', { alertId: alert.id, level: params.level });
     return alert;
@@ -1101,19 +1114,21 @@ export class AdvancedWorkflowEngine {
       throw new Error('tenantId et dossierId requis');
     }
 
-    const deadline = await prisma.echeance.create({
-      data: {
-        tenantId: params.tenantId,
-        dossierId: params.dossierId,
-        type: params.type || 'autre',
-        titre: params.titre || 'echeance',
-        description: params.description,
-        dateEcheance: new Date(params.dateEcheance),
-        priorite: params.priorite || 'normale',
-        source: params.source || 'system',
-        createdBy: params.createdBy || 'system',
-      },
-    });
+    const deadline = await withTenantContext(params.tenantId, transaction =>
+      transaction.echeance.create({
+        data: {
+          tenantId: params.tenantId,
+          dossierId: params.dossierId,
+          type: params.type || 'autre',
+          titre: params.titre || 'echeance',
+          description: params.description,
+          dateEcheance: new Date(params.dateEcheance),
+          priorite: params.priorite || 'normale',
+          source: params.source || 'system',
+          createdBy: params.createdBy || 'system',
+        },
+      })
+    );
 
     logger.info(' echeance creee', { deadlineId: deadline.id, date: params.dateEcheance });
     return deadline;
@@ -1127,16 +1142,24 @@ export class AdvancedWorkflowEngine {
 
       switch (entityType) {
         case 'dossier':
-          await prisma.dossier.update({ where: { id: entityId }, data: { status } });
+          await withTenantContext(params.tenantId, transaction =>
+            transaction.dossier.update({ where: { id: entityId }, data: { status } })
+          );
           break;
         case 'workspace':
-          await prisma.workspace.update({ where: { id: entityId }, data: { status } });
+          await withTenantContext(params.tenantId, transaction =>
+            transaction.workspace.update({ where: { id: entityId }, data: { status } })
+          );
           break;
         case 'email':
-          await prisma.email.update({ where: { id: entityId }, data: { status } });
+          await withTenantContext(params.tenantId, transaction =>
+            transaction.email.update({ where: { id: entityId }, data: { status } })
+          );
           break;
         case 'echeance':
-          await prisma.echeance.update({ where: { id: entityId }, data: { status } });
+          await withTenantContext(params.tenantId, transaction =>
+            transaction.echeance.update({ where: { id: entityId }, data: { status } })
+          );
           break;
         default:
           logger.warn(`EntityType non supporté: ${entityType}`);
@@ -1158,10 +1181,17 @@ export class AdvancedWorkflowEngine {
 
       switch (entityType) {
         case 'dossier':
-          await prisma.dossier.update({ where: { id: entityId }, data: { avocatId: userId } });
+          await withTenantContext(params.tenantId, transaction =>
+            transaction.dossier.update({ where: { id: entityId }, data: { avocatId: userId } })
+          );
           break;
         case 'workspace':
-          await prisma.workspace.update({ where: { id: entityId }, data: { ownerId: userId } });
+          await withTenantContext(params.tenantId, transaction =>
+            transaction.workspace.update({
+              where: { id: entityId },
+              data: { primaryLawyerId: userId },
+            })
+          );
           break;
         default:
           logger.warn(`Assignation non supportée pour: ${entityType}`);
@@ -1281,27 +1311,29 @@ Reponds uniquement avec la categorie.`;
 
     try {
       // Créer une tâche de validation
-      const validationTask = await prisma.task.create({
-        data: {
-          workspaceId: params.workspaceId,
-          title: `Validation requise: ${params.title || params.entityId}`,
-          description: params.description || 'Action nécessitant une validation humaine',
-          status: 'pending',
-          priority: 'high',
-          category: 'validation',
-          assigneeId: params.assigneeId,
-          metadata: {
-            entityId: params.entityId,
-            entityType: params.entityType,
-            validationType: params.validationType || 'approval',
+      const validationTask = await withTenantContext(params.tenantId, transaction =>
+        transaction.task.create({
+          data: {
+            workspaceId: params.workspaceId,
+            title: `Validation requise: ${params.title || params.entityId}`,
+            description: params.description || 'Action nécessitant une validation humaine',
+            status: 'pending',
+            priority: 'high',
+            category: 'validation',
+            assigneeId: params.assigneeId,
+            metadata: {
+              entityId: params.entityId,
+              entityType: params.entityType,
+              validationType: params.validationType || 'approval',
+            },
           },
-        },
-      });
+        })
+      );
 
       return { validationRequested: true, taskId: validationTask.id, pending: true };
     } catch (error) {
-      logger.warn('Erreur création tâche validation', { error });
-      return { validationRequested: true, pending: true, simulated: true };
+      logger.error('Erreur creation tache de validation', error instanceof Error ? error : undefined);
+      throw error;
     }
   }
 
@@ -1360,6 +1392,7 @@ Reponds uniquement avec la categorie.`;
 
       // Créer demande de validation
       await this.requestValidation({
+        tenantId: execution.event.tenantId,
         workspaceId: execution.context?.workspaceId,
         entityId: action.id,
         entityType: 'workflow_action',
@@ -1390,7 +1423,7 @@ Reponds par OUI ou NON avec une justification breve.`;
     const response = await this.ollama.generate(prompt);
     const approved = response.toLowerCase().includes('oui');
 
-    logger.info(` Decision IA: ${approved ? 'APPROUVe' : 'REFUSe'}`, { response });
+    logger.info('Decision IA appliquee', { approved });
 
     return approved;
   }

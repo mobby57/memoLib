@@ -13,9 +13,9 @@ vi.mock('@/lib/stripe/config', () => ({
 }));
 
 vi.mock('@/lib/prisma', () => ({
-  prisma: {
+  getSystemPrisma: () => ({
     $transaction: mockTransaction,
-  },
+  }),
 }));
 
 vi.mock('@/lib/stripe/webhook', () => ({

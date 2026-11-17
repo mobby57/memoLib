@@ -1,42 +1,20 @@
-// @ts-nocheck
-'use client';
-import { useSignIn } from '@clerk/nextjs';
-'use client';
+﻿'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+// Page de démo : redirige simplement vers le dashboard
+// (La vraie authentification passe par /fr/auth/login)
 
 export default function DemoAutoLogin() {
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    useSignIn()('credentials', {
-      email: 'avocat@memolib.fr',
-      password: 'demo123',
-      callbackUrl: '/demo/complete',
-      redirect: true,
-    }).catch(() => setError('Impossible de se connecter à la démo.'));
-  }, []);
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-        <div className="bg-white/95 rounded-2xl p-8 text-center max-w-md">
-          <p className="text-red-600 font-medium mb-4">{error}</p>
-          <a href="/" className="text-blue-600 underline hover:text-blue-800">Retour à l&apos;accueil</a>
-        </div>
-      </div>
-    );
-  }
+    router.push('/fr/dossiers');
+  }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      <div className="bg-white/95 rounded-2xl p-8 text-center max-w-md">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-        <h1 className="text-xl font-bold text-gray-900 mb-2">Chargement de la démo...</h1>
-        <p className="text-gray-600">Connexion au cabinet de démonstration</p>
-      </div>
+    <div className="p-10 text-center text-slate-600">
+      Redirection vers la démo...
     </div>
   );
 }
-

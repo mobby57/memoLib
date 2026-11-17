@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     const procedures = await prisma.procedure.findMany({
-      where: { workspaceId: params.id },
+      where: { workspaceId: params.id, tenantId: session.user.tenantId },
       include: {
         checklist: true,
         documents: true,
@@ -56,6 +56,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     const user = session.user as any;
     const body = await request.json();
+    const tenantId = user.tenantId;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Cabinet requis' }, { status: 403 });
+    }
+
+    const workspace = await prisma.workspace.findFirst({
+      where: { id: params.id, tenantId },
+      select: { id: true },
+    });
+    if (!workspace) {
+      return NextResponse.json({ error: 'Workspace non trouvÃ©' }, { status: 404 });
+    }
 
     // Validation
     if (!body.procedureType || !body.title) {
@@ -65,6 +77,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     // CrÃ©er procÃ©dure
     const procedure = await prisma.procedure.create({
       data: {
+        tenantId,
         workspaceId: params.id,
         procedureType: body.procedureType,
         title: body.title,

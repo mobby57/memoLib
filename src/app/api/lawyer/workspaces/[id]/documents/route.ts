@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
-import { join } from 'path';
+import { basename, join } from 'path';
 
 /**
  * GET /api/lawyer/workspaces/[id]/documents
@@ -81,9 +81,22 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
     }
+    const tenantId = session.user.tenantId;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Cabinet requis' }, { status: 403 });
+    }
+
+    const workspace = await prisma.workspace.findFirst({
+      where: { id: params.id, tenantId },
+      select: { id: true },
+    });
+    if (!workspace) {
+      return NextResponse.json({ error: 'Workspace non trouvÃ©' }, { status: 404 });
+    }
 
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const fileEntry = formData.get('file');
+    const file = fileEntry instanceof File ? fileEntry : null;
     const documentType = formData.get('documentType') as string;
     const description = (formData.get('description') as string) || undefined;
 
@@ -111,9 +124,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     // PrÃ©parer le stockage physique
-    const filename = `${Date.now()}-${file.name}`;
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'workspaces', params.id);
-    const storagePath = `/uploads/workspaces/${params.id}/${filename}`;
+    const safeOriginalName = basename(file.name).replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filename = `${Date.now()}-${safeOriginalName}`;
+    const uploadsDir = join(process.cwd(), 'private-uploads', 'workspaces', params.id);
+    const storagePath = `workspaces/${params.id}/${filename}`;
 
     // CrÃ©er dossier uploads si inexistant
     if (!existsSync(uploadsDir)) {
@@ -127,7 +141,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     // CrÃ©er document dans la base
     const document = await prisma.workspaceDocument.create({
       data: {
-        tenantId: (session.user as any).tenantId,
         workspaceId: params.id,
         filename,
         originalName: file.name,
@@ -138,6 +151,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         description,
         aiProcessed: false,
         verified: false,
+        uploadedBy: session.user.id,
       },
     });
 

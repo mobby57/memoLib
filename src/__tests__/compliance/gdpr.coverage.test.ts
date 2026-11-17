@@ -67,7 +67,7 @@ describe('gdpr.ts — Full Coverage', () => {
         version: '1.0',
       });
       expect(mockPrisma.userConsent.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ userId: 'u1', type: 'analytics', granted: true }),
+        data: expect.objectContaining({ userId: 'u1', type: 'analytics', accepted: true }),
       }));
     });
   });
@@ -75,7 +75,7 @@ describe('gdpr.ts — Full Coverage', () => {
   describe('GDPRCompliance.getUserConsents', () => {
     it('should return mapped consents', async () => {
       mockPrisma.userConsent.findMany.mockResolvedValue([
-        { type: 'essential', granted: true, grantedAt: new Date(), ipAddress: '1.2.3.4', userAgent: 'UA', policyVersion: '1.0' },
+        { type: 'essential', accepted: true, grantedAt: new Date(), ipAddress: '1.2.3.4', userAgent: 'UA', policyVersion: '1.0' },
       ]);
       const consents = await GDPRCompliance.getUserConsents('u1');
       expect(consents).toHaveLength(1);
@@ -86,12 +86,12 @@ describe('gdpr.ts — Full Coverage', () => {
 
   describe('GDPRCompliance.hasConsent', () => {
     it('should return true when granted', async () => {
-      mockPrisma.userConsent.findFirst.mockResolvedValue({ granted: true });
+      mockPrisma.userConsent.findFirst.mockResolvedValue({ accepted: true });
       expect(await GDPRCompliance.hasConsent('u1', 'analytics')).toBe(true);
     });
 
     it('should return false when not granted', async () => {
-      mockPrisma.userConsent.findFirst.mockResolvedValue({ granted: false });
+      mockPrisma.userConsent.findFirst.mockResolvedValue({ accepted: false });
       expect(await GDPRCompliance.hasConsent('u1', 'marketing')).toBe(false);
     });
 

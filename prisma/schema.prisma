@@ -123,6 +123,8 @@ model Client {
   prenomUsuel        String?
   email              String
   emailSecondaire    String?
+  situationFamiliale String?
+  profession         String?
   phone              String?
   phoneSecondaire    String?
   telephoneUrgence   String?
@@ -146,12 +148,15 @@ model Client {
   Dossier            Dossier[]
   Email              Email[]
   Facture            Facture[]
+  Workspaces         Workspace[]
+  ReasoningWorkspaces WorkspaceReasoning[]
   LegalDeadline      LegalDeadline[]
   MouvementCARPA     MouvementCARPA[]
   TimeEntry          TimeEntry[]
   User               User?
 
   @@unique([tenantId, email])
+  @@unique([id, tenantId])
   @@index([tenantId, email])
   @@index([tenantId, status])
   cases             Case[]
@@ -164,6 +169,7 @@ model CommunityTemplate {
   category    String
   typeDossier String
   typeRecours String?
+  responsableId      String?
   juridiction String?
   content     String
   variables   Json?    @default("[]")
@@ -257,7 +263,11 @@ model Dossier {
   juridiction        String?
   numeroJuridiction  String?
   typeRecours        String?
-  responsableId      String?
+  
+  clientNom          String?
+  clientPrenom       String?
+  clientAdresse      String?
+  recitClient        String?
   collaborateurs     String?
   objet              String?
   description        String?
@@ -282,8 +292,14 @@ model Dossier {
   MouvementCARPA     MouvementCARPA[]
   Proof              Proof[]
   TimeEntry          TimeEntry[]
+  
+  // ✅ P2-1: Relations for Invitations and AccessGrants
+  invitations         Invitation[]
+  accessGrants        AccessGrant[]
+  ReasoningWorkspaces WorkspaceReasoning[]
 
   @@unique([tenantId, numero])
+  @@unique([id, tenantId])
   @@index([clientId])
   @@index([createdAt])
   @@index([inboxEmail])
@@ -362,9 +378,12 @@ model Draft {
   updatedAt        DateTime        @updatedAt
   Dossier          Dossier?  @relation(fields: [createdDossierId], references: [id], onDelete: SetNull)
   Email            Email?    @relation(fields: [sourceEmailId], references: [id], onDelete: SetNull)
+  procedureId      String?
+  Procedure        Procedure? @relation(fields: [procedureId], references: [id], onDelete: SetNull)
   Tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([sourceEmailId])
+  @@index([procedureId])
   @@index([tenantId, status])
   @@index([tenantId, createdAt])
   @@index([tenantId, status, createdAt])
@@ -446,14 +465,19 @@ model Email {
   sourceProvider    String?
   threadId          String?
   toAddresses       String?
+  needsResponse     Boolean             @default(false)
+  workspaceId       String?
   Draft             Draft[]
   Client            Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
   Dossier           Dossier?            @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  workspace          Workspace?          @relation(fields: [workspaceId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  ReasoningWorkspaces WorkspaceReasoning[] @relation("WorkspaceSourceEmail")
   Tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   EmailAttachment   EmailAttachment[]
   WorkflowExecution WorkflowExecution[]
 
   @@unique([tenantId, contentHash])
+  @@unique([id, tenantId])
   @@unique([tenantId, internetMessageId])
   @@unique([tenantId, messageId])
   @@unique([tenantId, providerMessageId])
@@ -465,6 +489,7 @@ model Email {
   @@index([tenantId, receivedDate])
   @@index([tenantId, sourceProvider])
   @@index([tenantId, threadId])
+  @@index([tenantId, workspaceId, receivedDate])
 }
 
 model EmailAttachment {
@@ -881,6 +906,7 @@ model Tenant {
   id                String              @id
   name              String
   subdomain         String              @unique
+  clerkOrganizationId String?             @unique
   domain            String?             @unique
   planId            String
   status            String              @default("active")
@@ -922,11 +948,16 @@ model Tenant {
   TenantSettings    TenantSettings?
   UsageRecord       UsageRecord[]
   User              User[]
+  memberships       TenantMembership[]
   WorkflowExecution WorkflowExecution[]
   EmailAccount      EmailAccount[]
   TimeEntry         TimeEntry[]
   Case              Case[]
   EmailLog          EmailLog[]
+  Workspaces        Workspace[]
+  ReasoningWorkspaces WorkspaceReasoning[]
+  invitations       Invitation[]
+  accessGrants      AccessGrant[]
 
   @@index([planId])
   @@index([status])
@@ -969,6 +1000,7 @@ model UsageRecord {
 
 model User {
   id               String          @id
+  clerkUserId      String?         @unique
   email            String          @unique
   emailVerified    DateTime?
   name             String
@@ -994,10 +1026,32 @@ model User {
   Client           Client?         @relation(fields: [clientId], references: [id], onDelete: Cascade)
   Tenant           Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  // ✅ P1-5: Relations for Invitations
+  invitationsCreated Invitation[] @relation("InvitationsCreated")
+  clientAccess       AccessGrant[] @relation("ClientAccess")
+  memberships        TenantMembership[]
+  ownedReasoningWorkspaces WorkspaceReasoning[] @relation("WorkspaceReasoningOwner")
+
   @@index([role])
   @@index([status])
   @@index([tenantId, email])
+  @@unique([id, tenantId])
   consents      UserConsent[]
+}
+
+model TenantMembership {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  role      String
+  clerkRole String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([userId])
 }
 
 model WorkflowExecution {
@@ -1335,13 +1389,17 @@ model VerificationToken {
 }
 
 model UserConsent {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  accepted  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  userId        String
+  type          String
+  accepted      Boolean  @default(true)
+  ipAddress     String?
+  userAgent     String?
+  policyVersion String   @default("1.0.0")
+  grantedAt     DateTime @default(now())
+  createdAt     DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -1392,4 +1450,554 @@ model EmailLog {
 
   @@index([tenantId])
   @@index([caseId])
+}
+model Invitation {
+  id             String   @id @default(cuid())
+  email          String
+  
+  tenantId       String
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  dossier        Dossier  @relation(fields: [dossierId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  dossierId      String
+  
+  lawyer         User     @relation("InvitationsCreated", fields: [lawyerId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  lawyerId       String
+  
+  accessGrants   AccessGrant[]
+  
+  // Data
+  tokenHash      String   @unique
+  expiresAt      DateTime
+  status         InvitationStatus @default(PENDING)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([id, tenantId])
+  @@index([lawyerId])
+  @@index([tenantId, dossierId, email, status])
+  @@index([expiresAt])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum AccessGrantStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+model AccessGrant {
+  id             String   @id @default(cuid())
+  tenantId       String
+  tenant         Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invitation     Invitation @relation(fields: [invitationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  invitationId   String
+  
+  clientUser     User       @relation("ClientAccess", fields: [clientUserId], references: [id], onDelete: Cascade)
+  clientUserId   String
+  
+  dossier        Dossier    @relation(fields: [dossierId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  dossierId      String
+  
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  status         AccessGrantStatus @default(ACTIVE)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([invitationId, tenantId])
+  @@index([tenantId, dossierId])
+  @@index([tenantId, clientUserId])
+  @@index([expiresAt])
+}
+
+// ========== DATABASE DIAGNOSTIC MONITORING ==========
+
+model DatabaseDiagnosticLog {
+  id                    String   @id @default(cuid())
+  timestamp             DateTime @default(now())
+  
+  // Schema checks
+  schemaStatus          String   @default("PENDING") // HEALTHY, WARNING, ERROR
+  accessGrantColumns    Int?     // Expected: 9 columns
+  accessGrantColumnsOk  Boolean  @default(false)
+  
+  // Enum checks
+  enumAccessGrantExists Boolean  @default(false)
+  enumValues            String?  // JSON array of enum values
+  
+  // FK constraints
+  foreignKeyCount       Int      @default(0)
+  foreignKeysValid      Boolean  @default(true)
+  foreignKeyDetails     String?  // JSON with FK info
+  
+  // Indexes
+  indexCount            Int      @default(0)
+  indexesValid          Boolean  @default(true)
+  indexDetails          String?  // JSON with index info
+  
+  // Table sizes
+  accessGrantRowCount   Int      @default(0)
+  invitationRowCount    Int      @default(0)
+  dossierRowCount       Int      @default(0)
+  userRowCount          Int      @default(0)
+  
+  // Connection test
+  connectionOk          Boolean  @default(false)
+  connectionError       String?
+  responseTimeMs        Int?
+  
+  // Overall health
+  overallHealth         String   @default("UNKNOWN") // HEALTHY, DEGRADED, CRITICAL, ERROR
+  healthScore           Int      @default(0) // 0-100
+  issues                String?  // JSON array of issues found
+  warnings              String?  // JSON array of warnings
+  
+  // Metadata
+  databaseVersion       String?
+  databaseSize          Float?   // MB
+  diagnosticDuration    Int?     // milliseconds
+  triggeredBy           String   @default("scheduled") // scheduled, manual
+  error                 String?  // If diagnostic failed
+  
+  createdAt             DateTime @default(now())
+
+  @@index([timestamp])
+  @@index([overallHealth])
+  @@index([schemaStatus])
+  @@index([createdAt])
+}
+
+model Workspace {
+  id                    String               @id @default(cuid())
+  tenantId              String
+  clientId              String
+  procedureType         String?
+  title                 String
+  description           String?
+  reference             String?
+  status                String               @default("active")
+  urgencyLevel          String               @default("moyen")
+  notificationDate      DateTime?
+  deadlineDate          DateTime?
+  closedAt              DateTime?
+  createdById           String?
+  globalPriority        String?
+  primaryLawyerId       String?
+  teamMemberIds         Json?
+  preferredChannel      String?
+  notificationsEnabled  Boolean              @default(true)
+  lastActivityDate      DateTime             @default(now())
+  totalProcedures       Int                  @default(0)
+  activeProcedures      Int                  @default(0)
+  metadata              Json?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  Tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client                Client               @relation(fields: [clientId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  procedures            Procedure[]
+  emails                Email[]
+  messages              WorkspaceMessage[]
+  documents             WorkspaceDocument[]
+  timeline              TimelineEvent[]
+  notes                 WorkspaceNote[]
+  alerts                WorkspaceAlert[]
+  tasks                 Task[]
+  checklist             WorkspaceChecklistItem[]
+
+  @@unique([id, tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([clientId])
+}
+
+model Procedure {
+  id                 String                    @id @default(cuid())
+  tenantId           String
+  workspaceId        String
+  procedureType      String
+  title              String
+  description        String?
+  reference          String?
+  status             String                    @default("active")
+  urgencyLevel       String                    @default("moyen")
+  notificationDate   DateTime?
+  deadlineDate       DateTime?
+  closedAt           DateTime?
+  assignedToId       String?
+  assignedTo         String?
+  outcome            String?
+  outcomeNotes       String?
+  metadata           String?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  workspace          Workspace                 @relation(fields: [workspaceId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  documents          WorkspaceDocument[]
+  checklist          ProcedureChecklistItem[]
+  echeances          ProcedureDeadline[]
+  documentDrafts     Draft[]
+
+  @@unique([id, tenantId])
+  @@index([tenantId, workspaceId, status])
+  @@index([workspaceId, createdAt])
+}
+
+model ProcedureChecklistItem {
+  id           String    @id @default(cuid())
+  procedureId  String
+  category     String
+  label        String
+  description  String?
+  completed    Boolean   @default(false)
+  completedAt  DateTime?
+  completedBy  String?
+  required     Boolean   @default(true)
+  order        Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  procedure    Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+
+  @@index([procedureId, order])
+}
+
+model WorkspaceChecklistItem {
+  id          String    @id @default(cuid())
+  workspaceId String
+  category    String    @default("pieces")
+  label       String
+  description String?   @db.Text
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  completedBy String?
+  required    Boolean   @default(true)
+  status      String    @default("missing")
+  documentId  String?
+  receivedAt  DateTime?
+  receivedVia String?
+  notes       String?   @db.Text
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, order])
+}
+
+model ProcedureDeadline {
+  id          String    @id @default(cuid())
+  procedureId String
+  label       String
+  date        DateTime
+  dateEcheance DateTime?
+  statut      String    @default("a_venir")
+  completed   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Procedure   Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+
+  @@index([procedureId, completed])
+  @@index([date])
+}
+
+model WorkspaceDocument {
+  id           String     @id @default(cuid())
+  workspaceId  String
+  procedureId  String?
+  filename     String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  storagePath  String
+  documentType String    @default("other")
+  description  String?
+  aiProcessed  Boolean    @default(false)
+  verified     Boolean    @default(false)
+  verifiedAt   DateTime?
+  verifiedBy   String?
+  tags         String?
+  uploadedBy   String
+  uploadedAt   DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  workspace    Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  Procedure    Procedure? @relation(fields: [procedureId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, uploadedAt])
+  @@index([procedureId])
+}
+
+model WorkspaceMessage {
+  id          String    @id @default(cuid())
+  workspaceId String
+  type        String    @default("system")
+  senderId    String?
+  senderName  String?
+  senderType  String?
+  subject     String?
+  content     String    @db.Text
+  priority    String    @default("normal")
+  visibility  String    @default("all")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model TimelineEvent {
+  id          String    @id @default(cuid())
+  workspaceId String
+  eventType   String
+  title       String
+  description String?   @db.Text
+  actorType   String?
+  actorId     String?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model WorkspaceNote {
+  id          String    @id @default(cuid())
+  workspaceId String
+  title       String?
+  content     String    @db.Text
+  authorId    String?
+  authorName  String?
+  isPrivate   Boolean   @default(false)
+  isPinned    Boolean   @default(false)
+  tags        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model WorkspaceAlert {
+  id          String    @id @default(cuid())
+  workspaceId String
+  alertType   String
+  level       String    @default("info")
+  title       String
+  message     String    @db.Text
+  resolved    Boolean   @default(false)
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, resolved])
+  @@index([createdAt])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  workspaceId String
+  title       String
+  description String?   @db.Text
+  status      String    @default("pending")
+  priority    String    @default("medium")
+  assignedTo  String?
+  assigneeId  String?
+  category    String?
+  metadata    Json?
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@index([dueDate])
+}
+
+model WorkspaceReasoning {
+  id                 String              @id @default(cuid())
+  tenantId           String
+  dossierId          String?
+  clientId           String?
+  emailId            String?
+  ownerUserId        String?
+  sourceType         String
+  sourceId           String?
+  sourceRaw          String              @db.Text @map("sourceRawEncrypted")
+  sourceMetadata     String?             @db.Text @map("sourceMetadataEncrypted")
+  procedureType      String?
+  currentState       String              @default("RECEIVED")
+  stateChangedAt     DateTime?
+  stateChangedBy     String?
+  validatedAt        DateTime?
+  validatedBy        String?
+  validationNote     String?              @db.Text
+  reasoningQuality   Float?
+  uncertaintyLevel   Float                @default(1.0)
+  confidenceScore    Float?
+  locked             Boolean              @default(false)
+  completedAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  Tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Dossier            Dossier?            @relation(fields: [dossierId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  Client             Client?             @relation(fields: [clientId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  sourceEmail        Email?              @relation("WorkspaceSourceEmail", fields: [emailId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  owner              User?               @relation("WorkspaceReasoningOwner", fields: [ownerUserId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  facts              Fact[]
+  contexts           ContextHypothesis[]
+  obligations        Obligation[]
+  missingElements    MissingElement[]
+  risks              Risk[]
+  proposedActions    ProposedAction[]
+  reasoningTraces    ReasoningTrace[]
+  transitions        ReasoningTransition[]
+
+  @@index([tenantId, currentState])
+  @@index([tenantId, clientId])
+  @@index([tenantId, dossierId])
+  @@index([tenantId, createdAt])
+  @@index([emailId])
+}
+
+model Fact {
+  id                    String             @id @default(cuid())
+  workspaceId           String
+  label                 String
+  value                 String             @db.Text
+  source                String
+  sourceRef             String?
+  confidence            Float              @default(1.0)
+  extractedBy           String
+  createdAt             DateTime           @default(now())
+  workspace             WorkspaceReasoning @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model ContextHypothesis {
+  id                    String             @id @default(cuid())
+  workspaceId           String
+  type                  String
+  description           String             @db.Text
+  reasoning             String?            @db.Text
+  certaintyLevel        String             @default("POSSIBLE")
+  identifiedBy          String
+  createdAt             DateTime           @default(now())
+  workspace             WorkspaceReasoning @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  obligations           Obligation[]
+
+  @@index([workspaceId, createdAt])
+}
+
+model Obligation {
+  id                    String              @id @default(cuid())
+  workspaceId           String
+  contextId             String
+  description           String              @db.Text
+  mandatory             Boolean             @default(true)
+  deadline              DateTime?
+  critical              Boolean             @default(false)
+  legalRef              String?
+  deducedBy             String
+  createdAt             DateTime            @default(now())
+  workspace             WorkspaceReasoning  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  context               ContextHypothesis   @relation(fields: [contextId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, contextId])
+  @@index([workspaceId, deadline])
+}
+
+model MissingElement {
+  id                    String             @id @default(cuid())
+  workspaceId           String
+  type                  String
+  description           String             @db.Text
+  priority              String             @default("normal")
+  why                   String?            @db.Text
+  blocking              Boolean            @default(false)
+  identifiedBy          String?
+  resolved              Boolean            @default(false)
+  resolvedBy            String?
+  resolvedAt            DateTime?
+  resolution            String?            @db.Text
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  workspace             WorkspaceReasoning @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, resolved])
+}
+
+model Risk {
+  id                    String             @id @default(cuid())
+  workspaceId           String
+  description           String             @db.Text
+  impact                String
+  probability           String
+  irreversible          Boolean            @default(false)
+  riskScore             Int
+  evaluatedBy           String
+  createdAt             DateTime           @default(now())
+  workspace             WorkspaceReasoning @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, riskScore])
+}
+
+model ProposedAction {
+  id                    String             @id @default(cuid())
+  workspaceId           String
+  type                  String
+  content               String             @db.Text
+  reasoning             String             @db.Text
+  target                String
+  priority              String             @default("NORMAL")
+  executed              Boolean            @default(false)
+  executedBy            String?
+  executedAt            DateTime?
+  result                String?            @db.Text
+  proposedBy            String
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  workspace             WorkspaceReasoning @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, priority])
+}
+
+model ReasoningTrace {
+  id                    String             @id @default(cuid())
+  workspaceId           String
+  step                  String
+  explanation           String             @db.Text
+  metadata              String?
+  createdBy             String
+  createdAt             DateTime           @default(now())
+  workspace             WorkspaceReasoning @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model ReasoningTransition {
+  id                    String             @id @default(cuid())
+  workspaceId           String
+  fromState             String?
+  toState               String
+  triggeredBy           String
+  triggeredAt           DateTime            @default(now())
+  reason                String              @db.Text
+  metadata              String?
+  autoApproved          Boolean             @default(false)
+  validatedBy           String?
+  validatedAt           DateTime?
+  stateBefore           String?
+  stateAfter            String?
+  hash                  String?
+  createdAt             DateTime            @default(now())
+  workspace             WorkspaceReasoning  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
 }

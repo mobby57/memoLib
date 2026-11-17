@@ -349,7 +349,7 @@ export async function POST(request: NextRequest) {
 
     void scanDocumentAsync({
       documentId: document.id,
-      fileName: safeFileName,
+      tenantId,
       mimeType: file.type,
       buffer,
     });
@@ -367,9 +367,7 @@ export async function POST(request: NextRequest) {
 
     logger.info('[UPLOAD] Document enregistrÃ©:', {
       id: uniqueId,
-      name: safeFileName,
       hash,
-      description,
       stored: !!fileUrl,
     });
 
@@ -385,7 +383,9 @@ export async function POST(request: NextRequest) {
       logger.info('[UPLOAD] Horodatage TSA certifiÃ©', { documentId: uniqueId });
     } catch (tsaError) {
       // Non bloquant : le document est uploadÃ© mÃªme si le TSA Ã©choue
-      logger.warn('[UPLOAD] TSA certification failed (non-blocking)', { error: tsaError });
+      logger.warn('[UPLOAD] TSA certification failed (non-blocking)', {
+        error: tsaError instanceof Error ? tsaError.name : 'UnknownError',
+      });
     }
 
     return withRateLimitHeaders(
@@ -404,7 +404,9 @@ export async function POST(request: NextRequest) {
       rateInfo
     );
   } catch (error) {
-    logger.error('[UPLOAD] Erreur:', { error });
+    logger.error('[UPLOAD] Erreur:', {
+      error: error instanceof Error ? error.name : 'UnknownError',
+    });
     return NextResponse.json({ error: "Erreur lors de l'upload" }, { status: 500 });
   }
 }

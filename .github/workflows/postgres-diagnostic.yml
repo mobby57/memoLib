@@ -1,0 +1,57 @@
+name: PostgreSQL Database Diagnostic
+
+on:
+  schedule:
+    # Every Monday at 8 AM UTC
+    - cron: '0 8 * * 1'
+    # Every Thursday at 2 PM UTC
+    - cron: '0 14 * * 4'
+  workflow_dispatch: # Manual trigger for testing
+
+jobs:
+  postgres-diagnostic:
+    name: Run PostgreSQL Diagnostic
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📚 Install dependencies
+        run: npm ci --only=production
+
+      - name: 🔧 Generate Prisma client
+        run: npx prisma generate
+
+      - name: 🔍 Run diagnostic (non-Slack)
+        if: github.event_name == 'schedule'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
+        run: npx ts-node scripts/diagnostic-postgres.ts --verbose
+
+      - name: 🔍 Run diagnostic with Slack
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          NODE_ENV: production
+        run: npx ts-node scripts/diagnostic-postgres.ts --verbose --slack
+
+      - name: 📊 Notify on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'PostgreSQL Diagnostic failed'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          fields: repo,message,commit,author,action,eventName,ref

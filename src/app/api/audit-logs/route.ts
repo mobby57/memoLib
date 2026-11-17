@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       return access.error;
     }
 
-    const allowedReadRoles = new Set(['ADMIN', 'SUPER_ADMIN', 'LAWYER']);
+    const allowedReadRoles = new Set(['ADMIN', 'SUPER_ADMIN', 'LAWYER', 'AVOCAT']);
     if (!allowedReadRoles.has(access.role)) {
       return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
     }

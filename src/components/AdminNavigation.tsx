@@ -1,3 +1,4 @@
+import { CustomSignOutButton } from '@/components/auth/CustomSignOutButton';
 'use client';
 
 import Link from 'next/link';

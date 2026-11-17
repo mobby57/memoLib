@@ -92,13 +92,15 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
     }
   };
   const handleEmailAction = async (emailId: string, action: string) => {
+    if (!workspaceId) return;
+
     try {
-      await fetch(`/api/lawyer/workspaces/${emailId.split('-')[0]}/emails`, {
+      const response = await fetch(`/api/lawyer/workspaces/${workspaceId}/emails`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ emailId, action }),
       });
-      onRefresh();
+      if (response.ok) onRefresh();
     } catch (error) {
       console.error('Erreur action email:', error);
     }

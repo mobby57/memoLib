@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { Packer } from 'docx';
@@ -88,15 +88,15 @@ export async function POST(req: NextRequest) {
         doc = generateMemoireComplementaire(vars as MemoireComplementaireVars);
         break;
       default:
-        return NextResponse.json({ error: `GÃ©nÃ©rateur non implÃ©mentÃ© pour "${templateType}"` }, { status: 501 });
+        return NextResponse.json({ error: `Générateur non implémenté pour "${templateType}"` }, { status: 501 });
     }
   } catch (err: any) {
-    return NextResponse.json({ error: 'Erreur gÃ©nÃ©ration', details: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Erreur génération', details: err.message }, { status: 500 });
   }
 
   const buffer = await Packer.toBuffer(doc);
   const uint8 = new Uint8Array(buffer);
-  const filename = `${template.title.replace(/[^a-zA-ZÃ€-Ã¿0-9_-]/g, '_')}_${new Date().toISOString().slice(0, 10)}.docx`;
+  const filename = `${template.title.replace(/[^a-zA-ZÀ-ÿ0-9_-]/g, '_')}_${new Date().toISOString().slice(0, 10)}.docx`;
 
   return new NextResponse(uint8, {
     status: 200,

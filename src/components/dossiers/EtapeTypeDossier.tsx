@@ -1,4 +1,5 @@
 'use client'
+import { MagicUpload } from '@/components/ai/MagicUpload';
 
 import { useFormContext } from 'react-hook-form'
 import { getPackById } from '@/lib/ceseda/pack-registry'
@@ -111,7 +112,22 @@ export function EtapeTypeDossier() {
           <p className="mt-2 text-xs text-indigo-700">📎 {packActif.documents.length} pièces · {packActif.deadlines.length} échéance{packActif.deadlines.length > 1 ? 's' : ''}</p>
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+        {/* 🪄 Extraction IA — Apparaît uniquement pour les types qui ont un document */}
+        {typeSelectionne && ['RECOURS_OQTF', 'TITRE_SEJOUR', 'NATURALISATION'].includes(typeSelectionne) && (
+          <MagicUpload
+            typeDossier={typeSelectionne}
+            onExtract={(data) => {
+              // Pré-remplit le formulaire React Hook Form
+              if (data.nom) setValue('nom', data.nom);
+              if (data.prenom) setValue('prenom', data.prenom);
+              if (data.dateNaissance) setValue('dateNaissance', data.dateNaissance);
+              if (data.nationalite) setValue('nationalite', data.nationalite);
+              if (data.numeroDocument) setValue('numeroEtranger', data.numeroDocument);
+            }}
+          />
+        )}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {TYPES_DOSSIER.map((type) => (
           <label
             key={type.value}

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       if (search) {
         where.OR = [
           { id: { contains: search } },
-          { sourceRaw: { contains: search } },
+          { sourceId: { contains: search } },
           { procedureType: { contains: search } },
         ];
       }

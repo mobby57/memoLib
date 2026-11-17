@@ -1,10 +1,10 @@
 import { logger } from '@/lib/logger';
-import { prisma } from '@/lib/prisma';
+import { withTenantContext } from '@/lib/prisma';
 import net from 'net';
 
 interface ScanRequest {
   documentId: string;
-  fileName: string;
+  tenantId: string;
   mimeType: string;
   buffer: Buffer;
 }
@@ -91,12 +91,13 @@ async function scanWithClamAV(buffer: Buffer): Promise<ScanResult> {
       resolved = true;
       clearTimeout(timeout);
       const response = Buffer.concat(chunks).toString('utf-8').trim();
-      // ClamAV response: "stream: OK" or "stream: <virus_name> FOUND"
       if (response.includes('FOUND')) {
         const threat = response.replace('stream:', '').replace('FOUND', '').trim();
         resolve({ clean: false, threat, engine: 'clamav' });
-      } else {
+      } else if (response.endsWith('OK')) {
         resolve({ clean: true, engine: 'clamav' });
+      } else {
+        resolve({ clean: false, threat: 'Invalid ClamAV response', engine: 'clamav-invalid-response' });
       }
     });
 
@@ -111,52 +112,76 @@ async function scanWithClamAV(buffer: Buffer): Promise<ScanResult> {
 }
 
 export async function scanDocumentAsync(req: ScanRequest): Promise<void> {
-  const { documentId, fileName, buffer } = req;
+  const { documentId, tenantId, buffer } = req;
 
-  logger.info('[ANTIVIRUS] Scanning document', { documentId, file: fileName, size: buffer.length });
+  logger.info('[ANTIVIRUS] Scanning document', { documentId, size: buffer.length });
 
   try {
     // Step 1: Local signature scan
     const sigResult = scanSignatures(buffer);
     if (!sigResult.clean) {
-      await markInfected(documentId, sigResult);
+      await markInfected(documentId, tenantId, sigResult);
       return;
     }
 
     // Step 2: Pattern scan
     const patternResult = scanPatterns(buffer);
     if (!patternResult.clean) {
-      await markInfected(documentId, patternResult);
+      await markInfected(documentId, tenantId, patternResult);
       return;
     }
 
     // Step 3: ClamAV (if available)
     const clamResult = await scanWithClamAV(buffer);
+    if (clamResult.engine !== 'clamav') {
+      await updateScanStatus(documentId, tenantId, 'ERROR', clamResult.engine);
+      return;
+    }
     if (!clamResult.clean) {
-      await markInfected(documentId, clamResult);
+      await markInfected(documentId, tenantId, clamResult);
       return;
     }
 
-    // All clear
-    await prisma.document.update({
-      where: { id: documentId },
-      data: { antivirusStatus: 'CLEAN', antivirusEngine: clamResult.engine, antivirusScannedAt: new Date() },
-    });
+    await updateScanStatus(documentId, tenantId, 'CLEAN', clamResult.engine);
 
     logger.info('[ANTIVIRUS] Document clean', { documentId, engine: clamResult.engine });
   } catch (error) {
-    logger.error('[ANTIVIRUS] Scan failed', { documentId, error });
-    await prisma.document.update({
-      where: { id: documentId },
-      data: { antivirusStatus: 'ERROR' },
-    }).catch(() => {});
+    logger.error('[ANTIVIRUS] Scan failed', {
+      documentId,
+      error: error instanceof Error ? error.name : 'UnknownError',
+    });
+    await updateScanStatus(documentId, tenantId, 'ERROR', 'scan-error');
   }
 }
 
-async function markInfected(documentId: string, result: ScanResult): Promise<void> {
-  logger.warn('[ANTIVIRUS] THREAT DETECTED', { documentId, threat: result.threat, engine: result.engine });
-  await prisma.document.update({
-    where: { id: documentId },
-    data: { antivirusStatus: 'INFECTED', antivirusEngine: result.engine, antivirusDetails: result.threat, antivirusScannedAt: new Date() },
-  });
+async function updateScanStatus(
+  documentId: string,
+  tenantId: string,
+  antivirusStatus: 'CLEAN' | 'ERROR',
+  antivirusEngine: string
+): Promise<void> {
+  await withTenantContext(tenantId, transaction =>
+    transaction.document.updateMany({
+      where: { id: documentId, tenantId },
+      data: { antivirusStatus, antivirusEngine, antivirusScannedAt: new Date() },
+    })
+  );
+}
+
+async function markInfected(
+  documentId: string,
+  tenantId: string,
+  result: ScanResult
+): Promise<void> {
+  logger.warn('[ANTIVIRUS] Threat detected', { documentId, engine: result.engine });
+  await withTenantContext(tenantId, transaction =>
+    transaction.document.updateMany({
+      where: { id: documentId, tenantId },
+      data: {
+        antivirusStatus: 'INFECTED',
+        antivirusEngine: result.engine,
+        antivirusScannedAt: new Date(),
+      },
+    })
+  );
 }

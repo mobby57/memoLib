@@ -1,0 +1,130 @@
+MEMOLIB — LOGICIEL PROPRIÉTAIRE
+Licence de propriété exclusive
+
+═══════════════════════════════════════════════════════════════════════════
+
+DÉCLARATION D'AUTEUR & DE DROITS
+
+Copyright © 2024-2026 mobby57 (Propriétaire original)
+Tous droits réservés.
+
+PROTECTION LÉGALE
+
+Ce logiciel est protégé par le Code de la propriété intellectuelle français 
+(CPI) et les traités internationaux (WIPO). La reproduction, modification, 
+distribution, ou revente sans autorisation écrite expresse est formellement 
+interdite et constitue une contrefaçon pénalement réprimée.
+
+Références légales :
+  • Art. L.111-1 (protection automatique) du CPI
+  • Art. L.122-6 (droit de reproduction) du CPI
+  • Art. L.335-2 (peines de contrefaçon) du CPI
+  • Loi Hadopi (2009) pour l'exécution technique
+
+COMPOSITION PROTÉGÉE
+
+Ce logiciel intègre :
+
+1. CŒUR MÉTIER (irréductible)
+   ├─ Moteur juridique CESEDA (8 packs spécialisés)
+   │  └─ Délais de recours automatisés (70 variables)
+   │  └─ Prédiction jurisprudentielle (ML + base de cas)
+   │
+   ├─ Système de chiffrement AES-256 (zero-knowledge architecture)
+   │  └─ Chiffrement côté client, déchiffrement uniquement avec secret professionnel
+   │
+   ├─ Moteur d'extraction IA CESEDA (OCR + NLP)
+   │  └─ Reconnaissance automatique des délais de CESEDA
+   │
+   └─ Réseau multi-tenant sécurisé
+      └─ Isolation stricte des données par cabinet juridique
+
+2. DESIGN SYSTEM UNIQUE
+   ├─ Palette graphique propriétaire (couleurs + typo)
+   ├─ Composants React signature
+   ├─ Animations et transitions brevetées
+   └─ Interface spécifiquement conçue pour les avocats CESEDA
+
+3. DONNÉES ÉDUCATIVES
+   ├─ Base de jurisprudence CESEDA (500+ décisions annotées)
+   ├─ Templates de recours validés par barreaux
+   └─ Checklists de procédure certifiées
+
+INTERDICTIONS EXPLICITES
+
+L'utilisateur s'engage à NE PAS :
+
+  ❌ Copier, cloner, reproduire, ou redistribuer ce code (même en partie)
+  ❌ Créer une version dérivée ou "inspirée" (sauf pour usage interne)
+  ❌ Vendre, revendre, ou monetiser l'accès à ce logiciel
+  ❌ Reverse-engineer, désassembler, ou déobfusquer le code
+  ❌ Extraire les packs CESEDA pour usage externe
+  ❌ Utiliser les données/modèles pour former un concurrent
+  ❌ Contourner les mesures techniques de protection (chiffrement, watermarking)
+  ❌ Prétendre être l'auteur ou créateur de ce logiciel
+
+PEINES EN CAS D'INFRACTION
+
+La contrefaçon est punie de :
+  • 300 000€ d'amende maximum
+  • 3 ans de prison maximum
+  • Saisie et destruction des copies contrefaisantes
+  • Perte de tous droits d'accès au service
+
+(Art. L.335-2 et L.335-3 du CPI)
+
+CONDITIONS D'UTILISATION
+
+✅ AUTORISÉ :
+  • Utiliser le logiciel pour votre cabinet juridique personnel
+  • Modifier le code pour vos besoins internes uniquement
+  • Faire une backup pour votre usage personnel
+  • Rapporter des bugs aux auteurs
+
+❌ NON AUTORISÉ :
+  • Partager l'accès avec d'autres cabinets (sauf contrat spécifique)
+  • Laisser un ancien collaborateur y accéder après départ
+  • Vendre des recours générés par MemoLib sous votre propre marque
+
+SIGNATURE NUMÉRIQUE
+
+Chaque instance de MemoLib génère un hash SHA-256 unique :
+
+  Généré : [TIMESTAMP_DÉPLOIEMENT]
+  Hash : [SHA256_CODE_SOURCE]
+  Signataire : mobby57
+
+Cette signature prouve l'antériorité de ce code en cas de litige.
+
+GARANTIES & LIMITES DE RESPONSABILITÉ
+
+CE LOGICIEL EST FOURNI "EN L'ÉTAT" SANS GARANTIE.
+
+L'auteur ne sera pas responsable de :
+  • Perte de données
+  • Interruption du service
+  • Erreurs judiciaires (l'avocat reste maître de décision)
+  • Dommages indirects
+
+L'UTILISATEUR ACCEPTE QUE :
+  • MemoLib est un outil d'aide, pas un conseil juridique
+  • Chaque recours doit être validé par l'avocat
+  • L'auteur n'est pas responsable des stratégies judiciaires
+
+CONTACT & RECOURS
+
+Pour toute question légale ou violation suspectée :
+
+  📧 Propriétaire : mobby57
+  🔗 Site : [À remplir avec URL du site]
+  ⚖️ Tribunal compétent : Tribunal judiciaire de Metz (France)
+  
+Toute action en contrefaçon sera poursuivie vigoureusement.
+
+═══════════════════════════════════════════════════════════════════════════
+
+VERSION : 1.0
+DERNIÈRE MISE À JOUR : 2026-11-17
+VALIDITÉ : À perpétuité (jusqu'à révocation écrite)
+
+EN ACCEPTANT D'UTILISER CE LOGICIEL, VOUS ACCEPTEZ CES TERMES.

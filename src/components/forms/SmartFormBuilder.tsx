@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 /**
  *  Smart Form Builder - IA Interactive
- * 
+ *
  * Genere des formulaires adaptatifs bases sur:
  * - Le contexte de l'utilisateur
  * - Les decisions precedentes
@@ -53,12 +53,11 @@ interface SmartFormBuilderProps {
   showImpactAnalysis?: boolean;
 }
 
-export default function SmartFormBuilder({ 
-  config, 
+export default function SmartFormBuilder({
+  config,
   onComplete,
-  showImpactAnalysis = true 
+  showImpactAnalysis = true
 }: SmartFormBuilderProps) {
-  const [currentStep, setCurrentStep] = useState(0);
   const [aiSuggestions, setAiSuggestions] = useState<Record<string, string>>({});
   const [impactScore, setImpactScore] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -67,10 +66,10 @@ export default function SmartFormBuilder({
   // Creer le schema de validation Zod dynamiquement
   const createValidationSchema = () => {
     const schemaFields: Record<string, z.ZodType<any>> = {};
-    
+
     config.fields.forEach(field => {
       let fieldSchema: z.ZodType<any>;
-      
+
       switch (field.type) {
         case 'number':
           fieldSchema = z.number();
@@ -87,14 +86,14 @@ export default function SmartFormBuilder({
         default:
           fieldSchema = z.string();
       }
-      
+
       if (field.required) {
         schemaFields[field.id] = fieldSchema;
       } else {
         schemaFields[field.id] = fieldSchema.optional();
       }
     });
-    
+
     return z.object(schemaFields);
   };
 
@@ -102,7 +101,6 @@ export default function SmartFormBuilder({
     register,
     handleSubmit,
     watch,
-    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     resolver: zodResolver(createValidationSchema()),
@@ -113,7 +111,7 @@ export default function SmartFormBuilder({
   // Calculer les champs visibles bases sur les dependances
   useEffect(() => {
     const visible = new Set<string>();
-    
+
     config.fields.forEach(field => {
       if (!field.dependsOn) {
         visible.add(field.id);
@@ -124,7 +122,7 @@ export default function SmartFormBuilder({
         }
       }
     });
-    
+
     setVisibleFields(visible);
   }, [watchedValues, config.fields]);
 
@@ -138,19 +136,19 @@ export default function SmartFormBuilder({
   const calculateImpact = () => {
     let score = 0;
     const impactWeights = { low: 1, medium: 2, high: 3, critical: 4 };
-    
+
     config.fields.forEach(field => {
       if (field.impactAnalysis && watchedValues[field.id]) {
         score += impactWeights[field.impactAnalysis.level];
       }
     });
-    
+
     setImpactScore(score);
   };
 
   const getAISuggestion = async (fieldId: string, context: any) => {
     if (!config.aiEnabled) return;
-    
+
     setIsAnalyzing(true);
     try {
       const response = await fetch('/api/ai/form-suggestions', {
@@ -162,7 +160,7 @@ export default function SmartFormBuilder({
           context: watchedValues,
         }),
       });
-      
+
       const data = await response.json();
       setAiSuggestions(prev => ({
         ...prev,
@@ -200,8 +198,8 @@ export default function SmartFormBuilder({
   const renderField = (field: FormField) => {
     if (!visibleFields.has(field.id)) return null;
 
-    const hasError = !!errors[field.id];
-    const errorMessage = errors[field.id]?.message as string;
+    const hasError: boolean = Boolean(errors[field.id]);
+    const errorMessage = errors[field.id]?.message;
 
     return (
       <div key={field.id} className="mb-6">
@@ -209,7 +207,7 @@ export default function SmartFormBuilder({
           {field.label}
           {field.required && <span className="text-red-500 ml-1">*</span>}
         </label>
-        
+
         {field.description && (
           <p className="text-sm text-gray-600 mb-2">{field.description}</p>
         )}
@@ -277,7 +275,7 @@ export default function SmartFormBuilder({
         )}
 
         {/* Erreur de validation */}
-        {hasError && (
+        {hasError && errorMessage && (
           <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
         )}
 
@@ -295,7 +293,7 @@ export default function SmartFormBuilder({
         )}
 
         {/* Analyse d'impact */}
-        {field.impactAnalysis && watchedValues[field.id] && (
+        {field.impactAnalysis && Boolean(watchedValues[field.id]) && (
           <div className={`mt-2 p-3 rounded-lg border ${
             field.impactAnalysis.level === 'critical' ? 'bg-red-50 border-red-200' :
             field.impactAnalysis.level === 'high' ? 'bg-orange-50 border-orange-200' :
@@ -303,15 +301,15 @@ export default function SmartFormBuilder({
             'bg-green-50 border-green-200'
           }`}>
             <div className="flex items-start">
-              <span className={`mr-2 ${
+              <span className={`mr-2 text-lg ${
                 field.impactAnalysis.level === 'critical' ? 'text-red-600' :
                 field.impactAnalysis.level === 'high' ? 'text-orange-600' :
                 field.impactAnalysis.level === 'medium' ? 'text-yellow-600' :
                 'text-green-700'
               }`}>
-                {field.impactAnalysis.level === 'critical' ? '?' :
-                 field.impactAnalysis.level === 'high' ? '' :
-                 field.impactAnalysis.level === 'medium' ? '' : ''}
+                {field.impactAnalysis.level === 'critical' ? '🔴' :
+                 field.impactAnalysis.level === 'high' ? '⚡' :
+                 field.impactAnalysis.level === 'medium' ? '⚙️' : '✅'}
               </span>
               <div>
                 <p className="text-sm font-medium">
@@ -385,7 +383,7 @@ export default function SmartFormBuilder({
             <div className="text-right">
               <div className="text-3xl font-bold text-blue-600">{impactScore}</div>
               <div className="text-sm text-gray-600">
-                {impactScore < 5 ? 'Faible' : impactScore < 10 ? 'Moyen' : 'eleve'}
+                {impactScore < 5 ? 'Faible' : impactScore < 10 ? 'Moyen' : 'Élevé'}
               </div>
             </div>
           </div>
@@ -402,7 +400,7 @@ export default function SmartFormBuilder({
         {config.requiresApproval && (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-start">
-              <span className="text-yellow-600 mr-2">?</span>
+              <span className="text-yellow-600 mr-2 text-lg">📋</span>
               <div>
                 <p className="font-medium text-yellow-900">Approbation requise</p>
                 <p className="text-sm text-yellow-700 mt-1">

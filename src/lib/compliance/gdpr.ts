@@ -72,7 +72,7 @@ export class GDPRCompliance {
             data: {
                 userId,
                 type: consent.type,
-                granted: consent.granted,
+                accepted: consent.granted,
                 ipAddress: consent.ipAddress,
                 userAgent: consent.userAgent,
                 policyVersion: consent.version,
@@ -92,7 +92,7 @@ export class GDPRCompliance {
 
         return consents.map((c: any) => ({
             type: c.type as ConsentType,
-            granted: c.granted,
+            granted: c.accepted,
             timestamp: c.grantedAt,
             ipAddress: c.ipAddress,
             userAgent: c.userAgent,

@@ -4,7 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, STRIPE_WEBHOOK_SECRET } from '@/lib/stripe/config';
-import { getSecurePrisma } from '@/lib/prisma';;
+import { getSystemPrisma } from '@/lib/prisma';
 import {
     isStripeEventDuplicate,
     logStripeWebhookProcessingFailure,
@@ -23,7 +23,7 @@ function isStripeEventUniqueViolation(error: any): boolean {
 }
 
 export async function POST(request: NextRequest) {
-  const prisma = await getSecurePrisma();
+  const prisma = getSystemPrisma();
     const parsed = await parseStripeWebhookRequest(request, stripe, STRIPE_WEBHOOK_SECRET);
     if (!parsed.ok) {
         return parsed.response;

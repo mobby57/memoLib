@@ -6,7 +6,7 @@
  */
 
 import { ollama } from '@/lib/ai/ollama-client';
-import { prisma } from '@/lib/prisma';
+import { getSecurePrisma } from '@/lib/prisma';
 import {
   getPromptForTransition,
   fillPromptTemplate,
@@ -23,6 +23,8 @@ interface ReasoningResult {
   traces?: Array<{ step: string; explanation: string }>;
 }
 
+type SecurePrisma = Awaited<ReturnType<typeof getSecurePrisma>>;
+
 /**
  * Executer une transition de raisonnement
  */
@@ -31,6 +33,8 @@ export async function executeReasoning(
   toState: WorkspaceState
 ): Promise<ReasoningResult> {
   try {
+    const prisma = await getSecurePrisma();
+
     // 1. Charger le workspace avec toutes les relations
     const workspace = await prisma.workspaceReasoning.findUnique({
       where: { id: workspaceId },
@@ -81,8 +85,6 @@ export async function executeReasoning(
 
     const aiResponse = await ollama.generateJSON(prompt);
 
-    console.log(` AI Response received:`, aiResponse);
-
     // 5. Valider la structure de la reponse
     if (!aiResponse || typeof aiResponse !== 'object') {
       return {
@@ -92,7 +94,7 @@ export async function executeReasoning(
     }
 
     // 6. Appliquer les resultats selon l'etat cible
-    await applyReasoningResults(workspaceId, toState, aiResponse);
+    await applyReasoningResults(prisma, workspaceId, toState, aiResponse);
 
     // 7. Mettre a jour l'etat du workspace
     await prisma.workspaceReasoning.update({
@@ -137,6 +139,7 @@ export async function executeReasoning(
  * Appliquer les resultats du raisonnement a la base de donnees
  */
 async function applyReasoningResults(
+  prisma: SecurePrisma,
   workspaceId: string,
   state: WorkspaceState,
   aiResponse: any
@@ -310,6 +313,7 @@ export async function executeFullReasoning(workspaceId: string): Promise<{
 
     // Si on atteint MISSING_IDENTIFIED avec des bloquants, on s'arrete
     if (state === 'MISSING_IDENTIFIED') {
+      const prisma = await getSecurePrisma();
       const workspace = await prisma.workspaceReasoning.findUnique({
         where: { id: workspaceId },
         include: { missingElements: true },
@@ -343,6 +347,7 @@ export async function executeFullReasoning(workspaceId: string): Promise<{
  * Executer une seule etape (step-by-step)
  */
 export async function executeNextStep(workspaceId: string): Promise<ReasoningResult> {
+  const prisma = await getSecurePrisma();
   const workspace = await prisma.workspaceReasoning.findUnique({
     where: { id: workspaceId },
   });

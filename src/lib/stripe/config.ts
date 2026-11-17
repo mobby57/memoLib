@@ -8,7 +8,7 @@ if (!process.env.STRIPE_WEBHOOK_SECRET) {
     console.warn('STRIPE_WEBHOOK_SECRET non definie au build: fallback placeholder utilise.');
 }
 
-const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_placeholder';
+const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY?.trim() || process.env.STRIPE_SECRET_KEY!;
 
 export const stripe = new Stripe(STRIPE_SECRET, {
     apiVersion: '2026-02-25.clover',

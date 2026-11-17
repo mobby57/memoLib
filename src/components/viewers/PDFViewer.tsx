@@ -1,4 +1,4 @@
-﻿interface PDFViewerProps {
+interface PDFViewerProps {
     src: string;
     title?: string;
     height?: number;
@@ -19,7 +19,7 @@ export default function PDFViewer({ src, title = 'Document preview', height = 64
                 </a>
             </header>
             <iframe
-                title={title}
+                sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer" loading="lazy" title={title}
                 src={src}
                 className="w-full rounded-xl border border-gray-200"
                 style={{ height }}

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API Route: POST /api/emails/send
  * 
  * Permet Ã  un avocat d'envoyer un email depuis MemoLib.
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
   const parsed = sendEmailSchema.safeParse(requestBody);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.errors[0]?.message || 'DonnÃ©es invalides' },
+      { error: parsed.error.issues[0]?.message || 'DonnÃ©es invalides' },
       { status: 400 }
     );
   }

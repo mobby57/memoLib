@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
@@ -12,15 +12,27 @@ import { logger } from '@/lib/logger';
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>;
 
 const createDossierSchema = z.object({
-  clientId: z.string().uuid(),
-  titre: z.string().min(1).max(500),
-  type: z.string().min(1),
+  // Format A — API stricte (page liste, tests)
+  clientId: z.string().uuid().optional(),
+  titre: z.string().min(1).max(500).optional(),
+  type: z.string().min(1).optional(),
   description: z.string().optional(),
   domaine: z.string().optional(),
   juridiction: z.string().optional(),
   numeroRG: z.string().optional(),
   priorite: z.enum(['basse', 'normale', 'haute', 'urgente']).optional(),
-});
+  // Format B — Wizard avancé
+  typeDossier: z.string().min(1).optional(),
+  objetDemande: z.string().min(1).optional(),
+  nom: z.string().optional(),
+  prenom: z.string().optional(),
+  email: z.string().trim().email().transform((value) => value.toLowerCase()).optional(),
+  adresse: z.string().optional(),
+  // Format C — Page rapide
+  clientName: z.string().min(1).optional(),
+  objet: z.string().min(1).optional(),
+  dateEcheance: z.string().optional(),
+}).passthrough();
 
 const patchDossierSchema = z.object({
   dossierId: z.string().min(1),
@@ -157,6 +169,8 @@ export async function POST(request: NextRequest) {
     if (!sessionTenantId) {
       return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
+    const sessionUserId = (session.user as any).id as string;
+    const tenantId = sessionTenantId;
 
     let body: Record<string, unknown>;
     try {
@@ -168,53 +182,143 @@ export async function POST(request: NextRequest) {
     const parsed = createDossierSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'DonnÃ©es invalides', details: parsed.error.flatten().fieldErrors },
+        { error: 'Donnees invalides', details: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+    const d = parsed.data;
 
-    const { clientId, titre, type, description, domaine, juridiction, numeroRG, priorite } = parsed.data;
-    const tenantId = sessionTenantId;
+    // ─── Detection du format ───
+    const isFormatA = Boolean(d.clientId && d.titre && d.type);
+    const isFormatB = Boolean(!isFormatA && d.typeDossier && d.objetDemande);
+    const isFormatC = Boolean(!isFormatA && !isFormatB && d.clientName && d.typeDossier && d.objet);
 
-    const client = await prisma.client.findFirst({ where: { id: clientId, tenantId } });
-    if (!client) return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
+    if (!isFormatA && !isFormatB && !isFormatC) {
+      return NextResponse.json(
+        { error: 'Format non reconnu. Champs requis : (clientId+titre+type) | (typeDossier+objetDemande) | (clientName+typeDossier+objet)' },
+        { status: 400 }
+      );
+    }
+    if (isFormatC && !d.email) {
+      return NextResponse.json({ error: 'Email client requis pour ce format' }, { status: 400 });
+    }
 
+    // ─── Resolution du clientId + champs dossier ───
+    let clientId: string;
+    let clientNom: string | null = null;
+    let clientPrenom: string | null = null;
+    let clientAdresse: string | null = null;
+    let objetDossier: string;
+    let typeDossier: string;
+    let description: string | undefined;
+    let juridiction: string | undefined;
+    let numeroRG: string | undefined;
+    let priorite: string | undefined;
+
+    if (isFormatA) {
+      const client = await prisma.client.findFirst({ where: { id: d.clientId!, tenantId } });
+      if (!client) return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
+      clientId = d.clientId!;
+      objetDossier = d.titre!;
+      typeDossier = d.type!;
+      description = d.description;
+      juridiction = d.juridiction;
+      numeroRG = d.numeroRG;
+      priorite = d.priorite;
+    } else if (isFormatB) {
+      if (!d.email) {
+        return NextResponse.json({ error: 'Email client requis pour ce format' }, { status: 400 });
+      }
+      let client = await prisma.client.findFirst({ where: { email: d.email, tenantId } });
+      if (!client) {
+        client = await prisma.client.create({
+          data: {
+            id: crypto.randomUUID(),
+            email: d.email,
+            firstName: d.prenom || 'À renseigner',
+            lastName: d.nom || 'À renseigner',
+            tenantId,
+            updatedAt: new Date(),
+          },
+        });
+      }
+      clientId = client.id;
+      objetDossier = d.objetDemande!;
+      typeDossier = d.typeDossier!;
+      clientNom = d.nom ?? null;
+      clientPrenom = d.prenom ?? null;
+      clientAdresse = d.adresse ?? null;
+    } else {
+      // Format C — page rapide
+      const email = d.email!;
+      let client = await prisma.client.findFirst({ where: { email, tenantId } });
+      if (!client) {
+        client = await prisma.client.create({
+          data: {
+            id: crypto.randomUUID(),
+            email,
+            firstName: 'À renseigner',
+            lastName: d.clientName!,
+            tenantId,
+            updatedAt: new Date(),
+          },
+        });
+      }
+      clientId = client.id;
+      objetDossier = d.objet!;
+      typeDossier = d.typeDossier!;
+      clientNom = d.clientName!;
+    }
+
+    // ─── Numero sequentiel DOS-YYYY-NNNN ───
     const count = await prisma.dossier.count({ where: { tenantId } });
     const numero = `DOS-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
+    // ─── Creation ───
     const dossier = await prisma.dossier.create({
       data: {
         id: crypto.randomUUID(),
         tenantId,
         clientId,
         numero,
-        objet: titre || description || 'Nouveau dossier',
-        typeDossier: type || 'GENERAL',
+        objet: objetDossier,
+        typeDossier,
         description,
         juridiction,
+        numeroJuridiction: numeroRG,
         priorite: priorite || 'normale',
         statut: 'en_cours',
+        responsableId: sessionUserId,
+        clientNom,
+        clientPrenom,
+        clientAdresse,
         updatedAt: new Date(),
       },
     });
 
-    // Invalider le cache
     await cacheInvalidatePattern(`dossiers:${tenantId}:*`);
 
-    return NextResponse.json({ success: true, dossier });
+    // Retour compatible avec les 3 appelants :
+    // - wizard lit dossier.id
+    // - page liste ne lit rien
+    // - page rapide ne lit rien
+    return NextResponse.json({
+      success: true,
+      dossier,
+      id: dossier.id,
+      dossierId: dossier.id,
+    });
   } catch (error) {
     const mapped = mapPrismaErrorToHttp(error);
     if (mapped) {
       return NextResponse.json({ error: mapped.message }, { status: mapped.status });
     }
-
     logger.error('Erreur POST dossier', error instanceof Error ? error : undefined, {
       route: '/api/dossiers',
     });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
-
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSessionCompat();

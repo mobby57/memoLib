@@ -1,0 +1,15 @@
+﻿MemoLib — Logiciel propriétaire
+Copyright (c) 2026 [Ton nom / Ta société]
+
+Tous droits réservés. Ce logiciel est protégé par le Code de la propriété
+intellectuelle. Toute reproduction, modification, distribution ou revente
+sans autorisation écrite est strictement interdite et constitue une
+contrefaçon (art. L.335-2 CPI).
+
+Ce logiciel intègre :
+- Un moteur juridique CESEDA (8 packs, 70% du marché)
+- Un système de chiffrement AES-256 côté client (zero-knowledge)
+- Un système d'invitation sécurisé (tokens SHA-256)
+- Une architecture multi-tenant stricte
+
+Contact : morosidibrepro@gmail.com

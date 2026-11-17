@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { FileText, User, Calendar, CheckCircle, ArrowRight } from 'lucide-react';
+import { FileText, User, Calendar, CheckCircle, ArrowRight, Mail } from 'lucide-react';
 
 /**
- * Formulaire rapide de création de dossier — 3 champs seulement
+ * Formulaire rapide de création de dossier
  * Pour l'avocat qui veut créer un dossier en 30 secondes
  */
 export default function NouveauDossierRapide() {
@@ -19,6 +19,7 @@ export default function NouveauDossierRapide() {
 
   const [form, setForm] = useState({
     clientNom: '',
+    email: '',
     typeDossier: '',
     dateEcheance: '',
   });
@@ -38,8 +39,8 @@ export default function NouveauDossierRapide() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.clientNom || !form.typeDossier) {
-      setError('Nom du client et type de dossier requis');
+    if (!form.clientNom || !form.email || !form.typeDossier) {
+      setError('Nom, email du client et type de dossier requis');
       return;
     }
 
@@ -52,6 +53,7 @@ export default function NouveauDossierRapide() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clientName: form.clientNom,
+          email: form.email,
           typeDossier: form.typeDossier,
           dateEcheance: form.dateEcheance || undefined,
           objet: `${form.typeDossier} - ${form.clientNom}`,
@@ -94,7 +96,7 @@ export default function NouveauDossierRapide() {
             <FileText className="w-7 h-7 text-blue-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Nouveau dossier</h1>
-          <p className="text-gray-500 mt-1">3 champs, 30 secondes</p>
+          <p className="text-gray-500 mt-1">4 champs, 30 secondes</p>
         </div>
 
         {error && (
@@ -117,6 +119,21 @@ export default function NouveauDossierRapide() {
               placeholder="M. Dupont, Mme Traoré..."
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               autoFocus
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
+              <Mail className="w-4 h-4 inline mr-1.5" />
+              Email du client *
+            </label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="client@exemple.fr"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              required
             />
           </div>
 

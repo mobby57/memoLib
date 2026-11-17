@@ -89,7 +89,7 @@ export const createDossierSchema = z.object({
   clientId: cuidSchema.optional(),
   assignedToId: cuidSchema.optional(),
   deadline: z.coerce.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const updateDossierSchema = createDossierSchema.partial().extend({
@@ -215,7 +215,7 @@ export const paginationSchema = z.object({
 
 export const searchSchema = paginationSchema.extend({
   q: z.string().max(200).optional(),
-  filters: z.record(z.unknown()).optional(),
+  filters: z.record(z.string(), z.unknown()).optional(),
 });
 
 // ==================== SCHÉMAS WEBHOOKS ====================
@@ -224,7 +224,7 @@ export const stripeWebhookSchema = z.object({
   id: z.string(),
   type: z.string(),
   data: z.object({
-    object: z.record(z.unknown()),
+    object: z.record(z.string(), z.unknown()),
   }),
   livemode: z.boolean(),
 });
@@ -249,7 +249,7 @@ export function validateRequest<T extends z.ZodSchema>(schema: T, data: unknown)
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    const errors = result.error.errors.map(err => ({
+    const errors = result.error.issues.map(err => ({
       field: err.path.join('.'),
       message: err.message,
     }));

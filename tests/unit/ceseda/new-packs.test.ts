@@ -7,8 +7,10 @@ import { irtfPack } from '../../../src/lib/ceseda/packs/eloignement/irtf.pack';
 import { regroupementFamilialPack } from '../../../src/lib/ceseda/packs/regroupement-familial/ofii.pack';
 
 describe('CESEDA - Nouveaux packs', () => {
-  it('a bien 6 packs dans le registry', () => {
-    expect(ALL_PACKS.length).toBe(6);
+  it('contient les packs avec des identifiants uniques', () => {
+    const packIds = ALL_PACKS.map((pack) => pack.id);
+    expect(ALL_PACKS).toHaveLength(8);
+    expect(new Set(packIds).size).toBe(packIds.length);
   });
 
   it('CNDA : recours 21 jours après notification', () => {

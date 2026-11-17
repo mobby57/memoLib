@@ -120,7 +120,7 @@ const clientSchema = z.object({
   prochainRDVPrefecture: z.string().optional(),
 
   // RGPD / Legal
-  consentementTraitement: z.literal(true, { errorMap: () => ({ message: 'Le consentement est obligatoire' }) }),
+  consentementTraitement: z.literal(true, { message: 'Le consentement est obligatoire' }),
   sourceDossier: z.enum(['recommandation', 'internet', 'ancien_client', 'autre']).optional(),
   notes: z.string().optional(),
 

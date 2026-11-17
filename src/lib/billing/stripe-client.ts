@@ -9,7 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('? STRIPE_SECRET_KEY non definie - Paiements desactives');
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_dummy', {
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY?.trim() || process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-02-25.clover',
   typescript: true,
 });

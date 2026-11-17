@@ -5,7 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider telemetry={false}>
       {children}
     </ClerkProvider>
   );

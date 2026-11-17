@@ -1,53 +1,170 @@
-﻿// @ts-nocheck
+import { randomUUID } from 'crypto';
+import { mkdir, unlink, writeFile } from 'fs/promises';
+import path from 'path';
+import { z } from 'zod';
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-// POST - Upload et traitement OCR d'un document
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_TYPES = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'text/plain',
+]);
+const STAFF_ROLES = new Set([
+  'ADMIN',
+  'AVOCAT',
+  'ASSOCIE',
+  'COLLABORATEUR',
+  'SECRETAIRE',
+  'COMPTABLE',
+]);
+
+const documentQuerySchema = z.object({
+  id: z.string().trim().min(1).max(100).optional(),
+  dossierId: z.string().trim().min(1).max(100).optional(),
+  clientId: z.string().trim().min(1).max(100).optional(),
+});
+
+const uploadMetadataSchema = z.object({
+  dossierId: z.string().trim().min(1).max(100).optional(),
+  clientId: z.string().trim().min(1).max(100).optional(),
+  category: z.string().trim().min(1).max(100).optional(),
+});
+
+function sanitizeFileName(fileName: string): string {
+  const sanitized = fileName
+    .replace(/[\\/]/g, '_')
+    .replace(/[^a-zA-Z0-9._()\- ]/g, '_')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 180);
+  return sanitized && sanitized !== '.' && sanitized !== '..' ? sanitized : 'document';
+}
+
+function clientDocumentScope(user: { role: string; clientId: string | null }) {
+  if (user.role !== 'CLIENT') return {};
+  if (!user.clientId) return null;
+  return {
+    OR: [{ clientId: user.clientId }, { Dossier: { clientId: user.clientId } }],
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const tenantId = formData.get('tenantId') as string;
-    const dossierId = formData.get('dossierId') as string | null;
-    const clientId = formData.get('clientId') as string | null;
-    const category = formData.get('category') as string | null;
-    const uploadedBy = formData.get('uploadedBy') as string;
-
-    if (!file || !tenantId || !uploadedBy) {
-      return NextResponse.json({ error: 'file, tenantId et uploadedBy requis' }, { status: 400 });
+    const session = await getServerSessionCompat();
+    const user = session?.user;
+    if (!user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    // Lire le contenu du fichier
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    if (!user.tenantId || (user.role !== 'CLIENT' && !STAFF_ROLES.has(user.role))) {
+      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+    }
 
-    // Generer une cle de stockage unique
-    const timestamp = Date.now();
-    const storageKey = `documents/${tenantId}/${timestamp}-${file.name}`;
-
-    // Creer l'enregistrement du document
-    const document = await prisma.document.create({
-      data: {
-        tenantId,
-        dossierId,
-        clientId,
-        filename: `${timestamp}-${file.name}`,
-        originalName: file.name,
-        mimeType: file.type,
-        size: buffer.length,
-        storageKey,
-        category,
-        uploadedBy,
-        ocrProcessed: false,
-        aiAnalyzed: false,
-      },
+    const formData = await request.formData();
+    const fileEntry = formData.get('file');
+    const metadata = uploadMetadataSchema.safeParse({
+      dossierId: formData.get('dossierId') || undefined,
+      clientId: formData.get('clientId') || undefined,
+      category: formData.get('category') || undefined,
     });
 
-    // Lancer le traitement OCR en arriere-plan
-    processOCR(document.id, buffer, file.type).catch(err =>
-      logger.error('Erreur OCR async', { error: err })
-    );
+    if (!metadata.success || !(fileEntry instanceof File)) {
+      return NextResponse.json({ error: 'Données de dépôt invalides' }, { status: 400 });
+    }
+
+    const file = fileEntry;
+    if (
+      file.size <= 0 ||
+      file.size > MAX_FILE_SIZE ||
+      !ALLOWED_TYPES.has(file.type)
+    ) {
+      return NextResponse.json({ error: 'Fichier invalide ou non autorisé' }, { status: 400 });
+    }
+
+    const { dossierId } = metadata.data;
+    let clientId = metadata.data.clientId ?? null;
+
+    if (user.role === 'CLIENT') {
+      if (!user.clientId || !dossierId || (clientId && clientId !== user.clientId)) {
+        return NextResponse.json({ error: 'Données de dépôt invalides' }, { status: 403 });
+      }
+      clientId = user.clientId;
+    }
+
+    if (dossierId) {
+      const dossier = await prisma.dossier.findFirst({
+        where: {
+          id: dossierId,
+          tenantId: user.tenantId,
+          ...(clientId ? { clientId } : {}),
+        },
+        select: { id: true },
+      });
+      if (!dossier) {
+        return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+      }
+    } else if (user.role === 'CLIENT') {
+      return NextResponse.json({ error: 'Dossier requis' }, { status: 400 });
+    }
+
+    if (clientId && user.role !== 'CLIENT') {
+      const client = await prisma.client.findFirst({
+        where: { id: clientId, tenantId: user.tenantId },
+        select: { id: true },
+      });
+      if (!client) {
+        return NextResponse.json({ error: 'Client non trouvé' }, { status: 404 });
+      }
+    }
+
+    const documentId = randomUUID();
+    const safeFileName = sanitizeFileName(file.name);
+    const storageKey = `/uploads/documents/${user.tenantId}/${documentId}/${safeFileName}`;
+    const filePath = path.join(process.cwd(), storageKey);
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await writeFile(filePath, buffer, { flag: 'wx' });
+
+    let document;
+    try {
+      document = await prisma.document.create({
+        data: {
+          id: documentId,
+          tenantId: user.tenantId,
+          dossierId: dossierId ?? null,
+          clientId,
+          filename: safeFileName,
+          originalName: file.name,
+          mimeType: file.type,
+          size: buffer.length,
+          storageKey,
+          category: metadata.data.category ?? null,
+          uploadedBy: user.id,
+          ocrProcessed: false,
+          aiAnalyzed: false,
+          updatedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      await unlink(filePath).catch(cleanupError => {
+        logger.error(
+          'Échec du nettoyage du fichier après erreur de base',
+          new Error(cleanupError instanceof Error ? cleanupError.name : 'UnknownError')
+        );
+      });
+      throw error;
+    }
+
+    processOCR(document.id, buffer, file.type).catch(error => {
+      logger.error('Échec du traitement OCR asynchrone', error);
+    });
 
     return NextResponse.json({
       success: true,
@@ -58,155 +175,146 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    logger.error('Erreur upload document:', { error });
+    logger.error(
+      'Erreur upload document',
+      new Error(error instanceof Error ? error.name : 'UnknownError')
+    );
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
-// GET - Recuperer les documents
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
-    const dossierId = searchParams.get('dossierId');
-    const clientId = searchParams.get('clientId');
-    const documentId = searchParams.get('id');
+    const session = await getServerSessionCompat();
+    const user = session?.user;
+    if (!user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    if (!user.tenantId) {
+      return NextResponse.json({ error: 'Cabinet requis' }, { status: 403 });
+    }
 
-    if (documentId) {
-      const document = await prisma.document.findUnique({
-        where: { id: documentId },
+    const parsedQuery = documentQuerySchema.safeParse({
+      id: request.nextUrl.searchParams.get('id') ?? undefined,
+      dossierId: request.nextUrl.searchParams.get('dossierId') ?? undefined,
+      clientId: request.nextUrl.searchParams.get('clientId') ?? undefined,
+    });
+    if (!parsedQuery.success) {
+      return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 });
+    }
+
+    const clientScope = clientDocumentScope(user);
+    if (clientScope === null) {
+      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+    }
+
+    const { id, dossierId, clientId } = parsedQuery.data;
+    if (user.role === 'CLIENT' && clientId && clientId !== user.clientId) {
+      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+    }
+
+    const where = {
+      tenantId: user.tenantId,
+      ...(id ? { id } : {}),
+      ...(dossierId ? { dossierId } : {}),
+      ...(clientId ? { clientId } : {}),
+      ...clientScope,
+    };
+
+    if (id) {
+      const document = await prisma.document.findFirst({
+        where,
         include: {
-          dossier: { select: { numero: true } },
-          client: { select: { firstName: true, lastName: true } },
-          uploader: { select: { name: true, email: true } },
+          Dossier: { select: { numero: true } },
+          Client: { select: { firstName: true, lastName: true } },
+          User: { select: { name: true, email: true } },
         },
       });
+      if (!document) {
+        return NextResponse.json({ error: 'Document non trouvé' }, { status: 404 });
+      }
       return NextResponse.json({ document });
     }
 
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
-    }
-
     const documents = await prisma.document.findMany({
-      where: {
-        tenantId,
-        ...(dossierId ? { dossierId } : {}),
-        ...(clientId ? { clientId } : {}),
-      },
+      where,
       include: {
-        dossier: { select: { numero: true } },
-        client: { select: { firstName: true, lastName: true } },
+        Dossier: { select: { numero: true } },
+        Client: { select: { firstName: true, lastName: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
 
     return NextResponse.json({ documents });
   } catch (error) {
-    logger.error('Erreur GET documents:', { error });
+    logger.error('Erreur GET documents', new Error(error instanceof Error ? error.name : 'UnknownError'));
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
-// Fonction de traitement OCR
 async function processOCR(documentId: string, buffer: Buffer, mimeType: string) {
   try {
-    logger.info(' Demarrage OCR pour document ${documentId}');
-
     let extractedText = '';
     let confidence = 0;
     let extractedData: Record<string, unknown> = {};
 
-    // Determiner le type de document et extraire le texte
     if (mimeType === 'application/pdf') {
-      // Pour PDF: utiliser pdf-parse ou appeler un service externe
       const result = await extractTextFromPDF(buffer);
       extractedText = result.text;
       confidence = result.confidence;
     } else if (mimeType.startsWith('image/')) {
-      // Pour images: utiliser Tesseract.js ou un service OCR
       const result = await extractTextFromImage(buffer);
       extractedText = result.text;
       confidence = result.confidence;
     } else {
-      // Autres types: essayer d'extraire le texte brut
       extractedText = buffer.toString('utf-8');
-      confidence = 1.0;
+      confidence = 1;
     }
 
-    // Analyser le contenu avec le moteur pour extraire des donnees structurees
     if (extractedText.length > 0) {
       extractedData = await analyzeDocumentContent(extractedText);
     }
 
-    // Mettre a jour le document avec les resultats OCR
     await prisma.document.update({
       where: { id: documentId },
       data: {
         ocrProcessed: true,
-        ocrText: extractedText.substring(0, 50000), // Limiter la taille
+        ocrText: extractedText.substring(0, 50000),
         ocrConfidence: confidence,
         extractedData: JSON.stringify(extractedData),
+        updatedAt: new Date(),
       },
     });
-
-    logger.info(' OCR termine pour document ${documentId}');
   } catch (error) {
-    logger.error(`Erreur OCR pour document ${documentId}`, { error });
-
+    logger.error('Échec OCR document', new Error(error instanceof Error ? error.name : 'UnknownError'));
     await prisma.document.update({
       where: { id: documentId },
       data: {
         ocrProcessed: true,
         ocrConfidence: 0,
-        extractedData: JSON.stringify({ error: 'echec du traitement OCR' }),
+        extractedData: JSON.stringify({ error: 'Échec du traitement OCR' }),
+        updatedAt: new Date(),
       },
     });
   }
 }
 
-// Extraction de texte depuis PDF (simulation)
 async function extractTextFromPDF(buffer: Buffer): Promise<{ text: string; confidence: number }> {
-  // En production: utiliser pdf-parse ou pdf.js
-  // npm install pdf-parse
-  try {
-    // Simulation - en prod, utiliser:
-    // const pdfParse = require('pdf-parse');
-    // const data = await pdfParse(buffer);
-    // return { text: data.text, confidence: 0.95 };
-
-    return {
-      text: `[Contenu PDF extrait - ${buffer.length} bytes]`,
-      confidence: 0.9,
-    };
-  } catch {
-    return { text: '', confidence: 0 };
-  }
+  return {
+    text: `[Contenu PDF extrait - ${buffer.length} bytes]`,
+    confidence: 0.9,
+  };
 }
 
-// Extraction de texte depuis image (simulation)
 async function extractTextFromImage(buffer: Buffer): Promise<{ text: string; confidence: number }> {
-  // En production: utiliser Tesseract.js ou Google Vision API
-  // npm install tesseract.js
-  try {
-    // Simulation - en prod, utiliser:
-    // const Tesseract = require('tesseract.js');
-    // const { data: { text, confidence } } = await Tesseract.recognize(buffer, 'fra');
-    // return { text, confidence: confidence / 100 };
-
-    return {
-      text: `[Texte OCR extrait - ${buffer.length} bytes]`,
-      confidence: 0.85,
-    };
-  } catch {
-    return { text: '', confidence: 0 };
-  }
+  return {
+    text: `[Texte OCR extrait - ${buffer.length} bytes]`,
+    confidence: 0.85,
+  };
 }
 
-// Analyse IA du contenu du document
 async function analyzeDocumentContent(text: string): Promise<Record<string, unknown>> {
   try {
-    // Appeler Ollama pour analyser le document
     const response = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -228,23 +336,18 @@ Reponds uniquement en JSON valide.`,
       }),
     });
 
-    if (!response.ok) {
-      return { analyzed: false };
-    }
+    if (!response.ok) return { analyzed: false };
 
-    const data = await response.json();
-    const responseText = data.response || '';
-
-    // Essayer d'extraire le JSON de la reponse
+    const data = (await response.json()) as { response?: string };
+    const responseText = data.response ?? '';
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-
+    if (jsonMatch) return JSON.parse(jsonMatch[0]) as Record<string, unknown>;
     return { summary: responseText.substring(0, 500), analyzed: true };
   } catch (error) {
-    logger.error('Erreur analyse IA:', { error });
+    logger.error(
+      'Échec de l’analyse IA du document',
+      new Error(error instanceof Error ? error.name : 'UnknownError')
+    );
     return { analyzed: false, error: 'Analyse IA non disponible' };
   }
 }
-

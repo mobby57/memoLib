@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH, DELETE } from '@/app/api/audit-logs/route';
 import prisma from '@/lib/prisma';
 
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(async () => ({
+vi.mock('@/lib/auth/getServerSessionCompat', () => ({
+  getServerSessionCompat: vi.fn(async () => ({
     user: {
       id: 'user-123',
       role: 'ADMIN',
@@ -12,10 +12,6 @@ vi.mock('next-auth', () => ({
       email: 'user@test.com',
     },
   })),
-}));
-
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
 }));
 
 vi.mock('@/lib/prisma', () => ({

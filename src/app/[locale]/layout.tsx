@@ -1,6 +1,6 @@
 import { getBaseUrl, SITE_DESCRIPTION, SITE_NAME } from '@/lib/metadata';
 import { AppProviders } from '@/components/AppProviders';
-import  Providers  from './providers';
+import Providers from './providers';
 import { LayoutWrapper } from '@/components/LayoutWrapper';
 import ConsentBanner from '@/components/compliance/ConsentBanner';
 import './globals.css';
@@ -38,8 +38,8 @@ export default async function LocaleLayout({
       />
       <Providers>
         <AppProviders>
-        <LayoutWrapper>{children}</LayoutWrapper>
-      </AppProviders>
+          <LayoutWrapper>{children}</LayoutWrapper>
+        </AppProviders>
         <ConsentBanner />
       </Providers>
     </>

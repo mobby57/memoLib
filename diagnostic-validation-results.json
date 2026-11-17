@@ -1,0 +1,27 @@
+﻿{
+    "timestamp":  "2026-11-17 05:04:45",
+    "healthScore":  0,
+    "errors":  [
+
+               ],
+    "warnings":  [
+                     "DATABASE_URL not set in this process; database connectivity remains untested",
+                     "Database test skipped (requires running application)",
+                     "Diagnostic execution test requires running application (skipped)",
+                     "CRON_SECRET not set (required for GitHub Actions)",
+                     "SLACK_WEBHOOK_URL not set (alerts won\u0027t be sent)"
+                 ],
+    "phases":  {
+                   "prisma":  "PASS",
+                   "secrets":  "PARTIAL",
+                   "environment":  "PASS",
+                   "diagnosticFiles":  "PASS",
+                   "diagnosticExecution":  "PARTIAL",
+                   "gitHubActions":  "PASS",
+                   "dependencies":  "PASS",
+                   "documentation":  "PASS",
+                   "apiEndpoint":  "PASS",
+                   "database":  "SKIPPED"
+               },
+    "status":  "CHECKS_INCOMPLETE"
+}

@@ -36,15 +36,22 @@
 # HTML templates
 *.html text eol=lf
 
-# PowerShell scripts
+# PowerShell scripts (LF per existing project policy)
 *.ps1 text eol=lf
 *.psm1 text eol=lf
 *.psd1 text eol=lf
+
+# Windows batch scripts (CRLF required by cmd.exe)
+*.cmd text eol=crlf
+*.bat text eol=crlf
 
 # Lock files (preserve exact format)
 package-lock.json text eol=lf
 pnpm-lock.yaml text eol=lf
 yarn.lock text eol=lf
+
+# Database migrations (LF strict - PostgreSQL compatibility)
+prisma/migrations/** text eol=lf
 
 # Binary files
 *.png binary
@@ -56,3 +63,9 @@ yarn.lock text eol=lf
 *.woff2 binary
 *.ttf binary
 *.eot binary
+*.pdf binary
+*.zip binary
+*.docx binary
+*.xlsx binary
+*.db binary
+*.sqlite binary

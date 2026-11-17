@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -28,7 +28,7 @@ export default function InvitationPage() {
 
         setStatus('success');
         setMessage('Invitation acceptée ! Redirection vers votre dossier...');
-        setTimeout(() => router.push(`/fr/dossiers/${data.dossierId}`), 2000);
+        setTimeout(() => router.push(`/fr/espace-client/${data.dossierId}`), 2000);
       } catch (err: any) {
         setStatus('error');
         setMessage(err.message);

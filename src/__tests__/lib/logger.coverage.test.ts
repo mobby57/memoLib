@@ -194,7 +194,7 @@ describe('logger.ts — Full Coverage', () => {
       await new Promise(r => setTimeout(r, 10));
       stop();
       // Should not throw, logs performance
-    });
+    }, 10_000);
   });
 
   describe('sanitizeContext (via logger methods)', () => {

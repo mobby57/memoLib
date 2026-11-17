@@ -3,15 +3,9 @@
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock next-auth
 const mockGetServerSession = vi.fn();
-vi.mock('next-auth', () => ({
-  getServerSession: (...args: any[]) => mockGetServerSession(...args),
-}));
-
-// Mock authOptions
-vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
-  authOptions: {},
+vi.mock('@/lib/auth/getServerSessionCompat', () => ({
+  getServerSessionCompat: (...args: any[]) => mockGetServerSession(...args),
 }));
 
 // Mock prisma
@@ -92,7 +86,7 @@ describe('audit-logs route — Full Coverage', () => {
 
     it('should apply filters', async () => {
       mockGetServerSession.mockResolvedValue({
-        user: { id: 'u1', role: 'LAWYER', tenantId: 't1', email: 'law@test.com' },
+        user: { id: 'u1', role: 'AVOCAT', tenantId: 't1', email: 'law@test.com' },
       });
       mockPrisma.auditLog.findMany.mockResolvedValue([]);
       mockPrisma.auditLog.count.mockResolvedValue(0);
