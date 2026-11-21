@@ -16,7 +16,20 @@ export async function POST(req: NextRequest) {
   // Auth par webhook secret
   const secret = req.headers.get('x-webhook-secret') || req.nextUrl.searchParams.get('secret');
   const expectedSecret = process.env.EMAIL_WEBHOOK_SECRET;
-  if (expectedSecret && secret !== expectedSecret) {
+  if (!expectedSecret) {
+    return NextResponse.json({ error: 'Webhook non configure' }, { status: 503 });
+  }
+
+  if (!secret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const providedSecret = Buffer.from(secret);
+  const configuredSecret = Buffer.from(expectedSecret);
+  if (
+    providedSecret.length !== configuredSecret.length ||
+    !crypto.timingSafeEqual(providedSecret, configuredSecret)
+  ) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

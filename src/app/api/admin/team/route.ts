@@ -1,12 +1,26 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
-import { getSecurePrisma } from '@/lib/prisma';;
+import { getSecurePrisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
 const VALID_ROLES = ['AVOCAT', 'ASSOCIE', 'COLLABORATEUR', 'STAGIAIRE', 'SECRETAIRE', 'COMPTABLE'] as const;
+const inviteSchema = z.object({
+  email: z.string().trim().email().max(254),
+  name: z.string().trim().min(1).max(200),
+  memberRole: z.enum(VALID_ROLES),
+  phone: z.string().trim().max(50).optional().nullable(),
+});
+const patchSchema = z
+  .object({
+    memberId: z.string().min(1),
+    newRole: z.enum(VALID_ROLES).optional(),
+    status: z.enum(['active', 'inactive']).optional(),
+  })
+  .refine((value) => value.newRole !== undefined || value.status !== undefined);
 
 /**
  * GET /api/admin/team â€” Lister les membres de l'Ã©quipe du cabinet
@@ -52,22 +66,16 @@ export async function POST(request: NextRequest) {
   }
 
   const { role, tenantId } = session.user as any;
-  if (!['SUPER_ADMIN', 'AVOCAT', 'ADMIN'].includes(role) || !tenantId) {
-    return NextResponse.json({ error: 'Seul l\'avocat titulaire peut inviter des membres' }, { status: 403 });
+  if (role !== 'ADMIN' || !tenantId) {
+    return NextResponse.json({ error: 'Seul un administrateur peut inviter des membres' }, { status: 403 });
   }
 
-  const { email, name, memberRole, phone } = await request.json();
-
-  if (!email || !name || !memberRole) {
-    return NextResponse.json({ error: 'Email, nom et rÃ´le requis' }, { status: 400 });
+  const body = await request.json().catch(() => null);
+  const parsed = inviteSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Donnees invalides' }, { status: 400 });
   }
-
-  if (!VALID_ROLES.includes(memberRole)) {
-    return NextResponse.json(
-      { error: `RÃ´le invalide. RÃ´les acceptÃ©s: ${VALID_ROLES.join(', ')}` },
-      { status: 400 }
-    );
-  }
+  const { email, name, memberRole, phone } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
   if (existing) {
@@ -138,10 +146,15 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'AccÃ¨s refusÃ©' }, { status: 403 });
   }
 
-  const { memberId, newRole, status } = await request.json();
+  const body = await request.json().catch(() => null);
+  const parsed = patchSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Donnees invalides' }, { status: 400 });
+  }
+  const { memberId, newRole, status } = parsed.data;
 
-  if (!memberId) {
-    return NextResponse.json({ error: 'memberId requis' }, { status: 400 });
+  if (newRole && role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Seul un administrateur peut modifier les roles' }, { status: 403 });
   }
 
   const member = await prisma.user.findFirst({

@@ -115,6 +115,27 @@ export async function withTenantContext<T>(
   return result as T;
 }
 
+export async function withTenantContextTransaction<T>(
+  tenantId: string,
+  operation: (client: TenantTransactionClient) => Promise<T>,
+  options?: { maxWait?: number; timeout?: number }
+): Promise<T> {
+  if (!tenantId) {
+    throw new Error('Un tenant est requis pour cette operation.');
+  }
+
+  if (options) {
+    return prisma.$transaction(async tx => {
+      await tx.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
+      return operation(tx);
+    }, options);
+  }
+  return prisma.$transaction(async tx => {
+    await tx.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
+    return operation(tx);
+  });
+}
+
 export async function withTenantContextBatch(
   tenantId: string,
   operations: (client: TenantTransactionClient) => PrismaPromise<unknown>[]

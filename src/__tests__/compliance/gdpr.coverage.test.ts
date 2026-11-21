@@ -3,8 +3,8 @@
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-vi.mock('@/lib/prisma', () => ({
-  prisma: {
+vi.mock('@/lib/prisma', () => {
+  const prisma = {
     userConsent: {
       create: vi.fn(),
       findMany: vi.fn(),
@@ -36,8 +36,15 @@ vi.mock('@/lib/prisma', () => ({
     dossier: { findMany: vi.fn() },
     notification: { deleteMany: vi.fn() },
     calendarEvent: { deleteMany: vi.fn() },
-  },
-}));
+  };
+  return {
+    prisma,
+    withTenantContextTransaction: vi.fn(
+      async (_tenantId: string, operation: (client: typeof prisma) => Promise<unknown>) =>
+        operation(prisma)
+    ),
+  };
+});
 
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -59,7 +66,7 @@ describe('gdpr.ts — Full Coverage', () => {
   describe('GDPRCompliance.recordConsent', () => {
     it('should create consent record', async () => {
       mockPrisma.userConsent.create.mockResolvedValue({});
-      await GDPRCompliance.recordConsent('u1', {
+      await GDPRCompliance.recordConsent('t1', 'u1', {
         type: 'analytics',
         granted: true,
         ipAddress: '1.2.3.4',
@@ -77,7 +84,7 @@ describe('gdpr.ts — Full Coverage', () => {
       mockPrisma.userConsent.findMany.mockResolvedValue([
         { type: 'essential', accepted: true, grantedAt: new Date(), ipAddress: '1.2.3.4', userAgent: 'UA', policyVersion: '1.0' },
       ]);
-      const consents = await GDPRCompliance.getUserConsents('u1');
+      const consents = await GDPRCompliance.getUserConsents('t1', 'u1');
       expect(consents).toHaveLength(1);
       expect(consents[0].type).toBe('essential');
       expect(consents[0].granted).toBe(true);
@@ -87,23 +94,23 @@ describe('gdpr.ts — Full Coverage', () => {
   describe('GDPRCompliance.hasConsent', () => {
     it('should return true when granted', async () => {
       mockPrisma.userConsent.findFirst.mockResolvedValue({ accepted: true });
-      expect(await GDPRCompliance.hasConsent('u1', 'analytics')).toBe(true);
+      expect(await GDPRCompliance.hasConsent('t1', 'u1', 'analytics')).toBe(true);
     });
 
     it('should return false when not granted', async () => {
       mockPrisma.userConsent.findFirst.mockResolvedValue({ accepted: false });
-      expect(await GDPRCompliance.hasConsent('u1', 'marketing')).toBe(false);
+      expect(await GDPRCompliance.hasConsent('t1', 'u1', 'marketing')).toBe(false);
     });
 
     it('should return false when no record', async () => {
       mockPrisma.userConsent.findFirst.mockResolvedValue(null);
-      expect(await GDPRCompliance.hasConsent('u1', 'third_party')).toBe(false);
+      expect(await GDPRCompliance.hasConsent('t1', 'u1', 'third_party')).toBe(false);
     });
   });
 
   describe('GDPRCompliance.exportUserData', () => {
     it('should export all categories', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue({ id: 'u1', email: 'test@test.com' });
+      mockPrisma.user.findUnique.mockResolvedValue({ id: 'u1', email: 'test@test.com', tenantId: 't1' });
       mockPrisma.email.findMany.mockResolvedValue([]);
       mockPrisma.stripeCustomer.findUnique.mockResolvedValue(null);
       mockPrisma.subscription.findMany.mockResolvedValue([]);

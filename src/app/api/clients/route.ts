@@ -1,7 +1,7 @@
 ﻿// @ts-nocheck
 import { cacheDelete, cacheInvalidatePattern, cacheThrough, TTL_TIERS } from '@/lib/cache';
 import { logger } from '@/lib/logger';
-import { prisma } from '@/lib/prisma';
+import { prisma, withTenantContextTransaction } from '@/lib/prisma';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientSchema, updateClientSchema, type CreateClientInput } from '@/lib/validation/api-schemas';
@@ -78,15 +78,17 @@ export async function GET(request: NextRequest) {
       const client = await cacheThrough(
         `client:${tenantId}:${clientId}`,
         async () => {
-          return prisma.client.findFirst({
-            where: { id: clientId, tenantId },
-            include: {
-              dossiers: true,
-              emails: { take: 10, orderBy: { receivedAt: 'desc' } },
-              factures: { take: 10, orderBy: { dateEmission: 'desc' } },
-              _count: { select: { dossiers: true, emails: true, factures: true } },
-            },
-          });
+          return withTenantContextTransaction(tenantId, tx =>
+            tx.client.findFirst({
+              where: { id: clientId, tenantId },
+              include: {
+                dossiers: true,
+                emails: { take: 10, orderBy: { receivedAt: 'desc' } },
+                factures: { take: 10, orderBy: { dateEmission: 'desc' } },
+                _count: { select: { dossiers: true, emails: true, factures: true } },
+              },
+            })
+          );
         },
         'WARM'
       );
@@ -117,18 +119,20 @@ export async function GET(request: NextRequest) {
           }
         : { tenantId, ...(status && { status }) };
 
-      const [clients, total] = await Promise.all([
-        prisma.client.findMany({
-          where,
-          include: {
-            _count: { select: { dossiers: true } },
-          },
-          orderBy: { createdAt: 'desc' },
-          take: limit,
-          skip: offset,
-        }),
-        prisma.client.count({ where }),
-      ]);
+      const [clients, total] = await withTenantContextTransaction(tenantId, tx =>
+        Promise.all([
+          tx.client.findMany({
+            where,
+            include: {
+              _count: { select: { dossiers: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+            skip: offset,
+          }),
+          tx.client.count({ where }),
+        ])
+      );
 
       return { clients, total, hasMore: offset + clients.length < total };
     };
@@ -176,14 +180,6 @@ export async function POST(request: NextRequest) {
     const effectiveTenantId = access.tenantId;
 
     // Verifier si le client existe deja
-    const existing = await prisma.client.findUnique({
-      where: { tenantId_email: { tenantId: effectiveTenantId, email } },
-    });
-
-    if (existing) {
-      return NextResponse.json({ error: 'Un client avec cet email existe deja' }, { status: 409 });
-    }
-
     const parsedDate =
       typeof dateOfBirth === 'string' && dateOfBirth.trim().length > 0
         ? new Date(dateOfBirth)
@@ -192,9 +188,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Format dateOfBirth invalide' }, { status: 400 });
     }
 
-    const client = await prisma.$transaction(
-      async (tx) => {
-        const created = await tx.client.create({
+    const creation = await withTenantContextTransaction(effectiveTenantId, async tx => {
+        const existing = await tx.client.findUnique({
+          where: { tenantId_email: { tenantId: effectiveTenantId, email } },
+        });
+        if (existing) return { conflict: true as const };
+
+        const client = await tx.client.create({
           data: {
             tenantId: effectiveTenantId,
             firstName,
@@ -215,15 +215,17 @@ export async function POST(request: NextRequest) {
           data: { currentClients: { increment: 1 } },
         });
 
-        return created;
-      },
-      { timeout: 30000 }
-    );
+        return { conflict: false as const, client };
+    }, { timeout: 30000 });
+
+    if (creation.conflict) {
+      return NextResponse.json({ error: 'Un client avec cet email existe deja' }, { status: 409 });
+    }
 
     // Invalider le cache des listes clients
     await cacheInvalidatePattern(`clients:${effectiveTenantId}:*`);
 
-    return NextResponse.json({ success: true, client });
+    return NextResponse.json({ success: true, client: creation.client });
   } catch (error) {
     const mapped = mapPrismaErrorToHttp(error);
     if (mapped) {
@@ -249,6 +251,7 @@ export async function PATCH(request: NextRequest) {
 
     const {
       clientId,
+      tenantId: requestedTenantId,
       firstName,
       lastName,
       phone,
@@ -265,15 +268,13 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'clientId requis' }, { status: 400 });
     }
 
-    const existing = await prisma.client.findUnique({ where: { id: clientId } });
-    if (!existing) {
-      return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
-    }
-
-    const access = await resolveTenantAccess(existing.tenantId);
+    const access = await resolveTenantAccess(
+      typeof requestedTenantId === 'string' ? requestedTenantId : null
+    );
     if ('error' in access) {
       return access.error;
     }
+    const effectiveTenantId = access.tenantId;
 
     const updateData: Record<string, unknown> = {};
     if (firstName !== undefined) updateData.firstName = firstName;
@@ -297,18 +298,29 @@ export async function PATCH(request: NextRequest) {
       updateData.dateOfBirth = parsedDate;
     }
 
-    const client = await prisma.client.update({
-      where: { id: clientId },
-      data: updateData,
+    const update = await withTenantContextTransaction(effectiveTenantId, async tx => {
+      const existing = await tx.client.findFirst({
+        where: { id: String(clientId), tenantId: effectiveTenantId },
+      });
+      if (!existing) return null;
+
+      const client = await tx.client.update({
+        where: { id: String(clientId) },
+        data: updateData,
+      });
+      return { existing, client };
     });
+    if (!update) {
+      return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
+    }
 
     // Invalider le cache du client et des listes
     await Promise.all([
-      cacheDelete(`client:${existing.tenantId}:${clientId}`),
-      cacheInvalidatePattern(`clients:${existing.tenantId}:*`),
+      cacheDelete(`client:${effectiveTenantId}:${clientId}`),
+      cacheInvalidatePattern(`clients:${effectiveTenantId}:*`),
     ]);
 
-    return NextResponse.json({ success: true, client });
+    return NextResponse.json({ success: true, client: update.client });
   } catch (error) {
     const mapped = mapPrismaErrorToHttp(error);
     if (mapped) {
@@ -327,37 +339,40 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get('id');
+    const requestedTenantId = searchParams.get('tenantId');
 
     if (!clientId) {
       return NextResponse.json({ error: 'id requis' }, { status: 400 });
     }
 
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
-      select: { tenantId: true },
-    });
-
-    if (!client) {
-      return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
-    }
-
-    const access = await resolveTenantAccess(client.tenantId);
+    const access = await resolveTenantAccess(requestedTenantId);
     if ('error' in access) {
       return access.error;
     }
 
-    await prisma.$transaction([
-      prisma.client.delete({ where: { id: clientId } }),
-      prisma.tenant.update({
-        where: { id: client.tenantId },
+    const effectiveTenantId = access.tenantId;
+    const deleted = await withTenantContextTransaction(effectiveTenantId, async tx => {
+      const client = await tx.client.findFirst({
+        where: { id: clientId, tenantId: effectiveTenantId },
+        select: { id: true },
+      });
+      if (!client) return false;
+
+      await tx.client.delete({ where: { id: clientId } });
+      await tx.tenant.update({
+        where: { id: effectiveTenantId },
         data: { currentClients: { decrement: 1 } },
-      }),
-    ]);
+      });
+      return true;
+    });
+    if (!deleted) {
+      return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
+    }
 
     // Invalider le cache
     await Promise.all([
-      cacheDelete(`client:${client.tenantId}:${clientId}`),
-      cacheInvalidatePattern(`clients:${client.tenantId}:*`),
+      cacheDelete(`client:${effectiveTenantId}:${clientId}`),
+      cacheInvalidatePattern(`clients:${effectiveTenantId}:*`),
     ]);
 
     return NextResponse.json({ success: true });

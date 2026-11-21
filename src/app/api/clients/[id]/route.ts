@@ -1,6 +1,6 @@
 ﻿// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { withTenantContextTransaction } from '@/lib/prisma';
 import { cacheThrough, cacheDelete, TTL_TIERS } from '@/lib/cache';
 import { logger } from '@/lib/logger';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
@@ -60,50 +60,52 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const client = await cacheThrough(
       cacheKey,
       async () => {
-        return prisma.client.findFirst({
-          where: { id: clientId, tenantId },
-          include: {
-            dossiers: includeDossiers
-              ? {
-                  orderBy: { createdAt: 'desc' },
-                  take: 20,
-                  select: {
-                    id: true,
-                    numero: true,
-                    titre: true,
-                    type: true,
-                    status: true,
-                    priorite: true,
-                    createdAt: true,
-                    updatedAt: true,
-                  },
-                }
-              : false,
-            factures: includeFactures
-              ? {
-                  orderBy: { dateEmission: 'desc' },
-                  take: 20,
-                  select: {
-                    id: true,
-                    numero: true,
-                    montantHT: true,
-                    montantTTC: true,
-                    statut: true,
-                    dateEmission: true,
-                    dateEcheance: true,
-                  },
-                }
-              : false,
-            _count: {
-              select: {
-                dossiers: true,
-                factures: true,
-                documents: true,
-                evenements: true,
+        return withTenantContextTransaction(tenantId, tx =>
+          tx.client.findFirst({
+            where: { id: clientId, tenantId },
+            include: {
+              dossiers: includeDossiers
+                ? {
+                    orderBy: { createdAt: 'desc' },
+                    take: 20,
+                    select: {
+                      id: true,
+                      numero: true,
+                      titre: true,
+                      type: true,
+                      status: true,
+                      priorite: true,
+                      createdAt: true,
+                      updatedAt: true,
+                    },
+                  }
+                : false,
+              factures: includeFactures
+                ? {
+                    orderBy: { dateEmission: 'desc' },
+                    take: 20,
+                    select: {
+                      id: true,
+                      numero: true,
+                      montantHT: true,
+                      montantTTC: true,
+                      statut: true,
+                      dateEmission: true,
+                      dateEcheance: true,
+                    },
+                  }
+                : false,
+              _count: {
+                select: {
+                  dossiers: true,
+                  factures: true,
+                  documents: true,
+                  evenements: true,
+                },
               },
             },
-          },
-        });
+          })
+        );
       },
       'WARM'
     );
@@ -143,40 +145,43 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { tenantId } = access;
 
     // VÃ©rifier que le client existe
-    const existing = await prisma.client.findFirst({
-      where: { id: clientId, tenantId },
+    const update = await withTenantContextTransaction(tenantId, async tx => {
+      const existing = await tx.client.findFirst({
+        where: { id: clientId, tenantId },
+      });
+      if (!existing) return null;
+
+      const client = await tx.client.update({
+        where: { id: clientId },
+        data: {
+          ...updateData,
+          updatedAt: new Date(),
+        },
+      });
+
+      await tx.evenement.create({
+        data: {
+          tenantId,
+          clientId,
+          type: 'action',
+          categorie: 'modification_client',
+          titre: 'Client modifie',
+          description: `Le client ${client.firstName} ${client.lastName} a ete modifie`,
+          dateEvenement: new Date(),
+        },
+      });
+
+      return client;
     });
 
-    if (!existing) {
+    if (!update) {
       return NextResponse.json({ error: 'Client non trouvÃ©' }, { status: 404 });
     }
-
-    // Mettre Ã  jour le client
-    const client = await prisma.client.update({
-      where: { id: clientId },
-      data: {
-        ...updateData,
-        updatedAt: new Date(),
-      },
-    });
-
-    // CrÃ©er un Ã©vÃ©nement de modification
-    await prisma.evenement.create({
-      data: {
-        tenantId,
-        clientId,
-        type: 'action',
-        categorie: 'modification_client',
-        titre: 'Client modifiÃ©',
-        description: `Le client ${client.firstName} ${client.lastName} a Ã©tÃ© modifiÃ©`,
-        dateEvenement: new Date(),
-      },
-    });
 
     // Invalider le cache
     await cacheDelete(`client:${tenantId}:${clientId}:full`);
 
-    return NextResponse.json({ client, message: 'Client mis Ã  jour' });
+    return NextResponse.json({ client: update, message: 'Client mis Ã  jour' });
   } catch (error) {
     logger.error('Erreur PATCH client', error instanceof Error ? error : undefined, {
       route: '/api/clients/[id]',
@@ -206,52 +211,54 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // VÃ©rifier que le client existe
-    const existing = await prisma.client.findFirst({
-      where: { id: clientId, tenantId },
-      include: {
-        _count: { select: { dossiers: true } },
-      },
+    const deletion = await withTenantContextTransaction(tenantId, async tx => {
+      const existing = await tx.client.findFirst({
+        where: { id: clientId, tenantId },
+        include: {
+          _count: { select: { dossiers: true } },
+        },
+      });
+      if (!existing) return { status: 'not-found' as const };
+
+      if (existing._count.dossiers > 0 && hardDelete) {
+        return { status: 'has-dossiers' as const };
+      }
+
+      if (hardDelete) {
+        await tx.client.delete({ where: { id: clientId } });
+      } else {
+        await tx.client.update({
+          where: { id: clientId },
+          data: {
+            status: 'inactive',
+            updatedAt: new Date(),
+          },
+        });
+
+        await tx.evenement.create({
+          data: {
+            tenantId,
+            clientId,
+            type: 'action',
+            categorie: 'desactivation_client',
+            titre: 'Client desactive',
+            description: `Le client ${existing.firstName} ${existing.lastName} a ete desactive`,
+            dateEvenement: new Date(),
+          },
+        });
+      }
+      return { status: 'deleted' as const };
     });
 
-    if (!existing) {
+    if (deletion.status === 'not-found') {
       return NextResponse.json({ error: 'Client non trouvÃ©' }, { status: 404 });
     }
 
-    // VÃ©rifier si le client a des dossiers actifs
-    if (existing._count.dossiers > 0 && hardDelete) {
+    if (deletion.status === 'has-dossiers') {
       return NextResponse.json(
         { error: 'Impossible de supprimer un client avec des dossiers actifs' },
         { status: 400 }
       );
-    }
-
-    if (hardDelete) {
-      // Suppression dÃ©finitive (admin uniquement, client sans dossiers)
-      await prisma.client.delete({
-        where: { id: clientId },
-      });
-    } else {
-      // Soft delete : dÃ©sactivation
-      await prisma.client.update({
-        where: { id: clientId },
-        data: {
-          status: 'inactive',
-          updatedAt: new Date(),
-        },
-      });
-
-      // CrÃ©er un Ã©vÃ©nement de dÃ©sactivation
-      await prisma.evenement.create({
-        data: {
-          tenantId,
-          clientId,
-          type: 'action',
-          categorie: 'desactivation_client',
-          titre: 'Client dÃ©sactivÃ©',
-          description: `Le client ${existing.firstName} ${existing.lastName} a Ã©tÃ© dÃ©sactivÃ©`,
-          dateEvenement: new Date(),
-        },
-      });
     }
 
     // Invalider le cache

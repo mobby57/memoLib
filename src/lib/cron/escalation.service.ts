@@ -1,14 +1,5 @@
-/**
- * Service d'escalade — PLAN_COMPLET.md §5.5
- *
- * Règles :
- * - Email non traité 24h  → notification ADMIN
- * - Email non traité 48h  → notification SUPER_ADMIN
- * - Deadline dépassée     → incident P2 + escalade MANAGER
- * - 3 deadlines dépassées/mois → rapport + recommandation ADMIN
- */
-
-import { prisma } from '@/lib/prisma';
+import { prisma, withTenantContext } from '@/lib/prisma';
+import { randomUUID } from 'crypto';
 
 export interface EscalationResult {
   emailsEscalated24h: number;
@@ -18,183 +9,110 @@ export interface EscalationResult {
 }
 
 export async function runEscalation(): Promise<EscalationResult> {
-  const now = new Date();
-  const h24 = new Date(now.getTime() - 24 * 3600_000);
-  const h48 = new Date(now.getTime() - 48 * 3600_000);
+  let totalEmails24h = 0;
+  let totalEmails48h = 0;
+  let totalDeadlinesEscalated = 0;
+  let totalMonthlyReports = 0;
 
-  const [emails24h, emails48h, overdueDeadlines] = await Promise.all([
-    // Emails non traités depuis 24h (pas encore escaladés)
-    prisma.email.findMany({
-      where: {
-        isProcessed: false,
-        isArchived: false,
-        receivedAt: { lte: h24, gt: h48 },
-      },
-      select: { id: true, tenantId: true, from: true, subject: true },
-    }),
+  const tenants = await prisma.tenant.findMany({ where: { status: 'active' }, select: { id: true } });
 
-    // Emails non traités depuis 48h
-    prisma.email.findMany({
-      where: {
-        isProcessed: false,
-        isArchived: false,
-        receivedAt: { lte: h48 },
-      },
-      select: { id: true, tenantId: true, from: true, subject: true },
-    }),
+  for (const { id: tenantId } of tenants) {
+    await withTenantContext(tenantId, async (tx) => {
+      const now = new Date();
+      const h24 = new Date(now.getTime() - 24 * 3600_000);
+      const h48 = new Date(now.getTime() - 48 * 3600_000);
 
-    // Deadlines dépassées non encore escaladées
-    prisma.legalDeadline.findMany({
-      where: {
-        status: 'OVERDUE',
-        escalatedAt: null,
-      },
-      include: {
-        Dossier: { select: { numero: true, responsableId: true } },
-        Tenant: { select: { id: true } },
-      },
-    }),
-  ]);
+      const [emails24h, emails48h, overdueDeadlines] = await Promise.all([
+        tx.email.findMany({ where: { tenantId, isProcessed: false, isArchived: false, receivedAt: { lte: h24, gt: h48 } }, select: { id: true, tenantId: true, from: true, subject: true } }),
+        tx.email.findMany({ where: { tenantId, isProcessed: false, isArchived: false, receivedAt: { lte: h48 } }, select: { id: true, tenantId: true, from: true, subject: true } }),
+        tx.legalDeadline.findMany({ where: { tenantId, status: 'OVERDUE', escalatedAt: null }, include: { Dossier: { select: { numero: true, responsableId: true } }, Tenant: { select: { id: true } } } }),
+      ]);
 
-  // --- Escalade emails 24h → ADMIN du tenant ---
-  for (const email of emails24h) {
-    const admin = await getAdminForTenant(email.tenantId);
-    if (admin) {
-      await createEscalationNotification(admin.id, {
-        type: 'email_unprocessed_24h',
-        title: 'Email non traité depuis 24h',
-        message: `Email de ${email.from} — "${email.subject}" attend une action.`,
-        priority: 'high',
-      });
-    }
-  }
+      totalEmails24h += emails24h.length;
+      totalEmails48h += emails48h.length;
 
-  // --- Escalade emails 48h → SUPER_ADMIN ---
-  for (const email of emails48h) {
-    const superAdmin = await getSuperAdmin();
-    if (superAdmin) {
-      await createEscalationNotification(superAdmin.id, {
-        type: 'email_unprocessed_48h',
-        title: 'Email non traité depuis 48h',
-        message: `Tenant ${email.tenantId} — Email de ${email.from} toujours non traité.`,
-        priority: 'high',
-      });
-    }
-  }
-
-  // --- Escalade deadlines dépassées → MANAGER ---
-  let deadlinesEscalated = 0;
-  for (const deadline of overdueDeadlines) {
-    const manager = await getManagerForTenant(deadline.tenantId);
-    const escalateTo = manager?.id || deadline.Dossier?.responsableId || null;
-
-    if (escalateTo) {
-      const notified = await createEscalationNotification(escalateTo, {
-        type: 'deadline_overdue',
-        title: `⚠️ Deadline dépassée — ${deadline.label}`,
-        message: `Dossier ${deadline.Dossier?.numero || deadline.dossierId} — échéance dépassée le ${deadline.dueDate.toLocaleDateString('fr-FR')}.`,
-        priority: 'high',
-      }, deadline.id);
-      if (notified) {
-        await prisma.legalDeadline.update({
-          where: { id: deadline.id },
-          data: { escalatedAt: now, escalatedTo: escalateTo },
-        });
-        deadlinesEscalated++;
+      for (const email of emails24h) {
+        const admin = await getAdminForTenant(tx, tenantId);
+        if (admin) await createEscalationNotification(tx, admin.id, { type: 'email_unprocessed_24h', title: 'Email non traité depuis 24h', message: `Email de ${email.from} — "${email.subject}" attend une action.`, priority: 'high' });
       }
-    }
-  }
 
-  // --- Rapport mensuel si 3+ deadlines dépassées ce mois ---
-  const monthlyReports = await checkMonthlyOverdueThreshold(now);
+      for (const email of emails48h) {
+        const superAdmin = await getSuperAdmin(tx);
+        if (superAdmin) await createEscalationNotification(tx, superAdmin.id, { type: 'email_unprocessed_48h', title: 'Email non traité depuis 48h', message: `Tenant ${tenantId} — Email de ${email.from} toujours non traité.`, priority: 'high' });
+      }
+
+      let localDeadlinesEscalated = 0;
+      for (const deadline of overdueDeadlines) {
+        const manager = await getManagerForTenant(tx, tenantId);
+        const escalateTo = manager?.id || deadline.Dossier?.responsableId || null;
+        if (escalateTo) {
+          const notified = await createEscalationNotification(tx, escalateTo, {
+            type: 'deadline_overdue',
+            title: `⚠️ Deadline dépassée — ${deadline.label}`,
+            message: `Dossier ${deadline.Dossier?.numero || deadline.dossierId} — échéance dépassée le ${deadline.dueDate.toLocaleDateString('fr-FR')}.`,
+            priority: 'high',
+          }, deadline.id);
+          if (notified) {
+            await tx.legalDeadline.update({ where: { id: deadline.id }, data: { escalatedAt: now, escalatedTo: escalateTo } });
+            localDeadlinesEscalated++;
+          }
+        }
+      }
+      totalDeadlinesEscalated += localDeadlinesEscalated;
+
+      const monthlyReports = await checkMonthlyOverdueThreshold(tx, tenantId, now);
+      totalMonthlyReports += monthlyReports;
+    });
+  }
 
   return {
-    emailsEscalated24h: emails24h.length,
-    emailsEscalated48h: emails48h.length,
-    deadlinesEscalated,
-    monthlyReports,
+    emailsEscalated24h: totalEmails24h,
+    emailsEscalated48h: totalEmails48h,
+    deadlinesEscalated: totalDeadlinesEscalated,
+    monthlyReports: totalMonthlyReports,
   };
 }
 
-async function checkMonthlyOverdueThreshold(now: Date): Promise<number> {
+async function checkMonthlyOverdueThreshold(tx: any, tenantId: string, now: Date): Promise<number> {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-  // Group overdue deadlines by tenant this month
-  const overdueByTenant = await prisma.legalDeadline.groupBy({
-    by: ['tenantId'],
-    where: {
-      status: 'OVERDUE',
-      updatedAt: { gte: monthStart },
-    },
-    _count: { id: true },
-    having: { id: { _count: { gte: 3 } } },
+  const overdueCount = await tx.legalDeadline.count({
+    where: { tenantId, status: 'OVERDUE', updatedAt: { gte: monthStart } },
   });
-
-  let reports = 0;
-  for (const row of overdueByTenant) {
-    const admin = await getAdminForTenant(row.tenantId);
+  if (overdueCount >= 3) {
+    const admin = await getAdminForTenant(tx, tenantId);
     if (admin) {
-      await createEscalationNotification(admin.id, {
+      await createEscalationNotification(tx, admin.id, {
         type: 'monthly_overdue_threshold',
-        title: `${row._count.id} deadlines dépassées ce mois`,
-        message: `Votre cabinet a dépassé ${row._count.id} échéances ce mois. Consultez le tableau de risques.`,
+        title: `${overdueCount} deadlines dépassées ce mois`,
+        message: `Votre cabinet a dépassé ${overdueCount} échéances ce mois. Consultez le tableau de risques.`,
         priority: 'normal',
       });
-      reports++;
+      return 1;
     }
   }
-  return reports;
+  return 0;
 }
 
-// --- Helpers ---
-
-async function getAdminForTenant(tenantId: string) {
-  return prisma.user.findFirst({
-    where: { tenantId, role: { in: ['ADMIN', 'admin'] }, status: 'active' },
-    select: { id: true },
-  });
+async function getAdminForTenant(tx: any, tenantId: string) {
+  return tx.user.findFirst({ where: { tenantId, role: { in: ['ADMIN', 'admin'] }, status: 'active' }, select: { id: true } });
 }
 
-async function getManagerForTenant(tenantId: string) {
-  return prisma.user.findFirst({
-    where: { tenantId, role: { in: ['MANAGER', 'manager'] }, status: 'active' },
-    select: { id: true },
-  });
+async function getManagerForTenant(tx: any, tenantId: string) {
+  return tx.user.findFirst({ where: { tenantId, role: { in: ['MANAGER', 'manager'] }, status: 'active' }, select: { id: true } });
 }
 
-async function getSuperAdmin() {
-  return prisma.user.findFirst({
-    where: { role: { in: ['SUPER_ADMIN', 'super_admin'] }, status: 'active' },
-    select: { id: true },
-  });
+async function getSuperAdmin(tx: any) {
+  return tx.user.findFirst({ where: { role: { in: ['SUPER_ADMIN', 'super_admin'] }, status: 'active' }, select: { id: true } });
 }
 
-async function createEscalationNotification(
-  userId: string,
-  data: { type: string; title: string; message: string; priority: string },
-  deadlineId?: string
-) {
-  // Déduplication : pas de doublon si même type + userId dans les 4 dernières heures
-  const recent = await prisma.notification.findFirst({
-    where: {
-      userId,
-      type: data.type,
-      ...(deadlineId ? { data: { contains: `"deadlineId":"${deadlineId}"` } } : {}),
-      createdAt: { gte: new Date(Date.now() - 4 * 3600_000) },
-    },
+async function createEscalationNotification(tx: any, userId: string, data: { type: string; title: string; message: string; priority: string }, deadlineId?: string): Promise<boolean> {
+  const recent = await tx.notification.findFirst({
+    where: { userId, type: data.type, ...(deadlineId ? { data: { contains: `"deadlineId":"${deadlineId}"` } } : {}), createdAt: { gte: new Date(Date.now() - 4 * 3600_000) } },
   });
   if (recent) return false;
 
-  await prisma.notification.create({
-    data: {
-      id: crypto.randomUUID(),
-      userId,
-      type: data.type,
-      title: data.title,
-      message: data.message,
-      priority: data.priority,
-      ...(deadlineId ? { data: JSON.stringify({ deadlineId }) } : {}),
-    },
+  await tx.notification.create({
+    data: { id: randomUUID(), userId, type: data.type, title: data.title, message: data.message, priority: data.priority, ...(deadlineId ? { data: JSON.stringify({ deadlineId }) } : {}) },
   });
   return true;
 }

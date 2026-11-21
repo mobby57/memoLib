@@ -100,15 +100,27 @@ export const authRatelimit = redis
   : null;
 
 /**
+ * Limite les appels IA payants à cinq requêtes par minute et par utilisateur.
+ */
+export const aiRatelimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.fixedWindow(5, '1 m'),
+      analytics: true,
+      prefix: 'memolib:ai',
+    })
+  : null;
+
+/**
  * Helper function pour vérifier rate limit
  *
  * @param identifier - IP address ou user ID
- * @param type - Type de rate limiter ('default' | 'webhook' | 'auth')
+ * @param type - Type de rate limiter ('default' | 'webhook' | 'auth' | 'ai')
  * @returns { success: boolean, remaining: number, reset: Date }
  */
 export async function checkRateLimit(
   identifier: string,
-  type: 'default' | 'webhook' | 'auth' = 'default'
+  type: 'default' | 'webhook' | 'auth' | 'ai' = 'default'
 ): Promise<{
   success: boolean;
   remaining: number;
@@ -117,6 +129,10 @@ export async function checkRateLimit(
 }> {
   // Si Redis non configuré (dev), autoriser toutes les requêtes
   if (!redis) {
+    if (type === 'ai' && process.env.NODE_ENV === 'production') {
+      throw new Error('AI rate limiting is not configured in production');
+    }
+
     console.warn('[RATE-LIMIT] Redis non configuré - rate limiting désactivé (dev only)');
     return {
       success: true,
@@ -127,7 +143,10 @@ export async function checkRateLimit(
   }
 
   // Sélectionner le rate limiter approprié
-  const limiter = type === 'webhook' ? webhookRatelimit : type === 'auth' ? authRatelimit : ratelimit;
+  let limiter = ratelimit;
+  if (type === 'webhook') limiter = webhookRatelimit;
+  if (type === 'auth') limiter = authRatelimit;
+  if (type === 'ai') limiter = aiRatelimit;
 
   if (!limiter) {
     throw new Error('Rate limiter not initialized');

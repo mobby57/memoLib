@@ -11,7 +11,7 @@
  * - Data Breach Notification (Article 33)
  */
 
-import { prisma } from '@/lib/prisma';
+import { prisma, withTenantContextTransaction } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
 export type ConsentType =
@@ -65,30 +65,35 @@ export class GDPRCompliance {
      * Record user consent
      */
     static async recordConsent(
+        tenantId: string,
         userId: string,
         consent: Omit<ConsentRecord, 'timestamp'>
     ): Promise<void> {
-        await prisma.userConsent.create({
-            data: {
-                userId,
-                type: consent.type,
-                accepted: consent.granted,
-                ipAddress: consent.ipAddress,
-                userAgent: consent.userAgent,
-                policyVersion: consent.version,
-                grantedAt: new Date()
-            }
-        });
+        await withTenantContextTransaction(tenantId, tx =>
+            tx.userConsent.create({
+                data: {
+                    userId,
+                    type: consent.type,
+                    accepted: consent.granted,
+                    ipAddress: consent.ipAddress,
+                    userAgent: consent.userAgent,
+                    policyVersion: consent.version,
+                    grantedAt: new Date()
+                }
+            })
+        );
     }
 
     /**
      * Get user consents
      */
-    static async getUserConsents(userId: string): Promise<ConsentRecord[]> {
-        const consents = await prisma.userConsent.findMany({
-            where: { userId },
-            orderBy: { grantedAt: 'desc' }
-        });
+    static async getUserConsents(tenantId: string, userId: string): Promise<ConsentRecord[]> {
+        const consents = await withTenantContextTransaction(tenantId, tx =>
+            tx.userConsent.findMany({
+                where: { userId },
+                orderBy: { grantedAt: 'desc' }
+            })
+        );
 
         return consents.map((c: any) => ({
             type: c.type as ConsentType,
@@ -104,15 +109,18 @@ export class GDPRCompliance {
      * Check if user has granted specific consent
      */
     static async hasConsent(
+        tenantId: string,
         userId: string,
         type: ConsentType
     ): Promise<boolean> {
-        const consent = await prisma.userConsent.findFirst({
-            where: { userId, type },
-            orderBy: { grantedAt: 'desc' }
-        });
+        const consent = await withTenantContextTransaction(tenantId, tx =>
+            tx.userConsent.findFirst({
+                where: { userId, type },
+                orderBy: { grantedAt: 'desc' }
+            })
+        );
 
-        return consent?.granted ?? false;
+        return consent?.accepted ?? false;
     }
 
     /**
@@ -195,7 +203,14 @@ export class GDPRCompliance {
 
         // Preferences
         if (categories.includes('preferences')) {
-            const consents = await this.getUserConsents(userId);
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { tenantId: true }
+            });
+            if (!user?.tenantId) {
+                throw new Error('Un tenant est requis pour exporter les consentements.');
+            }
+            const consents = await this.getUserConsents(user.tenantId, userId);
             const settings = await prisma.userSettings.findUnique({
                 where: { userId }
             });

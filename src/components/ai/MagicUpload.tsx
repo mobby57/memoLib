@@ -10,6 +10,7 @@ interface MagicUploadProps {
 export function MagicUpload({ typeDossier, onExtract }: MagicUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -17,6 +18,7 @@ export function MagicUpload({ typeDossier, onExtract }: MagicUploadProps) {
 
     setUploading(true);
     setError('');
+    setNotice('');
 
     const formData = new FormData();
     formData.append('file', file);
@@ -27,6 +29,9 @@ export function MagicUpload({ typeDossier, onExtract }: MagicUploadProps) {
       const json = await res.json();
 
       if (!res.ok) throw new Error(json.error);
+      if (json.mock) {
+        setNotice('Mode démo : les données affichées sont fictives.');
+      }
       onExtract(json.data);
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'extraction');
@@ -47,11 +52,12 @@ export function MagicUpload({ typeDossier, onExtract }: MagicUploadProps) {
           
           <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors">
             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
-            {uploading ? 'Analyse en cours...' : 'Déposer le document (PDF)'}
-            <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleFile} disabled={uploading} />
+            {uploading ? 'Analyse en cours...' : 'Déposer un document (PDF, JPEG ou PNG)'}
+            <input type="file" className="hidden" accept=".pdf,image/jpeg,image/png" onChange={handleFile} disabled={uploading} />
           </label>
           
           {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+          {notice && <p role="status" className="text-xs text-amber-700 mt-2">{notice}</p>}
         </div>
       </div>
     </div>

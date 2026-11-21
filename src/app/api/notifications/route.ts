@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
 import {
   getUnreadCount,
@@ -7,29 +7,56 @@ import {
 } from '@/lib/notifications';
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
-// GET - Recuperer les notifications d'un utilisateur
+const querySchema = z.object({
+  unreadOnly: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((value) => value === 'true'),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().min(0).max(10_000).default(0),
+});
+
+const updateSchema = z
+  .object({
+    notificationId: z.string().min(1).optional(),
+    markAll: z.boolean().optional(),
+  })
+  .refine((value) => value.markAll === true || Boolean(value.notificationId));
+
+async function getAuthenticatedUserId(): Promise<string | null> {
+  const session = await getServerSessionCompat();
+  return session?.user.id ?? null;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const unreadOnly = searchParams.get('unreadOnly') === 'true';
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
-
+    const userId = await getAuthenticatedUserId();
     if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const query = querySchema.safeParse({
+      unreadOnly: searchParams.get('unreadOnly') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+      offset: searchParams.get('offset') ?? undefined,
+    });
+
+    if (!query.success) {
+      return NextResponse.json({ error: 'Parametres invalides' }, { status: 400 });
     }
 
     const [notifications, unreadCount] = await Promise.all([
       prisma.notification.findMany({
         where: {
           userId,
-          ...(unreadOnly ? { isRead: false } : {}),
+          ...(query.data.unreadOnly ? { isRead: false } : {}),
         },
         orderBy: { createdAt: 'desc' },
-        take: limit,
-        skip: offset,
+        take: query.data.limit,
+        skip: query.data.offset,
       }),
       getUnreadCount(userId),
     ]);
@@ -37,7 +64,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       notifications,
       unreadCount,
-      hasMore: notifications.length === limit,
+      hasMore: notifications.length === query.data.limit,
     });
   } catch (error) {
     logger.error('Erreur GET notifications', error instanceof Error ? error : undefined, {
@@ -47,17 +74,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PATCH - Marquer notification(s) comme lue(s)
 export async function PATCH(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { userId, notificationId, markAll } = body;
-
+    const userId = await getAuthenticatedUserId();
     if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    if (markAll) {
+    const body = await request.json().catch(() => null);
+    const parsed = updateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Donnees invalides' }, { status: 400 });
+    }
+
+    if (parsed.data.markAll) {
       await markAllNotificationsAsRead(userId);
       return NextResponse.json({
         success: true,
@@ -65,46 +95,49 @@ export async function PATCH(request: NextRequest) {
       });
     }
 
-    if (notificationId) {
-      await markNotificationAsRead(notificationId, userId);
-      return NextResponse.json({ success: true, message: 'Notification marquee comme lue' });
+    const notificationId = parsed.data.notificationId;
+    if (!notificationId) {
+      return NextResponse.json({ error: 'notificationId requis' }, { status: 400 });
     }
 
-    return NextResponse.json({ error: 'notificationId ou markAll requis' }, { status: 400 });
+    await markNotificationAsRead(notificationId, userId);
+    return NextResponse.json({ success: true, message: 'Notification marquee comme lue' });
   } catch (error) {
-    logger.error('Erreur PATCH notifications:', { error });
+    logger.error('Erreur PATCH notifications', error instanceof Error ? error : undefined, {
+      route: '/api/notifications',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
-// DELETE - Supprimer une notification
 export async function DELETE(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const notificationId = searchParams.get('id');
-    const userId = searchParams.get('userId');
-
-    if (!notificationId || !userId) {
-      return NextResponse.json({ error: 'id et userId requis' }, { status: 400 });
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const existing = await prisma.notification.findFirst({
-      where: { id: notificationId, userId },
-      select: { id: true },
+    const query = z
+      .object({ id: z.string().min(1) })
+      .safeParse({ id: new URL(request.url).searchParams.get('id') });
+
+    if (!query.success) {
+      return NextResponse.json({ error: 'id requis' }, { status: 400 });
+    }
+
+    const result = await prisma.notification.deleteMany({
+      where: { id: query.data.id, userId },
     });
 
-    if (!existing) {
+    if (result.count === 0) {
       return NextResponse.json({ error: 'Notification introuvable' }, { status: 404 });
     }
 
-    await prisma.notification.delete({
-      where: { id: notificationId },
-    });
-
     return NextResponse.json({ success: true });
   } catch (error) {
-    logger.error('Erreur DELETE notification:', { error });
+    logger.error('Erreur DELETE notification', error instanceof Error ? error : undefined, {
+      route: '/api/notifications',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
-
