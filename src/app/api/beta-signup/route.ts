@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { getSecurePrisma } from '@/lib/prisma';;
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   const prisma = await getSecurePrisma();
@@ -24,10 +25,9 @@ export async function POST(req: NextRequest) {
       ON CONFLICT (email) DO NOTHING
     `;
     return NextResponse.json({ success: true });
-  } catch {
-    // Table n'existe pas encore â€” fallback log
-    console.log('[BETA SIGNUP]', { email, name, cabinet, size, date: new Date().toISOString() });
-    return NextResponse.json({ success: true });
+  } catch (error) {
+    logger.error('Inscription beta impossible', error instanceof Error ? error : undefined);
+    return NextResponse.json({ error: 'Inscription temporairement indisponible' }, { status: 503 });
   }
 }
 

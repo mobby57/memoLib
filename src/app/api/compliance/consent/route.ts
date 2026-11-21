@@ -43,14 +43,16 @@ export async function POST(req: NextRequest) {
             'unknown';
         const userAgent = req.headers.get('user-agent') || 'unknown';
 
-        for (const consent of validation.data.consents) {
-            await GDPRCompliance.recordConsent(tenantId, userId, {
+        await GDPRCompliance.recordConsents(
+            tenantId,
+            userId,
+            validation.data.consents.map(consent => ({
                 ...consent,
                 ipAddress,
                 userAgent,
                 version: '1.0.0'
-            });
-        }
+            }))
+        );
 
         return NextResponse.json({ success: true });
     } catch (error) {

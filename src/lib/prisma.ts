@@ -59,6 +59,10 @@ type TenantTransactionClient = Omit<
   PrismaClient,
   '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
 >;
+type InteractiveTransactionRunner = <T>(
+  operation: (client: TenantTransactionClient) => Promise<T>,
+  options?: { maxWait?: number; timeout?: number }
+) => Promise<T>;
 
 // Client Prisma non sécurisé (pour migrations/seeds)
 export const prisma = globalForPrisma.prisma || new PrismaClient();
@@ -124,16 +128,12 @@ export async function withTenantContextTransaction<T>(
     throw new Error('Un tenant est requis pour cette operation.');
   }
 
-  if (options) {
-    return prisma.$transaction(async tx => {
-      await tx.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
-      return operation(tx);
-    }, options);
-  }
-  return prisma.$transaction(async tx => {
+  // Preserve Prisma's interactive transaction signature across this generic helper boundary.
+  const runTransaction = prisma.$transaction.bind(prisma) as unknown as InteractiveTransactionRunner;
+  return runTransaction(async tx => {
     await tx.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
     return operation(tx);
-  });
+  }, options);
 }
 
 export async function withTenantContextBatch(

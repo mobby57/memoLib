@@ -1,5 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { getSecurePrisma } from '@/lib/prisma';;
+import { sendEmail } from '@/lib/email/email-service';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/cron/rappel-audiences
@@ -27,30 +29,32 @@ export async function GET(request: NextRequest) {
     },
     include: {
       dossier: {
-        select: { numero: true, typeDossier: true, objet: true, juridiction: true, client: { select: { nom: true } } },
+        select: { numero: true, typeDossier: true, objet: true, juridiction: true, Client: { select: { email: true } } },
       },
     },
   });
 
-  const rappels = audiences.map(a => ({
-    eventId: a.id,
-    date: a.startDate,
-    dossier: a.dossier?.numero,
-    client: a.dossier?.client?.nom,
-    juridiction: a.dossier?.juridiction,
-    type: a.dossier?.typeDossier,
-    resume: `Audience ${a.dossier?.typeDossier} â€” ${a.dossier?.client?.nom} â€” ${a.dossier?.juridiction || 'Tribunal'}`,
-  }));
-
-  // TODO: envoyer email/SMS avec le resume
-  rappels.forEach(r => {
-    console.log(`[RAPPEL J-1] ${r.resume} le ${new Date(r.date).toLocaleDateString('fr-FR')}`);
+  let rappelsEnvoyes = 0;
+  for (const audience of audiences) {
+    const clientEmail = audience.dossier?.Client?.email;
+    if (!clientEmail) continue;
+    const sent = await sendEmail({
+      to: clientEmail,
+      subject: 'Rappel - audience demain',
+      html: '<p>Votre audience est prevue demain. Merci de consulter les informations de votre dossier.</p>',
+      text: 'Votre audience est prevue demain. Merci de consulter les informations de votre dossier.',
+    });
+    if (sent.success) rappelsEnvoyes++;
+  }
+  logger.info('Rappels audiences traites', {
+    audienceCount: audiences.length,
+    sentCount: rappelsEnvoyes,
   });
 
   return NextResponse.json({
     success: true,
-    audiencesDemain: rappels.length,
-    rappels,
+    audiencesDemain: audiences.length,
+    rappelsEnvoyes,
   });
 }
 

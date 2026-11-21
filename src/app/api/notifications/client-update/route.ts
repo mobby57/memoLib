@@ -1,5 +1,14 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { getSecurePrisma } from '@/lib/prisma';;
+import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import { sendEmail } from '@/lib/email/email-service';
+import { z } from 'zod';
+
+const notificationSchema = z.object({
+  dossierId: z.string().min(1),
+  type: z.enum(['piece_recue', 'dossier_complet', 'statut_change', 'deadline_proche']),
+  message: z.string().max(5000).optional(),
+});
 
 /**
  * POST /api/notifications/client-update
@@ -7,15 +16,25 @@ import { getSecurePrisma } from '@/lib/prisma';;
  * Appele automatiquement quand une piece est recue ou un statut change.
  */
 export async function POST(req: NextRequest) {
-  const prisma = await getSecurePrisma();
-  const { dossierId, type, message } = await req.json();
-
-  if (!dossierId || !type) {
-    return NextResponse.json({ error: 'dossierId et type requis' }, { status: 400 });
+  const session = await getServerSessionCompat();
+  if (!session?.user?.tenantId) {
+    return NextResponse.json({ error: 'Non autorise' }, { status: session?.user ? 403 : 401 });
   }
+  let requestBody: unknown;
+  try {
+    requestBody = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+  }
+  const parsed = notificationSchema.safeParse(requestBody);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Donnees invalides' }, { status: 400 });
+  }
+  const prisma = await getSecurePrisma();
+  const { dossierId, type, message } = parsed.data;
 
-  const dossier = await prisma.dossier.findUnique({
-    where: { id: dossierId },
+  const dossier = await prisma.dossier.findFirst({
+    where: { id: dossierId, tenantId: session.user.tenantId },
     include: { client: true },
   });
 
@@ -47,16 +66,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Type inconnu: ${type}` }, { status: 400 });
   }
 
-  const { subject, body } = template(dossier);
+  const { subject, body: emailBody } = template(dossier);
 
-  // Log (email reel quand SMTP configure)
-  console.log(`[NOTIF CLIENT] To: ${dossier.client.email} | Subject: ${subject}`);
+  const sent = await sendEmail({
+    to: dossier.client.email,
+    subject,
+    html: `<div style="font-family: sans-serif; white-space: pre-wrap;">${emailBody.replace(/\n/g, '<br>')}</div>`,
+    text: emailBody,
+  });
+  if (!sent.success) {
+    return NextResponse.json({ error: 'Envoi email impossible' }, { status: 503 });
+  }
 
   return NextResponse.json({
     success: true,
-    to: dossier.client.email,
     subject,
-    preview: body.substring(0, 100) + '...',
+    preview: emailBody.substring(0, 100) + '...',
   });
 }
 

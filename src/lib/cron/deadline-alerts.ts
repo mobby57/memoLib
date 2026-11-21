@@ -1,4 +1,4 @@
-import { prisma, withTenantContext } from '@/lib/prisma';
+import { prisma, withTenantContextTransaction } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
 
 const ACTIVE_STATUSES = ['PENDING', 'APPROACHING', 'URGENT', 'CRITICAL'] as const;
@@ -8,7 +8,7 @@ export async function checkDeadlineAlerts() {
   const tenants = await prisma.tenant.findMany({ where: { status: 'active' }, select: { id: true } });
 
   for (const { id: tenantId } of tenants) {
-    await withTenantContext(tenantId, async (tx) => {
+    await withTenantContextTransaction(tenantId, async (tx) => {
       const now = new Date();
       const j7 = addDays(now, 7);
       const j3 = addDays(now, 3);

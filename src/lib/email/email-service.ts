@@ -5,6 +5,7 @@
  */
 
 import nodemailer from 'nodemailer';
+import { logger } from '@/lib/logger';
 
 // Configuration du transporteur
 const getTransporter = () => {
@@ -47,7 +48,7 @@ const getTransporter = () => {
   }
 
   // Fallback: Mode test (logs seulement)
-  console.warn('[EMAIL] Aucun transporteur configure - mode test');
+  logger.warn('Aucun transporteur email configure');
   return null;
 };
 
@@ -80,11 +81,7 @@ export async function sendEmail(options: EmailOptions): Promise<SendResult> {
 
   // Mode test si pas de transporteur
   if (!transporter) {
-    console.log('[EMAIL TEST]', {
-      to: options.to,
-      subject: options.subject,
-      from: fromAddress,
-    });
+    logger.warn('Email non envoye: aucun transporteur configure');
     return { success: true, messageId: 'test-' + Date.now() };
   }
 
@@ -99,11 +96,11 @@ export async function sendEmail(options: EmailOptions): Promise<SendResult> {
       attachments: options.attachments,
     });
 
-    console.log('[EMAIL] Envoye:', result.messageId);
+    logger.info('Email envoye', { messageId: result.messageId });
     return { success: true, messageId: result.messageId };
 
   } catch (error) {
-    console.error('[EMAIL] Erreur:', error);
+    logger.error('Erreur envoi email', error instanceof Error ? error : undefined);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Erreur inconnue',

@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 
 const state = vi.hoisted(() => ({
   session: null as { user: { id: string; email: string; tenantId: string | null } } | null,
-  recordConsent: vi.fn(),
+  recordConsents: vi.fn(),
   getUserConsents: vi.fn(),
 }));
 
@@ -13,7 +13,7 @@ vi.mock('@/lib/auth/getServerSessionCompat', () => ({
 
 vi.mock('@/lib/compliance/gdpr', () => ({
   GDPRCompliance: {
-    recordConsent: state.recordConsent,
+    recordConsents: state.recordConsents,
     getUserConsents: state.getUserConsents,
   },
 }));
@@ -39,7 +39,7 @@ describe('/api/compliance/consent', () => {
     );
 
     expect(response.status).toBe(401);
-    expect(state.recordConsent).not.toHaveBeenCalled();
+    expect(state.recordConsents).not.toHaveBeenCalled();
   });
 
   it('valide le payload et enregistre le consentement avec les identifiants internes', async () => {
@@ -52,7 +52,7 @@ describe('/api/compliance/consent', () => {
       })
     );
     expect(response.status).toBe(400);
-    expect(state.recordConsent).not.toHaveBeenCalled();
+    expect(state.recordConsents).not.toHaveBeenCalled();
 
     const validResponse = await POST(
       new NextRequest('http://localhost/api/compliance/consent', {
@@ -63,10 +63,10 @@ describe('/api/compliance/consent', () => {
     );
 
     expect(validResponse.status).toBe(200);
-    expect(state.recordConsent).toHaveBeenCalledWith(
+    expect(state.recordConsents).toHaveBeenCalledWith(
       'tenant-id',
       'user-id',
-      expect.objectContaining({ type: 'analytics', granted: true })
+      [expect.objectContaining({ type: 'analytics', granted: true })]
     );
   });
 

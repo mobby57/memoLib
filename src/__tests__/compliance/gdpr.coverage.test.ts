@@ -7,6 +7,7 @@ vi.mock('@/lib/prisma', () => {
   const prisma = {
     userConsent: {
       create: vi.fn(),
+      createMany: vi.fn(),
       findMany: vi.fn(),
       findFirst: vi.fn(),
     },
@@ -73,8 +74,8 @@ describe('gdpr.ts — Full Coverage', () => {
         userAgent: 'Mozilla/5.0',
         version: '1.0',
       });
-      expect(mockPrisma.userConsent.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ userId: 'u1', type: 'analytics', accepted: true }),
+      expect(mockPrisma.userConsent.createMany).toHaveBeenCalledWith(expect.objectContaining({
+        data: [expect.objectContaining({ userId: 'u1', type: 'analytics', accepted: true })],
       }));
     });
   });

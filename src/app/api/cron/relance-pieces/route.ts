@@ -1,5 +1,7 @@
 ﻿import { NextResponse } from 'next/server';
 import { getSecurePrisma } from '@/lib/prisma';;
+import { sendEmail } from '@/lib/email/email-service';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/cron/relance-pieces
@@ -31,18 +33,20 @@ export async function GET() {
 
     const missingPieces = dossier.checklistItems.map(i => `- ${i.label}`).join('\n');
 
-    // Envoyer la relance (log pour l'instant, email reel quand SMTP configure)
-    console.log(`[RELANCE] Dossier ${dossier.numero} â†’ ${dossier.client.email}`);
-    console.log(`Pieces manquantes:\n${missingPieces}`);
-
-    // TODO: envoyer email reel via service email
-    // await sendEmail({
-    //   to: dossier.client.email,
-    //   subject: `Rappel â€” Pieces manquantes pour votre dossier ${dossier.numero}`,
-    //   body: `Bonjour,\n\nIl manque les pieces suivantes pour votre dossier:\n${missingPieces}\n\nMerci de les envoyer a: ${dossier.inboxEmail}\n\nCordialement,\nVotre avocat`
-    // });
-
-    relancesSent++;
+    const sent = await sendEmail({
+      to: dossier.client.email,
+      subject: `Pieces manquantes - dossier ${dossier.numero}`,
+      html: `<p>Bonjour,</p><p>Il manque les pieces suivantes pour votre dossier :</p><pre>${missingPieces}</pre><p>Merci de les transmettre a votre cabinet.</p>`,
+      text: `Bonjour,\n\nIl manque les pieces suivantes pour votre dossier :\n${missingPieces}\n\nMerci de les transmettre a votre cabinet.`,
+    });
+    if (sent.success) {
+      relancesSent++;
+    } else {
+      logger.error('Echec relance pieces', undefined, {
+        tenantId: dossier.tenantId,
+        dossierId: dossier.id,
+      });
+    }
   }
 
   return NextResponse.json({

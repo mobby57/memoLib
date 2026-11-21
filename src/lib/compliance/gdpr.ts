@@ -69,9 +69,17 @@ export class GDPRCompliance {
         userId: string,
         consent: Omit<ConsentRecord, 'timestamp'>
     ): Promise<void> {
+        await this.recordConsents(tenantId, userId, [consent]);
+    }
+
+    static async recordConsents(
+        tenantId: string,
+        userId: string,
+        consents: Omit<ConsentRecord, 'timestamp'>[]
+    ): Promise<void> {
         await withTenantContextTransaction(tenantId, tx =>
-            tx.userConsent.create({
-                data: {
+            tx.userConsent.createMany({
+                data: consents.map(consent => ({
                     userId,
                     type: consent.type,
                     accepted: consent.granted,
@@ -79,7 +87,7 @@ export class GDPRCompliance {
                     userAgent: consent.userAgent,
                     policyVersion: consent.version,
                     grantedAt: new Date()
-                }
+                }))
             })
         );
     }
@@ -88,7 +96,9 @@ export class GDPRCompliance {
      * Get user consents
      */
     static async getUserConsents(tenantId: string, userId: string): Promise<ConsentRecord[]> {
-        const consents = await withTenantContextTransaction(tenantId, tx =>
+        const consents = await withTenantContextTransaction<
+            Awaited<ReturnType<typeof prisma.userConsent.findMany>>
+        >(tenantId, tx =>
             tx.userConsent.findMany({
                 where: { userId },
                 orderBy: { grantedAt: 'desc' }
@@ -113,7 +123,9 @@ export class GDPRCompliance {
         userId: string,
         type: ConsentType
     ): Promise<boolean> {
-        const consent = await withTenantContextTransaction(tenantId, tx =>
+        const consent = await withTenantContextTransaction<
+            Awaited<ReturnType<typeof prisma.userConsent.findFirst>>
+        >(tenantId, tx =>
             tx.userConsent.findFirst({
                 where: { userId, type },
                 orderBy: { grantedAt: 'desc' }

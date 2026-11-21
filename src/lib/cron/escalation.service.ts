@@ -1,4 +1,4 @@
-import { prisma, withTenantContext } from '@/lib/prisma';
+import { prisma, withTenantContextTransaction } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
 
 export interface EscalationResult {
@@ -17,7 +17,7 @@ export async function runEscalation(): Promise<EscalationResult> {
   const tenants = await prisma.tenant.findMany({ where: { status: 'active' }, select: { id: true } });
 
   for (const { id: tenantId } of tenants) {
-    await withTenantContext(tenantId, async (tx) => {
+    await withTenantContextTransaction(tenantId, async (tx) => {
       const now = new Date();
       const h24 = new Date(now.getTime() - 24 * 3600_000);
       const h48 = new Date(now.getTime() - 48 * 3600_000);
