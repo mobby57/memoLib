@@ -10,6 +10,7 @@ import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSecurePrisma } from '@/lib/prisma';;
 import { sendEmail } from '@/lib/email/email-service';
+import { logger } from '@/lib/security/logger';
 import { z } from 'zod';
 import crypto from 'crypto';
 
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
     const fromEmail = tenant?.billingEmail || user.email || 'noreply@memolib.fr';
 
     // Envoyer l'email via le service
-    await sendEmail({
+    const sendResult = await sendEmail({
       to,
       subject,
       html: `<div style="font-family: sans-serif; white-space: pre-wrap;">${body.replace(/\n/g, '<br>')}</div>
@@ -72,6 +73,13 @@ export async function POST(req: NextRequest) {
       from: `${fromName} <${fromEmail}>`,
       replyTo: user.email,
     });
+
+    if (!sendResult.success) {
+      return NextResponse.json(
+        { error: "L'email n'a pas pu être envoyé. Vérifiez la configuration du service email." },
+        { status: 502 }
+      );
+    }
 
     // Sauvegarder dans l'historique (email sortant)
     const savedEmail = await prisma.email.create({
@@ -115,9 +123,12 @@ export async function POST(req: NextRequest) {
       message: `Email envoyÃ© Ã  ${to}`,
     });
   } catch (error) {
-    console.error('Email send error:', error);
+    logger.error('email_send_failed', { 
+      message: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
     return NextResponse.json(
-      { error: 'Impossible d\'envoyer l\'email. VÃ©rifiez la configuration email (RESEND_API_KEY).' },
+      { error: 'Impossible d\'envoyer l\'email. Vérifiez la configuration email (RESEND_API_KEY).' },
       { status: 500 }
     );
   }

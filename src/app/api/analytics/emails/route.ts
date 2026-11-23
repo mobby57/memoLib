@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { EmailAnalytics } from '@/lib/analytics/emails';
+import { logger } from '@/lib/security/logger';
 
 export async function GET(req: NextRequest) {
     try {
@@ -40,7 +41,10 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ success: true, data });
     } catch (error: any) {
-        console.error('Email analytics error:', error);
+        logger.error('email_analytics_failed', { 
+            message: error?.message,
+            timestamp: new Date().toISOString()
+        });
         return NextResponse.json(
             { error: error.message || 'Internal server error' },
             { status: 500 }

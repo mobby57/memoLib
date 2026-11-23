@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { legalDocs, type Jurisdiction } from '@/lib/legal/documents';
+import { logger } from '@/lib/security/logger';
 
 export async function GET(req: NextRequest) {
     try {
@@ -37,7 +38,10 @@ export async function GET(req: NextRequest) {
 </html>`
         });
     } catch (error: any) {
-        console.error('Error generating Cookie Policy:', error);
+        logger.error('cookie_policy_generation_failed', {
+            message: error?.message,
+            timestamp: new Date().toISOString()
+        });
         return NextResponse.json(
             { error: error.message || 'Internal server error' },
             { status: 500 }
