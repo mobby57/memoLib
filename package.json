@@ -150,7 +150,7 @@
         "@clerk/nextjs": "^7.10.2",
         "@google-cloud/local-auth": "^3.0.1",
         "@headlessui/react": "^2.2.9",
-        "@hookform/resolvers": "^5.2.2",
+        "@hookform/resolvers": "^7.0.7",
         "@neondatabase/serverless": "^1.0.2",
         "@next-auth/prisma-adapter": "^1.0.7",
         "@octokit/app": "^16.1.2",
