@@ -86,23 +86,23 @@ export default function ClientPortalUI({
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Nom</label>
-            <input required type="text" className="w-full p-2 border rounded-lg" onChange={e => setFormData({...formData, nom: e.target.value})} />
+            <label htmlFor="client-nom" className="block text-sm font-medium text-slate-700 mb-1">Nom</label>
+            <input id="client-nom" required maxLength={120} type="text" className="w-full p-2 border rounded-lg" onChange={e => setFormData({...formData, nom: e.target.value})} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Prénom</label>
-            <input required type="text" className="w-full p-2 border rounded-lg" onChange={e => setFormData({...formData, prenom: e.target.value})} />
+            <label htmlFor="client-prenom" className="block text-sm font-medium text-slate-700 mb-1">Prénom</label>
+            <input id="client-prenom" required maxLength={120} type="text" className="w-full p-2 border rounded-lg" onChange={e => setFormData({...formData, prenom: e.target.value})} />
           </div>
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Adresse complète</label>
-          <input required type="text" className="w-full p-2 border rounded-lg" onChange={e => setFormData({...formData, adresse: e.target.value})} />
+          <label htmlFor="client-adresse" className="block text-sm font-medium text-slate-700 mb-1">Adresse complète</label>
+          <input id="client-adresse" required maxLength={500} type="text" className="w-full p-2 border rounded-lg" onChange={e => setFormData({...formData, adresse: e.target.value})} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Récit de votre situation</label>
-          <textarea required rows={5} className="w-full p-2 border rounded-lg" placeholder="Expliquez votre situation à votre avocat..." onChange={e => setFormData({...formData, recit: e.target.value})} />
+          <label htmlFor="client-recit" className="block text-sm font-medium text-slate-700 mb-1">Récit de votre situation</label>
+          <textarea id="client-recit" required maxLength={20000} rows={5} className="w-full p-2 border rounded-lg" placeholder="Expliquez votre situation à votre avocat..." onChange={e => setFormData({...formData, recit: e.target.value})} />
         </div>
 
         {submissionError && <p role="alert" className="text-sm text-red-600">{submissionError}</p>}
