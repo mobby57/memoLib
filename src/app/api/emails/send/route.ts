@@ -123,9 +123,8 @@ export async function POST(req: NextRequest) {
       message: `Email envoyÃ© Ã  ${to}`,
     });
   } catch (error) {
-    logger.error('email_send_failed', { 
-      message: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
+    logger.error('email_send_failed', {
+      reason: error instanceof Error ? error.name : 'UnknownError'
     });
     return NextResponse.json(
       { error: 'Impossible d\'envoyer l\'email. Vérifiez la configuration email (RESEND_API_KEY).' },

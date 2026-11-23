@@ -52,6 +52,7 @@ vi.mock('@/lib/logger', () => ({
 
 vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
+  getSecurePrisma: vi.fn().mockResolvedValue(mockPrisma),
 }));
 
 vi.mock('@/lib/services/event-log.service', () => ({

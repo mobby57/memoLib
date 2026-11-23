@@ -31,70 +31,64 @@ type DemoStep = {
 
 const DEMO_STEPS: DemoStep[] = [
   {
-    id: 'setup',
-    title: 'Configurer votre espace en 2 minutes',
-    duration: '2 min',
-    why: 'Démarrer avec une base propre pour retrouver facilement clients, dossiers et documents.',
-    action:
-      'Créez un cabinet, ajoutez 1 collaborateur, puis définissez 3 types de dossier (OQTF, titre de séjour, naturalisation).',
-    href: '/auth/login',
-    tool: 'Paramètres + utilisateurs + modèles de dossier',
-    expectedResult: 'Votre structure est prête et chaque nouveau dossier suit le bon cadre.',
-  },
-  {
     id: 'emails',
-    title: 'Traiter les emails entrants automatiquement',
+    title: 'Simuler un message fictif',
     duration: '2 min',
-    why: 'Réduire le tri manuel et identifier immédiatement les urgences juridiques.',
+    why: 'Découvrir le parcours d’un message sans envoyer de courriel réel.',
     action:
-      'Lancez le simulateur d\'email et testez 2 cas: un dossier urgent et un dossier standard.',
+      'Choisissez un exemple prérempli ou saisissez un texte fictif, puis lancez la simulation locale.',
     href: '/demo/email-simulator',
-    tool: 'Ingestion email + classification IA',
-    expectedResult: 'Les messages sont catégorisés et priorisés avec les bonnes informations clés.',
+    tool: 'Simulation dans le navigateur',
+    expectedResult:
+      'Un résultat indicatif s’affiche ; rien n’est envoyé, enregistré ou analysé par une IA.',
   },
   {
     id: 'reasoning',
-    title: 'Comprendre le raisonnement du dossier',
+    title: 'Consulter une proposition de traitement',
     duration: '2 min',
-    why: 'Garder la maîtrise juridique avec une IA explicable et vérifiable.',
-    action:
-      'Ouvrez l\'étape raisonnement et observez la détection d\'urgence, les mots-clés et la proposition de workflow.',
+    why: 'Voir comment une interface pourrait présenter des étapes et des points à vérifier.',
+    action: 'Ouvrez l’étape de démonstration et parcourez les états préremplis.',
     href: '/demo/workspace-reasoning',
-    tool: 'Moteur de raisonnement dossier',
-    expectedResult: 'Vous visualisez pourquoi le dossier est priorisé et quelles actions sont proposées.',
+    tool: 'Maquette avec données fictives',
+    expectedResult:
+      'Aucun dossier ni workflow n’est créé ; les délais restent à vérifier sur les pièces originales.',
   },
   {
     id: 'proof',
-    title: 'Générer les preuves et documents légaux',
+    title: 'Prévisualiser des supports fictifs',
     duration: '2 min',
-    why: 'Accélérer la production documentaire tout en restant conforme.',
-    action:
-      'Passez sur la preuve légale, ouvrez un document généré et contrôlez les points de conformité.',
+    why: 'Découvrir des exemples de présentation documentaire sans les confondre avec des documents juridiques.',
+    action: 'Ouvrez un exemple ou téléchargez son fichier texte depuis votre navigateur.',
     href: '/demo/legal-proof',
-    tool: 'Génération documentaire + checks conformité',
-    expectedResult: 'Le dossier est prêt avec des documents exploitables et un niveau de risque visible.',
+    tool: 'Exemples locaux non certifiés',
+    expectedResult: 'Aucun document n’est validé, signé, envoyé ou prêt à être déposé.',
   },
 ];
 
 const QUICK_WINS = [
-  'Créer des modèles de dossier par procédure pour standardiser le cabinet.',
-  'Taguer les emails critiques pour déclencher un rappel automatique.',
-  'Utiliser la checklist conformité avant tout envoi client.',
-  'Centraliser les pièces dans un dossier unique par client.',
+  'Quelles tâches de tri prennent le plus de temps dans votre cabinet ?',
+  'Quelles informations doivent être validées par un avocat avant toute action ?',
+  'Quels types de pièces sensibles ne doivent jamais être transmis à un service externe ?',
+  'Quelles intégrations et garanties sont indispensables avant un pilote ?',
 ];
 
 export default function DemoCompletePage() {
-  const [currentIndex, setCurrentIndex] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('memolib-demo-step');
-      return saved ? Math.min(Number(saved), DEMO_STEPS.length - 1) : 0;
-    }
-    return 0;
-  });
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasLoadedProgress, setHasLoadedProgress] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('memolib-demo-step', String(currentIndex));
-  }, [currentIndex]);
+    const savedIndex = Number(localStorage.getItem('memolib-demo-step'));
+    if (Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < DEMO_STEPS.length) {
+      setCurrentIndex(savedIndex);
+    }
+    setHasLoadedProgress(true);
+  }, []);
+
+  useEffect(() => {
+    if (hasLoadedProgress) {
+      localStorage.setItem('memolib-demo-step', String(currentIndex));
+    }
+  }, [currentIndex, hasLoadedProgress]);
 
   const progress = useMemo(
     () => Math.round(((currentIndex + 1) / DEMO_STEPS.length) * 100),
@@ -114,7 +108,7 @@ export default function DemoCompletePage() {
                 Démo complète guidée
               </p>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-                Comment utiliser MemoLib de A à Z
+                Parcours de démonstration
               </h1>
             </div>
             <Link
@@ -127,14 +121,17 @@ export default function DemoCompletePage() {
           </div>
 
           <p className="text-gray-600 dark:text-gray-300 max-w-4xl">
-            Ce parcours simule une utilisation réelle d\'un cabinet: vous partez de l\'onboarding, puis vous traitez un flux entrant,
-            comprenez le raisonnement IA et finalisez avec les preuves légales.
+            Cette maquette utilise uniquement des exemples fictifs dans votre navigateur. Elle ne se
+            connecte pas à une boîte mail, n’appelle pas d’IA, ne crée pas de dossier et ne valide
+            aucun acte juridique.
           </p>
 
           <div className="mt-6">
             <div className="flex items-center justify-between text-sm mb-2">
               <span className="text-gray-600 dark:text-gray-300">Progression</span>
-              <span className="font-semibold text-indigo-700 dark:text-indigo-300">{progress}%</span>
+              <span className="font-semibold text-indigo-700 dark:text-indigo-300">
+                {progress}%
+              </span>
             </div>
             <div className="h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
               <div
@@ -187,7 +184,9 @@ export default function DemoCompletePage() {
                 <Timer className="w-4 h-4" />
                 Durée totale
               </p>
-              <p className="text-sm text-indigo-900 dark:text-indigo-200">Environ 8 minutes pour une vue complète.</p>
+              <p className="text-sm text-indigo-900 dark:text-indigo-200">
+                Environ 6 minutes pour une vue complète.
+              </p>
             </div>
           </aside>
 
@@ -201,7 +200,9 @@ export default function DemoCompletePage() {
               </span>
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{currentStep.title}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              {currentStep.title}
+            </h2>
 
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
@@ -251,7 +252,7 @@ export default function DemoCompletePage() {
         <section className="mt-8 rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 p-6 shadow-sm">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 inline-flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-500" />
-            Bonnes pratiques après la démo
+            Questions à discuter pendant le rendez-vous
           </h3>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -268,31 +269,32 @@ export default function DemoCompletePage() {
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <Mail className="w-4 h-4" />
-              Tester les emails
+              Tester la simulation
             </Link>
             <Link
               href="/demo/workspace-reasoning"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <Users className="w-4 h-4" />
-              Voir le raisonnement
+              Voir les étapes illustratives
             </Link>
             <Link
               href="/demo/legal-proof"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <FileText className="w-4 h-4" />
-              Vérifier les preuves
+              Voir les exemples
             </Link>
           </div>
 
           <div className="mt-6 p-4 rounded-xl bg-slate-900 text-slate-100">
             <p className="font-medium mb-1 inline-flex items-center gap-2">
               <Shield className="w-4 h-4" />
-              Conseil de mise en production
+              Périmètre présenté
             </p>
             <p className="text-sm text-slate-300">
-              Commence par un périmètre simple (emails + checklists), puis active progressivement les automatisations avancées.
+              Il s’agit d’une maquette interactive. Toute capacité réelle, intégration et garantie
+              doit être vérifiée séparément avant un pilote.
             </p>
           </div>
         </section>

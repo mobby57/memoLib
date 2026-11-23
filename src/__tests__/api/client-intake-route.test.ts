@@ -114,4 +114,24 @@ describe('/api/client/intake', () => {
     expect(mocks.writeFile).toHaveBeenCalledTimes(1);
     expect(mocks.scanDocumentAsync).toHaveBeenCalledTimes(1);
   });
+
+  it('stores the portal submission as a document requiring review', async () => {
+    mocks.withTenantContextBatch.mockImplementation(
+      async (
+        _tenantId: string,
+        operations: (client: { document: { create: (args: unknown) => Promise<unknown> } }) => Promise<unknown>[]
+      ) => Promise.all(operations({ document: { create: mocks.documentCreate } }))
+    );
+    const response = await POST(createRequest({
+      dossierId: 'dossier-a',
+      originalLang: 'fr',
+      answers: { nom: 'Test', prenom: 'Client', adresse: 'Adresse fictive', recit: 'Situation fictive' },
+    }));
+
+    expect(response.status).toBe(201);
+    expect(mocks.documentCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({ dossierId: 'dossier-a', category: 'client-intake' }),
+    });
+    expect(mocks.writeFile).toHaveBeenCalledOnce();
+  });
 });

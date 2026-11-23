@@ -1,17 +1,32 @@
 ﻿import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/prisma';
+import { prisma, withTenantContext } from '@/lib/prisma';
 import { hashToken } from '@/lib/invitations';
 import { resolveActiveClerkUser } from '@/lib/auth/resolve-clerk-user';
 import { normalizeEmail } from '@/lib/email-validator';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
+
+type InvitationForAcceptance = {
+  id: string;
+  email: string;
+  tenantId: string;
+  dossierId: string;
+  expiresAt: Date;
+  status: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'REVOKED';
+};
 
 export async function POST(request: Request) {
   const { userId } = await auth();
   const user = await currentUser();
   if (!userId || !user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  }
+
+  const rateLimit = await checkRateLimit(userId, 'auth');
+  if (!rateLimit.success) {
+    return NextResponse.json({ error: 'Trop de demandes. Réessayez plus tard.' }, { status: 429 });
   }
 
   let body: unknown;
@@ -25,27 +40,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Jeton d’invitation invalide' }, { status: 400 });
   }
 
-  const invitation = await prisma.invitation.findUnique({
-    where: { tokenHash: hashToken(parsedBody.data.token) },
-    select: {
-      id: true,
-      email: true,
-      tenantId: true,
-      dossierId: true,
-      expiresAt: true,
-      status: true,
-    },
-  });
+  const tokenHash = hashToken(parsedBody.data.token);
+  const [lookup] = await prisma.$queryRaw<Array<{ tenantId: string | null }>>`
+    SELECT public.memolib_invitation_tenant(${tokenHash}) AS "tenantId"
+  `;
+  if (!lookup?.tenantId) return NextResponse.json({ error: 'Invitation invalide' }, { status: 404 });
+
+  const tenantId = lookup.tenantId;
+  const invitation = await withTenantContext<InvitationForAcceptance | null>(tenantId, transaction =>
+    transaction.invitation.findFirst({
+      where: { tokenHash, tenantId },
+      select: {
+        id: true,
+        email: true,
+        tenantId: true,
+        dossierId: true,
+        expiresAt: true,
+        status: true,
+      },
+    })
+  );
   if (!invitation) return NextResponse.json({ error: 'Invitation invalide' }, { status: 404 });
   if (invitation.status !== 'PENDING') {
     return NextResponse.json({ error: 'Invitation déjà utilisée' }, { status: 410 });
   }
   const now = new Date();
   if (invitation.expiresAt <= now) {
-    await prisma.invitation.updateMany({
-      where: { id: invitation.id, status: 'PENDING', expiresAt: { lte: now } },
-      data: { status: 'EXPIRED' },
-    });
+    await withTenantContext(tenantId, transaction =>
+      transaction.invitation.updateMany({
+        where: { id: invitation.id, tenantId, status: 'PENDING', expiresAt: { lte: now } },
+        data: { status: 'EXPIRED' },
+      })
+    );
     return NextResponse.json({ error: 'Invitation expirée' }, { status: 410 });
   }
 
@@ -62,12 +88,12 @@ export async function POST(request: Request) {
   }
 
   const dbUser = await resolveActiveClerkUser(userId);
-  if (!dbUser) {
-    return NextResponse.json({ error: 'Compte non synchronisé ou inactif' }, { status: 403 });
+  if (!dbUser || dbUser.role !== 'CLIENT') {
+    return NextResponse.json({ error: 'Compte client non synchronisé ou inactif' }, { status: 403 });
   }
 
   const grantId = randomUUID();
-  const accepted = await prisma.$queryRaw<Array<{ id: string }>>`
+  const accepted = await withTenantContext<Array<{ id: string }>>(tenantId, transaction => transaction.$queryRaw<Array<{ id: string }>>`
     WITH claimed AS (
       UPDATE "Invitation"
       SET "status" = 'ACCEPTED'::"InvitationStatus", "updatedAt" = NOW()
@@ -86,7 +112,7 @@ export async function POST(request: Request) {
       NULL, NULL, 'ACTIVE'::"AccessGrantStatus", NOW(), NOW()
     FROM claimed
     RETURNING "id"
-  `;
+  `);
   if (accepted.length !== 1) {
     return NextResponse.json({ error: 'Invitation expirée ou déjà utilisée' }, { status: 410 });
   }

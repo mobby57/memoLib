@@ -7,10 +7,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  
+
   return createPageMetadata({
     title: 'Démo',
-    description: 'Découvrez MemoLib en action : tri intelligent des emails, analyse IA des dossiers et génération de documents.',
+    description:
+      'Explorez une maquette interactive avec des exemples fictifs. Aucun email, dossier ou document juridique réel n’est traité.',
     path: '/demo',
     locale,
   });

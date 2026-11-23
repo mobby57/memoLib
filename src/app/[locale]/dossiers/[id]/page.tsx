@@ -1,12 +1,27 @@
 ﻿'use client';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, User, FileText, Calendar } from 'lucide-react';
+import { ArrowLeft, User, FileText } from 'lucide-react';
+import { InviteClientModal } from '@/components/dossiers/InviteClientModal';
+
+type Dossier = {
+  id: string;
+  typeDossier: string;
+  objet: string | null;
+  statut: string;
+  numero: string;
+  createdAt: string;
+  clientNom: string | null;
+  clientPrenom: string | null;
+  recitClient: string | null;
+  documents: Array<{ id: string; originalName: string; category: string | null; antivirusStatus: string | null }>;
+};
 
 export default function DossierDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [dossier, setDossier] = useState<any>(null);
+  const [dossier, setDossier] = useState<Dossier | null>(null);
+  const [inviting, setInviting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -16,14 +31,15 @@ export default function DossierDetailPage() {
         const res = await fetch(`/api/dossiers/${params.id}`);
         if (!res.ok) throw new Error('Dossier introuvable');
         const data = await res.json();
-        setDossier(data);
-      } catch (err: any) {
-        setError(err.message);
+        if (!data.dossier) throw new Error('Dossier introuvable');
+        setDossier(data.dossier);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Dossier introuvable');
       } finally {
         setLoading(false);
       }
     };
-    if (params.id) fetchDossier();
+    if (typeof params.id === 'string') fetchDossier();
   }, [params.id]);
 
   if (loading) {
@@ -34,11 +50,11 @@ export default function DossierDetailPage() {
     );
   }
 
-  if (error) {
+  if (error || !dossier) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
         <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center max-w-md">
-          <p className="text-red-700 font-medium mb-4">{error}</p>
+          <p className="text-red-700 font-medium mb-4">{error || 'Dossier introuvable'}</p>
           <button onClick={() => router.push('/fr/dossiers')} className="px-4 py-2 bg-slate-900 text-white rounded-lg">
             Retour aux dossiers
           </button>
@@ -102,10 +118,28 @@ export default function DossierDetailPage() {
             <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5" /> Documents
             </h2>
-            <p className="text-sm text-slate-500">Aucun document pour le moment.</p>
+            {dossier.documents.length === 0 ? (
+              <p className="text-sm text-slate-500">Aucun document pour le moment.</p>
+            ) : (
+              <ul className="space-y-2">
+                {dossier.documents.map(document => (
+                  <li key={document.id} className="text-sm">
+                    <a className="text-blue-700 underline" href={`/api/documents/download/${encodeURIComponent(document.id)}`}>
+                      {document.originalName}
+                    </a>
+                    {document.category === 'client-intake' && ' — informations client à vérifier'}
+                    {document.antivirusStatus && ` (${document.antivirusStatus})`}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
+          <button onClick={() => setInviting(true)} className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg">
+            Inviter le client
+          </button>
         </div>
       </div>
+      {inviting && <InviteClientModal dossierId={dossier.id} onClose={() => setInviting(false)} />}
     </div>
   );
 }

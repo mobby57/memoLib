@@ -263,6 +263,7 @@ model Dossier {
   juridiction        String?
   numeroJuridiction  String?
   typeRecours        String?
+  responsableId      String?
   
   clientNom          String?
   clientPrenom       String?

@@ -40,13 +40,12 @@ export async function GET(req: NextRequest) {
         }
 
         return NextResponse.json({ success: true, data });
-    } catch (error: any) {
-        logger.error('email_analytics_failed', { 
-            message: error?.message,
-            timestamp: new Date().toISOString()
+    } catch (error) {
+        logger.error('email_analytics_failed', {
+            reason: error instanceof Error ? error.name : 'UnknownError'
         });
         return NextResponse.json(
-            { error: error.message || 'Internal server error' },
+            { error: 'Internal server error' },
             { status: 500 }
         );
     }

@@ -37,13 +37,12 @@ export async function GET(req: NextRequest) {
 </body>
 </html>`
         });
-    } catch (error: any) {
+    } catch (error) {
         logger.error('cookie_policy_generation_failed', {
-            message: error?.message,
-            timestamp: new Date().toISOString()
+            reason: error instanceof Error ? error.name : 'UnknownError'
         });
         return NextResponse.json(
-            { error: error.message || 'Internal server error' },
+            { error: 'Internal server error' },
             { status: 500 }
         );
     }

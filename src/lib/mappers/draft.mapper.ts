@@ -19,7 +19,6 @@ export function mapValidatedDraftToDossier(
   objetDemande: string
   priorite: string
   notes?: string
-  dateEcheance?: string
 } {
   return {
     clientId,
@@ -33,7 +32,6 @@ export function mapValidatedDraftToDossier(
     ]
       .filter(Boolean)
       .join('\n\n') || undefined,
-    dateEcheance: payload.notificationDate || extractedData.deadline || undefined,
   }
 }
 

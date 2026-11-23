@@ -1,10 +1,14 @@
 ﻿import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { getSecurePrisma } from '@/lib/prisma';;
-import { recordUsage } from '@/lib/billing/usage-billing';
 import { scanDocumentAsync } from '@/lib/security/antivirus';
 import { randomUUID } from 'crypto';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import {
+  DocumentStorageUnavailableError,
+  deleteDocumentObject,
+  storeEncryptedDocument,
+} from '@/lib/security/document-storage';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -165,7 +169,6 @@ export const maxDuration = 30;
  * NOTE: Stockage fichiers en attente de configuration Vercel Blob
  */
 export async function POST(request: NextRequest) {
-  const prisma = await getSecurePrisma();
   try {
     const session = await getServerSessionCompat();
 
@@ -180,6 +183,7 @@ export async function POST(request: NextRequest) {
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant non trouvÃ©' }, { status: 403 });
     }
+    const prisma = await getSecurePrisma();
 
     const rateInfo = await checkRateLimit(buildRateLimitIdentifier(request, userId), 'default');
     if (!rateInfo.success) {
@@ -260,7 +264,6 @@ export async function POST(request: NextRequest) {
     // GÃ©nÃ©rer ID unique
     const uniqueId = randomUUID();
 
-    // Calculer hash pour dÃ©doublonnage
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -282,70 +285,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const crypto = await import('crypto');
-    const hash = crypto.createHash('sha256').update(buffer).digest('hex');
-
-    // Sauvegarder le fichier localement si pas de Vercel Blob configurÃ©
-    let fileUrl: string | null = null;
-
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      // Vercel Blob configurÃ© - utiliser pour stockage cloud
-      try {
-        const { put } = await import('@vercel/blob');
-        const blob = await put(`documents/${uniqueId}/${safeFileName}`, buffer, {
-          access: 'public',
-          addRandomSuffix: true,
-          cacheControlMaxAge: 0,
-        });
-        // NOTE: Pour une sÃ©curitÃ© optimale en prod, migrer vers un signed URL pattern
-        // avec @vercel/blob getDownloadUrl() au lieu d'un accÃ¨s public
-        fileUrl = blob.url;
-        logger.info('[UPLOAD] Fichier stockÃ© sur Vercel Blob', { url: fileUrl });
-      } catch (blobError) {
-        logger.warn('[UPLOAD] Erreur Vercel Blob, fallback local', { error: blobError });
+    let storageKey: string;
+    try {
+      storageKey = await storeEncryptedDocument(tenantId, uniqueId, 'documents', buffer);
+    } catch (storageError) {
+      if (storageError instanceof DocumentStorageUnavailableError) {
+        return withRateLimitHeaders(
+          NextResponse.json({ error: 'Coffre-fort documentaire indisponible' }, { status: 503 }),
+          rateInfo
+        );
       }
-    }
-
-    // Fallback: stockage local (si pas de Vercel Blob configurÃ©)
-    if (!fileUrl) {
-      try {
-        const fs = await import('fs/promises');
-        const path = await import('path');
-        const uploadDir = path.join(process.cwd(), 'uploads', uniqueId);
-        await fs.mkdir(uploadDir, { recursive: true });
-        const filePath = path.join(uploadDir, safeFileName);
-        await fs.writeFile(filePath, buffer);
-        fileUrl = `/uploads/${uniqueId}/${safeFileName}`;
-        logger.info('[UPLOAD] Fichier stockÃ© localement', { path: filePath });
-      } catch (fsError) {
-        logger.warn('[UPLOAD] Impossible de sauvegarder localement', { error: fsError });
-      }
-    }
-
-    if (!fileUrl) {
-      return withRateLimitHeaders(
-        NextResponse.json({ error: 'Ã‰chec du stockage du fichier' }, { status: 500 }),
-        rateInfo
-      );
+      throw storageError;
     }
 
     // Sauvegarder les mÃ©tadonnÃ©es en base
-    const document = await prisma.document.create({
-      data: {
-        id: uniqueId,
-        tenantId,
-        filename: safeFileName,
-        originalName: file.name,
-        mimeType: file.type,
-        size: file.size,
-        storageKey: fileUrl,
-        category: type,
-        description: description || null,
-        dossierId,
-        uploadedBy: userId!,
-        antivirusStatus: 'PENDING',
-      },
-    });
+    let document;
+    try {
+      document = await prisma.document.create({
+        data: {
+          id: uniqueId,
+          tenantId,
+          filename: safeFileName,
+          originalName: safeFileName,
+          mimeType: file.type,
+          size: file.size,
+          storageKey,
+          category: type,
+          description: description || null,
+          dossierId,
+          uploadedBy: userId!,
+          antivirusStatus: 'PENDING',
+        },
+      });
+    } catch (databaseError) {
+      await deleteDocumentObject(storageKey);
+      throw databaseError;
+    }
 
     void scanDocumentAsync({
       documentId: document.id,
@@ -354,39 +329,9 @@ export async function POST(request: NextRequest) {
       buffer,
     });
 
-    // Facturer l'OCR si c'est un PDF (extraction texte)
-    if (file.type === 'application/pdf') {
-      const estimatedPages = Math.max(1, Math.ceil(file.size / 50000));
-      recordUsage({
-        tenantId,
-        type: 'ocr',
-        quantity: estimatedPages,
-        metadata: { documentId: uniqueId, dossierId },
-      }).catch(e => logger.warn('[UPLOAD] Erreur enregistrement usage OCR', { error: e }));
-    }
-
-    logger.info('[UPLOAD] Document enregistrÃ©:', {
+    logger.info('[UPLOAD] Document enregistré dans le coffre chiffré', {
       id: uniqueId,
-      hash,
-      stored: !!fileUrl,
     });
-
-    // Horodatage certifiÃ© RFC 3161 (preuve tierce de la date de dÃ©pÃ´t)
-    try {
-      const { certifyDocumentUpload } = await import('@/lib/services/certified-timestamp');
-      await certifyDocumentUpload({
-        tenantId,
-        userId: userId!,
-        documentId: uniqueId,
-        documentHash: hash,
-      });
-      logger.info('[UPLOAD] Horodatage TSA certifiÃ©', { documentId: uniqueId });
-    } catch (tsaError) {
-      // Non bloquant : le document est uploadÃ© mÃªme si le TSA Ã©choue
-      logger.warn('[UPLOAD] TSA certification failed (non-blocking)', {
-        error: tsaError instanceof Error ? tsaError.name : 'UnknownError',
-      });
-    }
 
     return withRateLimitHeaders(
       NextResponse.json({
@@ -416,7 +361,6 @@ export async function POST(request: NextRequest) {
  * Liste les documents d'un dossier
  */
 export async function GET(request: NextRequest) {
-  const prisma = await getSecurePrisma();
   try {
     const session = await getServerSessionCompat();
 
@@ -431,6 +375,7 @@ export async function GET(request: NextRequest) {
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant non trouvÃ©' }, { status: 403 });
     }
+    const prisma = await getSecurePrisma();
 
     const rateInfo = await checkRateLimit(buildRateLimitIdentifier(request, userId), 'default');
     if (!rateInfo.success) {

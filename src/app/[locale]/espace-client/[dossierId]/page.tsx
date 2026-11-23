@@ -51,7 +51,7 @@ export default async function ClientPortalPage({ params }: { params: Promise<{ l
     antivirusStatus: string | null;
   }>>(tenantId, transaction =>
     transaction.document.findMany({
-      where: { dossierId, tenantId: access.grant.tenantId },
+      where: { dossierId, tenantId: access.grant.tenantId, uploadedBy: access.user.id },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

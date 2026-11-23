@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation';
 import { CheckCircle, Circle, ArrowLeft } from 'lucide-react';
 
 const STEPS = [
-  { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
-  { id: 2, label: 'Raisonnement', href: '/demo/workspace-reasoning' },
-  { id: 3, label: 'Preuve légale', href: '/demo/legal-proof' },
+  { id: 1, label: 'Message fictif', href: '/demo/email-simulator' },
+  { id: 2, label: 'Étapes illustratives', href: '/demo/workspace-reasoning' },
+  { id: 3, label: 'Exemples', href: '/demo/legal-proof' },
 ];
 
 export function DemoProgressBar() {
@@ -31,26 +31,36 @@ export function DemoProgressBar() {
             const isDone = idx < currentIdx;
             const isActive = idx === currentIdx;
             return (
-              <Link key={step.id} href={`/${locale}${step.href}`} className="flex items-center gap-1.5 group">
+              <Link
+                key={step.id}
+                href={`/${locale}${step.href}`}
+                className="flex items-center gap-1.5 group"
+              >
                 {isDone ? (
                   <CheckCircle className="w-5 h-5 text-green-500" />
                 ) : (
-                  <Circle className={`w-5 h-5 ${isActive ? 'text-indigo-600 fill-indigo-100' : 'text-gray-300'}`} />
+                  <Circle
+                    className={`w-5 h-5 ${isActive ? 'text-indigo-600 fill-indigo-100' : 'text-gray-300'}`}
+                  />
                 )}
-                <span className={`text-sm font-medium ${isActive ? 'text-indigo-700' : isDone ? 'text-green-700' : 'text-gray-400'} group-hover:text-indigo-600`}>
+                <span
+                  className={`text-sm font-medium ${isActive ? 'text-indigo-700' : isDone ? 'text-green-700' : 'text-gray-400'} group-hover:text-indigo-600`}
+                >
                   {step.label}
                 </span>
-                {idx < STEPS.length - 1 && <div className={`w-8 h-0.5 mx-1 ${isDone ? 'bg-green-400' : 'bg-gray-200'}`} />}
+                {idx < STEPS.length - 1 && (
+                  <div className={`w-8 h-0.5 mx-1 ${isDone ? 'bg-green-400' : 'bg-gray-200'}`} />
+                )}
               </Link>
             );
           })}
         </div>
 
         <Link
-          href={`/${locale}/auth/register?plan=PILOT`}
+          href={`/${locale}/demo/complete`}
           className="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg font-medium shrink-0"
         >
-          Essai gratuit
+          Parcours
         </Link>
       </div>
     </div>

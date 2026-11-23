@@ -7,7 +7,6 @@ export function InviteClientModal({ dossierId, onClose }: { dossierId: string, o
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [inviteLink, setInviteLink] = useState('');
   const [emailStatus, setEmailStatus] = useState('');
-  const [emailError, setEmailError] = useState('');
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -30,10 +29,9 @@ export function InviteClientModal({ dossierId, onClose }: { dossierId: string, o
 
       setInviteLink(data.inviteLink);
       setEmailStatus(data.emailStatus);
-      setEmailError(data.emailError || '');
       setStatus('success');
-    } catch (err: any) {
-      setErrorMsg(err.message);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Erreur lors de la génération');
       setStatus('error');
     }
   };
@@ -75,7 +73,7 @@ export function InviteClientModal({ dossierId, onClose }: { dossierId: string, o
           {status !== 'success' && (
             <>
               <p className="text-sm text-slate-500 mb-4">
-                Générez un lien sécurisé de 7 jours pour votre client.
+                Créez un lien valable 7 jours. Une tentative d’envoi par email sera effectuée si le service est configuré.
               </p>
 
               <label className="block text-sm font-medium text-slate-700 mb-2">Email du client</label>
@@ -93,7 +91,7 @@ export function InviteClientModal({ dossierId, onClose }: { dossierId: string, o
                 disabled={status === 'loading' || !email}
                 className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 flex justify-center items-center gap-2"
               >
-                {status === 'loading' ? 'Génération...' : <><Send className="w-4 h-4" /> Générer le lien</>}
+                {status === 'loading' ? 'Génération...' : <><Send className="w-4 h-4" /> Créer l’invitation et tenter l’envoi</>}
               </button>
 
               {status === 'error' && (
@@ -123,16 +121,16 @@ export function InviteClientModal({ dossierId, onClose }: { dossierId: string, o
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2">
                   <Mail className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-green-800">
-                    📧 <strong>Email envoyé</strong> à {email}
+                    📧 <strong>Email accepté par le service d’envoi</strong> pour {email}
                   </p>
                 </div>
               )}
-              {emailStatus === 'failed' && (
+              {emailStatus !== 'sent' && (
                 <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
                   <div className="text-xs text-orange-800">
-                    <p className="font-medium">Email non envoyé (mode test)</p>
-                    <p className="mt-1">Copiez le lien ci-dessous et envoyez-le par SMS/WhatsApp.</p>
+                    <p className="font-medium">Email non envoyé</p>
+                    <p className="mt-1">Le lien a été généré, mais aucun email n’a été confirmé.</p>
                   </div>
                 </div>
               )}

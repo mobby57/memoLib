@@ -32,7 +32,9 @@ export const IncomingEmailPayloadSchema = z
     rawFormat: z.string().nullable().optional(),
     rawContent: z.string().nullable().optional(),
     rawMessage: z.string().nullable().optional(),
+    rawPayload: z.string().nullable().optional(),
     msgBase64: z.string().nullable().optional(),
+    hasAttachments: z.boolean().optional(),
     headers: z.record(z.string(), z.unknown()).optional(),
     cc: AddressInputSchema.optional(),
     bcc: AddressInputSchema.optional(),
@@ -119,6 +121,7 @@ function serializeJson(value: unknown): string | null {
 
 function inferRawFormat(payload: IncomingEmailPayload, rawRequestBody: string): string | null {
   if (payload.rawFormat) return payload.rawFormat;
+  if (payload.rawPayload) return 'raw-payload';
   if (payload.msgBase64) return 'msg-base64';
   if (payload.rawContent || payload.rawMessage) return 'rfc822';
   if (rawRequestBody) return 'json';
@@ -152,7 +155,8 @@ export function normalizeIncomingEmailPayload(
   const bccList = normalizeAddressInput(payload.bcc);
   const replyToList = normalizeAddressInput(payload.replyTo);
   const references = normalizeReferences(payload.references);
-  const rawContent = payload.rawContent || payload.rawMessage || payload.msgBase64 || null;
+  const rawContent =
+    payload.rawContent || payload.rawMessage || payload.msgBase64 || payload.rawPayload || null;
   const bodyText = payload.body || '';
   const receivedAt = parseReceivedAt(payload.receivedAt);
   const internetMessageId = payload.messageId || extractPrimaryEmail(String(payload.headers?.['message-id'] || ''));
@@ -209,7 +213,7 @@ export function normalizeIncomingEmailPayload(
     normalizedPayload: JSON.stringify(normalizedPayload),
     contentHash,
     bodyText,
-    hasAttachments: payload.attachments.length > 0,
+    hasAttachments: payload.attachments.length > 0 || payload.hasAttachments === true,
     receivedAt,
     receivedDate: receivedAt,
     attachments: payload.attachments.map(attachment => ({

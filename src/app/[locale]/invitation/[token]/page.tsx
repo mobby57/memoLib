@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
+import { SignInButton, useAuth } from '@clerk/nextjs';
 
 export default function InvitationPage() {
   const { token } = useParams();
@@ -10,9 +10,13 @@ export default function InvitationPage() {
   const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'error' | 'success'>('loading');
   const [message, setMessage] = useState('');
+  const attempted = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!isLoaded || !userId || !token) return;
+    if (!isLoaded || !userId || typeof token !== 'string') return;
+    const attemptKey = `${userId}:${token}`;
+    if (attempted.current === attemptKey) return;
+    attempted.current = attemptKey;
 
     async function acceptInvitation() {
       try {
@@ -29,16 +33,32 @@ export default function InvitationPage() {
         setStatus('success');
         setMessage('Invitation acceptée ! Redirection vers votre dossier...');
         setTimeout(() => router.push(`/fr/espace-client/${data.dossierId}`), 2000);
-      } catch (err: any) {
+      } catch (err) {
         setStatus('error');
-        setMessage(err.message);
+        setMessage(err instanceof Error ? err.message : 'Erreur lors de l’acceptation');
       }
     }
 
     acceptInvitation();
   }, [isLoaded, userId, token, router]);
 
-  if (!isLoaded || status === 'loading') {
+  if (!isLoaded) {
+    return <div className="p-8 text-center">Vérification de l'invitation en cours...</div>;
+  }
+
+  if (!userId) {
+    return (
+      <div className="p-8 text-center max-w-md mx-auto mt-20">
+        <h2 className="text-xl font-bold mb-2">Connectez-vous pour accepter l’invitation</h2>
+        <p className="mb-4">Utilisez le compte associé à l’adresse email qui a reçu l’invitation.</p>
+        <SignInButton mode="modal">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">Se connecter ou créer un compte</button>
+        </SignInButton>
+      </div>
+    );
+  }
+
+  if (status === 'loading') {
     return <div className="p-8 text-center">Vérification de l'invitation en cours...</div>;
   }
 

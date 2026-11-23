@@ -150,7 +150,10 @@ export function OnboardingFlow({ steps, userName, tenantId, onComplete, onDismis
         }),
       });
 
-      if (!res.ok) throw new Error('Erreur création dossier');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Erreur création dossier');
+      }
       const data = await res.json();
       setDossierCreated({ numero: data.numero, id: data.dossierId });
       setCurrentStep('done');

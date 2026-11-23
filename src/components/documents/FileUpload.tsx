@@ -121,7 +121,7 @@ export function FileUpload({
     // Validation
     const validFiles = filesToUpload.filter(file => {
       if (file.size > maxSize * 1024 * 1024) {
-        console.warn(`Fichier trop volumineux: ${file.name}`);
+        console.warn('Fichier trop volumineux');
         return false;
       }
       return true;
@@ -166,10 +166,28 @@ export function FileUpload({
   };
 
   const removeFile = async (id: string) => {
-    try {
-      await fetch(`/api/documents/download/${id}`, { method: 'DELETE' });
-    } catch {
-      // Silently fail — file may not be persisted yet
+    const file = files.find(item => item.id === id);
+    if (file?.status === 'success') {
+      const confirmed = window.confirm(
+        'Confirmez-vous avoir appliqué la procédure humaine ? Le document sera supprimé de MemoLib. Les sauvegardes du fournisseur peuvent avoir leur propre délai de rétention.'
+      );
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch(`/api/documents/download/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ procedureApplied: true }),
+        });
+        if (!response.ok) {
+          const result = await response.json().catch(() => null);
+          window.alert(result?.error || 'La suppression du document a échoué.');
+          return;
+        }
+      } catch {
+        window.alert('La suppression du document a échoué. Réessayez.');
+        return;
+      }
     }
     setFiles(prev => prev.filter(f => f.id !== id));
   };
@@ -277,8 +295,9 @@ export function FileUpload({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      removeFile(file.id);
+                      void removeFile(file.id);
                     }}
+                    aria-label="Confirmer la procédure et supprimer le document"
                     className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
                   >
                     <X className="w-4 h-4 text-gray-500" />

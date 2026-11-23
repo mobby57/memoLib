@@ -2,13 +2,16 @@
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { withTenantContext, withTenantContextBatch } from '@/lib/prisma';
 import { scanDocumentAsync } from '@/lib/security/antivirus';
-import { createHash, randomUUID } from 'crypto';
-import { mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
+import { randomUUID } from 'crypto';
 import { auth } from '@clerk/nextjs/server';
 import { findActiveClientDossierGrant } from '@/lib/client-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import {
+  DocumentStorageUnavailableError,
+  deleteDocumentObject,
+  storeEncryptedDocument,
+} from '@/lib/security/document-storage';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png']);
@@ -50,19 +53,6 @@ function rateLimitHeaders(
   response.headers.set('X-RateLimit-Remaining', String(rateInfo.remaining));
   response.headers.set('X-RateLimit-Reset', rateInfo.reset.toISOString());
   return response;
-}
-
-function getQuarantineDirectory(tenantId: string): string | null {
-  const storageRoot = process.env.VAULT_STORAGE_ROOT;
-  if (storageRoot) {
-    return join(storageRoot, tenantId);
-  }
-
-  if (process.env.NODE_ENV === 'production') {
-    return null;
-  }
-
-  return join(process.cwd(), 'uploads', 'client-quarantine', tenantId);
 }
 
 export const dynamic = 'force-dynamic';
@@ -149,59 +139,65 @@ export async function POST(request: NextRequest) {
     }
 
     const documentId = randomUUID();
-    const sha256 = createHash('sha256').update(buffer).digest('hex');
-    const directory = getQuarantineDirectory(tenantId);
-    if (!directory) {
-      return rateLimitHeaders(
-        NextResponse.json({ error: 'Coffre-fort documentaire indisponible' }, { status: 503 }),
-        rateInfo
+    let storageKey: string;
+    try {
+      storageKey = await storeEncryptedDocument(
+        tenantId,
+        documentId,
+        'client-quarantine',
+        buffer
       );
+    } catch (storageError) {
+      if (storageError instanceof DocumentStorageUnavailableError) {
+        return rateLimitHeaders(
+          NextResponse.json({ error: 'Coffre-fort documentaire indisponible' }, { status: 503 }),
+          rateInfo
+        );
+      }
+      throw storageError;
     }
 
-    const storageKey = `client-quarantine/${tenantId}/${documentId}`;
-    await mkdir(directory, { recursive: true });
-    await writeFile(join(/*turbopackIgnore: true*/ directory, documentId), buffer, { flag: 'wx' });
-
-    await withTenantContextBatch(tenantId, transaction => [
-      transaction.document.create({
-        data: {
-          id: documentId,
-          tenantId,
-          clientId: user.clientId,
-          dossierId: dossier.id,
-          filename: safeFileName,
-          originalName: file.name,
-          mimeType: file.type,
-          size: file.size,
-          storageKey,
-          category: 'client-upload',
-          description: payload.data.description || null,
-          uploadedBy: user.id,
-          sha256,
-          antivirusStatus: 'PENDING',
-        },
-      }),
-      transaction.auditLog.create({
-        data: {
-          id: randomUUID(),
-          tenantId,
-          userId: user.id,
-          userEmail: user.email,
-          userRole: user.role,
-          action: 'CREATE',
-          entityType: 'DOCUMENT',
-          entityId: documentId,
-          newValue: JSON.stringify({
-            sha256,
-            size: file.size,
+    try {
+      await withTenantContextBatch(tenantId, transaction => [
+        transaction.document.create({
+          data: {
+            id: documentId,
+            tenantId,
+            clientId: user.clientId,
+            dossierId: dossier.id,
+            filename: safeFileName,
+            originalName: safeFileName,
             mimeType: file.type,
-            source: 'client-vault',
-          }),
-          ipAddress: getClientIP(request),
-          userAgent: request.headers.get('user-agent') ?? undefined,
-        },
-      }),
-    ]);
+            size: file.size,
+            storageKey,
+            category: 'client-upload',
+            description: payload.data.description || null,
+            uploadedBy: user.id,
+            antivirusStatus: 'PENDING',
+          },
+        }),
+        transaction.auditLog.create({
+          data: {
+            id: randomUUID(),
+            tenantId,
+            userId: user.id,
+            userEmail: 'not-recorded',
+            userRole: user.role,
+            action: 'CREATE',
+            entityType: 'DOCUMENT',
+            entityId: documentId,
+            newValue: JSON.stringify({
+              size: file.size,
+              mimeType: file.type,
+              source: 'client-vault',
+            }),
+          },
+        }),
+      ]);
+    } catch (databaseError) {
+      await deleteDocumentObject(storageKey);
+      throw databaseError;
+    }
 
     void scanDocumentAsync({
       documentId,
@@ -219,7 +215,6 @@ export async function POST(request: NextRequest) {
       documentId,
       tenantId,
       dossierId: dossier.id,
-      sha256,
     });
 
     return rateLimitHeaders(

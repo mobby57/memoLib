@@ -1,25 +1,17 @@
 import type { Metadata } from 'next';
 import { createPageMetadata } from '@/lib/metadata';
 
-export function generateMetadata({
-  params,
-}: {
-  params: { locale: string };
-}): Metadata {
+export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
   return createPageMetadata({
-    title: 'Demo Preuve Légale - MemoLib',
+    title: 'Exemples fictifs de documents — MemoLib',
     description:
-      'Explorez la generation de preuves legales, le controle de conformité et la preparation de documents juridiques dans MemoLib.',
+      'Prévisualisez ou téléchargez des exemples textuels fictifs, sans valeur juridique ni contrôle de conformité.',
     path: '/demo/legal-proof',
     locale: params.locale,
-    keywords: ['preuve légale numerique', 'generation document juridique', 'conformité dossier avocat'],
+    keywords: ['exemples fictifs', 'démonstration MemoLib'],
   });
 }
 
-export default function DemoLegalProofLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DemoLegalProofLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

@@ -23,7 +23,7 @@ export default function ClientPortalUI({
   documents: PortalDocument[];
 }) {
   const [formData, setFormData] = useState({
-    nom: '', prenom: '', dateNaissance: '', adresse: '', recit: ''
+    nom: '', prenom: '', adresse: '', recit: ''
   });
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -54,10 +54,10 @@ export default function ClientPortalUI({
     setSubmitting(true);
     setSubmissionError(null);
     try {
-      const response = await fetch(`/api/client/dossiers/${dossier.id}/intake`, {
+      const response = await fetch('/api/client/intake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ dossierId: dossier.id, originalLang: 'fr', answers: formData })
       });
       if (!response.ok) throw new Error('Transmission des informations refusée');
       setSubmitted(true);
@@ -107,7 +107,7 @@ export default function ClientPortalUI({
 
         {submissionError && <p role="alert" className="text-sm text-red-600">{submissionError}</p>}
         <button type="submit" disabled={submitted || submitting} className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-          {submitted ? 'Informations envoyées ✓' : submitting ? 'Transmission...' : 'Transmettre à mon avocat'}
+          {submitted ? 'Informations enregistrées, en attente de vérification ✓' : submitting ? 'Transmission...' : 'Transmettre à mon avocat'}
         </button>
       </form>
 

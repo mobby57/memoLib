@@ -1,25 +1,17 @@
 import type { Metadata } from 'next';
 import { createPageMetadata } from '@/lib/metadata';
 
-export function generateMetadata({
-  params,
-}: {
-  params: { locale: string };
-}): Metadata {
+export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
   return createPageMetadata({
-    title: 'Demo Email Simulator - MemoLib',
+    title: 'Simulation locale de message — MemoLib',
     description:
-      'Simulez des emails clients realistes pour evaluer le tri automatique, la priorisation et la creation de workflow juridique dans MemoLib.',
+      'Testez une simulation locale sur des données fictives. Aucun email n’est envoyé et aucun délai juridique n’est calculé.',
     path: '/demo/email-simulator',
     locale: params.locale,
-    keywords: ['simulateur email avocat', 'tri email juridique', 'demo workflow juridique'],
+    keywords: ['simulation locale', 'démonstration MemoLib'],
   });
 }
 
-export default function DemoEmailSimulatorLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DemoEmailSimulatorLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

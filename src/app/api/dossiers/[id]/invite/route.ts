@@ -35,10 +35,19 @@ export async function POST(
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  if (!appUrl && process.env.NODE_ENV === 'production') {
+  if (!appUrl) {
     return NextResponse.json({ error: 'URL de l’application non configurée' }, { status: 500 });
   }
-  const baseUrl = new URL(appUrl || 'http://localhost:3000').origin;
+  let baseUrl: string;
+  try {
+    const configuredUrl = new URL(appUrl);
+    if (!['http:', 'https:'].includes(configuredUrl.protocol) || configuredUrl.username || configuredUrl.password) {
+      return NextResponse.json({ error: 'URL de l’application invalide' }, { status: 500 });
+    }
+    baseUrl = configuredUrl.origin;
+  } catch {
+    return NextResponse.json({ error: 'URL de l’application invalide' }, { status: 500 });
+  }
 
   const { id: dossierId } = await params;
   let rawBody: unknown;
@@ -148,7 +157,12 @@ export async function POST(
         subject: 'Votre avocat vous invite à compléter votre dossier',
         html: `<p>Votre avocat vous invite à compléter votre dossier.</p><p><a href="${inviteLink}">Accéder à mon dossier</a></p><p>Expire le ${expiresAt.toLocaleDateString('fr-FR')}.</p>`,
       });
-      if (!result.error) emailStatus = 'sent';
+      if (result.data?.id && !result.error) {
+        emailStatus = 'sent';
+      } else {
+        console.error('Échec de l’envoi de l’invitation : réponse du transporteur invalide ou refusée');
+        emailStatus = 'failed';
+      }
     } catch (error) {
       console.error('Échec de l’envoi de l’invitation', error instanceof Error ? error.name : 'UnknownError');
       emailStatus = 'failed';

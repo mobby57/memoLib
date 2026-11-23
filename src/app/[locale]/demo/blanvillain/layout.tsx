@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Démo MemoLib — Cabinet Blanvillain, Metz',
-  description: 'Découvrez comment MemoLib simplifie la gestion de vos dossiers OQTF, titres de séjour et rétention. Démo personnalisée pour le Cabinet Émilie Blanvillain.',
+  title: 'Démonstration MemoLib',
+  description: 'Parcours de démonstration générique avec des exemples fictifs.',
   robots: { index: false, follow: false },
 };
 

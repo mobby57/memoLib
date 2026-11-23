@@ -1,6 +1,11 @@
 import { getSecurePrisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
+import {
+  DocumentStorageNotFoundError,
+  InvalidDocumentStoragePathError,
+  readDocumentBytes,
+} from '@/lib/security/document-storage';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -9,8 +14,7 @@ const documentIdSchema = z.string().trim().min(1).max(255);
 
 /**
  * GET /api/documents/download?id=xxx
- * Returns a signed download URL for a private Vercel Blob document,
- * or streams the file from local storage.
+ * Streams a tenant-authorized document without exposing its storage URL.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -64,48 +68,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Document en cours de vÃ©rification' }, { status: 423 });
     }
 
-    // Local file fallback â€” stream the file
-    if (
-      document.storageKey.startsWith('/uploads/') ||
-      document.storageKey.startsWith('client-quarantine/')
-    ) {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const isQuarantined = document.storageKey.startsWith('client-quarantine/');
-      const storageRoot = path.resolve(
-        isQuarantined
-          ? process.env.VAULT_STORAGE_ROOT ?? path.join(process.cwd(), 'uploads', 'client-quarantine')
-          : path.join(process.cwd(), 'uploads')
-      );
-      const relativeStorageKey = isQuarantined
-        ? document.storageKey.slice('client-quarantine/'.length)
-        : document.storageKey.slice('/uploads/'.length);
-      const filePath = path.resolve(storageRoot, relativeStorageKey);
-      const relativePath = path.relative(storageRoot, filePath);
-      if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
-        return NextResponse.json({ error: 'Chemin invalide' }, { status: 400 });
-      }
-
-      try {
-        const buffer = await fs.readFile(filePath);
-        const safeFilename = document.filename.replace(/[^\w.-]/g, '_').slice(0, 255);
-        return new NextResponse(buffer, {
-          headers: {
-            'Content-Type': document.mimeType,
-            'Content-Disposition': `attachment; filename="${safeFilename}"`,
-            'X-Content-Type-Options': 'nosniff',
-            'Cache-Control': 'private, no-cache',
-          },
-        });
-      } catch {
-        return NextResponse.json({ error: 'Fichier introuvable sur le disque' }, { status: 404 });
-      }
-    }
-
-    return NextResponse.json({ error: 'Stockage non supportÃ©' }, { status: 500 });
+    const buffer = await readDocumentBytes(document.storageKey);
+    const safeFilename = document.filename.replace(/[^\w.-]/g, '_').slice(0, 255);
+    return new NextResponse(new Uint8Array(buffer), {
+      headers: {
+        'Content-Type': document.mimeType,
+        'Content-Disposition': `attachment; filename="${safeFilename}"`,
+        'Content-Length': String(buffer.length),
+        'X-Content-Type-Options': 'nosniff',
+        'Cache-Control': 'private, no-store',
+        Pragma: 'no-cache',
+      },
+    });
   } catch (error) {
-    logger.error('[DOWNLOAD] Erreur:', { error });
+    if (error instanceof InvalidDocumentStoragePathError) {
+      return NextResponse.json({ error: 'Chemin invalide' }, { status: 400 });
+    }
+    if (error instanceof DocumentStorageNotFoundError) {
+      return NextResponse.json({ error: 'Fichier introuvable' }, { status: 404 });
+    }
+    logger.error('[DOWNLOAD] Erreur:', {
+      error: error instanceof Error ? error.name : 'UnknownError',
+    });
     return NextResponse.json({ error: 'Erreur lors du tÃ©lÃ©chargement' }, { status: 500 });
   }
 }
-

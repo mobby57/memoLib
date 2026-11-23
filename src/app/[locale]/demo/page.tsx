@@ -2,7 +2,17 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Brain, Scale, ArrowRight, Play, Zap, Compass, Sparkles, Loader2 } from 'lucide-react';
+import {
+  Mail,
+  Brain,
+  Scale,
+  ArrowRight,
+  Play,
+  Zap,
+  Compass,
+  Sparkles,
+  Loader2,
+} from 'lucide-react';
 
 const DEMO_FEATURES = [
   {
@@ -12,12 +22,13 @@ const DEMO_FEATURES = [
     icon: Compass,
     href: '/demo/complete',
     color: 'indigo',
-    duration: '8 min',
+    duration: '6 min',
   },
   {
     id: 1,
-    title: 'Email entrant',
-    description: 'Simulez des emails clients réalistes avec templates juridiques pré-définis',
+    title: 'Message fictif',
+    description:
+      'Classez un exemple de message sans l’envoyer ni le transmettre à un service externe',
     icon: Mail,
     href: '/demo/email-simulator',
     color: 'blue',
@@ -25,17 +36,18 @@ const DEMO_FEATURES = [
   },
   {
     id: 2,
-    title: 'Raisonnement dossier',
-    description: 'IA analyse le contenu et organise automatiquement le workflow juridique',
+    title: 'Proposition de traitement',
+    description:
+      'Consultez un exemple prérempli et voyez les points qui restent à vérifier par un professionnel',
     icon: Brain,
     href: '/demo/workspace-reasoning',
     color: 'purple',
-    duration: '3 min',
+    duration: '2 min',
   },
   {
     id: 3,
-    title: 'Preuve légale',
-    description: 'Génération automatique de documents avec vérification de conformité',
+    title: 'Supports de démonstration',
+    description: 'Prévisualisez ou téléchargez des exemples fictifs, sans valeur juridique',
     icon: Scale,
     href: '/demo/legal-proof',
     color: 'green',
@@ -43,18 +55,12 @@ const DEMO_FEATURES = [
   },
 ];
 
-const STATS = [
-  { label: 'Temps économisé', value: '75%', description: 'par dossier traité' },
-  { label: 'Précision juridique', value: '98%', description: 'conformité légale' },
-  { label: 'Satisfaction client', value: '94%', description: 'délais respectés' },
-];
-
-const FAKE_RESULT = {
-  client: 'Sophie Dubois',
-  urgence: 'CRITIQUE',
-  type: 'OQTF — Recours contentieux',
-  deadline: '14 février 2026 (J-28)',
-  action: 'Recours TA sous 30 jours',
+const DEMO_PREVIEW = {
+  client: 'Client fictif',
+  urgency: 'À vérifier par le cabinet',
+  category: 'Message entrant — exemple',
+  deadline: 'Non calculée',
+  action: 'Relire la pièce originale et valider la suite',
 };
 
 function WowMomentWidget() {
@@ -70,46 +76,70 @@ function WowMomentWidget() {
       <div className="rounded-2xl border border-indigo-200 bg-white dark:bg-gray-800 shadow-lg overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-4 flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-white" />
-          <h3 className="text-white font-semibold">Essayez maintenant — sans inscription</h3>
+          <h3 className="text-white font-semibold">Aperçu simulé — sans inscription</h3>
         </div>
         <div className="p-6 grid md:grid-cols-2 gap-6">
           <div>
-            <p className="text-xs uppercase font-semibold text-gray-500 mb-2">Email reçu</p>
+            <p className="text-xs uppercase font-semibold text-gray-500 mb-2">Message fictif</p>
             <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 border">
-              <p className="font-medium mb-1">De : sophie.dubois@email.com</p>
-              <p className="font-medium mb-2">Objet : URGENT - OQTF notifiée le 15/01</p>
-              <p className="text-gray-600 dark:text-gray-400">Bonjour Maître, j'ai reçu une OQTF le 15/01/2026 avec un délai de 30 jours. Je suis en France depuis 5 ans avec mes deux enfants scolarisés...</p>
+              <p className="font-medium mb-1">De : client.demo@example.invalid</p>
+              <p className="font-medium mb-2">Objet : Exemple de message à examiner</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Bonjour Maître, je souhaite faire examiner un document reçu récemment. Pouvez-vous
+                m’indiquer les prochaines étapes ?
+              </p>
             </div>
             {state === 'idle' && (
-              <button onClick={run} className="mt-4 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3 rounded-xl transition-colors">
+              <button
+                onClick={run}
+                className="mt-4 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3 rounded-xl transition-colors"
+              >
                 <Brain className="w-5 h-5" />
-                Analyser avec l'IA
+                Afficher l’aperçu simulé
               </button>
             )}
             {state === 'analyzing' && (
               <div className="mt-4 flex items-center gap-2 text-indigo-600">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="font-medium">Analyse en cours...</span>
+                <span className="font-medium">Préparation de l’aperçu...</span>
               </div>
             )}
           </div>
           <div>
-            <p className="text-xs uppercase font-semibold text-gray-500 mb-2">Résultat IA</p>
+            <p className="text-xs uppercase font-semibold text-gray-500 mb-2">Résultat prérempli</p>
             {state === 'done' ? (
               <div className="space-y-3 animate-in fade-in">
-                {Object.entries({ Client: FAKE_RESULT.client, Urgence: FAKE_RESULT.urgence, Type: FAKE_RESULT.type, Deadline: FAKE_RESULT.deadline, Action: FAKE_RESULT.action }).map(([k, v]) => (
-                  <div key={k} className="flex justify-between items-center border-b border-gray-100 pb-2">
+                {Object.entries({
+                  Client: DEMO_PREVIEW.client,
+                  Priorité: DEMO_PREVIEW.urgency,
+                  Catégorie: DEMO_PREVIEW.category,
+                  Échéance: DEMO_PREVIEW.deadline,
+                  'Étape proposée': DEMO_PREVIEW.action,
+                }).map(([k, v]) => (
+                  <div
+                    key={k}
+                    className="flex justify-between items-center border-b border-gray-100 pb-2"
+                  >
                     <span className="text-sm text-gray-500">{k}</span>
-                    <span className={`text-sm font-semibold ${k === 'Urgence' ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>{v}</span>
+                    <span
+                      className={`text-sm font-semibold ${k === 'Urgence' ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}
+                    >
+                      {v}
+                    </span>
                   </div>
                 ))}
-                <Link href="/demo/auto-login" className="mt-3 inline-flex items-center gap-2 text-indigo-600 font-medium text-sm hover:text-indigo-800">
-                  Voir le parcours complet <ArrowRight className="w-4 h-4" />
+                <Link
+                  href="/demo/complete"
+                  className="mt-3 inline-flex items-center gap-2 text-indigo-600 font-medium text-sm hover:text-indigo-800"
+                >
+                  Voir le parcours guidé <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                {state === 'idle' ? 'Cliquez "Analyser" pour voir la magie ✨' : 'Extraction en cours...'}
+                {state === 'idle'
+                  ? 'Cliquez pour afficher les exemples'
+                  : 'Préparation de l’aperçu...'}
               </div>
             )}
           </div>
@@ -132,56 +162,46 @@ export default function DemoHomePage() {
             </div>
 
             <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
-              Intelligence Artificielle
+              Démonstration interactive
               <br />
-              <span className="text-blue-600">pour Cabinets d'Avocats</span>
+              <span className="text-blue-600">MemoLib</span>
             </h1>
 
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-              Découvrez comment MemoLib transforme la gestion des emails clients en workflow juridique intelligent,
-              de la réception à la génération de documents légaux.
+              Parcourez une maquette interactive avec des exemples fictifs. Aucun message n’est
+              envoyé, aucune donnée n’est enregistrée et aucun conseil ni délai juridique n’est
+              calculé.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/demo/auto-login"
+                href="/demo/complete"
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg"
               >
                 <Play className="w-5 h-5" />
-                Voir MemoLib en action (3 min)
+                Démarrer la démo guidée
               </Link>
               <Link
-                href="/auth/register?plan=PILOT"
+                href="/demo/email-simulator"
                 className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg border border-gray-200"
               >
                 <Zap className="w-5 h-5" />
-                Essai pilote gratuit (30 jours)
+                Essayer la simulation locale
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {STATS.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                {stat.value}
-              </div>
-              <div className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                {stat.label}
-              </div>
-              <div className="text-gray-600 dark:text-gray-300">
-                {stat.description}
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="max-w-7xl mx-auto px-6 pt-8">
+        <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Maquette uniquement : les résultats sont préremplis pour illustrer l’interface. Ils ne
+          proviennent pas d’une analyse IA, ne constituent pas une validation juridique et ne sont
+          pas sauvegardés.
+        </p>
       </div>
 
-      {/* Wow Moment — Instant AI Preview */}
+      {/* Local demonstration preview */}
       <WowMomentWidget />
 
       {/* Demo Steps */}
@@ -191,7 +211,7 @@ export default function DemoHomePage() {
             Parcours de Démonstration
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Suivez le processus complet en 3 étapes interactives
+            Choisissez un parcours de démonstration
           </p>
         </div>
 
@@ -211,10 +231,14 @@ export default function DemoHomePage() {
                 href={feature.href}
                 className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${colorClasses[feature.color as keyof typeof colorClasses]} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${colorClasses[feature.color as keyof typeof colorClasses]} opacity-0 group-hover:opacity-10 transition-opacity`}
+                />
 
                 <div className="p-8">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${colorClasses[feature.color as keyof typeof colorClasses]} text-white mb-6`}>
+                  <div
+                    className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${colorClasses[feature.color as keyof typeof colorClasses]} text-white mb-6`}
+                  >
                     <Icon className="w-8 h-8" />
                   </div>
 
@@ -227,9 +251,7 @@ export default function DemoHomePage() {
                     </span>
                   </div>
 
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    {feature.description}
-                  </p>
+                  <p className="text-gray-600 dark:text-gray-300 mb-6">{feature.description}</p>
 
                   <div className="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform">
                     Essayer maintenant
@@ -245,12 +267,8 @@ export default function DemoHomePage() {
       {/* CTA Section */}
       <div className="bg-gray-900 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-6 py-16 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Prêt à transformer votre cabinet ?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Découvrez toutes les fonctionnalités de MemoLib dans l'interface complète
-          </p>
+          <h2 className="text-3xl font-bold text-white mb-4">Envie d’évaluer MemoLib ?</h2>
+          <p className="text-xl text-gray-300 mb-8">Explorez les exemples de la démonstration</p>
           <Link
             href="/demo/complete"
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg"

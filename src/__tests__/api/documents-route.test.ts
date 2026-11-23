@@ -40,7 +40,13 @@ describe('/api/documents tenant scoping', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getSecurePrisma.mockResolvedValue({
-      document: { findFirst: mocks.documentFindFirst },
+      document: {
+        findFirst: mocks.documentFindFirst,
+        findMany: mocks.documentFindMany,
+        create: mocks.documentCreate,
+      },
+      dossier: { findFirst: mocks.dossierFindFirst },
+      client: { findFirst: mocks.clientFindFirst },
     });
   });
 

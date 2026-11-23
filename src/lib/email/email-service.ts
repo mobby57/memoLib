@@ -79,10 +79,9 @@ export async function sendEmail(options: EmailOptions): Promise<SendResult> {
   const transporter = getTransporter();
   const fromAddress = options.from || process.env.EMAIL_FROM || 'noreply@memoLib.com';
 
-  // Mode test si pas de transporteur
   if (!transporter) {
     logger.warn('Email non envoye: aucun transporteur configure');
-    return { success: true, messageId: 'test-' + Date.now() };
+    return { success: false, error: 'Aucun transporteur email configure' };
   }
 
   try {

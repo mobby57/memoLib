@@ -1,8 +1,8 @@
 ﻿// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
-import prisma from '@/lib/prisma';
-import { cacheThrough, cacheDelete } from '@/lib/cache';
+import prisma, { withTenantContext } from '@/lib/prisma';
+import { cacheDelete } from '@/lib/cache';
 import { logger } from '@/lib/logger';
 
 interface RouteParams {
@@ -20,59 +20,54 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifiÃ©' }, { status: 401 });
     }
-    const tenantId = (session.user as any).tenantId as string | undefined;
+    const tenantId = session.user.tenantId;
 
-    if (!tenantId) {
+    if (!tenantId || !['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR', 'SECRETAIRE', 'COMPTABLE'].includes(session.user.role)) {
       return NextResponse.json({ error: 'AccÃ¨s refusÃ©' }, { status: 403 });
     }
 
-    const dossier = await cacheThrough(
-      `dossier:${tenantId}:${dossierId}`,
-      async () => {
-        return prisma.dossier.findFirst({
+    const dossier = await withTenantContext(tenantId, transaction =>
+        transaction.dossier.findFirst({
           where: { id: dossierId, tenantId },
           include: {
-            client: {
+            Client: {
               select: {
                 id: true,
                 firstName: true,
                 lastName: true,
                 email: true,
                 phone: true,
-                type: true,
               },
             },
-            documents: {
+            Document: {
               orderBy: { createdAt: 'desc' },
               take: 50,
-            },
-            delais: {
-              orderBy: { dateEcheance: 'asc' },
-            },
-            evenements: {
-              orderBy: { dateEvenement: 'desc' },
-              take: 50,
-            },
-            _count: {
               select: {
-                documents: true,
-                delais: true,
-                evenements: true,
+                id: true,
+                originalName: true,
+                category: true,
+                antivirusStatus: true,
+                createdAt: true,
               },
             },
+            LegalDeadline: {
+              orderBy: { dueDate: 'asc' },
+            },
           },
-        });
-      },
-      'WARM'
+        })
     );
 
     if (!dossier) {
       return NextResponse.json({ error: 'Dossier non trouvÃ©' }, { status: 404 });
     }
 
-    return NextResponse.json({ dossier });
+    const { Client, Document, LegalDeadline, ...fields } = dossier;
+    return NextResponse.json(
+      { dossier: { ...fields, client: Client, documents: Document, delais: LegalDeadline } },
+      { headers: { 'Cache-Control': 'private, no-store' } }
+    );
   } catch (error) {
-    logger.error('Erreur GET dossier', error instanceof Error ? error : undefined, {
+    logger.error('Erreur GET dossier', new Error(error instanceof Error ? error.name : 'UnknownError'), {
       route: '/api/dossiers/[id]',
     });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

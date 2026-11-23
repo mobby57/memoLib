@@ -1,10 +1,13 @@
 import { randomUUID } from 'crypto';
-import { mkdir, unlink, writeFile } from 'fs/promises';
-import path from 'path';
 import { z } from 'zod';
 import { getServerSessionCompat } from '@/lib/auth/getServerSessionCompat';
 import { logger } from '@/lib/logger';
-import prisma from '@/lib/prisma';
+import { getSecurePrisma } from '@/lib/prisma';
+import {
+  DocumentStorageUnavailableError,
+  deleteDocumentObject,
+  storeEncryptedDocument,
+} from '@/lib/security/document-storage';
 import { NextRequest, NextResponse } from 'next/server';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -65,6 +68,7 @@ export async function POST(request: NextRequest) {
     if (!user.tenantId || (user.role !== 'CLIENT' && !STAFF_ROLES.has(user.role))) {
       return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
     }
+    const prisma = await getSecurePrisma();
 
     const formData = await request.formData();
     const fileEntry = formData.get('file');
@@ -125,12 +129,21 @@ export async function POST(request: NextRequest) {
 
     const documentId = randomUUID();
     const safeFileName = sanitizeFileName(file.name);
-    const storageKey = `/uploads/documents/${user.tenantId}/${documentId}/${safeFileName}`;
-    const filePath = path.join(process.cwd(), storageKey);
     const buffer = Buffer.from(await file.arrayBuffer());
-
-    await mkdir(path.dirname(filePath), { recursive: true });
-    await writeFile(filePath, buffer, { flag: 'wx' });
+    let storageKey: string;
+    try {
+      storageKey = await storeEncryptedDocument(
+        user.tenantId,
+        documentId,
+        'documents',
+        buffer
+      );
+    } catch (storageError) {
+      if (storageError instanceof DocumentStorageUnavailableError) {
+        return NextResponse.json({ error: 'Coffre-fort documentaire indisponible' }, { status: 503 });
+      }
+      throw storageError;
+    }
 
     let document;
     try {
@@ -141,7 +154,7 @@ export async function POST(request: NextRequest) {
           dossierId: dossierId ?? null,
           clientId,
           filename: safeFileName,
-          originalName: file.name,
+          originalName: safeFileName,
           mimeType: file.type,
           size: buffer.length,
           storageKey,
@@ -153,25 +166,16 @@ export async function POST(request: NextRequest) {
         },
       });
     } catch (error) {
-      await unlink(filePath).catch(cleanupError => {
-        logger.error(
-          'Échec du nettoyage du fichier après erreur de base',
-          new Error(cleanupError instanceof Error ? cleanupError.name : 'UnknownError')
-        );
-      });
+      await deleteDocumentObject(storageKey);
       throw error;
     }
-
-    processOCR(document.id, buffer, file.type).catch(error => {
-      logger.error('Échec du traitement OCR asynchrone', error);
-    });
 
     return NextResponse.json({
       success: true,
       document: {
         id: document.id,
         filename: document.originalName,
-        status: 'processing',
+        status: 'awaiting-human-review',
       },
     });
   } catch (error) {
@@ -193,6 +197,7 @@ export async function GET(request: NextRequest) {
     if (!user.tenantId) {
       return NextResponse.json({ error: 'Cabinet requis' }, { status: 403 });
     }
+    const prisma = await getSecurePrisma();
 
     const parsedQuery = documentQuerySchema.safeParse({
       id: request.nextUrl.searchParams.get('id') ?? undefined,
@@ -249,105 +254,5 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logger.error('Erreur GET documents', new Error(error instanceof Error ? error.name : 'UnknownError'));
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
-  }
-}
-
-async function processOCR(documentId: string, buffer: Buffer, mimeType: string) {
-  try {
-    let extractedText = '';
-    let confidence = 0;
-    let extractedData: Record<string, unknown> = {};
-
-    if (mimeType === 'application/pdf') {
-      const result = await extractTextFromPDF(buffer);
-      extractedText = result.text;
-      confidence = result.confidence;
-    } else if (mimeType.startsWith('image/')) {
-      const result = await extractTextFromImage(buffer);
-      extractedText = result.text;
-      confidence = result.confidence;
-    } else {
-      extractedText = buffer.toString('utf-8');
-      confidence = 1;
-    }
-
-    if (extractedText.length > 0) {
-      extractedData = await analyzeDocumentContent(extractedText);
-    }
-
-    await prisma.document.update({
-      where: { id: documentId },
-      data: {
-        ocrProcessed: true,
-        ocrText: extractedText.substring(0, 50000),
-        ocrConfidence: confidence,
-        extractedData: JSON.stringify(extractedData),
-        updatedAt: new Date(),
-      },
-    });
-  } catch (error) {
-    logger.error('Échec OCR document', new Error(error instanceof Error ? error.name : 'UnknownError'));
-    await prisma.document.update({
-      where: { id: documentId },
-      data: {
-        ocrProcessed: true,
-        ocrConfidence: 0,
-        extractedData: JSON.stringify({ error: 'Échec du traitement OCR' }),
-        updatedAt: new Date(),
-      },
-    });
-  }
-}
-
-async function extractTextFromPDF(buffer: Buffer): Promise<{ text: string; confidence: number }> {
-  return {
-    text: `[Contenu PDF extrait - ${buffer.length} bytes]`,
-    confidence: 0.9,
-  };
-}
-
-async function extractTextFromImage(buffer: Buffer): Promise<{ text: string; confidence: number }> {
-  return {
-    text: `[Texte OCR extrait - ${buffer.length} bytes]`,
-    confidence: 0.85,
-  };
-}
-
-async function analyzeDocumentContent(text: string): Promise<Record<string, unknown>> {
-  try {
-    const response = await fetch('http://localhost:11434/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'llama3.2:latest',
-        prompt: `Analyse ce document et extrait les informations cles au format JSON:
-- type de document (facture, contrat, identite, courrier, etc.)
-- dates mentionnees
-- montants/sommes
-- noms/personnes
-- numeros de reference
-- resume en 2 phrases
-
-Document:
-${text.substring(0, 3000)}
-
-Reponds uniquement en JSON valide.`,
-        stream: false,
-      }),
-    });
-
-    if (!response.ok) return { analyzed: false };
-
-    const data = (await response.json()) as { response?: string };
-    const responseText = data.response ?? '';
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) return JSON.parse(jsonMatch[0]) as Record<string, unknown>;
-    return { summary: responseText.substring(0, 500), analyzed: true };
-  } catch (error) {
-    logger.error(
-      'Échec de l’analyse IA du document',
-      new Error(error instanceof Error ? error.name : 'UnknownError')
-    );
-    return { analyzed: false, error: 'Analyse IA non disponible' };
   }
 }

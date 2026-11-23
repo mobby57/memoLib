@@ -1,7 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
 import { randomUUID } from 'node:crypto';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { findActiveClientDossierGrant } from '@/lib/client-access';
@@ -9,14 +7,29 @@ import { logger } from '@/lib/logger';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withTenantContextBatch } from '@/lib/prisma';
 import { scanDocumentAsync } from '@/lib/security/antivirus';
+import {
+  DocumentStorageUnavailableError,
+  deleteDocumentObject,
+  storeEncryptedDocument,
+} from '@/lib/security/document-storage';
+
+const answersSchema = z.union([
+  z.object({
+    q1: z.string().trim().min(1).max(5000),
+    q2: z.string().trim().min(1).max(5000),
+  }).strict(),
+  z.object({
+    nom: z.string().trim().min(1).max(120),
+    prenom: z.string().trim().min(1).max(120),
+    adresse: z.string().trim().min(1).max(500),
+    recit: z.string().trim().min(1).max(20_000),
+  }).strict(),
+]);
 
 const intakeSchema = z.object({
   dossierId: z.string().trim().min(1).max(100),
   originalLang: z.enum(['fr', 'ar']),
-  answers: z.object({
-    q1: z.string().trim().min(1).max(5000),
-    q2: z.string().trim().min(1).max(5000),
-  }).strict(),
+  answers: answersSchema,
 }).strict();
 
 export const runtime = 'nodejs';
@@ -61,23 +74,23 @@ export async function POST(request: Request) {
   const intake = {
     originalLang,
     original: answers,
-    translated: {
+    validationStatus: 'REQUIRED',
+    ...('q1' in answers ? { translated: {
       q1: await translateToFrench(answers.q1, originalLang),
       q2: await translateToFrench(answers.q2, originalLang),
-    },
+    } } : {}),
   };
   const buffer = Buffer.from(JSON.stringify(intake), 'utf8');
   const documentId = randomUUID();
   const filename = `${documentId}.json`;
-  const directory = join(process.cwd(), 'uploads', 'client-intake', access.grant.tenantId);
-  const filePath = join(directory, filename);
-  const storageKey = `/uploads/client-intake/${access.grant.tenantId}/${filename}`;
-
-  let fileWritten = false;
+  let storageKey: string | null = null;
   try {
-    await mkdir(directory, { recursive: true });
-    await writeFile(filePath, buffer, { flag: 'wx' });
-    fileWritten = true;
+    storageKey = await storeEncryptedDocument(
+      access.grant.tenantId,
+      documentId,
+      'client-intake',
+      buffer
+    );
 
     await withTenantContextBatch(access.grant.tenantId, transaction => [
       transaction.document.create({
@@ -99,9 +112,13 @@ export async function POST(request: Request) {
       }),
     ]);
   } catch (error) {
-    if (fileWritten) {
+    if (error instanceof DocumentStorageUnavailableError) {
+      return NextResponse.json({ error: 'Coffre-fort documentaire indisponible' }, { status: 503 });
+    }
+
+    if (storageKey) {
       try {
-        await unlink(filePath);
+        await deleteDocumentObject(storageKey);
       } catch (cleanupError) {
         logger.error('Échec du nettoyage du formulaire client', {
           documentId,

@@ -86,6 +86,23 @@ export async function POST(request: NextRequest) {
     const normalized = normalizeIncomingEmailPayload(parsedPayload.data, rawRequestBody);
     const { from, to, subject, body: emailBody, htmlBody, attachments, messageId } = normalized;
 
+    if (
+      normalized.hasAttachments ||
+      normalized.rawFormat === 'rfc822' ||
+      normalized.rawFormat === 'msg-base64' ||
+      normalized.rawFormat === 'raw-payload'
+    ) {
+      recordEmailIngestion({
+        outcome: 'attachment_blocked',
+        durationMs: Date.now() - startedAt,
+        hasAttachments: normalized.hasAttachments,
+      });
+      return NextResponse.json(
+        { error: 'Ingestion des emails avec pièces jointes suspendue pour protéger les documents' },
+        { status: 503 }
+      );
+    }
+
     // Trouver le tenant destinataire base sur l'email "to"
     const tenant = await prisma.tenant.findFirst({
       where: {

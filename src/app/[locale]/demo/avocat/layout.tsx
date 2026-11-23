@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Démo interactive — MemoLib pour avocats',
-  description: 'Voyez comment MemoLib traite un dossier OQTF en 45 secondes : email → IA → dossier → document. Essai gratuit 14 jours.',
+  title: 'Démonstration MemoLib',
+  description:
+    'Parcours de démonstration avec des exemples fictifs, sans analyse IA ni traitement de dossier réel.',
+  robots: { index: false, follow: false },
 };
 
 export default function DemoAvocatLayout({ children }: { children: React.ReactNode }) {

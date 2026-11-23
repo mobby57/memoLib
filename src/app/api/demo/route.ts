@@ -1,80 +1,56 @@
-import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
-/**
- * API Demo - Recevoir les demandes de demonstration
- */
+const demoRequestSchema = z.object({
+  nom: z.string().trim().min(1).max(200),
+  email: z.string().trim().email().max(320),
+  telephone: z.string().max(50).optional(),
+  cabinet: z.string().max(200).optional(),
+  tailleEquipe: z.union([z.string().max(50), z.number().int().positive()]),
+  dateSouhaitee: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  heureSouhaitee: z.string().regex(/^\d{2}:\d{2}$/),
+  besoinPrincipal: z.string().trim().min(1).max(2000),
+  commentaire: z.string().max(5000).optional(),
+});
 
 export async function POST(request: Request) {
+  let requestBody: unknown;
   try {
-    const body = await request.json();
-    const {
-      nom,
-      email,
-      telephone,
-      cabinet,
-      tailleEquipe,
-      dateSouhaitee,
-      heureSouhaitee,
-      besoinPrincipal,
-      commentaire,
-    } = body;
-
-    // Validation
-    if (!nom || !email || !tailleEquipe || !dateSouhaitee || !heureSouhaitee || !besoinPrincipal) {
-      return NextResponse.json(
-        { error: 'Veuillez remplir tous les champs obligatoires' },
-        { status: 400 }
-      );
-    }
-
-    // Validation email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
-    }
-
-    // Validation date (doit etre dans le futur)
-    const dateDemo = new Date(dateSouhaitee);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (dateDemo < today) {
-      return NextResponse.json({ error: 'La date doit etre dans le futur' }, { status: 400 });
-    }
-
-    // Journalisation RGPD: ne pas logguer de donnees personnelles directes.
-    logger.info('Nouvelle demande de demo', {
-      hasTelephone: Boolean(telephone),
-      hasCabinet: Boolean(cabinet),
-      tailleEquipe,
-      dateSouhaitee,
-      heureSouhaitee,
-      besoinPrincipal,
-      hasCommentaire: Boolean(commentaire),
-      requestedAt: new Date().toISOString(),
-    });
-
-    // Optionnel: Créer une entrée dans une table DemoRequest
-    // await prisma.demoRequest.create({ data: { ... } });
-
-    // Optionnel: Envoyer un email de confirmation + notification admin
-    // await sendDemoConfirmationEmail({ to: email, date: dateSouhaitee, heure: heureSouhaitee });
-    // await sendDemoNotificationEmail({ to: 'sales@memoLib.com', ... });
-
-    // Optionnel: Créer un evenement dans Google Calendar / Calendly
-    // await createCalendarEvent({ ... });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Votre demande de demonstration a ete enregistree',
-      data: {
-        date: dateSouhaitee,
-        heure: heureSouhaitee,
-      },
-    });
-  } catch (error) {
-    logger.error('Erreur API demo:', { error });
-    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
+    requestBody = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: 'Corps de requête invalide. JSON attendu.' },
+      { status: 400 }
+    );
   }
+
+  const parsedBody = demoRequestSchema.safeParse(requestBody);
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: 'Données invalides pour la demande de démonstration.' },
+      { status: 400 }
+    );
+  }
+
+  const { dateSouhaitee, heureSouhaitee } = parsedBody.data;
+  const requestedDate = new Date(`${dateSouhaitee}T00:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (Number.isNaN(requestedDate.getTime()) || requestedDate < today) {
+    return NextResponse.json(
+      { error: 'La date souhaitée doit être valide et dans le futur.' },
+      { status: 400 }
+    );
+  }
+
+  const [hours, minutes] = heureSouhaitee.split(':').map(Number);
+  if (hours > 23 || minutes > 59) {
+    return NextResponse.json({ error: 'L’heure souhaitée est invalide.' }, { status: 400 });
+  }
+
+  return NextResponse.json(
+    { error: 'Les demandes de démonstration ne sont pas encore enregistrées.' },
+    { status: 503 }
+  );
 }

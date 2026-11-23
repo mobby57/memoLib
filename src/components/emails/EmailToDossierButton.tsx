@@ -22,9 +22,11 @@ interface Props {
 export function EmailToDossierButton({ emailId, summary }: Props) {
   const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle');
   const [result, setResult] = useState<{ dossierId: string; numero: string; clientName?: string } | null>(null);
+  const [error, setError] = useState('');
 
   const createDossier = async () => {
     setState('loading');
+    setError('');
     try {
       const res = await fetch('/api/emails/create-dossier', {
         method: 'POST',
@@ -32,13 +34,15 @@ export function EmailToDossierButton({ emailId, summary }: Props) {
         body: JSON.stringify({ emailId, summary }),
       });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setResult(data);
         setState('done');
       } else {
+        setError(typeof data.error === 'string' ? data.error : 'Erreur création dossier');
         setState('idle');
       }
     } catch {
+      setError('Erreur création dossier');
       setState('idle');
     }
   };
@@ -58,17 +62,20 @@ export function EmailToDossierButton({ emailId, summary }: Props) {
   }
 
   return (
-    <button
-      onClick={createDossier}
-      disabled={state === 'loading'}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-    >
-      {state === 'loading' ? (
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-      ) : (
-        <FolderPlus className="w-3.5 h-3.5" />
-      )}
-      Créer dossier
-    </button>
+    <div>
+      <button
+        onClick={createDossier}
+        disabled={state === 'loading'}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+      >
+        {state === 'loading' ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <FolderPlus className="w-3.5 h-3.5" />
+        )}
+        Créer dossier
+      </button>
+      {error && <p role="alert" className="text-xs text-red-700 mt-1">{error}</p>}
+    </div>
   );
 }

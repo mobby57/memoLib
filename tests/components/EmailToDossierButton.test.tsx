@@ -106,6 +106,19 @@ describe('EmailToDossierButton', () => {
   });
 
   describe('Erreur de création', () => {
+    it('affiche la suspension retournée par le serveur', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        json: async () => ({ error: 'Création temporairement indisponible' }),
+      });
+
+      render(<EmailToDossierButton {...defaultProps} />);
+      fireEvent.click(screen.getByText(/créer dossier/i));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('Création temporairement indisponible');
+      expect(screen.getByRole('button')).not.toBeDisabled();
+    });
+
     it('revient à l\'état initial si l\'API retourne success=false', async () => {
       mockFetch.mockResolvedValue({
         ok: true,
