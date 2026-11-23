@@ -35,7 +35,7 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
       })),
     }));
 
-    jest.doMock('@/frontend/lib/services/filter-rule.service', () => ({
+    jest.doMock('@/lib/services/filter-rule.service', () => ({
       filterRuleService: {
         evaluateAllRules: jest.fn(async () => []),
         applyActions: jest.fn(async () => undefined),
